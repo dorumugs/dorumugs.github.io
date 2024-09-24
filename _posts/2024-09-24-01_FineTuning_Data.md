@@ -428,7 +428,7 @@ original
 
 <br>
 
-## Huggingface Hub에 Jsonl 파일 올리기
+## Huggingface Hub에 Jsonl 업로드
 
 huggingface_hub에 데이터를 올려 놓고 사용하려고 하면 json이 아니고 jsonl 형태여야 해요.  
 마지막에는 \n를 붙여서 보기 구분자를 주는 것이 좋습니다. 여기까지는 연습이였어요.
