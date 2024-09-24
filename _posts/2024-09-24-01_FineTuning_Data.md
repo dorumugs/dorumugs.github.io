@@ -30,6 +30,10 @@ load_dotenv()
 
 ## LangSmith
 
+사용하면 할 수록 정말 LangSmith는 너무 좋습니다.
+
+내가 얼마나 사용했는지 또 토큰은 얼만큼 들어간건지 하나하나 관찰이 가능합니다.
+
 
 ```python
 # LangSmith 추적을 설정합니다. https://smith.langchain.com
