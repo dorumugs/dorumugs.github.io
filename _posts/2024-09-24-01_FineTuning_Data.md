@@ -7,7 +7,7 @@ author_profile: false
 toc: true
 ---
 
-# FineTuning
+# FineTuning을 위한 데이터 처리
 
 FineTuning을 해볼 겁니다.  
 코드는 테디노트에서 따왔어요.   
