@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "Fine Tuning"
+title:  "Fine Tuning for Data"
 categories: coding
 tag: [llm, Fine Tuning, llm basic, teddynote, json, jsonl]
 author_profile: false
