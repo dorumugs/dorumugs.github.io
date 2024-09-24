@@ -444,7 +444,13 @@ with open("data/qa_pair_test.jsonl", "w", encoding="utf-8") as f:
 
 <br>
 
-실제 올려질 데이터는 pdf에서 뽑아진 데이터로만 올릴거에요.    
+실제 올려질 데이터는 pdf에서 뽑아진 데이터로만 올릴거에요.  
+
+huggingface_hub에 올려질 파일들은 instruction, input, output 로 구성되요.  
+
+instruction 에는 QUESTION을 넣어주고 output에는 ANSWER를 넣습니다.  
+
+그리고 일반적으로 input 에는 빈값이 들어갑니다.  
 
 
 ```python
