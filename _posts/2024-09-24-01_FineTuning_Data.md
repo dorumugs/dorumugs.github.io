@@ -171,7 +171,7 @@ len(elements)
 
 <br>
 
-## PDF에서 추출된 Text 전처리(To Json)
+## PDF에서 추출된 Text 전처리
 
 Print 해보면 추출된 내역을 확인 할 수 있어요.  
 FineTuning을 하려면, 이렇게 추출된 데이터를 Question + Answer 형태로 구현해야 합니다.  
