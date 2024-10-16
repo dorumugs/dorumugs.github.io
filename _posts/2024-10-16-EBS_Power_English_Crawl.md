@@ -70,6 +70,8 @@ import requests
 
 ### 01 크롬 드라이버 지정
 
+webdriver_manager의 ChromeDriverManager를 사용하면 자동으로 버전을 맞춰줍니다.
+
 
 ```python
 driver = webdriver.Chrome(service= Service(ChromeDriverManager().install()))
