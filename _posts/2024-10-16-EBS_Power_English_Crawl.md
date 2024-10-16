@@ -200,7 +200,13 @@ print('page count :', page_cnt)
 
 Selenium으로 간단하게 처리하려고 했는데, 사이트 구조가 그렇게는 불가능해 보였어요.  
 그래서 BS4를 사용하여 replayAjax에 payload를 넣어 호출하는 방식으로 리스트를 가져왔답니다.  
-첫페이지 부터 끝까지 전부 리스트를 가져왔어요. 
+
+replayAjax 코드는 크롬 개발자도구에서 찾았습니다.
+다른 페이지 넘어갈때 어떤 코드를 참고하는지 Network 탭에서 확인하여 찾았습니다.  
+
+![replayAjax](/assets/images/2024-10-16-EBS_Power_English_Crawl/replayAjax.jpeg)
+
+첫페이지부터 끝까지 전부 리스트를 가져왔어요. 
 
 
 ```python
