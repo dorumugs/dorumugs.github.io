@@ -68,15 +68,11 @@ import requests
 
 <br>
 
-### 01 크롬 드라이버 지정, 네이버 방문
+### 01 크롬 드라이버 지정
 
 
 ```python
 driver = webdriver.Chrome(service= Service(ChromeDriverManager().install()))
-
-url = "https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/"
-driver.maximize_window()
-driver.get(url)
 ```
 
 <br>
@@ -91,6 +87,10 @@ pyperclip를 사용하여 값을 복사해서 붙여넣는 방식을 사용하�
 
 
 ```python
+url = "https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com/"
+driver.maximize_window()
+driver.get(url)
+time.sleep(5) # 입력 후 잠시 대기
 
 naver_id = "네이버 ID"
 naver_pw = "네이버 PW"
