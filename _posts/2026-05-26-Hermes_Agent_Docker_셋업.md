@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "n8n / Prefect 옆에 Hermes Agent 얹기 (Docker Compose 셋업 기록)"
+title:  "Hermes Agent Docker Compose 셋업"
 categories: coding
 tag: [hermes, docker, docker-compose, llm, agent, n8n, prefect, codex, discord]
 author_profile: false
