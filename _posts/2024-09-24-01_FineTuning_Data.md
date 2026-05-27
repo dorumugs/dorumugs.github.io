@@ -266,13 +266,16 @@ ANSWER should be a complete sentence.
 prompt는 만들었지만 실제 더 잘 동작하게 하려면 json 형태로 뽑아주는게 좋아요.  
 아래 parser를 통해서 깔끔하게 처리하면 잡스러운 것들이 안 들어가요.
 
-깔끔하게 진행하기 위해 `response.content.strip()` 로 불필요한 양쪽 공백을 제거합니다.
+LLM 이 JSON 응답을 돌려줄 때 종종 코드 블록 마커로 감싸서 보내요.   
+앞쪽에는 코드 블록 시작 마커가, 뒤쪽에는 닫는 마커가 따라옵니다. 이 양쪽을 한 번씩 떼어내야 깔끔한 JSON 문자열이 남아요.
 
-`.removeprefix("\`\`\`json\n")` 로 문자열 앞부분에 있는 "json\n"를 제거합니다.  
-참고로 JSON 데이터는 종종 코드 블록으로 감싸져 있는데, 이때 앞에 "\` json\n\`"이 붙을 수 있습니다.
+깔끔하게 진행하기 위해 `response.content.strip()` 로 불필요한 양쪽 공백을 먼저 제거합니다.   
+그 다음 `removeprefix` 와 `removesuffix` 로 앞·뒤 마커를 잘라냅니다.
 
-.removesuffix("\n\`\`\`")로 마찬가지로 문자열의 끝에 붙어있는 "\n\`\`\`"을 제거합니다.   
-코드 블록이 끝날 때 " \`\`\` `"와 같은 포맷이 붙는 경우가 있어서, 그 부분을 제거하는 작업입니다.   
+```python
+text.removeprefix("```json\n")  # 앞쪽 마커 제거
+text.removesuffix("\n```")      # 뒤쪽 마커 제거
+```
 
 ```python
 import json
