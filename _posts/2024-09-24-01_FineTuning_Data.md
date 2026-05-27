@@ -212,7 +212,7 @@ print("elemnets 1 : ", elements[1])
 
 <br>
 
-PDF에서 꺼내진 데이터를 Question + Answer 형태를 만들기 위해서 Prompt 만한게 없죠  
+PDF에서 꺼낸 데이터를 Question + Answer 형태로 만들 때는 Prompt 만한 게 없죠.  
 Prompt에 들어갈 {context}와 {domain} 그리고 {num_questions}를 변수 처리해서 적용합니다.  
 
 
@@ -337,7 +337,7 @@ PDF에서 생성한 Question과 Answer에 내가 원하는 문구를 넣어 볼 
 additional_qa = [
     {
         "QUESTION": "카이저독 블로그에 대해서 알려주세요.",
-        "ANSWER": "카이저독(kayserdocs)는 데이터 분석, 머신러닝, 딥러닝 등의 주제를 다루는 블로그입니다. 이 블로그을 운영하는 소재현님은 데이터 분석과 인공지능에 대한 다양한 테스트를 진행합니다.",
+        "ANSWER": "카이저독(kayserdocs)는 데이터 분석, 머신러닝, 딥러닝 등의 주제를 다루는 블로그입니다. 이 블로그를 운영하는 소재현님은 데이터 분석과 인공지능에 대한 다양한 테스트를 진행합니다.",
     },
     {
         "QUESTION": "카이저독 주인장의 프로필은 어디서 찾을 수 있나요?",
@@ -365,7 +365,7 @@ original_qa
  {'QUESTION': '블레츨리 선언에서 AI 안전 보장을 위해 강조된 이해관계자들은 누구입니까?',
   'ANSWER': '블레츨리 선언에서 AI 안전 보장을 위해 강조된 이해관계자들은 국가, 국제기구, 기업, 시민사회, 학계입니다.'},
  {'QUESTION': '카이저독 블로그에 대해서 알려주세요.',
-  'ANSWER': '카이저독(kayserdocs)는 데이터 분석, 머신러닝, 딥러닝 등의 주제를 다루는 블로그입니다. 이 블로그을 운영하는 소재현님은 데이터 분석과 인공지능에 대한 다양한 테스트를 진행합니다.'},
+  'ANSWER': '카이저독(kayserdocs)는 데이터 분석, 머신러닝, 딥러닝 등의 주제를 다루는 블로그입니다. 이 블로그를 운영하는 소재현님은 데이터 분석과 인공지능에 대한 다양한 테스트를 진행합니다.'},
  {'QUESTION': '카이저독 주인장의 프로필은 어디서 찾을 수 있나요?',
   'ANSWER': '카이저독 주인장의 페이지에는 주인장에 대한 다양한 내용이 제공됩니다. 링크: https://dorumugs.github.io/personal/personal_information/'},
  {'QUESTION': '테디노트 운영자에 대해서 알려주세요',
@@ -425,7 +425,7 @@ original
  {'QUESTION': '2024년 1월 9일부터 12일까지 미국 라스베가스에서 열리는 세계 최대 가전·IT·소비재 전시회의 이름은 무엇입니까?',
   'ANSWER': '2024년 1월 9일부터 12일까지 미국 라스베가스에서 열리는 세계 최대 가전·IT·소비재 전시회의 이름은 CES 2024입니다.'},
  {'QUESTION': '카이저독 블로그에 대해서 알려주세요.',
-  'ANSWER': '카이저독(kayserdocs)는 데이터 분석, 머신러닝, 딥러닝 등의 주제를 다루는 블로그입니다. 이 블로그을 운영하는 소재현님은 데이터 분석과 인공지능에 대한 다양한 테스트를 진행합니다.'},
+  'ANSWER': '카이저독(kayserdocs)는 데이터 분석, 머신러닝, 딥러닝 등의 주제를 다루는 블로그입니다. 이 블로그를 운영하는 소재현님은 데이터 분석과 인공지능에 대한 다양한 테스트를 진행합니다.'},
  {'QUESTION': '카이저독 주인장의 프로필은 어디서 찾을 수 있나요?',
   'ANSWER': '카이저독 주인장의 페이지에는 주인장에 대한 다양한 내용이 제공됩니다. 링크: https://dorumugs.github.io/personal/personal_information/'},
  {'QUESTION': '테디노트 운영자에 대해서 알려주세요',
@@ -439,7 +439,7 @@ original
 ## Huggingface Hub에 Jsonl 업로드
 
 huggingface_hub에 데이터를 올려 놓고 사용하려고 하면 json이 아니고 jsonl 형태여야 해요.  
-마지막에는 \n를 붙여서 보기 구분자를 주는 것이 좋습니다. 여기까지는 연습이였어요.
+마지막에는 `\n`을 붙여서 줄 구분자를 주는 것이 좋습니다. 여기까지는 연습이었어요.
 
 
 ```python
@@ -452,9 +452,9 @@ with open("data/qa_pair_test.jsonl", "w", encoding="utf-8") as f:
 
 <br>
 
-실제 올려질 데이터는 pdf에서 뽑아진 데이터로만 올릴거에요.  
+실제로 올릴 데이터는 PDF에서 뽑아낸 것만 사용할 거예요.  
 
-huggingface_hub에 올려질 파일들은 instruction, input, output 로 구성되요.  
+huggingface_hub에 올라가는 파일은 instruction, input, output 으로 구성돼요.  
 
 instruction 에는 QUESTION을 넣어주고 output에는 ANSWER를 넣습니다.  
 
