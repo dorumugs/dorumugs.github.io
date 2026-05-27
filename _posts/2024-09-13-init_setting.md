@@ -57,7 +57,7 @@ git --version
 ```
 
 brew로 pyenv도 설치하고 환경변수도 `~/.zshrc` 에 넣어줍니다.   
-pyenv를 사용하면 다양한 python 버전을 프로젝트별로 사용할 수 있어요.  
+pyenv를 사용하면 다양한 Python 버전을 프로젝트별로 사용할 수 있어요.  
 모두 적용되었다면, exec를 통해 쉘을 재시작합니다.  
 
 ```shell
@@ -93,7 +93,7 @@ xcode-select --install
 
 ## pyenv
 
-pyenv로 python 3.11 버전 설치
+pyenv로 Python 3.11 버전 설치
 
 pyenv로 파이썬 3.11 버전을 설치하면 현재는 3.11.10이 설치돼요. 시간이 지나면 패치 버전은 달라질 수 있습니다.  
 일단 전역으로 3.11을 사용하기 위해 global로 설정합니다.   
@@ -139,7 +139,7 @@ poetry update # 파이썬 패키지 일괄 업데이트
 
 URL : <https://code.visualstudio.com/download>
 
-설치가 완료되면, install extension > python, jupyter 노트북 설치합니다.  
+설치가 완료되면, install extension > Python, Jupyter 노트북 설치합니다.  
 그럼 VS Code에서 테디노트님의 git 자료를 오픈합니다.  
 Select Kernel에서 "langchain-kr" 로 시작하는 커널을 선택해서 코드를 연습하면 됩니다. 
 
