@@ -21,7 +21,7 @@ title                    : "KayserDocs"
 title_separator          : "|"
 subtitle                 : "전생했더니 AI 모델이었던 건에 대하여"
 name                     : "Kayser So(dorumugs)"
-description              : "카이저의 기술 블로그"
+description              : "LLM/LangChain, AI 코딩 에이전트(Claude Code·Cursor), SSH·Docker DevOps 실무 노트 — Kayser So(dorumugs)의 기술 블로그 KayserDocs"
 url                      : "https://dorumugs.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
@@ -95,8 +95,8 @@ facebook:
   username               :
   app_id                 :
   publisher              :
-og_image                 : # Open Graph/Twitter default site image
-og_image_alt             : # Alt text for Open Graph/Twitter default site image
+og_image                 : "/assets/images/DALL-E.png" # Open Graph/Twitter default site image
+og_image_alt             : "KayserDocs - Kayser So(dorumugs)의 기술 블로그" # Alt text for Open Graph/Twitter default site image
 # For specifying social profiles
 # - https://developers.google.com/structured-data/customize/social-profiles
 social:
