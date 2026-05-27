@@ -63,7 +63,7 @@ logging.langsmith("My-Book-02-FineTuning")
 ## QA Pair용 PDF 로드
 QA Pair를 생성할 PDF를 로드합니다.  
 테디님은 SPRI AI Brief 파일을 좋아하시길래 동일한 파일을 준비해 보았습니다.  
-URL : https://spri.kr/lib/fileman/Uploads/post_images/2023_12/1208.jpg  
+URL : <https://spri.kr/lib/fileman/Uploads/post_images/2023_12/1208.jpg>  
 
 unstructured 라이브러리는 다양한 형식의 비정형 데이터를 처리할 수 있어요.  
 Text, PDF, Word, HTML, Image 등을 예로 들 수 있습니다.
@@ -221,7 +221,8 @@ PDF에서 꺼낸 데이터를 Question + Answer 형태로 만들 때는 Prompt �
 Prompt에 들어갈 {context}와 {domain} 그리고 {num_questions}를 변수 처리해서 적용합니다.  
 
 
-```python
+{% raw %}
+````python
 from langchain_core.prompts import PromptTemplate
 
 prompt = PromptTemplate.from_template(
@@ -259,6 +260,8 @@ ANSWER should be a complete sentence.
     "ANSWER": "IDC 예측에 따르면 2027년까지 생성 AI 플랫폼과 애플리케이션 시장의 매출은 283억 달러로 전망됩니다."    
 }}
 ```
+````
+{% endraw %}
 
 prompt는 만들었지만 실제 더 잘 동작하게 하려면 json 형태로 뽑아주는게 좋아요.  
 아래 parser를 통해서 깔끔하게 처리하면 잡스러운 것들이 안 들어가요.
@@ -309,7 +312,7 @@ for element in elements[1:]:
 위 코드를 실행하면서 비용이 발생했습니다. 얼마나 비용이 나갔는지를 확인하기 위해서는 Langsmith죠!   
 전체 22,558 token을 넣었고 비용은 $0.14가 나왔습니다. Index 1부터 ~ 12까지 총 12개의 Element를 실행한 값이에요. 
 
-![langsmith-price-check](/assets/images/2024-09-24-01_FineTuning_Data/langsmith-price-check.png) 
+![LangSmith에서 확인한 QA 생성 토큰 사용량과 비용 - 22,558 tokens, $0.14](/assets/images/2024-09-24-01_FineTuning_Data/langsmith-price-check.png) 
 
 
 ```python
@@ -517,4 +520,4 @@ repo_name = "dorumugs/QA-Dataset-mini"
 dataset.push_to_hub(repo_name, token=os.environ['HUGGINGFACEHUB_API_TOKEN'])
 ```
 
-![huggingface-test-data](/assets/images/2024-09-24-01_FineTuning_Data/huggingface-test-data.png)
+![Hugging Face Hub에 업로드된 QA-Dataset-mini 데이터셋 화면](/assets/images/2024-09-24-01_FineTuning_Data/huggingface-test-data.png)

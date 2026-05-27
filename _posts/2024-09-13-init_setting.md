@@ -17,7 +17,7 @@ toc: true
 API Key 만들기 > 10달러(결제) + 1달러(세금)
 
 - OpenAI : 
-  - URL : https://platform.openai.com/docs/overview
+  - URL : <https://platform.openai.com/docs/overview>
 - Sign up > Log in > 톱니바퀴 > Setting > billing > Add to Credit Balance($10) > Auto recharge is off
   - 최소 $5 이니 $5 이상 결제해야 합니다.
   - 보안이 항상 신경쓰이기 때문에 "Auto recharge is off" 로 진행했습니다.
@@ -51,7 +51,7 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/$MY_ACCOUNT/.zprofile
 
 brew로 설치하고 git 버전도 확인합니다.
 
-```
+```shell
 brew install git
 git --version
 ```
@@ -137,7 +137,7 @@ poetry update # 파이썬 패키지 일괄 업데이트
 
 ## Visual Studio Code 설치
 
-URL : https://code.visualstudio.com/download
+URL : <https://code.visualstudio.com/download>
 
 설치가 완료되면, install extension > python, jupyter 노트북 설치합니다.  
 그럼 VS Code에서 테디노트님의 git 자료를 오픈합니다.  
@@ -155,7 +155,7 @@ LangSmith는 LLM 모니터링으로 정말 좋습니다.
 꼭 API를 받아 사용하는 것을 추천드립니다. 얼마나 낭비하는지, 무엇을 실행했는지 전부 알 수 있습니다.  
 웹으로 방문해서 봐야하기에 조금 거추장스러울 수 도 있지만, Full Managed라서 정말 손쉽습니다. 
 
-![image-20240915020446545](/assets/images/2024-09-13-init_setting/image-20240915020446545.png)
+![LangSmith 대시보드 화면 - LLM 호출 추적과 토큰 사용량 모니터링](/assets/images/2024-09-13-init_setting/image-20240915020446545.png)
 
 <br>
 
