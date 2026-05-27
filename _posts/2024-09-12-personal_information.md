@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "Personal Information"
+description: "블로그 주인장 Kayser So(dorumugs)의 학력, 논문, 경력을 정리한 소개 페이지입니다."
 categories: Personal
 tag: [dorumugs, kayser, 주인장]
 author_profile: false

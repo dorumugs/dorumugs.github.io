@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "LLM을 위한 init setting"
+description: "맥에서 LangChain 연습 환경을 잡는 방법을 정리한 글이에요. OpenAI API 키 발급부터 Homebrew, Poetry 셋업까지 한 번에 다룹니다."
 categories: coding
 tag: [llm, langchain, settings, poetry]
 author_profile: false

@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "EBS Power English Crawl"
+description: "EBS 오디오 어학당 Power English의 PDF 강의 자료를 Selenium과 Beautiful Soup로 자동 다운로드하는 크롤러를 만들어봤어요."
 categories: coding
 tag: [selenium, Crawling, Power English, Beautiful Soup]
 author_profile: false

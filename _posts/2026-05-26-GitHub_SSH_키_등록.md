@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "GitHub SSH 키 등록 — ed25519 한 짝으로 통일하기"
+description: "GitHub 인증을 HTTPS 토큰 대신 ed25519 SSH 키로 바꾸는 방법을 정리했어요. 키 한 짝으로 GitHub와 서버 접근까지 통일합니다."
 categories: coding
 tag: [github, ssh, ed25519, ssh-keygen, git]
 author_profile: false

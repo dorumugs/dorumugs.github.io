@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "Fine Tuning for Data"
+description: "LLM Fine Tuning을 위한 데이터 처리 과정을 정리한 글이에요. .env 셋업과 LangSmith로 토큰 사용량 모니터링까지 다룹니다."
 categories: coding
 tag: [llm, Fine Tuning, llm basic, teddynote, json, jsonl]
 author_profile: false

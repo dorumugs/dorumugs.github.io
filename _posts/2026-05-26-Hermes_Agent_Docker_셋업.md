@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "Hermes Agent Docker Compose 셋업"
+description: "Docker Compose로 Hermes Agent를 띄우고 OpenAI Codex OAuth와 Discord 봇까지 연결하는 셋업 과정을 정리한 글이에요."
 categories: coding
 tag: [hermes, docker, docker-compose, llm, agent, n8n, prefect, codex, discord]
 author_profile: false

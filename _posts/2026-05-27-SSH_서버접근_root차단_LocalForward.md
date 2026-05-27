@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "SSH 로 서버 접근하기 — config 별칭, root 차단, LocalForward"
+description: "SSH config 별칭으로 내·외부망 접근을 통일하고, root 로그인 차단과 LocalForward로 원격 대시보드를 로컬 포트로 끌어오는 구성을 정리했어요."
 categories: coding
 tag: [ssh, sshd, port-forwarding, security, openssh, localforward]
 author_profile: false
