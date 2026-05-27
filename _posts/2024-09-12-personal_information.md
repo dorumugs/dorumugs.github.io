@@ -10,7 +10,7 @@ toc: true
 
 # About ME
 
-- Job Title : Data Specialist 
+- Job Title : Data Specialist
 - Name : 소재현(蘇在賢), Jaehyun So
 - Nickname : Kayser So, dorumugs
 - Email : dorumugs@gmail.com
@@ -18,6 +18,10 @@ toc: true
 - Gender : Male
 
 <br>
+
+<br>
+
+
 
 # Education
 
@@ -28,11 +32,15 @@ toc: true
 
 <br>
 
+<br>
+
+
+
 # Paper
 
 - [그림으로 배우는 딥러닝](https://product.kyobobook.co.kr/detail/S000061352299)  에이콘출판  
   (*2022.05.31, 교보문고 MD 추천*)
--  졸업논문, [전자상거래에서 성별 예측을 위한 앙상블 모델](https://repository.hanyang.ac.kr/handle/20.500.11754/164233)  
+- 졸업논문, [전자상거래에서 성별 예측을 위한 앙상블 모델](https://repository.hanyang.ac.kr/handle/20.500.11754/164233)  
   (*2020.12.31, MNA Lab, 조인휘 교수*)
 - [A Proactive Inference Method of Suspicious Domains](https://public.thinkonweb.com/journals/jkiisc/digital-library/manuscript/file/2932/JKIISC-2016-26-2-405.pdf)  
   (*2016.02.26, Journal of The Korea Institute of Information Security & Cryptology*)
@@ -41,11 +49,19 @@ toc: true
 
 <br>
 
+<br>
+
+
+
 # Contest Award
 
 - 2020년 12월 3일 대한민국 바로 알리기 AI 공모전 우수상(*과학기술정보통신부*)
 
 <br>
+
+<br>
+
+
 
 # Certification
 
@@ -59,6 +75,10 @@ toc: true
 
 <br>
 
+<br>
+
+
+
 # Key Skills
 
 - Machine Learning, Deep Learning, LLM(LangChain), Recommendation System
@@ -70,6 +90,10 @@ toc: true
 
 <br>
 
+<br>
+
+
+
 # Professional Experience
 
 ## KB자산운용
@@ -78,8 +102,6 @@ toc: true
 
 - 금융, 자산운용사 / KB금융그룹 계열
 - 이직사유 : 새로운 도전
-
-  
 
 ### 포지션
 
@@ -90,8 +112,11 @@ toc: true
 - 직위 : 팀장, 수석
 - 업무 : AX와 AI 개발 및 자동화
 
+<br>
 
 <br>
+
+
 
 ## Q10 Technology
 
@@ -99,8 +124,6 @@ toc: true
 
 - 이커머스, 스타트업 기업 / 직원수 : 600명
 - 퇴직사유 : 새로운 도전
-
-  
 
 ### 포지션
 
@@ -110,17 +133,18 @@ toc: true
 - 직위 : 실장, 팀장 겸임
 - 업무 : AI/ML 개발, 빅데이터 및 클라우드 운영, K8s 운영
 
+<br>
 
 <br>
+
+
 
 ## Dorumugs Company
 
 ### 회사소개
 
 - 데이터 분석, 프리랜서 / 직원수 : 1명
-- 퇴직사유 : 업무 역량 강화 
-
-
+- 퇴직사유 : 업무 역량 강화
 
 ### 포지션
 
@@ -131,15 +155,16 @@ toc: true
 
 <br>
 
+<br>
+
+
 
 ## Ahnlab
 
-### 회사소개 
+### 회사소개
 
 - 백신, 코스탁 상장 기업 / 직원수 : 1000명
 - 퇴직사유 : 프리랜서 전향
-
-
 
 ### 포지션
 
@@ -147,4 +172,3 @@ toc: true
 - 소속팀 : A-FIRST
 - 직위 : 선임연구원
 - 업무 : ML 개발, 빅데이터 운영, 기업 사고 분석
-

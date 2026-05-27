@@ -28,6 +28,10 @@ API Key 만들기 > 10달러(결제) + 1달러(세금)
 
 <br>
 
+<br>
+
+
+
 ## Homebrew
 
 Homebrew를 설치합니다. 
@@ -67,6 +71,10 @@ exec "$SHELL"
 
 <br>
 
+<br>
+
+
+
 ## XCODE
 
 Xcode는 macOS에서 사용할 수 있는 통합 개발 환경(IDE)으로, Apple에서 제공하는 공식 도구입니다.   
@@ -78,6 +86,10 @@ xcode-select --install
 ```
 
 <br>
+
+<br>
+
+
 
 ## pyenv
 
@@ -98,6 +110,10 @@ python --version
 
 <br>
 
+<br>
+
+
+
 ## Poetry 설치
 
 Poetry는 다양한 라이브러리들의 의존성을 깔끔하게 해결해줍니다.  
@@ -115,6 +131,10 @@ poetry update # 파이썬 패키지 일괄 업데이트
 
 <br>
 
+<br>
+
+
+
 ## Visual Studio Code 설치
 
 URL : https://code.visualstudio.com/download
@@ -124,6 +144,10 @@ URL : https://code.visualstudio.com/download
 Select Kernel에서 "langchain-kr" 로 시작하는 커널을 선택해서 코드를 연습하면 됩니다. 
 
 <br>
+
+<br>
+
+
 
 ## LangSmith
 

@@ -11,9 +11,14 @@ toc: true
 # FineTuning을 위한 데이터 처리
 
 FineTuning을 해볼 겁니다.  
-코드는 테디노트에서 따왔어요.   
-제가 보려고 만든 블로그이니 제가 원하는 주석을 달아가면서 진행해보려고 합니다.  
+코드는 테디노트에서 따왔어요.  
+제가 보려고 만든 블로그이니 제가 원하는 주석을 달아가면서 진행해보려고 합니다.
+
 <br>
+
+<br>
+
+
 
 ## load .env
 
@@ -61,9 +66,9 @@ QA Pair를 생성할 PDF를 로드합니다.
 URL : https://spri.kr/lib/fileman/Uploads/post_images/2023_12/1208.jpg  
 
 unstructured 라이브러리는 다양한 형식의 비정형 데이터를 처리할 수 있어요.  
-Text, PDF, Word, HTML, Image 등을 예로 들 수 있습니다.  
-<br>
-partition_pdf를 실행할 때 nltk를 사용하니 실행전에 우선 다운을 다 받아 놓습니다.  
+Text, PDF, Word, HTML, Image 등을 예로 들 수 있습니다.
+
+partition_pdf를 실행할 때 nltk를 사용하니 실행 전에 우선 다운을 다 받아 놓습니다.  
 NLTK(Natural Language Toolkit)는 자연어 처리를 위한 강력한 Python 라이브러리에요.  
 1. 토큰화(Tokenization).
     - 문장이나 단어 단위로 텍스트를 나누는 기능을 제공합니다.
@@ -254,16 +259,15 @@ ANSWER should be a complete sentence.
     "ANSWER": "IDC 예측에 따르면 2027년까지 생성 AI 플랫폼과 애플리케이션 시장의 매출은 283억 달러로 전망됩니다."    
 }}
 ```
-<br>
 
 prompt는 만들었지만 실제 더 잘 동작하게 하려면 json 형태로 뽑아주는게 좋아요.  
-아래 parser를 통해서 깔끔하게 처리하면 잡스러운 것들이 안들어가요.  
-<br>
-깔끔하게 진행하기 위해 response.content.strip()로 불필요한 양쪽의 공백을 제거합니다.  
-<br>
-.removeprefix("\`\`\`json\n")로 문자열 앞부분에 있는 "json\n"를 제거합니다.  
-참고로 JSON 데이터는 종종 코드 블록으로 감싸져 있는데, 이때 앞에 "\` json\n\`"이 붙을 수 있습니다.   
-<br>
+아래 parser를 통해서 깔끔하게 처리하면 잡스러운 것들이 안 들어가요.
+
+깔끔하게 진행하기 위해 `response.content.strip()` 로 불필요한 양쪽 공백을 제거합니다.
+
+`.removeprefix("\`\`\`json\n")` 로 문자열 앞부분에 있는 "json\n"를 제거합니다.  
+참고로 JSON 데이터는 종종 코드 블록으로 감싸져 있는데, 이때 앞에 "\` json\n\`"이 붙을 수 있습니다.
+
 .removesuffix("\n\`\`\`")로 마찬가지로 문자열의 끝에 붙어있는 "\n\`\`\`"을 제거합니다.   
 코드 블록이 끝날 때 " \`\`\` `"와 같은 포맷이 붙는 경우가 있어서, 그 부분을 제거하는 작업입니다.   
 

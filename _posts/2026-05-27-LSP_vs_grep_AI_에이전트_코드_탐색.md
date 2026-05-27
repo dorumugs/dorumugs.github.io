@@ -229,5 +229,9 @@ main.py:3: result = get_user(42)
 
 <br>
 
+<br>
+
+
+
 일단 오늘은 여기까지.....   
 다음 글에서는 실제로 Claude Code 같은 에이전트에 LSP 도구를 붙이는 방법(MCP 서버로 LSP 노출하기 같은 거) 정리해볼게요. 
