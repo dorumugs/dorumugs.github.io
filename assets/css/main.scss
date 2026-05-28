@@ -14,6 +14,10 @@ $monospace: "JetBrains Mono", "Cascadia Code", "Source Code Pro", Menlo,
 $global-font-family: $sans-serif;
 $header-font-family: $sans-serif;
 
+// --- KayserDocs sidebar widths (also widens .page padding-inline-end automatically) ---
+$right-sidebar-width-narrow: 230px;
+$right-sidebar-width:        330px;
+
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
 
