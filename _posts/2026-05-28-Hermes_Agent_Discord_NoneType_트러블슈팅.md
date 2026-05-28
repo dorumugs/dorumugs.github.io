@@ -12,7 +12,7 @@ toc: true
 
 ## Summary
 
-[지난 글](/coding/2026-05-26-hermes_agent_docker_셋업/)에서 Docker Compose로 띄운 **Hermes Agent**에 Discord 봇을 연결해서
+[지난 글](/coding/Hermes_Agent_Docker_셋업/)에서 Docker Compose로 띄운 **Hermes Agent**에 Discord 봇을 연결해서
 며칠 잘 굴리고 있었는데, 어느 순간부터 메시지를 보낼 때마다 봇이 같은 에러를 토하면서 죽기 시작했어요.   
 "매일 아침 7시" 크론 작업까지 같이 망가져서 한참 들여다봤습니다. 
 
