@@ -17,6 +17,61 @@ $header-font-family: $sans-serif;
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
 
+// --- KayserDocs post header spacing (give body room after title + meta) ---
+.page__inner-wrap > header {
+  margin-bottom: 3.5em;
+}
+
+// --- KayserDocs: widen "참고" (related posts) to full content width ---
+// Theme reserves right-sidebar width on .page__related so it leaves a left gutter.
+// At the bottom of the post the TOC sidebar isn't there anymore — use full width.
+.page__related {
+  @include breakpoint($large)   { width: 100%; }
+  @include breakpoint($x-large) { width: 100%; }
+}
+
+// --- KayserDocs: stop content from dropping below the floated TOC ---
+// We moved the TOC <aside> to be a sibling of <header> (above it), so the
+// theme's clear:both on .page__content / .page__meta / .page__share pushes
+// them below the TOC's full height — creating a big empty gap. Let them flow
+// next to the floated aside instead (content width is already reserved by
+// .page's padding-inline-end).
+.page .page__inner-wrap {
+  > header .page__meta,
+  > .page__content,
+  > .page__meta,
+  > .page__share {
+    clear: none;
+  }
+}
+
+// --- KayserDocs breadcrumbs (left-align + tone down) ---
+// Theme floats the <ol> right with width: calc(100% - sidebar), which puts crumbs
+// in the center-right while the title is at the left edge. Realign left.
+.breadcrumbs {
+  ol {
+    @include breakpoint($large) {
+      float: none;
+      width: auto;
+    }
+    @include breakpoint($x-large) {
+      width: auto;
+    }
+    font-size: $type-size-7;
+    color: $muted-text-color;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:hover { color: $link-color; }
+    }
+  }
+
+  .sep { color: $muted-text-color; opacity: 0.6; }
+  .current { font-weight: 500; color: $text-color; }
+}
+
 // --- KayserDocs home card grid (overrides theme's float-based .grid__item) ---
 .entries-grid {
   display: grid;
