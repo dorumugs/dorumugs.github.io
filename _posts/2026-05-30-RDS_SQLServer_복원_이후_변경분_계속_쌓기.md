@@ -1,11 +1,15 @@
 ---
 layout: single
-title:  "Native Backup/Restore 뒤에 변경분 계속 쌓기 — NORECOVERY 체인과 CDC-only 결합"
+title:  "(4/5) Native Backup/Restore 뒤에 변경분 계속 쌓기 — NORECOVERY 체인과 CDC-only 결합"
+date: 2026-05-30 10:26:00 +0900
+description: "Native Backup/Restore 로 풀카피한 뒤 원본의 변경분을 계속 따라잡는 방법. NORECOVERY 체인과 DMS CDC-only 결합 패턴을 RDS for SQL Server 제약과 함께 풀어봅니다."
 categories: coding
 tag: [mssql, aws, rds, backup, restore, dms, cdc, incremental, kayserdocs]
 author_profile: false
 toc: true
 ---
+
+{% include series-mssql-rds.html current="4" %}
 
 [Native Backup/Restore 실전편](/coding/RDS_SQLServer_Native_Backup_Restore_실전/)을 따라 풀백업 복원까지 끝내고 나면, 다음 질문이 바로 나와요. **"이제 운영 중인 원본에서 새로 들어오는 데이터는 어떻게 따라잡지?"** 풀백업이 끝난 시점 이후 원본은 계속 INSERT/UPDATE 가 들어오는 중이니까요. 이번 글은 그 "복원 위에 변경분 계속 쌓기" 문제를 RDS for SQL Server 의 제약을 짚어가며 정리해볼게요.
 
@@ -311,4 +315,9 @@ T5+          │  CDC latency 안정화 추적
 저희 사내 케이스에서 가장 자주 쓰는 건 **옵션 A+B 결합** 이에요. 풀카피는 백업/복원으로 한 방에 끝내고, 변경분은 DMS CDC-only 로 가볍게 따라잡는 구성. 비용/속도/다운타임 세 마리 토끼를 잡아요.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 이 결합 패턴에서 **실제로 자주 만나는 데이터 정합성 문제** — 중복 키 처리, NULL 컬럼, IDENTITY 시드 어긋남, 외래키 적용 순서 — 를 케이스별로 풀어볼게요. 
+다음 글에서는 이 결합 패턴에서 **실제로 자주 만나는 데이터 정합성 문제** — 중복 키 처리, NULL 컬럼, IDENTITY 시드 어긋남, 외래키 적용 순서 — 를 케이스별로 풀어볼게요.
+
+---
+
+**← 이전 글:** [(3/5) DMS + CDC 무중단 컷오버 — 풀로드 후 변경분 따라잡기](/coding/MSSQL_AWS_DMS_CDC_무중단_컷오버/) ｜ **다음 글 →:** [(5/5) 정합성 트러블슈팅 — 케이스별 8가지 함정](/coding/MSSQL_마이그레이션_정합성_트러블슈팅/)
+

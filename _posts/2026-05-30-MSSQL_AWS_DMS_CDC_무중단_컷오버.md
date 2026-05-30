@@ -1,11 +1,15 @@
 ---
 layout: single
-title:  "AWS DMS + CDC 로 MSSQL 무중단 컷오버 — 풀로드 후 변경분 따라잡기"
+title:  "(3/5) AWS DMS + CDC 로 MSSQL 무중단 컷오버 — 풀로드 후 변경분 따라잡기"
+date: 2026-05-30 09:16:00 +0900
+description: "AWS DMS + CDC 로 MSSQL 을 다운타임 분 단위 이하로 RDS 에 옮기는 방법. 풀로드 + 변경분 실시간 따라잡기 + 컷오버 흐름을 단계별로 정리했어요."
 categories: coding
 tag: [mssql, aws, dms, cdc, migration, rds, zero-downtime, kayserdocs]
 author_profile: false
 toc: true
 ---
+
+{% include series-mssql-rds.html current="3" %}
 
 [지난 글](/coding/RDS_SQLServer_Native_Backup_Restore_실전/)에서 Native Backup/Restore 로 풀카피 → 컷오버 순서를 정리했어요. 그런데 운영 DB 라 **단 몇 분의 다운타임도 허용 안 되는** 케이스가 있죠. 이번 글은 그런 상황에서 쓰는 **AWS DMS + CDC** 구성법이에요. 원본을 운영 중 그대로 두고 풀로드 → 변경분 실시간 따라잡기 → 컷오버 순서로 다운타임을 분 단위 이하로 줄이는 흐름을 정리합니다.
 
@@ -505,4 +509,9 @@ EXEC sys.sp_cdc_disable_db;
 두 번째 패턴이 사실상 베스트에요. 풀로드 비용은 백업/복원으로 절약하고, CDC 만 DMS 로 처리해서 latency 안정화 후 컷오버.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 이 두 번째 패턴 — **백업/복원 + CDC-only DMS** 의 결합을 단계별로 풀어볼게요. 
+다음 글에서는 이 두 번째 패턴 — **백업/복원 + CDC-only DMS** 의 결합을 단계별로 풀어볼게요.
+
+---
+
+**← 이전 글:** [(2/5) Native Backup/Restore 실전 — 옵션 그룹부터 컷오버까지](/coding/RDS_SQLServer_Native_Backup_Restore_실전/) ｜ **다음 글 →:** [(4/5) 변경분 계속 쌓기 — NORECOVERY 체인과 CDC-only 결합](/coding/RDS_SQLServer_복원_이후_변경분_계속_쌓기/)
+

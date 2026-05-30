@@ -1,6 +1,8 @@
 ---
 layout: single
 title:  "GitHub 잔디가 안 심어지던 이유 — Fork repo 에서 Standalone 으로 옮기기"
+date: 2026-05-29 01:14:00 +0900
+description: "블로그 글을 꾸준히 쓰는데 GitHub 잔디가 안 심어지던 이유 — fork 저장소 라서였어요. 카운팅 조건 4가지를 짚고 standalone repo 로 옮기기까지 정리했어요."
 categories: coding
 tag: [github, github-pages, jekyll, fork, contributions, troubleshooting, kayserdocs]
 author_profile: false

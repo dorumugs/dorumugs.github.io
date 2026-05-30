@@ -1,11 +1,15 @@
 ---
 layout: single
-title:  "AWS RDS for SQL Server Native Backup/Restore 실전 — 옵션 그룹부터 컷오버까지"
+title:  "(2/5) AWS RDS for SQL Server Native Backup/Restore 실전 — 옵션 그룹부터 컷오버까지"
+date: 2026-05-30 09:09:00 +0900
+description: "AWS RDS for SQL Server 의 Native Backup/Restore 를 옵션 그룹 세팅부터 S3 업로드, 복원, 컷오버 시 차등 백업까지 한 번에 따라가는 실전 가이드입니다."
 categories: coding
 tag: [mssql, aws, rds, backup, restore, s3, migration, native-backup, kayserdocs]
 author_profile: false
 toc: true
 ---
+
+{% include series-mssql-rds.html current="2" %}
 
 [지난 글](/coding/내부망_MSSQL_AWS_RDS_마이그레이션/)에서 내부망 MSSQL → AWS RDS for SQL Server 마이그레이션 방법 6가지를 비교하고, **Native Backup/Restore** 를 1순위로 추천드렸어요. 이번 글은 그 실전편이에요. RDS 옵션 그룹 세팅부터 시작해서, 풀백업 → S3 업로드 → 복원, 마지막으로 컷오버 시점의 **차등 백업(differential)** 으로 다운타임을 짧게 끊는 데까지 한 번에 따라가봅니다.
 
@@ -431,4 +435,9 @@ Native Backup/Restore 는 단계가 많아 보이지만, 한 번 셋업해두면
 - 복원 후 **로그인 재생성 + DBCC + row count 비교** 까지 해야 끝난 거예요
 
 일단 오늘은 여기까지.....   
-다음 글에서는 같은 마이그레이션을 **AWS DMS + CDC** 로 풀어서, "다운타임 거의 0" 컷오버를 어떻게 구성하는지 정리해볼게요. 
+다음 글에서는 같은 마이그레이션을 **AWS DMS + CDC** 로 풀어서, "다운타임 거의 0" 컷오버를 어떻게 구성하는지 정리해볼게요.
+
+---
+
+**← 이전 글:** [(1/5) 방법 비교 — 6가지 중에서 고르기](/coding/내부망_MSSQL_AWS_RDS_마이그레이션/) ｜ **다음 글 →:** [(3/5) DMS + CDC 무중단 컷오버 — 풀로드 후 변경분 따라잡기](/coding/MSSQL_AWS_DMS_CDC_무중단_컷오버/)
+

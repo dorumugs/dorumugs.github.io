@@ -1,6 +1,7 @@
 ---
 layout: single
-title:  "Hermes Agent Docker Compose 셋업"
+title:  "(1/2) Hermes Agent Docker Compose 셋업"
+date: 2026-05-26 22:44:00 +0900
 description: "Docker Compose로 Hermes Agent를 띄우고 OpenAI Codex OAuth와 Discord 봇까지 연결하는 셋업 과정을 정리한 글이에요."
 categories: coding
 tag: [hermes, docker, docker-compose, llm, agent, n8n, prefect, codex, discord]
@@ -9,6 +10,8 @@ toc: true
 ---
 
 
+
+{% include series-hermes-agent.html current="1" %}
 
 ## Summary
 
@@ -460,4 +463,9 @@ docker compose exec hermes /opt/hermes/.venv/bin/hermes auth list
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 Hermes에서 n8n webhook 을 직접 호출해서 workflow 트리거 거는 부분을 정리해볼게요. 
+다음 글에서는 Hermes에서 n8n webhook 을 직접 호출해서 workflow 트리거 거는 부분을 정리해볼게요.
+
+---
+
+**다음 글 →** [(2/2) Hermes Agent + Discord 'NoneType' 트러블슈팅](/coding/Hermes_Agent_Discord_NoneType_트러블슈팅/)
+

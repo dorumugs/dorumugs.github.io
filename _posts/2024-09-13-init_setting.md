@@ -1,6 +1,7 @@
 ---
 layout: single
-title:  "LLM을 위한 init setting"
+title:  "(1/3) LLM을 위한 init setting"
+date: 2024-09-13 22:00:00 +0900
 description: "맥에서 LangChain 연습 환경을 잡는 방법을 정리한 글이에요. OpenAI API 키 발급부터 Homebrew, Poetry 셋업까지 한 번에 다룹니다."
 categories: coding
 tag: [llm, langchain, settings, poetry]
@@ -9,6 +10,8 @@ toc: true
 ---
 
 
+
+{% include series-langchain-intro.html current="1" %}
 
 ## init setting
 
@@ -164,3 +167,8 @@ LangSmith는 LLM 모니터링으로 정말 좋습니다.
 
 
 일단 오늘은 여기까지.....
+
+---
+
+**다음 글 →** [(2/3) LLM Basic — LangChain 기본 사용법](/coding/01_Basic/)
+

@@ -1,12 +1,15 @@
 ---
 layout: single
-title:  "Fine Tuning for Data"
+title:  "(3/3) Fine Tuning for Data"
+date: 2024-09-24 12:36:00 +0900
 description: "LLM Fine Tuning을 위한 데이터 처리 과정을 정리한 글이에요. .env 셋업과 LangSmith로 토큰 사용량 모니터링까지 다룹니다."
 categories: coding
 tag: [llm, Fine Tuning, llm basic, teddynote, json, jsonl]
 author_profile: false
 toc: true
 ---
+
+{% include series-langchain-intro.html current="3" %}
 
 # FineTuning을 위한 데이터 처리
 
@@ -524,3 +527,7 @@ dataset.push_to_hub(repo_name, token=os.environ['HUGGINGFACEHUB_API_TOKEN'])
 ```
 
 ![Hugging Face Hub에 업로드된 QA-Dataset-mini 데이터셋 화면](/assets/images/2024-09-24-01_FineTuning_Data/huggingface-test-data.png)
+
+---
+
+**← 이전 글:** [(2/3) LLM Basic — LangChain 기본 사용법](/coding/01_Basic/)

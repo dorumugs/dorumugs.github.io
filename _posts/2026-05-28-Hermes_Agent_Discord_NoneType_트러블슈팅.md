@@ -1,6 +1,7 @@
 ---
 layout: single
-title:  "Hermes Agent + Discord: 'NoneType' object is not iterable 트러블슈팅"
+title:  "(2/2) Hermes Agent + Discord: 'NoneType' object is not iterable 트러블슈팅"
+date: 2026-05-28 21:11:00 +0900
 description: "Discord에 연결한 Hermes Agent가 메시지/크론 작업마다 'NoneType' object is not iterable 로 죽던 이슈를 추적하고, Docker 환경에서 최신 이미지로 갈아끼워서 해결한 과정을 정리했어요."
 categories: coding
 tag: [hermes, discord, docker, troubleshooting, codex, openai, llm, agent, bug]
@@ -9,6 +10,8 @@ toc: true
 ---
 
 
+
+{% include series-hermes-agent.html current="2" %}
 
 ## Summary
 
@@ -275,4 +278,9 @@ ChatGPT 구독을 그대로 쓰는 매력은 잠깐 포기하지만, **자동화
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 이런 자동화 봇이 또 조용히 죽었을 때 빠르게 눈치챌 수 있도록, **헬스체크 + Discord 알람** 을 어떻게 묶었는지 정리해볼게요. 
+다음 글에서는 이런 자동화 봇이 또 조용히 죽었을 때 빠르게 눈치챌 수 있도록, **헬스체크 + Discord 알람** 을 어떻게 묶었는지 정리해볼게요.
+
+---
+
+**← 이전 글:** [(1/2) Hermes Agent Docker Compose 셋업](/coding/Hermes_Agent_Docker_셋업/)
+

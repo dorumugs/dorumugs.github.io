@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "Obsidian + Karpathy 식 LLM WIKI 체계적으로 구축하기"
+date: 2026-05-28 07:59:00 +0900
 description: "Obsidian Web Clipper로 모은 RAW 노트를 Karpathy 가 말한 LLM WIKI 방식으로 정리하고, Claude Code 로 자동화하는 워크플로우를 정리했어요."
 categories: coding
 tag: [Obsidian, Karpathy, LLM, Wiki, ZettelKasten, ClaudeCode, WebClipper, PKM, 지식관리]

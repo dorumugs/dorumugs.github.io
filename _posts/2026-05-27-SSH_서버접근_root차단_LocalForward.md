@@ -1,6 +1,7 @@
 ---
 layout: single
-title:  "SSH 로 서버 접근하기 — config 별칭, root 차단, LocalForward"
+title:  "(2/2) SSH 로 서버 접근하기 — config 별칭, root 차단, LocalForward"
+date: 2026-05-27 08:00:00 +0900
 description: "SSH config 별칭으로 내·외부망 접근을 통일하고, root 로그인 차단과 LocalForward로 원격 대시보드를 로컬 포트로 끌어오는 구성을 정리했어요."
 categories: coding
 tag: [ssh, sshd, port-forwarding, security, openssh, localforward]
@@ -9,6 +10,8 @@ toc: true
 ---
 
 
+
+{% include series-ssh.html current="2" %}
 
 ## Summary
 
@@ -357,4 +360,9 @@ lsof -nP -iTCP:5678 -sTCP:LISTEN
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 같은 SSH 터널 위에 `RemoteForward` 를 얹어서 **반대 방향**(원격 서버에서 내 노트북 서비스를 호출)으로 쓰는 부분을 정리해볼게요. 
+다음 글에서는 같은 SSH 터널 위에 `RemoteForward` 를 얹어서 **반대 방향**(원격 서버에서 내 노트북 서비스를 호출)으로 쓰는 부분을 정리해볼게요.
+
+---
+
+**← 이전 글:** [(1/2) GitHub SSH 키 등록 — ed25519 한 짝으로 통일하기](/coding/GitHub_SSH_키_등록/)
+

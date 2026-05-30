@@ -1,6 +1,7 @@
 ---
 layout: single
-title:  "GitHub SSH 키 등록 — ed25519 한 짝으로 통일하기"
+title:  "(1/2) GitHub SSH 키 등록 — ed25519 한 짝으로 통일하기"
+date: 2026-05-26 09:00:00 +0900
 description: "GitHub 인증을 HTTPS 토큰 대신 ed25519 SSH 키로 바꾸는 방법을 정리했어요. 키 한 짝으로 GitHub와 서버 접근까지 통일합니다."
 categories: coding
 tag: [github, ssh, ed25519, ssh-keygen, git]
@@ -9,6 +10,8 @@ toc: true
 ---
 
 
+
+{% include series-ssh.html current="1" %}
 
 ## Summary
 
@@ -226,4 +229,9 @@ Host *
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 같은 ed25519 키를 그대로 써서 **개인 서버에 SSH 로 접근**하고, root 로그인 차단 + LocalForward 까지 잡는 흐름을 정리해볼게요. 
+다음 글에서는 같은 ed25519 키를 그대로 써서 **개인 서버에 SSH 로 접근**하고, root 로그인 차단 + LocalForward 까지 잡는 흐름을 정리해볼게요.
+
+---
+
+**다음 글 →** [(2/2) SSH 로 서버 접근하기 — config 별칭, root 차단, LocalForward](/coding/SSH_서버접근_root차단_LocalForward/)
+

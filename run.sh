@@ -1,2 +1,5 @@
-cp /Users/dorumugs/Documents/projects/dorumugs.github.io/package.json /Users/dorumugs/Documents/projects/dorumugs.github.io/_site
-bundle exec jekyll serve
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+export PATH="/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH"
+exec jekyll serve "$@"

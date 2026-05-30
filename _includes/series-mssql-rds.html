@@ -1,0 +1,11 @@
+{%- assign c = include.current -%}
+<div class="notice--info">
+  <p><strong>📚 MSSQL → AWS RDS 마이그레이션 시리즈 (전체 5편)</strong></p>
+  <ol>
+    <li>{% if c == "1" %}<strong>방법 비교 — 6가지 중에서 고르기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/내부망_MSSQL_AWS_RDS_마이그레이션/">방법 비교 — 6가지 중에서 고르기</a>{% endif %}</li>
+    <li>{% if c == "2" %}<strong>Native Backup/Restore 실전 — 옵션 그룹부터 컷오버까지</strong> ← <em>지금 글</em>{% else %}<a href="/coding/RDS_SQLServer_Native_Backup_Restore_실전/">Native Backup/Restore 실전 — 옵션 그룹부터 컷오버까지</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>DMS + CDC 무중단 컷오버 — 풀로드 후 변경분 따라잡기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/MSSQL_AWS_DMS_CDC_무중단_컷오버/">DMS + CDC 무중단 컷오버 — 풀로드 후 변경분 따라잡기</a>{% endif %}</li>
+    <li>{% if c == "4" %}<strong>변경분 계속 쌓기 — NORECOVERY 체인과 CDC-only 결합</strong> ← <em>지금 글</em>{% else %}<a href="/coding/RDS_SQLServer_복원_이후_변경분_계속_쌓기/">변경분 계속 쌓기 — NORECOVERY 체인과 CDC-only 결합</a>{% endif %}</li>
+    <li>{% if c == "5" %}<strong>정합성 트러블슈팅 — 케이스별 8가지 함정</strong> ← <em>지금 글</em>{% else %}<a href="/coding/MSSQL_마이그레이션_정합성_트러블슈팅/">정합성 트러블슈팅 — 케이스별 8가지 함정</a>{% endif %}</li>
+  </ol>
+</div>

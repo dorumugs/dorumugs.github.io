@@ -1,6 +1,7 @@
 ---
 layout: single
 title:  "LSP vs grep: AI 코딩 에이전트는 코드를 어떻게 찾아야 할까"
+date: 2026-05-27 21:34:00 +0900
 description: "Claude Code, Cursor 같은 AI 코딩 에이전트가 코드를 탐색할 때 LSP와 grep 중 무엇을 써야 할지 차이와 장단점을 정리했어요."
 categories: coding
 tag: [LSP, grep, AI코딩, ClaudeCode, Cursor, 코드탐색, 개발도구, 에디터, 입문]

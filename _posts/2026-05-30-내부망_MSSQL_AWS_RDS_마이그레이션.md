@@ -1,11 +1,15 @@
 ---
 layout: single
-title:  "내부망 MSSQL → AWS RDS for SQL Server 옮기기 — 부하 안 주고 그대로 넣는 법"
+title:  "(1/5) 내부망 MSSQL → AWS RDS for SQL Server 옮기기 — 부하 안 주고 그대로 넣는 법"
+date: 2026-05-30 08:30:00 +0900
+description: "내부망 MSSQL 을 AWS RDS for SQL Server 로 옮기는 6가지 방법을 비교하고, 원본 부하 최소화 관점에서 Native Backup/Restore 를 1순위로 추천하는 글이에요."
 categories: coding
 tag: [mssql, aws, rds, dms, bcp, migration, s2s-vpn, database, kayserdocs]
 author_profile: false
 toc: true
 ---
+
+{% include series-mssql-rds.html current="1" %}
 
 내부망에 있던 MSSQL DB 한 덩어리를 **AWS RDS for SQL Server** 로 그대로 옮겨야 했어요. 다행히 양쪽은 **S2S VPN** 으로 이미 통신이 되는 상태였고, 조건은 두 가지였어요. 첫째 **원본을 그대로 옮길 것**(스키마/식별자/인덱스 보존), 둘째 **운영 중인 원본 DB에 부하를 주지 말 것**. 이 글은 그때 검토했던 방법들과 최종 선택, 그리고 건수별 소요 시간 추정을 정리한 글이에요.
 
@@ -338,4 +342,9 @@ SELECT * FROM [SRC_LINK].[MyDB].[dbo].[Orders];
 저희 사내 케이스처럼 **"그대로" + "부하 최소" + "S2S 가능"** 이면 **Native Backup/Restore** 가 거의 항상 1순위예요. DMS 는 컷오버 단축이 필요할 때 더해서 쓰는 식.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 실제로 Native Backup/Restore 를 RDS 옵션 그룹 세팅부터 끝까지 따라가는 실전편을 정리해볼게요. 
+다음 글에서는 실제로 Native Backup/Restore 를 RDS 옵션 그룹 세팅부터 끝까지 따라가는 실전편을 정리해볼게요.
+
+---
+
+**다음 글 →** [(2/5) Native Backup/Restore 실전 — 옵션 그룹부터 컷오버까지](/coding/RDS_SQLServer_Native_Backup_Restore_실전/)
+
