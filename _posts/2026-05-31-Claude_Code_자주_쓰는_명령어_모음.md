@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "Claude Code 자주 쓰는 명령어 모음 — CLI 플래그부터 슬래시 명령어까지"
+title:  "(1/2) Claude Code 자주 쓰는 명령어 모음 — CLI 플래그부터 슬래시 명령어까지"
 date: 2026-05-31 11:20:00 +0900
 description: "매일 Claude Code 를 쓰면서 손에 익은 CLI 플래그와 세션 슬래시 명령어, 그리고 입력 prefix 단축을 예시 위주로 정리했어요."
 categories: coding
@@ -8,6 +8,10 @@ tag: [ClaudeCode, CLI, AI코딩, 슬래시명령어, 워크플로우, 생산성,
 author_profile: false
 toc: true
 ---
+
+
+
+{% include series-ai-coding-cli.html current="1" %}
 
 # Summary
 
@@ -393,4 +397,8 @@ claude -p "이 저장소 구조 한 단락으로 요약해줘" \
 전부 외울 필요는 없고, **본인 워크플로우에 자주 등장하는 두세 개부터 손에 익히는 걸 추천드려요.** 저는 처음에 `--name` 하나만 박아 쓰다가, `/clear` 와 `#` 두 개를 추가로 익히면서 작업 속도가 눈에 띄게 빨라졌어요.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 `CLAUDE.md` 와 메모리 시스템을 어떻게 조합해서 쓰는지 정리해볼게요. 
+다음 글에서는 같은 결로 **OpenAI Codex CLI** 의 서브커맨드와 슬래시 명령어를 정리해볼게요.
+
+---
+
+**다음 글 →** [(2/2) Codex CLI 자주 쓰는 명령어 모음 — 서브커맨드부터 슬래시 명령어까지](/coding/Codex_CLI_자주_쓰는_명령어_모음/)
