@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(1/2) Claude Code 자주 쓰는 명령어 모음 — CLI 플래그부터 슬래시 명령어까지"
+title:  "(1/3) Claude Code 자주 쓰는 명령어 모음 — CLI 플래그부터 슬래시 명령어까지"
 date: 2026-05-31 11:20:00 +0900
 description: "매일 Claude Code 를 쓰면서 손에 익은 CLI 플래그와 세션 슬래시 명령어, 그리고 입력 prefix 단축을 예시 위주로 정리했어요."
 categories: coding
@@ -401,4 +401,4 @@ claude -p "이 저장소 구조 한 단락으로 요약해줘" \
 
 ---
 
-**다음 글 →** [(2/2) Codex CLI 자주 쓰는 명령어 모음 — 서브커맨드부터 슬래시 명령어까지](/coding/Codex_CLI_자주_쓰는_명령어_모음/)
+**다음 글 →** [(2/3) Codex CLI 자주 쓰는 명령어 모음 — 서브커맨드부터 슬래시 명령어까지](/coding/Codex_CLI_자주_쓰는_명령어_모음/)
