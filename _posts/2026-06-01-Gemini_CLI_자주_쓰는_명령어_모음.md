@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(3/3) Gemini CLI 자주 쓰는 명령어 모음 — 헤드리스 모드와 슬래시 명령어까지"
+title:  "(3/4) Gemini CLI 자주 쓰는 명령어 모음 — 헤드리스 모드와 슬래시 명령어까지"
 date: 2026-06-01 18:30:00 +0900
 description: "Google Gemini CLI 의 자주 쓰는 플래그(--prompt, --approval-mode, --worktree, --resume)와 서브커맨드, 슬래시 명령어를 예시 위주로 정리했어요."
 categories: coding
@@ -393,11 +393,11 @@ gemini --include-directories ../shared,../types -w mono-experiment
 - **입력 prefix**: `@` (확장 기반 mention)
 - **시그니처**: `-p` + `-o stream-json` 조합의 깔끔한 헤드리스 모드
 
-3편짜리 시리즈 끝났어요. 셋 다 익혀두면 작업 성격에 맞는 도구를 골라서 띄울 수 있고, 모드/플래그가 헷갈릴 때마다 이 표만 한 번 보면 됩니다.
+셋 다 익혀두면 작업 성격에 맞는 도구를 골라서 띄울 수 있고, 모드/플래그가 헷갈릴 때마다 이 표만 한 번 보면 됩니다.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 세 CLI 의 컨텍스트 파일(`CLAUDE.md` / `AGENTS.md` / `GEMINI.md`) 을 어떻게 묶어서 같은 저장소에서 셋 다 잘 굴리게 만드는지 정리해볼게요.
+다음 글에서는 시리즈 마무리로 세 CLI 를 **권한 모드·헤드리스·세션 이어가기·컨텍스트 파일·MCP** 축으로 깊게 비교해볼게요.
 
 ---
 
-**← 이전 글:** [(2/3) Codex CLI 자주 쓰는 명령어 모음 — 서브커맨드부터 슬래시 명령어까지](/coding/Codex_CLI_자주_쓰는_명령어_모음/) 
+**← 이전 글:** [(2/4) Codex CLI 자주 쓰는 명령어 모음 — 서브커맨드부터 슬래시 명령어까지](/coding/Codex_CLI_자주_쓰는_명령어_모음/) ｜ **다음 글 →** [(4/4) Claude Code · Codex · Gemini CLI 비교 — 권한 모드부터 컨텍스트 파일까지](/coding/AI_코딩_CLI_3종_비교/) 
