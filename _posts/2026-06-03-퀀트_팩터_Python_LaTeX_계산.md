@@ -68,12 +68,20 @@ $$
 
 ### Python
 
+> **`eps`**  
+> 입력: `net_income` (`float`) — 회기 순이익(원). `preferred_div` (`float`) — 우선주 배당총액(원). `wa_shares` (`float`) — 가중평균 발행주식수(주).  
+> 반환: `float` — 보통주 1주당 순이익(원).
+
 ```python
 def eps(net_income: float, preferred_div: float, wa_shares: float) -> float:
     return (net_income - preferred_div) / wa_shares
 ```
 
 벡터화하려면 가중평균 주식수만 미리 만들어두면 돼요.
+
+> **`weighted_avg_shares`**  
+> 입력: `shares_timeline` (`pd.Series`, `index=DatetimeIndex`) — 발행주식수 변경 시점별 누적 주식수.  
+> 반환: `float` — 기간 가중평균 발행주식수.
 
 ```python
 def weighted_avg_shares(shares_timeline: pd.Series) -> float:
@@ -111,6 +119,10 @@ $$
 
 ### Python
 
+> **`per`**  
+> 입력: `price` (`pd.Series`) — 같은 인덱스 위의 주가. `eps_annual` (`pd.Series`) — 같은 인덱스 위의 연간 EPS.  
+> 반환: `pd.Series` — 같은 인덱스의 PER 값. EPS ≤ 0 인 시점은 `NaN`.
+
 ```python
 def per(price: pd.Series, eps_annual: pd.Series) -> pd.Series:
     # 두 시리즈는 같은 인덱스(분기/연도)로 정렬돼 있다고 가정
@@ -121,6 +133,10 @@ def per(price: pd.Series, eps_annual: pd.Series) -> pd.Series:
 ### 해석
 
 같은 산업 안에서 PER 가 낮은 종목을 "싸다" 고 보는 게 전통적 가치투자 접근이에요. 다만 **산업이 다르면 직접 비교 금지** — 성장주는 구조적으로 PER 가 높습니다. 그래서 보통 산업 중앙값 대비 z-score 로 변환해서 씁니다.
+
+> **`per_zscore`**  
+> 입력: `per_series` (`pd.Series`) — 종목별 PER. `industry` (`pd.Series`) — 같은 길이/인덱스의 산업 라벨.  
+> 반환: `pd.Series` — 산업 그룹 안에서 중앙값 대비 z-score (median/std 사용).
 
 ```python
 def per_zscore(per_series: pd.Series, industry: pd.Series) -> pd.Series:
@@ -148,6 +164,10 @@ $$
 - PBR 1 미만은 "장부상 청산가치보다 시장이 더 싸게 평가" 라는 뜻. 다만 그게 진짜 저평가인지, 자산 자체가 부실해서 시장이 디스카운트하는 건지는 **재무제표를 따로 봐야** 알 수 있어요.
 
 ### Python
+
+> **`pbr`**  
+> 입력: `price` (`pd.Series`) — 주가. `total_equity`, `preferred_equity`, `common_shares` (`pd.Series`) — 같은 인덱스의 총자본/우선주 자본/보통주 발행주식수.  
+> 반환: `pd.Series` — 같은 인덱스의 PBR. BPS ≤ 0 인 시점은 `NaN`.
 
 ```python
 def pbr(price: pd.Series, total_equity: pd.Series,
@@ -189,6 +209,14 @@ $$
 같은 ROE 라도 "**마진이 높은 ROE**" 와 "**레버리지가 큰 ROE**" 는 위험 프로필이 전혀 달라요.
 
 ### Python
+
+> **`roe`**  
+> 입력: `net_income`, `equity_begin`, `equity_end` (`pd.Series`) — 같은 인덱스의 회기 순이익/기초자본/기말자본.  
+> 반환: `pd.Series` — 같은 인덱스의 ROE. 평균자본 ≤ 0 인 시점은 `NaN`.
+
+> **`dupont`**  
+> 입력: `net_income`, `sales`, `assets`, `equity` (`pd.Series`) — 같은 인덱스로 정렬된 4개 시리즈.  
+> 반환: `pd.DataFrame` — 같은 인덱스, 컬럼 `margin`/`turnover`/`leverage`/`ROE`. ROE = 셋의 곱.
 
 ```python
 def roe(net_income: pd.Series, equity_begin: pd.Series, equity_end: pd.Series) -> pd.Series:
@@ -251,6 +279,10 @@ $$
 
 ### Python
 
+> **`simple_return` / `log_return`**  
+> 입력: `close` (`pd.Series`, `index=DatetimeIndex`) — 일별 종가.  
+> 반환: `pd.Series` — 같은 인덱스의 일간 수익률. 첫 행은 `NaN` (직전 값이 없음).
+
 ```python
 def simple_return(close: pd.Series) -> pd.Series:
     return close.pct_change()
@@ -303,6 +335,10 @@ $$
 - **0~100 으로 정규화** 하는 이유 — $\text{RS} \in [0, \infty)$ 라 그대로 쓰면 시각화/비교가 어려워서, $100 - 100/(1+\text{RS})$ 변환으로 범위를 잘라요. RS = 1 이면 RSI = 50.
 
 ### Python
+
+> **`rsi`**  
+> 입력: `close` (`pd.Series`, `index=DatetimeIndex`) — 일별 종가. `n` (`int`) — Wilder smoothing 기간(보통 14).  
+> 반환: `pd.Series` — 같은 인덱스의 RSI 값(0~100). 초반 `n` 칸은 사실상 워밍업 구간.
 
 ```python
 def rsi(close: pd.Series, n: int = 14) -> pd.Series:
@@ -363,6 +399,10 @@ $$
 
 ### Python
 
+> **`macd`**  
+> 입력: `close` (`pd.Series`, `index=DatetimeIndex`) — 일별 종가. `fast`/`slow`/`signal` (`int`) — 단기/장기/시그널 EMA 기간(기본 12/26/9).  
+> 반환: `pd.DataFrame` — `close` 와 같은 인덱스, 컬럼 `macd`(단기-장기), `signal`(MACD 의 EMA9), `hist`(둘의 차).
+
 ```python
 def macd(close: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9) -> pd.DataFrame:
     ema_fast = close.ewm(span=fast, adjust=False).mean()
@@ -416,6 +456,10 @@ $$
 
 ### Python
 
+> **`bollinger`**  
+> 입력: `close` (`pd.Series`, `index=DatetimeIndex`) — 일별 종가. `n` (`int`) — 윈도우(기본 20). `k` (`float`) — 표준편차 배수(기본 2).  
+> 반환: `pd.DataFrame` — `close` 와 같은 인덱스, 컬럼 `mb`(중심), `ub`(상단), `lb`(하단), `width`((UB-LB)/MB, 변동성 압축 모니터링용).
+
 ```python
 def bollinger(close: pd.Series, n: int = 20, k: float = 2.0) -> pd.DataFrame:
     mb = close.rolling(n).mean()
@@ -466,6 +510,10 @@ $$
 
 ### Python
 
+> **`sharpe`**  
+> 입력: `returns` (`pd.Series`, `index=DatetimeIndex`) — 일별 (로그) 수익률. `rf_annual` (`float`) — 연 무위험금리(0.03 = 3%). `periods_per_year` (`int`) — 연환산 시점 수(주식 252).  
+> 반환: `float` — 연환산 Sharpe.
+
 ```python
 def sharpe(returns: pd.Series, rf_annual: float = 0.03,
            periods_per_year: int = 252) -> float:
@@ -515,6 +563,14 @@ OLS 회귀 형태로 보면 $R_i = \alpha_i + \beta_i R_m + \varepsilon_i$ 의 �
 
 ### Python
 
+> **`beta`**  
+> 입력: `stock_ret`, `market_ret` (`pd.Series`) — 같은 인덱스의 일별 수익률.  
+> 반환: `float` — 전 기간 평균 시장 베타.
+
+> **`rolling_beta`**  
+> 입력: 위와 동일 + `window` (`int`) — 롤링 윈도우 길이(거래일).  
+> 반환: `pd.Series` (`index=date`) — 시점별 롤링 베타. 초반 `window-1` 칸은 `NaN`.
+
 ```python
 def beta(stock_ret: pd.Series, market_ret: pd.Series) -> float:
     df = pd.concat([stock_ret, market_ret], axis=1).dropna()
@@ -529,6 +585,10 @@ def rolling_beta(stock_ret: pd.Series, market_ret: pd.Series, window: int = 60) 
 ```
 
 회귀로 직접 풀어도 동일해요.
+
+> **`beta_ols`**  
+> 입력: `stock_ret`, `market_ret` (`pd.Series`) — 같은 인덱스의 일별 수익률.  
+> 반환: `statsmodels` OLS 결과 객체. `.params.iloc[1]` 이 베타, `.params.iloc[0]` 이 알파 절편.
 
 ```python
 import statsmodels.api as sm
@@ -553,6 +613,10 @@ def beta_ols(stock_ret: pd.Series, market_ret: pd.Series):
 ## 11. 한 번에 묶어 쓰는 패턴
 
 위 함수들을 같은 `df` 위에서 한 번에 만들면 보통 이렇게 됩니다.
+
+> **`build_factors`**  
+> 입력: `df` (`pd.DataFrame`, `index=DatetimeIndex`) — `open`/`high`/`low`/`close`/`volume` 컬럼 보유의 OHLCV. `market` (`pd.Series`, 같은 인덱스) — 시장지수 종가.  
+> 반환: `pd.DataFrame` — `df` 와 같은 인덱스, 컬럼 `ret`/`rsi14`/`macd`/`macd_sig`/`macd_hist`/`bb_mb`/`bb_ub`/`bb_lb`/`bb_w`/`beta60`. 펀더멘털 팩터(EPS/PER 등)는 분기 데이터라 별도 매핑 후 합치는 게 안전.
 
 ```python
 def build_factors(df: pd.DataFrame, market: pd.Series) -> pd.DataFrame:
