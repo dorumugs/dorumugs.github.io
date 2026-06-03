@@ -196,7 +196,7 @@ EXEC sp_addrolemember 'db_owner', 'dms_user';
 -- 또는 SELECT + VIEW DATABASE STATE + db_datareader 조합
 ```
 
-DMS 가 CDC 함수(`fn_cdc_get_all_changes_*`) 를 호출하기 때문에 단순 `db_datareader` 만으론 부족해요. `db_owner` 가 가장 깔끔하지만, 보안상 줄이고 싶다면 `EXECUTE` 권한을 CDC 함수에 별도 부여하는 방식이 있어요.
+DMS 가 CDC 함수(`fn_cdc_get_all_changes_*`) 를 호출해야 해서 단순 `db_datareader` 만으론 부족해요. `db_owner` 가 가장 깔끔하지만, 보안상 줄이고 싶다면 `EXECUTE` 권한을 CDC 함수에 별도 부여하는 방식이 있어요.
 
 
 <br>

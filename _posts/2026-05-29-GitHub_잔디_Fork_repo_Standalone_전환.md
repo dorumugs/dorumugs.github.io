@@ -80,7 +80,7 @@ curl -s https://api.github.com/repos/dorumugs/dorumugs.github.io | \
 
 ✅ 범인 확인 — `"fork": true`.
 
-블로그는 [minimal-mistakes](https://github.com/mmistakes/minimal-mistakes) 테마를 기반으로 시작했는데, 그때 GitHub 의 "Fork" 버튼으로 시작해서 그대로 콘텐츠를 채워나간 거였어요. 시간이 지나면서 테마는 거의 통째로 갈아엎고 내 글이 99% 인 상태가 됐지만, GitHub 가 보기엔 여전히 mmistakes/minimal-mistakes 의 fork 였어요. 그리고 fork 의 커밋은 잔디 정책상 무조건 카운트 제외.
+블로그는 [minimal-mistakes](https://github.com/mmistakes/minimal-mistakes) 테마를 기반으로 시작했는데, 그때 GitHub 의 "Fork" 버튼으로 시작해서 그대로 콘텐츠를 채워나간 거였어요. 시간이 지나면서 테마는 거의 통째로 갈아엎고 내 글이 99% 인 상태가 됐지만, GitHub 가 보기엔 여전히 mmistakes/minimal-mistakes 의 fork 였어요. 그리고 fork 의 커밋은 잔디 정책상 무조건 카운트에서 빠져요.
 
 > ⚠️ fork 여부는 repo 페이지 상단의 "forked from mmistakes/minimal-mistakes" 표기로도 확인할 수 있어요. 평소에는 안 보고 지나치게 되니까 본인 repo 가 fork 인지 모르고 있는 경우가 의외로 많아요.
 
@@ -316,7 +316,7 @@ push 끝나고 Pages 도 잘 떴다면 이제 GitHub 가 백필을 돌려요.
 - user site (`<username>.github.io`) 인 경우 rename → new repo (같은 이름) → push 순서로 가면 URL 도 보존돼요.
 - 가장 자주 빼먹는 함정은 **commit author email 이 verified email 인지**, **Keep email private 설정 여부**.
 
-블로그 시작할 때 "Fork" 버튼을 누른 게 1년 넘게 잔디를 가렸던 셈이에요. 새 프로젝트 시작할 때는 가능하면 `Use this template` 가 있으면 그걸 쓰거나, 그게 없으면 fork 후 가능한 빨리 standalone 으로 옮겨두는 게 좋아요.
+블로그 시작할 때 "Fork" 버튼을 누른 게 1년 넘게 잔디를 가렸던 셈이에요. 새 프로젝트 시작할 때는 `Use this template` 가 있으면 그걸 쓰고, 없으면 fork 후 가능한 빨리 standalone 으로 옮겨두는 게 좋아요.
 
 일단 오늘은 여기까지.....   
 다음 글에서는 새 repo 환경에서 이어가는 minimal-mistakes 커스터마이즈 작업 정리해볼게요.
