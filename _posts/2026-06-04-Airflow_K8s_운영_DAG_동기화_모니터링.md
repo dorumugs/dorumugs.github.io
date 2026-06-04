@@ -42,7 +42,7 @@ DAG 를 클러스터로 어떻게 흘려보낼지 정해야 해요. 크게 세 �
 | PV 마운트 (NFS/EFS) | DAG 만 갈아끼우면 됨 | PV 운영 부담, 권한 이슈 |
 | `git-sync` 사이드카 | Git push → 자동 반영, 변경 이력 = Git 그대로 | 사설 repo 면 SSH 키 관리 필요 |
 
-운영에서 가장 흔한 게 `git-sync` 예요. **scheduler / webserver / 워커 Pod 안에 사이드카 컨테이너로 같이 떠서, 일정 주기로 `git pull`** 해서 DAG 폴더를 갱신해요.
+운영에서 가장 흔한 게 `git-sync` 예요. **scheduler / api-server / dag-processor / 워커 Pod 안에 사이드카 컨테이너로 같이 떠서, 일정 주기로 `git pull`** 해서 DAG 폴더를 갱신해요.
 
 입문 글에서 잠깐 짚었던 "한 `Pod` 안에 컨테이너가 여러 개 들어갈 수 있다" 가 여기서 진짜로 쓰입니다. 메인 컨테이너(Airflow) 옆에 `git-sync` 컨테이너가 같이 떠 있고, 둘이 같은 빈 디렉토리 볼륨을 공유해요. git-sync 가 그 폴더에 DAG 를 떨어뜨리면 Airflow 가 그걸 읽어요.
 
@@ -69,7 +69,7 @@ kubectl -n airflow create secret generic airflow-git-ssh-key \
   --from-file=gitSshKey=/path/to/id_ed25519
 ```
 
-> ✅ git-sync 가 켜지면 scheduler / webserver / 워커가 같은 revision 을 봅니다. "스케줄러는 새 DAG 인데 워커는 옛 DAG 로 실행" 같은 사고가 안 나요.
+> ✅ git-sync 가 켜지면 scheduler / api-server / dag-processor / 워커가 같은 revision 을 봅니다. "스케줄러는 새 DAG 인데 워커는 옛 DAG 로 실행" 같은 사고가 안 나요.
 
 
 <br>
@@ -97,7 +97,7 @@ logs:
     storageClassName: standard   # 또는 nfs, gp3 등
 ```
 
-> 🚨 `ReadWriteMany` 가 되는 스토리지(NFS, EFS, Azure Files, CephFS)여야 합니다. **scheduler / webserver / 워커가 같은 볼륨을 동시에 마운트** 해야 하니까. 일반 EBS 같은 `ReadWriteOnce` 는 동작 안 함.
+> 🚨 `ReadWriteMany` 가 되는 스토리지(NFS, EFS, Azure Files, CephFS)여야 합니다. **scheduler / api-server / 워커가 같은 볼륨을 동시에 마운트** 해야 하니까. 일반 EBS 같은 `ReadWriteOnce` 는 동작 안 함.
 
 ### 2-2. Remote logging (S3 / GCS / Azure Blob)
 
@@ -134,7 +134,7 @@ config:
 | 층 | 지표 | 어디서 |
 |---|---|---|
 | Airflow 잡 단위 | DAG 성공/실패율, 태스크 평균 실행시간, 큐잉 시간 | Airflow UI + statsd/prom exporter |
-| 컴포넌트 단위 | scheduler heartbeat, triggerer 활성, webserver 응답 | `/health` 엔드포인트, K8s probe |
+| 컴포넌트 단위 | scheduler heartbeat, triggerer 활성, api-server 응답, dag-processor 파싱 시간 | `/health` 엔드포인트, K8s probe |
 | 클러스터 단위 | 노드 CPU/메모리, Pod Pending 개수, OOM | Prometheus + node-exporter |
 
 Airflow 메트릭을 Prometheus 로 빼는 가장 간단한 길은 차트의 statsd → Prometheus exporter 를 켜는 거예요.
@@ -235,7 +235,7 @@ pgbouncer:
 - [x] Prometheus 로 scheduler heartbeat / queue lag 패널 존재
 - [x] Cluster Autoscaler / Karpenter 가 워커 노드풀에 붙어있음
 - [x] 사설 레지스트리 풀 `Secret` 이 ServiceAccount 에 잘 붙음
-- [x] Webserver `defaultUser` 비번 교체 또는 SSO 로 대체
+- [x] `createUserJob.defaultUser` 비번 교체 또는 SSO 로 대체
 
 여기까지 들어맞으면 Airflow on K8s 운영 1차 셋업은 끝났다고 봐도 돼요.
 

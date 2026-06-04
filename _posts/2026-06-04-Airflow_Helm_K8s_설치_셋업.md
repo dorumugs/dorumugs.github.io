@@ -13,13 +13,13 @@ toc: true
 
 # Summary
 
-(1/4) 에서 본 7~8 개 오브젝트 묶음을 실제로 K8s 에 올릴 차례. 공식 `apache-airflow` Helm 차트가 거의 다 해주고, 우리가 할 일은 두 가지뿐이에요. **(1) `Namespace` 와 두 개의 `Secret` 을 미리 만들고, (2) `values.yaml` 에 최소 옵션만 채워서 `helm install`.**
+(1/4) 에서 본 8~9 개 오브젝트 묶음을 실제로 K8s 에 올릴 차례. 공식 `apache-airflow` Helm 차트가 거의 다 해주고, 우리가 할 일은 두 가지뿐이에요. **(1) `Namespace` 와 두 개의 `Secret` 을 미리 만들고, (2) `values.yaml` 에 최소 옵션만 채워서 `helm install`.**
 
-> 📚 이 글에서 만들거나 다루는 오브젝트는 전부 [K8s YAML 입문 글](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 7개 안쪽이에요. 우리가 손으로 만들 건 `Namespace` 와 `Secret` 두 개뿐이고, 나머지(`Deployment` × 3, `Service`, `ConfigMap`, 선택적 `Ingress`) 는 Helm 이 알아서 깔아줍니다.
+> 📚 이 글에서 만들거나 다루는 오브젝트는 전부 [K8s YAML 입문 글](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 7개 안쪽이에요. 우리가 손으로 만들 건 `Namespace` 와 `Secret` 두 개뿐이고, 나머지(Airflow 3.x 의 `Deployment` × 4 — scheduler / api-server / triggerer / dag-processor — 와 `Service`, `ConfigMap`, 선택적 `Ingress`) 는 Helm 이 알아서 깔아줍니다.
 
 > 💡 이 글에서 다루는 것
 > - Helm repo 등록 / 차트 버전 확인
-> - `Namespace` 만들고, Fernet/webserver `Secret` 두 개 미리 박기
+> - `Namespace` 만들고, Fernet 키 / API server 세션 `Secret` 두 개 미리 박기
 > - `values.yaml` 최소 셋 (executor, DB, secret 참조)
 > - `helm install` 한 방
 > - 첫 접속 확인 + 자주 겪는 함정
@@ -108,22 +108,38 @@ postgresql:
     postgresPassword: "change-me-postgres-admin"
     username: airflow
     password: "change-me-airflow-db"
-    database: airflow
+
+# Airflow 가 쓸 DB 이름은 chart 의 data 블록에서 (postgresql.auth.database 가 아닌 점 주의)
+data:
+  metadataConnection:
+    db: airflow
 
 # KubernetesExecutor 는 Redis 안 씀
 redis:
   enabled: false
 
-# Deployment 한 개씩
+# Airflow 3.x 의 상시 컴포넌트 4개 — 각각 Deployment 한 개씩
 scheduler:
   replicas: 1
-webserver:
+apiServer:           # Airflow 3.x 의 새 이름 (= 2.x 의 webserver)
   replicas: 1
   service:
     type: ClusterIP
 triggerer:
   enabled: true
   replicas: 1
+dagProcessor:        # 3.x 부터 standalone 필수
+  enabled: true
+  replicas: 1
+
+# 초기 관리자 계정 — Airflow 3.x 의 createUserJob 블록 사용
+createUserJob:
+  defaultUser:
+    enabled: true
+    username: admin
+    password: "change-me-admin"
+    email: admin@example.com
+    role: Admin
 
 # 첫 설치엔 예제 DAG 끄고 시작
 config:
@@ -160,7 +176,7 @@ helm upgrade --install airflow apache-airflow/airflow \
 watch -n 2 "kubectl -n airflow get pods"
 ```
 
-정상이면 `airflow-scheduler-*`, `airflow-webserver-*`, `airflow-triggerer-*`, `airflow-postgresql-*` 가 모두 `Running` 상태가 돼요. 첫 기동 직후엔 `airflow-run-airflow-migrations-*` job pod 가 잠깐 떴다 사라지기도 하는데, 이것도 정상이에요.
+정상이면 `airflow-scheduler-*`, `airflow-api-server-*`, `airflow-triggerer-*`, `airflow-dag-processor-*`, `airflow-postgresql-*` 가 모두 `Running` 상태가 돼요. 첫 기동 직후엔 `airflow-run-airflow-migrations-*` job pod 와 `airflow-create-user-*` job pod 가 잠깐 떴다 사라지기도 하는데, 이것도 정상이에요.
 
 
 <br>
@@ -174,10 +190,10 @@ watch -n 2 "kubectl -n airflow get pods"
 `Ingress` 셋업까지 안 가도 우선 UI 는 띄워볼 수 있어요. `kubectl port-forward` 한 줄이면 충분합니다.
 
 ```shell
-kubectl -n airflow port-forward svc/airflow-webserver 8080:8080
+kubectl -n airflow port-forward svc/airflow-api-server 8080:8080
 ```
 
-브라우저에서 `http://localhost:8080`. 기본 계정은 `admin / admin` — 운영에선 반드시 `webserver.defaultUser.password` 를 바꾸거나 SSO 로 교체.
+브라우저에서 `http://localhost:8080`. 기본 계정은 위 `createUserJob.defaultUser` 에서 잡은 `admin / change-me-admin`. 운영에선 반드시 비번 바꾸거나 SSO 로 교체.
 
 > ✅ 첫 접속 체크
 > - [x] 좌측 사이드바에 DAG 목록 (아직 비어있어야 함 — load_examples=False)

@@ -42,7 +42,7 @@ toc: true
 - 사내 PyPI 의 사내 패키지
 - 시스템 바이너리 — `git`, `unixodbc`, `libxml2`
 
-그래서 거의 항상 **커스텀 이미지 한 장** 을 굽게 됩니다. 그리고 이 이미지는 *워커 전용* 이 아니에요. **scheduler / webserver / triggerer / worker 가 모두 같은 이미지** 를 씁니다. DAG 코드 파싱은 스케줄러도 같이 해야 하니까.
+그래서 거의 항상 **커스텀 이미지 한 장** 을 굽게 됩니다. 그리고 이 이미지는 *워커 전용* 이 아니에요. Airflow 3.x 에선 **scheduler / api-server / triggerer / dag-processor / worker 가 모두 같은 이미지** 를 씁니다. DAG 코드를 모든 컴포넌트가 같이 봐야 하기 때문이에요.
 
 
 <br>
@@ -84,8 +84,8 @@ pandas==2.2.2
 pyarrow==16.1.0
 boto3==1.34.140
 psycopg2-binary==2.9.9
-apache-airflow-providers-amazon==9.4.0
-apache-airflow-providers-postgres==6.0.0
+apache-airflow-providers-amazon==9.29.0
+apache-airflow-providers-postgres==6.7.0
 ```
 
 > ⚠️ `apache-airflow-providers-*` 는 베이스 Airflow 버전에 민감해요. 너무 신 버전을 박으면 import 단계에서 죽습니다.
@@ -145,7 +145,7 @@ registry:
   secretName: harbor-creds
 ```
 
-`defaultAirflowRepository` + `defaultAirflowTag` 한 쌍만 잡아도 scheduler/webserver/triggerer/worker 가 모두 같은 이미지를 받아요. 바로 반영해볼게요.
+`defaultAirflowRepository` + `defaultAirflowTag` 한 쌍만 잡아도 scheduler / api-server / triggerer / dag-processor / worker 가 모두 같은 이미지를 받아요. 바로 반영해볼게요.
 
 ```shell
 helm upgrade --install airflow apache-airflow/airflow \
@@ -268,8 +268,8 @@ def heavy_aggregation():
 가벼운 DAG 한 번 돌려놓고 워커 Pod 가 떴다 사라지는 순간을 잡아보면 적용 여부가 즉시 보여요.
 
 ```shell
-# scheduler/webserver/triggerer/postgresql 제외하고 워커 Pod 만 보기
-kubectl -n airflow get pods -w | grep -v -E "scheduler|webserver|triggerer|postgresql"
+# 상시 컴포넌트 (Airflow 3.x) 제외하고 일시적 워커 Pod 만 보기
+kubectl -n airflow get pods -w | grep -v -E "scheduler|api-server|triggerer|dag-processor|postgresql"
 ```
 
 태스크가 돌면 `<dag_id>-<task_id>-<runid>-<suffix>` 패턴 Pod 가 잠깐 뜨고 사라져요. 떠 있는 동안 한 번 `describe` 찍어봐요.
