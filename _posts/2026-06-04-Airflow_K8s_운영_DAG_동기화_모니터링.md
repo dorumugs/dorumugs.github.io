@@ -34,7 +34,7 @@ toc: true
 
 ## 1. DAG 동기화 — git-sync 사이드카
 
-DAG 를 클러스터로 어떻게 흘려보낼지 정해야 해요. 크게 세 가지.
+DAG 를 클러스터로 어떻게 흘려보낼지 정해야 해요. 크게 세 가지가 있어요.
 
 | 방법 | 장점 | 단점 |
 |---|---|---|
@@ -80,13 +80,13 @@ kubectl -n airflow create secret generic airflow-git-ssh-key \
 
 ## 2. 로그 영속화 — Pod 가 사라져도 로그가 남게
 
-KubernetesExecutor 의 워커 `Pod` 는 태스크가 끝나면 사라져요. **그 안의 로그도 같이 사라진다는 뜻**. UI 에서 어제 실패한 태스크 로그를 보려는데 "log not found" 가 뜨는 건 거의 이 문제.
+KubernetesExecutor 의 워커 `Pod` 는 태스크가 끝나면 사라져요. **그 안의 로그도 같이 사라진다는 뜻** 이에요. UI 에서 어제 실패한 태스크 로그를 보려는데 "log not found" 가 뜨는 건 거의 이 문제예요.
 
-해결은 둘 중 하나.
+해결책은 둘 중 하나예요.
 
 ### 2-1. PVC 로 로그 폴더 영속화
 
-primer 의 "다음 단계 친구" 표에서 본 `PersistentVolumeClaim` 이 여기 등장. 차트가 옵션 한 줄로 깔아줘요.
+primer 의 "다음 단계 친구" 표에서 본 `PersistentVolumeClaim` 이 여기 등장해요. 차트가 옵션 한 줄로 깔아줍니다.
 
 ```yaml
 # values.yaml
@@ -101,7 +101,7 @@ logs:
 
 ### 2-2. Remote logging (S3 / GCS / Azure Blob)
 
-운영에선 가장 깔끔. 태스크가 끝날 때 워커가 객체 스토리지에 로그를 업로드하고, UI 가 거기서 가져옵니다.
+운영에선 가장 깔끔한 방식이에요. 태스크가 끝날 때 워커가 객체 스토리지에 로그를 업로드하고, UI 가 거기서 가져옵니다.
 
 ```yaml
 # values.yaml
@@ -113,7 +113,7 @@ config:
     encrypt_s3_logs: "False"
 ```
 
-`aws_default` connection 은 Airflow UI 에서 IAM 키로 만들거나, IRSA(EKS) / Workload Identity(GKE) 같이 **클러스터 차원의 권한 위임** 으로 풀 수도 있어요. 운영이면 후자가 안전.
+`aws_default` connection 은 Airflow UI 에서 IAM 키로 만들거나, IRSA(EKS) / Workload Identity(GKE) 같이 **클러스터 차원의 권한 위임** 으로 풀 수도 있어요. 운영이면 후자가 안전합니다.
 
 | 방식 | 추천 상황 |
 |---|---|
@@ -129,7 +129,7 @@ config:
 
 ## 3. 모니터링 — 무엇을 보고 있어야 하나
 
-운영하면서 봐야 하는 신호는 세 층.
+운영하면서 봐야 하는 신호는 크게 세 층으로 나뉘어요.
 
 | 층 | 지표 | 어디서 |
 |---|---|---|
@@ -137,7 +137,7 @@ config:
 | 컴포넌트 단위 | scheduler heartbeat, triggerer 활성, webserver 응답 | `/health` 엔드포인트, K8s probe |
 | 클러스터 단위 | 노드 CPU/메모리, Pod Pending 개수, OOM | Prometheus + node-exporter |
 
-Airflow 메트릭을 Prometheus 로 빼는 가장 간단한 길은 차트의 statsd → Prometheus exporter.
+Airflow 메트릭을 Prometheus 로 빼는 가장 간단한 길은 차트의 statsd → Prometheus exporter 를 켜는 거예요.
 
 ```yaml
 # values.yaml
@@ -173,7 +173,7 @@ Prometheus 가 ServiceMonitor 로 긁어가게 해두면 Grafana 에서 다음 �
 
 ### 4-1. Scheduler
 
-"늘리면 빨라진다" 가 아니에요. Airflow 2.x 가 멀티 스케줄러를 지원하긴 하지만, **DB 락 경합** 이 늘면 오히려 느려져요. 보통 1~3 개. 그 이상은 DB 튜닝(connection pool, `parsing_processes`) 부터.
+"늘리면 빨라진다" 가 아니에요. Airflow 2.x 가 멀티 스케줄러를 지원하긴 하지만, **DB 락 경합** 이 늘면 오히려 느려져요. 보통 1~3 개가 적정이고, 그 이상은 DB 튜닝(connection pool, `parsing_processes`) 부터 봐야 해요.
 
 ### 4-2. Worker
 
@@ -186,7 +186,7 @@ KubernetesExecutor 의 워커는 태스크당 Pod 라 자동으로 늘었다 줄
 
 ### 4-3. Metadata DB
 
-운영에서 가장 자주 병목 잡히는 곳. 외부 RDS / CloudSQL 로 빼고, `pgbouncer` 같은 connection pool 을 같이 두는 게 표준.
+운영에서 가장 자주 병목이 잡히는 곳이에요. 외부 RDS / CloudSQL 로 빼고, `pgbouncer` 같은 connection pool 을 같이 두는 게 표준이에요.
 
 ```yaml
 # values.yaml
@@ -237,7 +237,7 @@ pgbouncer:
 - [x] 사설 레지스트리 풀 `Secret` 이 ServiceAccount 에 잘 붙음
 - [x] Webserver `defaultUser` 비번 교체 또는 SSO 로 대체
 
-여기까지 들어맞으면 Airflow on K8s 운영 1차 셋업은 완료.
+여기까지 들어맞으면 Airflow on K8s 운영 1차 셋업은 끝났다고 봐도 돼요.
 
 일단 오늘은 여기까지.....   
 다음 글에서는 이번 시리즈에서 못 다룬 외부 메타데이터 DB 분리(RDS Postgres) 와 IRSA 기반 AWS 권한 위임 패턴을 정리해볼게요.

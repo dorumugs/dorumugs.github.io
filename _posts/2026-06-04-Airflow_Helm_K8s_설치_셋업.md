@@ -15,7 +15,7 @@ toc: true
 
 (1/4) 에서 본 7~8 개 오브젝트 묶음을 실제로 K8s 에 올릴 차례. 공식 `apache-airflow` Helm 차트가 거의 다 해주고, 우리가 할 일은 두 가지뿐이에요. **(1) `Namespace` 와 두 개의 `Secret` 을 미리 만들고, (2) `values.yaml` 에 최소 옵션만 채워서 `helm install`.**
 
-> 📚 이 글에서 만들거나 다루는 오브젝트는 전부 [primer](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 7개 안쪽이에요. `Namespace` → `Secret` → (Helm 이 알아서) `Deployment` × 3 + `Service` + `ConfigMap` + (선택) `Ingress`.
+> 📚 이 글에서 만들거나 다루는 오브젝트는 전부 [primer](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 7개 안쪽이에요. 우리가 손으로 만들 건 `Namespace` 와 `Secret` 두 개뿐이고, 나머지(`Deployment` × 3, `Service`, `ConfigMap`, 선택적 `Ingress`) 는 Helm 이 알아서 깔아줘요.
 
 > 💡 이 글에서 다루는 것
 > - Helm repo 등록 / 차트 버전 확인
@@ -65,7 +65,7 @@ kubectl create namespace airflow
 
 그리고 Airflow 가 꼭 필요로 하는 두 개의 `Secret` 을 **미리** 박아둡니다. 차트가 알아서 만들어주기도 하는데, **명시적으로 만들면 `helm upgrade` 때 값이 바뀌면서 토큰이 갈리는 사고**를 막을 수 있어요.
 
-primer §8 의 `Secret` 패턴 그대로, `kubectl create secret` 한 줄로 처리.
+primer §8 의 `Secret` 패턴 그대로, `kubectl create secret` 한 줄로 처리해요.
 
 ```shell
 # 1) Fernet key — Airflow connection 암호화. 잃어버리면 기존 connection 다 못 읽음
@@ -154,13 +154,13 @@ helm upgrade --install airflow apache-airflow/airflow \
 - `upgrade --install` 패턴: 처음이면 install, 이미 있으면 upgrade. 멱등하게 굴리기 좋아요.
 - 첫 설치는 이미지 풀링 + DB 마이그레이션이 같이 도는 시간이라 5분 가까이 걸리는 경우도 있어요.
 
-진행 상황은 다른 터미널에서.
+진행 상황은 다른 터미널에서 같이 봐주세요.
 
 ```shell
 watch -n 2 "kubectl -n airflow get pods"
 ```
 
-정상이면 `airflow-scheduler-*`, `airflow-webserver-*`, `airflow-triggerer-*`, `airflow-postgresql-*` 가 모두 `Running`. 첫 기동 직후엔 `airflow-run-airflow-migrations-*` job pod 가 잠깐 떴다 사라지기도 해요. 정상.
+정상이면 `airflow-scheduler-*`, `airflow-webserver-*`, `airflow-triggerer-*`, `airflow-postgresql-*` 가 모두 `Running` 상태가 돼요. 첫 기동 직후엔 `airflow-run-airflow-migrations-*` job pod 가 잠깐 떴다 사라지기도 하는데, 이것도 정상이에요.
 
 
 <br>
@@ -171,7 +171,7 @@ watch -n 2 "kubectl -n airflow get pods"
 
 ## 5. 첫 접속 확인
 
-primer §6 의 `Ingress` 까지 안 가도 우선 UI 띄워볼 수 있어요. `kubectl port-forward` 로 충분.
+primer §6 의 `Ingress` 까지 안 가도 우선 UI 띄워볼 수 있어요. `kubectl port-forward` 로도 충분해요.
 
 ```shell
 kubectl -n airflow port-forward svc/airflow-webserver 8080:8080
@@ -194,7 +194,7 @@ kubectl -n airflow port-forward svc/airflow-webserver 8080:8080
 
 ## 6. 자주 겪는 함정
 
-설치 자체는 깔끔하지만 첫 한두 번은 거의 한 번씩 겪어요. primer 어휘 그대로.
+설치 자체는 깔끔하지만 첫 한두 번은 거의 한 번씩 겪어요. primer 어휘 그대로 정리해볼게요.
 
 | 증상 | 원인 / 처방 |
 |---|---|

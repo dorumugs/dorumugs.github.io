@@ -101,7 +101,7 @@ apache-airflow-providers-postgres==5.11.1
 
 ## 3. 빌드 / 푸시
 
-레지스트리 주소는 환경에 맞게. 예시는 사내 Harbor 가정.
+레지스트리 주소는 환경에 맞게 바꿔주세요. 예시는 사내 Harbor 를 가정했어요.
 
 ```shell
 REG=registry.<internal>/data-platform
@@ -113,7 +113,7 @@ docker push $REG/airflow:$TAG
 
 운영에서는 `:latest` 같은 태그 쓰지 말고 **불변 태그** (날짜+빌드넘버, 커밋 SHA) 권장. K8s 가 이미지 캐시를 적극적으로 쓰는데 `:latest` 면 노드별 캐시 시점이 어긋나서 같은 태그인데 다른 이미지가 떠 있는 사고가 나요.
 
-사설 레지스트리면 K8s 가 풀할 수 있게 **`Secret`** 으로 자격증명을 박아둬야 해요. primer §8 의 패턴 + `docker-registry` 타입.
+사설 레지스트리면 K8s 가 풀할 수 있게 **`Secret`** 으로 자격증명을 박아둬야 해요. primer §8 의 `Secret` 패턴에 `docker-registry` 타입을 얹은 모양이에요.
 
 ```shell
 kubectl -n airflow create secret docker-registry harbor-creds \
@@ -145,7 +145,7 @@ registry:
   secretName: harbor-creds
 ```
 
-`defaultAirflowRepository` + `defaultAirflowTag` 한 쌍만 잡아도 scheduler/webserver/triggerer/worker 가 모두 같은 이미지를 받아요. 반영.
+`defaultAirflowRepository` + `defaultAirflowTag` 한 쌍만 잡아도 scheduler/webserver/triggerer/worker 가 모두 같은 이미지를 받아요. 바로 반영해볼게요.
 
 ```shell
 helm upgrade --install airflow apache-airflow/airflow \
@@ -181,7 +181,7 @@ spec:
         limits:   { cpu: "2",   memory: "4Gi" }
 ```
 
-직접 ConfigMap 으로 위 YAML 을 마운트해도 되지만, Helm 차트의 `workers.*` 옵션으로 같은 결과를 만들 수 있어요. 이게 가장 깔끔.
+직접 ConfigMap 으로 위 YAML 을 마운트해도 되지만, Helm 차트의 `workers.*` 옵션으로 같은 결과를 만들 수 있어요. 이게 가장 깔끔해요.
 
 ```yaml
 # values.yaml (추가)
@@ -272,7 +272,7 @@ def heavy_aggregation():
 kubectl -n airflow get pods -w | grep -v -E "scheduler|webserver|triggerer|postgresql"
 ```
 
-태스크가 돌면 `<dag_id>-<task_id>-<runid>-<suffix>` 패턴 Pod 가 잠깐 뜨고 사라져요. 떠 있는 동안 describe.
+태스크가 돌면 `<dag_id>-<task_id>-<runid>-<suffix>` 패턴 Pod 가 잠깐 뜨고 사라져요. 떠 있는 동안 한 번 `describe` 찍어봐요.
 
 ```shell
 kubectl -n airflow describe pod <pod-name>
@@ -285,7 +285,7 @@ kubectl -n airflow describe pod <pod-name>
 - [x] `Node-Selectors:` 가 의도한 노드풀
 - [x] `Volumes:` / `Mounts:` 에 Secret/ConfigMap 이 잘 붙음
 
-여기까지 맞으면 워커 이미지 + 템플릿 셋업은 끝.
+여기까지 맞으면 워커 이미지 + 템플릿 셋업은 끝나요.
 
 일단 오늘은 여기까지.....   
 다음 글에서는 DAG 동기화(`git-sync`), 로그 영속화, 모니터링/스케일 같은 **운영** 쪽을 정리할게요.
