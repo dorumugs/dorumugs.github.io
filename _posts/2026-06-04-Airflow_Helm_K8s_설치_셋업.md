@@ -2,7 +2,7 @@
 layout: single
 title:  "(2/4) Helm 으로 Airflow 를 K8s 에 설치하기 — KubernetesExecutor 셋업"
 date: 2026-06-04 21:10:00 +0900
-description: "공식 apache-airflow Helm 차트로 Airflow 를 K8s 위에 올리는 끝-에서-끝 셋업. Namespace · Secret 미리 준비, values.yaml 최소 셋, KubernetesExecutor 켜는 한 줄까지."
+description: "공식 apache-airflow Helm 차트로 Airflow 를 K8s 위에 처음부터 끝까지 올리는 셋업. Namespace · Secret 미리 준비, values.yaml 최소 셋, KubernetesExecutor 켜는 한 줄까지."
 categories: coding
 tag: [Airflow, Kubernetes, K8s, Helm, KubernetesExecutor, Postgres, values, 셋업, DevOps]
 author_profile: false
@@ -15,7 +15,7 @@ toc: true
 
 (1/4) 에서 본 7~8 개 오브젝트 묶음을 실제로 K8s 에 올릴 차례. 공식 `apache-airflow` Helm 차트가 거의 다 해주고, 우리가 할 일은 두 가지뿐이에요. **(1) `Namespace` 와 두 개의 `Secret` 을 미리 만들고, (2) `values.yaml` 에 최소 옵션만 채워서 `helm install`.**
 
-> 📚 이 글에서 만들거나 다루는 오브젝트는 전부 [primer](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 7개 안쪽이에요. 우리가 손으로 만들 건 `Namespace` 와 `Secret` 두 개뿐이고, 나머지(`Deployment` × 3, `Service`, `ConfigMap`, 선택적 `Ingress`) 는 Helm 이 알아서 깔아줘요.
+> 📚 이 글에서 만들거나 다루는 오브젝트는 전부 [K8s YAML 입문 글](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 7개 안쪽이에요. 우리가 손으로 만들 건 `Namespace` 와 `Secret` 두 개뿐이고, 나머지(`Deployment` × 3, `Service`, `ConfigMap`, 선택적 `Ingress`) 는 Helm 이 알아서 깔아줍니다.
 
 > 💡 이 글에서 다루는 것
 > - Helm repo 등록 / 차트 버전 확인
@@ -57,7 +57,7 @@ helm show values apache-airflow/airflow \
 
 ## 2. Namespace 와 미리 만들 Secret 두 개
 
-primer 에서 본 그 `Namespace` 부터 만들어요.
+먼저 K8s 의 기본 단위인 `Namespace` 부터 하나 만들어요.
 
 ```shell
 kubectl create namespace airflow
@@ -65,7 +65,7 @@ kubectl create namespace airflow
 
 그리고 Airflow 가 꼭 필요로 하는 두 개의 `Secret` 을 **미리** 박아둡니다. 차트가 알아서 만들어주기도 하는데, **명시적으로 만들면 `helm upgrade` 때 값이 바뀌면서 토큰이 갈리는 사고**를 막을 수 있어요.
 
-primer 의 `Secret` 패턴 그대로, `kubectl create secret` 한 줄로 처리해요.
+두 키 모두 일반 `Secret` 패턴이라 `kubectl create secret` 한 줄로 처리할 수 있어요.
 
 ```shell
 # 1) Fernet key — Airflow connection 암호화. 잃어버리면 기존 connection 다 못 읽음
@@ -171,7 +171,7 @@ watch -n 2 "kubectl -n airflow get pods"
 
 ## 5. 첫 접속 확인
 
-primer 의 `Ingress` 까지 안 가도 우선 UI 띄워볼 수 있어요. `kubectl port-forward` 로도 충분해요.
+`Ingress` 셋업까지 안 가도 우선 UI 는 띄워볼 수 있어요. `kubectl port-forward` 한 줄이면 충분합니다.
 
 ```shell
 kubectl -n airflow port-forward svc/airflow-webserver 8080:8080
@@ -194,7 +194,7 @@ kubectl -n airflow port-forward svc/airflow-webserver 8080:8080
 
 ## 6. 자주 겪는 함정
 
-설치 자체는 깔끔하지만 첫 한두 번은 거의 한 번씩 겪어요. primer 어휘 그대로 정리해볼게요.
+설치 자체는 깔끔하지만 첫 한두 번은 거의 한 번씩 겪어요. 자주 보이는 패턴을 정리해둡니다.
 
 | 증상 | 원인 / 처방 |
 |---|---|

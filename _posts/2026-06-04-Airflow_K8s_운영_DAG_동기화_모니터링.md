@@ -15,7 +15,7 @@ toc: true
 
 설치와 워커 이미지까지 끝났으면 이제 운영 모드. 이 글에서는 **DAG 동기화(`git-sync` 사이드카) · 로그 영속화(`PVC` 또는 객체 스토리지) · 모니터링 · 스케일 · 장애 패턴** 을 한 번에 정리합니다.
 
-> 📚 이번 편은 [primer](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 **다음 단계 친구**(`PersistentVolumeClaim`) 영역까지 살짝 발을 들여요. 그리고 primer 의 "Pod 에는 컨테이너가 여러 개 들어갈 수 있다" 는 얘기가 `git-sync` 사이드카에서 정말로 쓰입니다.
+> 📚 이번 편은 [K8s YAML 입문 글](/coding/K8s_YAML_오브젝트_7가지_입문/) 에서 짚었던 **"다음 단계 친구"** (`PersistentVolumeClaim`) 영역까지 살짝 발을 들여요. 그리고 같은 글의 "Pod 에는 컨테이너가 여러 개 들어갈 수 있다" 는 사실이 `git-sync` 사이드카에서 진짜로 쓰입니다.
 
 > 💡 이 글에서 다루는 것
 > - DAG 동기화 — `git-sync` 사이드카 패턴
@@ -44,7 +44,7 @@ DAG 를 클러스터로 어떻게 흘려보낼지 정해야 해요. 크게 세 �
 
 운영에서 가장 흔한 게 `git-sync` 예요. **scheduler / webserver / 워커 Pod 안에 사이드카 컨테이너로 같이 떠서, 일정 주기로 `git pull`** 해서 DAG 폴더를 갱신해요.
 
-primer 에서 잠깐 짚었던 "한 `Pod` 안에 컨테이너가 여러 개 들어갈 수 있다" 가 여기서 진짜로 쓰입니다. 메인 컨테이너(Airflow) 옆에 `git-sync` 컨테이너가 같이 떠 있고, 둘이 같은 빈 디렉토리 볼륨을 공유해요. git-sync 가 그 폴더에 DAG 를 떨어뜨리면 Airflow 가 그걸 읽어요.
+입문 글에서 잠깐 짚었던 "한 `Pod` 안에 컨테이너가 여러 개 들어갈 수 있다" 가 여기서 진짜로 쓰입니다. 메인 컨테이너(Airflow) 옆에 `git-sync` 컨테이너가 같이 떠 있고, 둘이 같은 빈 디렉토리 볼륨을 공유해요. git-sync 가 그 폴더에 DAG 를 떨어뜨리면 Airflow 가 그걸 읽어요.
 
 Helm 차트가 기본 지원합니다.
 
@@ -62,7 +62,7 @@ dags:
     sshKeySecret: airflow-git-ssh-key
 ```
 
-SSH 키는 `Secret` 으로 미리 박아둬요. primer 의 `Secret` 패턴 그대로.
+SSH 키는 `Secret` 으로 미리 박아둬요. 일반 `Secret` 패턴 그대로입니다.
 
 ```shell
 kubectl -n airflow create secret generic airflow-git-ssh-key \
@@ -86,7 +86,7 @@ KubernetesExecutor 의 워커 `Pod` 는 태스크가 끝나면 사라져요. **�
 
 ### 2-1. PVC 로 로그 폴더 영속화
 
-primer 의 "다음 단계 친구" 표에서 본 `PersistentVolumeClaim` 이 여기 등장해요. 차트가 옵션 한 줄로 깔아줍니다.
+입문 글의 "다음 단계 친구" 표에서 본 `PersistentVolumeClaim` 이 여기 등장해요. 차트가 옵션 한 줄로 깔아줍니다.
 
 ```yaml
 # values.yaml
@@ -173,7 +173,7 @@ Prometheus 가 ServiceMonitor 로 긁어가게 해두면 Grafana 에서 다음 �
 
 ### 4-1. Scheduler
 
-"늘리면 빨라진다" 가 아니에요. Airflow 2.x 가 멀티 스케줄러를 지원하긴 하지만, **DB 락 경합** 이 늘면 오히려 느려져요. 보통 1~3 개가 적정이고, 그 이상은 DB 튜닝(connection pool, `parsing_processes`) 부터 봐야 해요.
+"늘리면 빨라진다" 가 아니에요. Airflow 가 멀티 스케줄러를 지원하긴 하지만, **DB 락 경합** 이 늘면 오히려 느려져요. 보통 1~3 개가 적정이고, 그 이상은 DB 튜닝(connection pool, `parsing_processes`) 부터 봐야 해요.
 
 ### 4-2. Worker
 
