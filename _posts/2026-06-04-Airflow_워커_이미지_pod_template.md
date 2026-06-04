@@ -2,7 +2,7 @@
 layout: single
 title:  "(3/4) Airflow 워커 이미지 만들고 pod_template_file 로 묶기"
 date: 2026-06-04 21:15:00 +0900
-description: "워커 Pod = primer §3 의 Pod 그대로. 우리가 결정할 것 두 가지 — 이미지(Dockerfile) + 스펙(pod_template_file). 빌드/푸시부터 태스크 단위 pod_override 까지."
+description: "워커 Pod = primer 의 Pod 그대로. 우리가 결정할 것 두 가지 — 이미지(Dockerfile) + 스펙(pod_template_file). 빌드/푸시부터 태스크 단위 pod_override 까지."
 categories: coding
 tag: [Airflow, Kubernetes, K8s, KubernetesExecutor, Docker, pod_template, 워커, 이미지, DevOps]
 author_profile: false
@@ -13,7 +13,7 @@ toc: true
 
 # Summary
 
-워커 `Pod` 는 [primer §3](/coding/K8s_YAML_오브젝트_7가지_입문/) 에서 본 그 `Pod` 와 똑같이 생긴 친구예요. 다만 KubernetesExecutor 환경에선 우리가 **딱 두 가지** 를 결정해줘야 해요.
+워커 `Pod` 는 [K8s YAML primer](/coding/K8s_YAML_오브젝트_7가지_입문/) 에서 본 그 `Pod` 와 똑같이 생긴 친구예요. 다만 KubernetesExecutor 환경에선 우리가 **딱 두 가지** 를 결정해줘야 해요.
 
 - **(1) 이미지** — `pip install` 까지 다 끝난 우리 워커용 Airflow 이미지
 - **(2) 스펙** — 그 이미지가 어떤 리소스/볼륨/시크릿/노드 위에서 뜰지를 적은 `pod_template_file` (= 그냥 Pod 스펙)
@@ -22,7 +22,7 @@ toc: true
 > - 왜 커스텀 워커 이미지가 거의 항상 필요한지
 > - Airflow 베이스 이미지 위에 라이브러리 얹는 `Dockerfile`
 > - 빌드 → 레지스트리 푸시 → Helm `values.yaml` 에 박기
-> - `pod_template_file` 로 워커 Pod 스펙 잡기 (primer §3 의 그 모양)
+> - `pod_template_file` 로 워커 Pod 스펙 잡기 (primer 의 Pod 모양 그대로)
 > - 태스크 단위 `pod_override` — 특정 태스크만 더 큰 메모리/다른 노드
 
 
@@ -113,7 +113,7 @@ docker push $REG/airflow:$TAG
 
 운영에서는 `:latest` 같은 태그 쓰지 말고 **불변 태그** (날짜+빌드넘버, 커밋 SHA) 권장. K8s 가 이미지 캐시를 적극적으로 쓰는데 `:latest` 면 노드별 캐시 시점이 어긋나서 같은 태그인데 다른 이미지가 떠 있는 사고가 나요.
 
-사설 레지스트리면 K8s 가 풀할 수 있게 **`Secret`** 으로 자격증명을 박아둬야 해요. primer §8 의 `Secret` 패턴에 `docker-registry` 타입을 얹은 모양이에요.
+사설 레지스트리면 K8s 가 풀할 수 있게 **`Secret`** 으로 자격증명을 박아둬야 해요. primer 의 `Secret` 패턴에 `docker-registry` 타입을 얹은 모양이에요.
 
 ```shell
 kubectl -n airflow create secret docker-registry harbor-creds \
@@ -164,10 +164,10 @@ kubectl -n airflow rollout status deploy/airflow-scheduler
 
 ## 5. pod_template_file — 워커 Pod 스펙 잡기
 
-여기서부터가 진짜 핵심. **`pod_template_file` 은 모든 워커 Pod 가 따라갈 YAML 템플릿** 이에요. primer §3 의 `Pod` 스펙과 **문법이 동일** 합니다.
+여기서부터가 진짜 핵심. **`pod_template_file` 은 모든 워커 Pod 가 따라갈 YAML 템플릿** 이에요. primer 의 `Pod` 스펙과 **문법이 동일** 합니다.
 
 ```yaml
-# 워커 Pod 스펙 예시 — primer §3 의 Pod 와 같은 모양
+# 워커 Pod 스펙 예시 — primer 의 Pod 와 같은 모양
 apiVersion: v1
 kind: Pod
 metadata:
@@ -190,7 +190,7 @@ workers:
     requests: { cpu: "500m", memory: "1Gi" }
     limits:   { cpu: "2",   memory: "4Gi" }
 
-  # 환경변수 — ConfigMap/Secret 에서 (primer §7-8 의 envFrom 패턴)
+  # 환경변수 — ConfigMap/Secret 에서 (primer 의 envFrom 패턴)
   extraEnv: |
     - name: TZ
       value: Asia/Seoul

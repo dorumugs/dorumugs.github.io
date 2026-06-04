@@ -57,7 +57,7 @@ helm show values apache-airflow/airflow \
 
 ## 2. Namespace 와 미리 만들 Secret 두 개
 
-primer §2 의 그 `Namespace` 부터 만들어요.
+primer 에서 본 그 `Namespace` 부터 만들어요.
 
 ```shell
 kubectl create namespace airflow
@@ -65,7 +65,7 @@ kubectl create namespace airflow
 
 그리고 Airflow 가 꼭 필요로 하는 두 개의 `Secret` 을 **미리** 박아둡니다. 차트가 알아서 만들어주기도 하는데, **명시적으로 만들면 `helm upgrade` 때 값이 바뀌면서 토큰이 갈리는 사고**를 막을 수 있어요.
 
-primer §8 의 `Secret` 패턴 그대로, `kubectl create secret` 한 줄로 처리해요.
+primer 의 `Secret` 패턴 그대로, `kubectl create secret` 한 줄로 처리해요.
 
 ```shell
 # 1) Fernet key — Airflow connection 암호화. 잃어버리면 기존 connection 다 못 읽음
@@ -171,7 +171,7 @@ watch -n 2 "kubectl -n airflow get pods"
 
 ## 5. 첫 접속 확인
 
-primer §6 의 `Ingress` 까지 안 가도 우선 UI 띄워볼 수 있어요. `kubectl port-forward` 로도 충분해요.
+primer 의 `Ingress` 까지 안 가도 우선 UI 띄워볼 수 있어요. `kubectl port-forward` 로도 충분해요.
 
 ```shell
 kubectl -n airflow port-forward svc/airflow-webserver 8080:8080

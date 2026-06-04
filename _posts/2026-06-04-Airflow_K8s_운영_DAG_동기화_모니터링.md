@@ -15,7 +15,7 @@ toc: true
 
 설치와 워커 이미지까지 끝났으면 이제 운영 모드. 이 글에서는 **DAG 동기화(`git-sync` 사이드카) · 로그 영속화(`PVC` 또는 객체 스토리지) · 모니터링 · 스케일 · 장애 패턴** 을 한 번에 정리합니다.
 
-> 📚 이번 편은 [primer](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 **다음 단계 친구**(`PersistentVolumeClaim`) 영역까지 살짝 발을 들여요. 그리고 primer §3 의 "Pod 에는 컨테이너가 여러 개 들어갈 수 있다" 가 `git-sync` 사이드카에서 정말로 쓰입니다.
+> 📚 이번 편은 [primer](/coding/K8s_YAML_오브젝트_7가지_입문/) 의 **다음 단계 친구**(`PersistentVolumeClaim`) 영역까지 살짝 발을 들여요. 그리고 primer 의 "Pod 에는 컨테이너가 여러 개 들어갈 수 있다" 는 얘기가 `git-sync` 사이드카에서 정말로 쓰입니다.
 
 > 💡 이 글에서 다루는 것
 > - DAG 동기화 — `git-sync` 사이드카 패턴
@@ -44,7 +44,7 @@ DAG 를 클러스터로 어떻게 흘려보낼지 정해야 해요. 크게 세 �
 
 운영에서 가장 흔한 게 `git-sync` 예요. **scheduler / webserver / 워커 Pod 안에 사이드카 컨테이너로 같이 떠서, 일정 주기로 `git pull`** 해서 DAG 폴더를 갱신해요.
 
-primer §3 에서 잠깐 짚었던 "한 `Pod` 안에 컨테이너가 여러 개 들어갈 수 있다" 가 여기서 진짜로 쓰입니다. 메인 컨테이너(Airflow) 옆에 `git-sync` 컨테이너가 같이 떠 있고, 둘이 같은 빈 디렉토리 볼륨을 공유해요. git-sync 가 그 폴더에 DAG 를 떨어뜨리면 Airflow 가 그걸 읽어요.
+primer 에서 잠깐 짚었던 "한 `Pod` 안에 컨테이너가 여러 개 들어갈 수 있다" 가 여기서 진짜로 쓰입니다. 메인 컨테이너(Airflow) 옆에 `git-sync` 컨테이너가 같이 떠 있고, 둘이 같은 빈 디렉토리 볼륨을 공유해요. git-sync 가 그 폴더에 DAG 를 떨어뜨리면 Airflow 가 그걸 읽어요.
 
 Helm 차트가 기본 지원합니다.
 
@@ -62,7 +62,7 @@ dags:
     sshKeySecret: airflow-git-ssh-key
 ```
 
-SSH 키는 `Secret` 으로 미리 박아둬요. primer §8 패턴.
+SSH 키는 `Secret` 으로 미리 박아둬요. primer 의 `Secret` 패턴 그대로.
 
 ```shell
 kubectl -n airflow create secret generic airflow-git-ssh-key \
@@ -208,7 +208,7 @@ pgbouncer:
 | 증상 | 원인 후보 | 처방 |
 |---|---|---|
 | 워커 Pod 가 `Pending` 으로 쌓임 | 노드 리소스 부족, 노드 셀렉터/toleration 불일치 | `kubectl describe pod` Events, 오토스케일러 / 노드풀 점검 |
-| 태스크 끝나면 로그 사라짐 | remote logging 미설정 + Pod 휘발 | §2 의 PVC 또는 remote logging 적용 |
+| 태스크 끝나면 로그 사라짐 | remote logging 미설정 + Pod 휘발 | PVC 영속화 또는 remote logging 적용 |
 | `ImagePullBackOff` | 레지스트리 인증 / 태그 오타 | pull secret, 태그 재확인 |
 | DAG 가 UI 에 안 뜸 | git-sync 실패 / 권한 X | scheduler pod 의 `git-sync` 사이드카 로그 확인 |
 | 새 코드 배포 후 일부 워커는 옛 코드 | 동기화 시점 차이 (이미지 베이크 + PV 혼용 등) | 동기화 방식을 한 가지로 통일 |
