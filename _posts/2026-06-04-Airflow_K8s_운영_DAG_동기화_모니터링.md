@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(4/4) Airflow on K8s 운영 — git-sync · 로그 영속화 · 모니터링 · 스케일"
+title:  "(4/5) Airflow on K8s 운영 — git-sync · 로그 영속화 · 모니터링 · 스케일"
 date: 2026-06-04 21:20:00 +0900
 description: "Airflow on K8s 를 운영 모드로 굴리기. git-sync 사이드카, PVC 로그 영속화, Prometheus 메트릭, 스케일과 장애 패턴까지."
 categories: coding
@@ -180,7 +180,7 @@ Prometheus 가 ServiceMonitor 로 긁어가게 해두면 Grafana 에서 다음 �
 KubernetesExecutor 의 워커는 태스크당 Pod 라 자동으로 늘었다 줄어요. 우리가 조절할 건 두 가지예요.
 
 - 동시에 띄울 수 있는 **최대 Pod 수** — `config.core.parallelism`, `config.core.max_active_tasks_per_dag`
-- 워커 Pod 한 개의 **리소스** — `workers.resources` ((3/4) 참고)
+- 워커 Pod 한 개의 **리소스** — `workers.resources` ((3/5) 참고)
 
 > ⚠️ 노드 풀이 부족하면 워커 Pod 가 `Pending` 으로 쌓여요. **Cluster Autoscaler / Karpenter** 같은 노드 오토스케일러가 같은 노드풀에 붙어있어야 자동 확장이 진짜로 됩니다.
 
@@ -240,8 +240,8 @@ pgbouncer:
 여기까지 들어맞으면 Airflow on K8s 운영 1차 셋업은 끝났다고 봐도 돼요.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 이번 시리즈에서 못 다룬 외부 메타데이터 DB 분리(RDS Postgres) 와 IRSA 기반 AWS 권한 위임 패턴을 정리해볼게요.
+다음 글에서는 같은 셋업을 AWS 위에 올려요. EKS + ECR + GitHub Actions 로 워커 이미지 빌드/배포를 자동화하는 흐름을 정리해볼게요.
 
 ---
 
-**← 이전 글:** [(3/4) Airflow 워커 이미지 만들고 pod_template_file 로 묶기](/coding/Airflow_워커_이미지_pod_template/)
+**← 이전 글:** [(3/5) Airflow 워커 이미지 만들고 pod_template_file 로 묶기](/coding/Airflow_워커_이미지_pod_template/) ｜ **다음 글 →:** [(5/5) Airflow on EKS — ECR 로 이미지 굽고 GitHub Actions 로 자동화](/coding/Airflow_EKS_ECR_GitHub_Actions/)

@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(3/4) Airflow 워커 이미지 만들고 pod_template_file 로 묶기"
+title:  "(3/5) Airflow 워커 이미지 만들고 pod_template_file 로 묶기"
 date: 2026-06-04 21:15:00 +0900
 description: "워커 Pod 는 K8s 의 평범한 Pod 그대로예요. 우리가 결정할 것은 두 가지 — 이미지(Dockerfile) + 스펙(pod_template_file). 빌드/푸시부터 태스크 단위 pod_override 까지."
 categories: coding
@@ -17,6 +17,8 @@ toc: true
 
 - **(1) 이미지** — `pip install` 까지 다 끝난 우리 워커용 Airflow 이미지
 - **(2) 스펙** — 그 이미지가 어떤 리소스/볼륨/시크릿/노드 위에서 뜰지를 적은 `pod_template_file` (= 그냥 Pod 스펙)
+
+> 💡 이 글은 레지스트리에 상관없이 일반적인 빌드/푸시 흐름을 다뤄요. AWS 환경에서 ECR + GitHub Actions 로 자동화하는 패턴은 (5/5) 에서 따로 정리해요.
 
 > 💡 이 글에서 다루는 것
 > - 왜 커스텀 워커 이미지가 거의 항상 필요한지
@@ -292,4 +294,4 @@ kubectl -n airflow describe pod <pod-name>
 
 ---
 
-**← 이전 글:** [(2/4) Helm 으로 Airflow 를 K8s 에 설치하기 — KubernetesExecutor 셋업](/coding/Airflow_Helm_K8s_설치_셋업/) ｜ **다음 글 →:** [(4/4) Airflow on K8s 운영 — git-sync · 로그 영속화 · 모니터링 · 스케일](/coding/Airflow_K8s_운영_DAG_동기화_모니터링/)
+**← 이전 글:** [(2/5) Helm 으로 Airflow 를 K8s 에 설치하기 — KubernetesExecutor 셋업](/coding/Airflow_Helm_K8s_설치_셋업/) ｜ **다음 글 →:** [(4/5) Airflow on K8s 운영 — git-sync · 로그 영속화 · 모니터링 · 스케일](/coding/Airflow_K8s_운영_DAG_동기화_모니터링/)
