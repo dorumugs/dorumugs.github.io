@@ -75,12 +75,12 @@ python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().
 kubectl -n airflow create secret generic airflow-fernet-key \
   --from-literal=fernet-key='<위에서_나온_키>'
 
-# 2) Webserver secret — Flask 세션 서명용
+# 2) API server 세션 시크릿 — Flask 세션 서명용
 kubectl -n airflow create secret generic airflow-webserver-secret \
   --from-literal=webserver-secret-key="$(openssl rand -hex 32)"
 ```
 
-> 🚨 두 키는 **한 번 바뀌면 복구가 까다로워요**. 운영이면 Vault / Sealed Secrets 같은 곳에 백업. 잃어버리면 기존 connection 비밀번호 전부 다시 입력해야 합니다.
+> 🚨 두 키는 **한 번 바뀌면 복구가 까다로워요**. 운영 환경이면 Vault / Sealed Secrets 같은 곳에 백업해두세요. 잃어버리면 기존 connection 비밀번호를 전부 다시 입력해야 합니다.
 
 
 <br>
@@ -149,7 +149,7 @@ config:
 
 핵심 단 한 줄은 `executor: KubernetesExecutor`. 이게 켜져 있어야 워커가 매 태스크마다 새 `Pod` 로 뜹니다.
 
-> 💡 운영에선 거의 항상 외부 DB 권장. `postgresql.enabled: false` 로 끄고, 차트의 `data.metadataConnection` (또는 `data.metadataSecretName`) 으로 외부 RDS 접속 정보를 주입해요.
+> 💡 운영에선 거의 항상 외부 DB 를 권장합니다. `postgresql.enabled: false` 로 끄고, 차트의 `data.metadataConnection` (또는 `data.metadataSecretName`) 으로 외부 RDS 접속 정보를 주입해요.
 
 
 <br>
@@ -193,7 +193,7 @@ watch -n 2 "kubectl -n airflow get pods"
 kubectl -n airflow port-forward svc/airflow-api-server 8080:8080
 ```
 
-브라우저에서 `http://localhost:8080`. 기본 계정은 위 `createUserJob.defaultUser` 에서 잡은 `admin / change-me-admin`. 운영에선 반드시 비번 바꾸거나 SSO 로 교체.
+브라우저에서 `http://localhost:8080`. 기본 계정은 위 `createUserJob.defaultUser` 에서 잡은 `admin / change-me-admin` 이에요. 운영에선 반드시 비번을 바꾸거나 SSO 로 교체해주세요.
 
 > ✅ 첫 접속 체크
 > - [x] 좌측 사이드바에 DAG 목록 (아직 비어있어야 함 — load_examples=False)
@@ -231,9 +231,9 @@ kubectl -n airflow port-forward svc/airflow-api-server 8080:8080
 
 ## 7. 정리
 
-여기까지 오면 (1/4) 의 표에 있던 7~8 개 오브젝트가 모두 `airflow` 네임스페이스에 들어와 있는 상태예요. 다만 워커 `Pod` 가 **어떤 이미지로, 어떤 스펙으로** 뜰지는 아직 우리가 잡지 않았어요. 디폴트 이미지엔 우리 DAG 가 필요로 하는 라이브러리(`pandas`, `requests`, 사내 패키지 …) 가 없을 가능성이 큽니다.
+여기까지 오면 (1/4) 의 표에 있던 8~9 개 오브젝트가 모두 `airflow` 네임스페이스에 들어와 있는 상태예요. 다만 워커 `Pod` 가 **어떤 이미지로, 어떤 스펙으로** 뜰지는 아직 우리가 잡지 않았어요. 디폴트 이미지엔 우리 DAG 가 필요로 하는 라이브러리(`pandas`, `requests`, 사내 패키지 …) 가 없을 가능성이 큽니다.
 
-다음 편에서 그 두 가지를 한꺼번에 잡습니다 — **워커 이미지를 직접 굽고, `pod_template_file` 로 워커 Pod 의 스펙을 우리가 결정.**
+다음 편에서 그 두 가지를 한꺼번에 잡습니다 — **워커 이미지를 직접 굽고, `pod_template_file` 로 워커 Pod 의 스펙을 우리가 결정합니다.**
 
 일단 오늘은 여기까지.....   
 다음 글에서는 커스텀 워커 이미지와 `pod_template_file` 로 워커 Pod 를 우리 입맛대로 묶어볼게요.

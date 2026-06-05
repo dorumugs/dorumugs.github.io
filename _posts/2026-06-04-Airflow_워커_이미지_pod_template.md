@@ -13,7 +13,7 @@ toc: true
 
 # Summary
 
-워커 `Pod` 는 [K8s YAML 입문 글](/coding/K8s_YAML_오브젝트_7가지_입문/) 에서 본 그 `Pod` 와 똑같이 생긴 친구예요. 다만 KubernetesExecutor 환경에선 우리가 **딱 두 가지** 를 정해줘야 해요.
+워커 `Pod` 는 [K8s YAML 입문 글](/coding/K8s_YAML_오브젝트_7가지_입문/) 에서 본 그 `Pod` 와 똑같이 생긴 오브젝트예요. 다만 KubernetesExecutor 환경에선 우리가 **딱 두 가지** 를 정해줘야 해요.
 
 - **(1) 이미지** — `pip install` 까지 다 끝난 우리 워커용 Airflow 이미지
 - **(2) 스펙** — 그 이미지가 어떤 리소스/볼륨/시크릿/노드 위에서 뜰지를 적은 `pod_template_file` (= 그냥 Pod 스펙)
@@ -88,7 +88,7 @@ apache-airflow-providers-amazon==9.29.0
 apache-airflow-providers-postgres==6.7.0
 ```
 
-> ⚠️ `apache-airflow-providers-*` 는 베이스 Airflow 버전에 민감해요. 너무 신 버전을 박으면 import 단계에서 죽습니다.
+> ⚠️ `apache-airflow-providers-*` 는 베이스 Airflow 버전에 민감해요. 베이스보다 너무 새 버전을 박으면 import 단계에서 깨집니다.
 
 > 💡 `USER airflow` 로 다시 돌아오는 것 까먹지 마세요. root 상태로 `pip install` 하면 권한 이슈로 컨테이너 실행 중 추가 설치/캐시 쓰기가 막혀요.
 
@@ -111,7 +111,7 @@ docker build -t $REG/airflow:$TAG .
 docker push $REG/airflow:$TAG
 ```
 
-운영에서는 `:latest` 같은 태그 쓰지 말고 **불변 태그** (날짜+빌드넘버, 커밋 SHA) 권장. K8s 가 이미지 캐시를 적극적으로 쓰는데 `:latest` 면 노드별 캐시 시점이 어긋나서 같은 태그인데 다른 이미지가 떠 있는 사고가 나요.
+운영에서는 `:latest` 같은 태그를 쓰지 말고 **불변 태그** (날짜+빌드넘버, 커밋 SHA) 를 권장합니다. K8s 가 이미지 캐시를 적극적으로 쓰는데 `:latest` 면 노드별 캐시 시점이 어긋나서, 같은 태그인데 다른 이미지가 떠 있는 사고가 나요.
 
 사설 레지스트리면 K8s 가 풀할 수 있게 **`Secret`** 으로 자격증명을 박아둬야 해요. 일반 `Secret` 위에 `docker-registry` 타입을 얹은 모양이에요.
 
@@ -164,7 +164,7 @@ kubectl -n airflow rollout status deploy/airflow-scheduler
 
 ## 5. pod_template_file — 워커 Pod 스펙 잡기
 
-여기서부터가 진짜 핵심. **`pod_template_file` 은 모든 워커 Pod 가 따라갈 YAML 템플릿** 이에요. K8s 의 평범한 `Pod` 스펙과 **문법이 같습니다**.
+여기서부터가 진짜 핵심이에요. **`pod_template_file` 은 모든 워커 Pod 가 따라갈 YAML 템플릿** 이고, K8s 의 평범한 `Pod` 스펙과 **문법이 같습니다**.
 
 ```yaml
 # 워커 Pod 스펙 예시 — K8s 의 평범한 Pod 와 같은 모양
@@ -211,7 +211,7 @@ workers:
       effect: NoSchedule
 ```
 
-차트가 위 값들을 받아서 알아서 `pod_template_file.yaml` 을 만들고 컨테이너에 마운트해주고, Airflow config 에 `core.pod_template_file=...` 경로를 박아줘요. 우리는 그냥 values 만 채우면 끝.
+차트가 위 값들을 받아서 알아서 `pod_template_file.yaml` 을 만들고 컨테이너에 마운트해주고, Airflow config 에 `core.pod_template_file=...` 경로를 박아줘요. 우리는 그냥 values 만 채우면 끝나요.
 
 > 💡 가장 중요한 한 줄: `containers[0].name` 은 **반드시 `base`** 여야 합니다. Airflow 가 이 이름을 기준으로 메인 컨테이너를 찾아서 명령어/이미지/환경변수를 채워요.
 
@@ -224,7 +224,7 @@ workers:
 
 ## 6. 태스크 단위 — pod_override
 
-기본 스펙은 `pod_template_file` 로 잡고, **특정 태스크만** 더 큰 메모리/다른 이미지/다른 노드가 필요할 수 있어요. DAG 코드 안에서 부분 override.
+기본 스펙은 `pod_template_file` 로 잡고, **특정 태스크만** 더 큰 메모리/다른 이미지/다른 노드가 필요할 수 있어요. 이럴 땐 DAG 코드 안에서 필요한 부분만 덮어쓰면 돼요.
 
 ```python
 from airflow.decorators import task
@@ -252,7 +252,7 @@ def heavy_aggregation():
     ...
 ```
 
-여기서도 `containers[0].name` 은 `"base"`. Airflow 가 워커 Pod 의 메인 컨테이너를 그 이름으로 잡고 override 를 머지합니다.
+여기서도 `containers[0].name` 은 반드시 `"base"` 그대로예요. Airflow 가 워커 Pod 의 메인 컨테이너를 그 이름으로 잡고 override 를 머지합니다.
 
 > ✅ 운영 팁: 기본 스펙은 보수적으로 작게, 진짜 무거운 태스크만 `pod_override` 로 키우는 패턴이 비용/안정성 둘 다 좋아요. 모든 태스크에 큰 리소스를 깔면 K8s 가 스케줄을 못 잡고 `Pending` 으로 쌓여요.
 

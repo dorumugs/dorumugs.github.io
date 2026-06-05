@@ -13,7 +13,7 @@ toc: true
 
 # Summary
 
-설치와 워커 이미지까지 끝났으면 이제 운영 모드. 이 글에서는 **DAG 동기화(`git-sync` 사이드카) · 로그 영속화(`PVC` 또는 객체 스토리지) · 모니터링 · 스케일 · 장애 패턴** 을 한 번에 정리합니다.
+설치와 워커 이미지까지 끝났으면 이제 운영 모드로 들어갈 차례예요. 이 글에서는 **DAG 동기화(`git-sync` 사이드카) · 로그 영속화(`PVC` 또는 객체 스토리지) · 모니터링 · 스케일 · 장애 패턴** 을 한 번에 정리합니다.
 
 > 📚 이번 편은 [K8s YAML 입문 글](/coding/K8s_YAML_오브젝트_7가지_입문/) 에서 짚었던 **"다음 단계 친구"** (`PersistentVolumeClaim`) 영역까지 살짝 발을 들여요. 그리고 같은 글의 "Pod 에는 컨테이너가 여러 개 들어갈 수 있다" 는 사실이 `git-sync` 사이드카에서 진짜로 쓰입니다.
 
@@ -97,7 +97,7 @@ logs:
     storageClassName: standard   # 또는 nfs, gp3 등
 ```
 
-> 🚨 `ReadWriteMany` 가 되는 스토리지(NFS, EFS, Azure Files, CephFS)여야 합니다. **scheduler / api-server / 워커가 같은 볼륨을 동시에 마운트** 해야 하니까. 일반 EBS 같은 `ReadWriteOnce` 는 동작 안 함.
+> 🚨 `ReadWriteMany` 가 되는 스토리지(NFS, EFS, Azure Files, CephFS)여야 합니다. **scheduler / api-server / 워커가 같은 볼륨을 동시에 마운트** 해야 하니까요. 일반 EBS 같은 `ReadWriteOnce` 는 동작하지 않아요.
 
 ### 2-2. Remote logging (S3 / GCS / Azure Blob)
 
@@ -177,7 +177,7 @@ Prometheus 가 ServiceMonitor 로 긁어가게 해두면 Grafana 에서 다음 �
 
 ### 4-2. Worker
 
-KubernetesExecutor 의 워커는 태스크당 Pod 라 자동으로 늘었다 줄어요. 우리가 조절하는 건 두 가지.
+KubernetesExecutor 의 워커는 태스크당 Pod 라 자동으로 늘었다 줄어요. 우리가 조절할 건 두 가지예요.
 
 - 동시에 띄울 수 있는 **최대 Pod 수** — `config.core.parallelism`, `config.core.max_active_tasks_per_dag`
 - 워커 Pod 한 개의 **리소스** — `workers.resources` ((3/4) 참고)
@@ -225,10 +225,10 @@ pgbouncer:
 
 ## 6. 운영 체크리스트
 
-마지막으로 한 번씩 다 짚어두면 좋은 것들.
+마지막으로 한 번씩 다 짚어두면 좋은 것들이에요.
 
 - [x] `defaultAirflowTag` 가 불변 태그(`:latest` 금지)
-- [x] Fernet / Webserver `Secret` 이 외부에 백업
+- [x] Fernet / API server `Secret` 이 외부에 백업
 - [x] 메타데이터 DB 가 외부 관리형(RDS/CloudSQL) + 백업 정책
 - [x] 로그가 `PVC` 또는 객체 스토리지로 영속화
 - [x] DAG 는 git-sync 또는 이미지 베이크 **둘 중 하나로 통일**
