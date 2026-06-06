@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "미국 금융인들이 보는 거시 지표 — 어디서 보고 Python 으로 어떻게 가져오나"
+title:  "(1/2) 미국 금융인들이 보는 거시 지표 — 어디서 보고 Python 으로 어떻게 가져오나"
 date: 2026-06-06 21:00:00 +0900
 categories: finance
 tag: [macro, FRED, CPI, PCE, 고용지표, 기준금리, 장단기금리차, VIX, yfinance, pandas-datareader, 경제지표, python]
@@ -8,6 +8,8 @@ author_profile: false
 toc: true
 description: "월가가 매달 챙겨 보는 거시 지표(CPI · PCE · 고용 · 기준금리 · 장단기 금리차 · VIX)를 어디서 확인하고, FRED · yfinance · pandas-datareader 로 Python 에서 직접 받아오는 패턴까지 한 글에 정리했어요."
 ---
+
+{% include series-macro-indicators.html current="1" %}
 
 ## Summary
 
@@ -500,3 +502,7 @@ normalized.plot(figsize=(11, 5), title="거시 지표 추세 (시작=100)")
 
 일단 오늘은 여기까지.....   
 다음 글에서는 이렇게 받은 지표들을 실제로 그래프 대시보드로 엮고, 발표 서프라이즈(예상 대비 실제)를 자동으로 계산하는 부분을 정리해볼게요.
+
+---
+
+**다음 글 →:** [(2/2) 거시 지표 대시보드 + 발표 서프라이즈](/finance/거시지표_대시보드_서프라이즈_Python/)
