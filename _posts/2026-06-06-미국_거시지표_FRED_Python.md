@@ -450,12 +450,13 @@ DATE
 import pandas_datareader.data as web
 
 codes = {
-    "CPIAUCSL": "CPI지수",
-    "UNRATE":   "실업률",
-    "FEDFUNDS": "기준금리",
-    "DGS10":    "국채10년",
-    "T10Y2Y":   "장단기차",
-    "VIXCLS":   "VIX",
+    "CPIAUCSL":     "CPI지수",
+    "UNRATE":       "실업률",
+    "FEDFUNDS":     "기준금리",
+    "DGS10":        "국채10년",
+    "T10Y2Y":       "장단기차",
+    "VIXCLS":       "VIX",
+    "BAMLH0A0HYM2": "신용스프레드",
 }
 
 df = web.DataReader(list(codes), "fred", "2024-01-01").rename(columns=codes)
@@ -466,12 +467,13 @@ print(snapshot.round(2))
 ```
 
 ```text
-CPI지수     321.76
-실업률        4.10
-기준금리       4.08
-국채10년      4.31
-장단기차       0.34
-VIX        16.55
+CPI지수      321.76
+실업률         4.10
+기준금리        4.08
+국채10년       4.31
+장단기차        0.34
+VIX         16.55
+신용스프레드      3.15
 Name: 2026-06-04 00:00:00, dtype: float64
 ```
 
