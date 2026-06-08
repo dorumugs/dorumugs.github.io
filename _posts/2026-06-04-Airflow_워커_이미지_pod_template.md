@@ -115,7 +115,7 @@ docker push $REG/airflow:$TAG
 
 운영에서는 `:latest` 같은 태그를 쓰지 말고 **불변 태그** (날짜+빌드넘버, 커밋 SHA) 를 권장합니다. K8s 가 이미지 캐시를 적극적으로 쓰는데 `:latest` 면 노드별 캐시 시점이 어긋나서, 같은 태그인데 다른 이미지가 떠 있는 사고가 나요.
 
-사설 레지스트리면 K8s 가 풀할 수 있게 **`Secret`** 으로 자격증명을 박아둬야 해요. 일반 `Secret` 위에 `docker-registry` 타입을 얹은 모양이에요.
+사설 레지스트리면 K8s 가 이미지를 받아올 수 있게 **`Secret`** 으로 자격증명을 박아둬야 해요. 일반 `Secret` 위에 `docker-registry` 타입을 얹은 모양이에요.
 
 ```shell
 kubectl -n airflow create secret docker-registry harbor-creds \

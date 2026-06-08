@@ -24,7 +24,7 @@ toc: true
 > 💡 이 글에서 다루는 것
 > - 큰 그림 — GitHub Actions → ECR → EKS Airflow 한 그림
 > - ECR 레포 만들기
-> - EKS 가 ECR 을 풀할 수 있게 하기 (노드 IAM 정책 한 줄)
+> - EKS 가 ECR 이미지를 받아올 수 있게 하기 (노드 IAM 정책 한 줄)
 > - GitHub Actions 가 ECR 로 푸시하게 하기 (OIDC + IAM Role)
 > - Helm values 에 ECR 이미지 박고 `helm upgrade`
 > - DAG 한 번 굴려서 워커 Pod 가 ECR 이미지로 뜨는지 확인
@@ -132,7 +132,7 @@ aws ecr create-repository \
 
 
 
-## 4. EKS 가 ECR 을 풀할 수 있게
+## 4. EKS 가 ECR 이미지를 받아올 수 있게
 
 ECR 은 사설 레지스트리지만 EKS 노드는 **노드 IAM 역할에 정책 한 줄만 있으면** 자격증명 없이 풀해요. 사설 레지스트리인데 `imagePullSecrets` 가 필요 없는 게 ECR + EKS 조합의 큰 장점이에요.
 
