@@ -1,0 +1,10 @@
+{%- assign c = include.current -%}
+<div class="notice--info">
+  <p><strong>🛡️ 생성형 AI × 보안 4부작 (전체 4편)</strong></p>
+  <ol>
+    <li>{% if c == "1" %}<strong>공격 — 인가된 모의침투에 LLM 붙이기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/AI_보안_1_공격_모의침투_자동화/">공격 — 인가된 모의침투에 LLM 붙이기</a>{% endif %}</li>
+    <li>{% if c == "2" %}<strong>방어 — 탐지·대응 자동화</strong> ← <em>지금 글</em>{% else %}<a href="/coding/AI_보안_2_방어_탐지_대응/">방어 — 탐지·대응 자동화</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>포렌식과 데이터 복원</strong> ← <em>지금 글</em>{% else %}<a href="/coding/AI_보안_3_포렌식_데이터복원/">포렌식과 데이터 복원</a>{% endif %}</li>
+    <li>{% if c == "4" %}<strong>LLM 그 자체의 보안 — 프롬프트 인젝션과 가드레일</strong> ← <em>지금 글</em>{% else %}<a href="/coding/AI_보안_4_LLM_보안_프롬프트_인젝션/">LLM 그 자체의 보안 — 프롬프트 인젝션과 가드레일</a>{% endif %}</li>
+  </ol>
+</div>
