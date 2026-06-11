@@ -1,0 +1,9 @@
+{%- assign c = include.current -%}
+<div class="notice--info">
+  <p><strong>🚨 시스템 프롬프트 유출과 LLM 서비스 방어 (전체 3편)</strong></p>
+  <ol>
+    <li>{% if c == "1" %}<strong>위협 — 유출된 시스템 프롬프트로 할 수 있는 일</strong> ← <em>지금 글</em>{% else %}<a href="/coding/유출된_시스템_프롬프트_무엇에_쓰이나/">위협 — 유출된 시스템 프롬프트로 할 수 있는 일</a>{% endif %}</li>
+    <li>{% if c == "2" %}<strong>입력단 방어 — 프롬프트 인젝션 탐지와 필터 설계</strong> ← <em>지금 글</em>{% else %}<a href="/coding/프롬프트_인젝션_탐지와_입력단_필터/">입력단 방어 — 프롬프트 인젝션 탐지와 필터 설계</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>실행단 방어 — 에이전트 권한 통제와 운영 완결</strong> ← <em>지금 글</em>{% else %}<a href="/coding/LLM_에이전트_실행단_방어와_운영/">실행단 방어 — 에이전트 권한 통제와 운영 완결</a>{% endif %}</li>
+  </ol>
+</div>
