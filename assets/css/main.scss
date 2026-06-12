@@ -143,3 +143,18 @@ $right-sidebar-width:        330px;
     }
   }
 }
+
+// --- KayserDocs: mobile horizontal-scroll for wide tables ---
+// Theme _tables.scss uses display:table + width:100% (no overflow-x) to fix a
+// desktop cell-skew bug. On phones, long unbreakable cell content (단지명+가격)
+// overflows the ~390px viewport and the right column gets clipped. Re-enable
+// horizontal scroll on small screens only — desktop layout stays untouched.
+@media (max-width: $medium) {
+  .page__content table {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
