@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "MCP 서버를 로컬·Claude 전용으로 만들기 — Python(FastMCP) stdio 완벽 가이드"
+title:  "(1/2) MCP 서버를 로컬·Claude 전용으로 만들기 — Python(FastMCP) stdio 완벽 가이드"
 date: 2026-06-15 07:30:00 +0900
 categories: coding
 tag: [mcp, model-context-protocol, fastmcp, python, claude, claude-desktop, claude-code, stdio, local-server, tool]
@@ -8,6 +8,8 @@ author_profile: false
 toc: true
 description: "외부에 포트 하나 열지 않고, 내 컴퓨터의 Claude(Desktop·Code)만 붙는 MCP 서버를 Python(FastMCP)으로 만드는 법을 처음부터 끝까지 정리합니다. stdio 트랜스포트, 도구·리소스·프롬프트, 등록·디버깅, 그리고 로컬 전용 방식의 장단점까지."
 ---
+
+{% include series-mcp.html current="1" %}
 
 ## Summary
 
@@ -577,3 +579,7 @@ API_TOKEN = os.environ["MY_API_TOKEN"]   # 코드에 값을 적지 않는다
 
 일단 오늘은 여기까지.....   
 다음 글에서는 같은 서버를 **원격(Streamable HTTP) + 인증** 으로 띄워 여러 사람이 같이 쓰게 하는 방법을 정리해볼게요. 
+
+---
+
+**다음 글 →:** [(2/2) MCP 서버를 원격 HTTP + 인증으로 띄우기 — 여러 사람이 같이 쓰기](/coding/MCP_서버_원격_HTTP_인증_만들기/)
