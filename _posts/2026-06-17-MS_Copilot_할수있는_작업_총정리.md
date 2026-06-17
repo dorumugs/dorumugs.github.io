@@ -215,4 +215,4 @@ SOC(보안관제) 팀을 위한 특화 Copilot 이에요. 보안 사고를 조�
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 Microsoft 365 Copilot 의 실제 업무 활용 예시를 앱별로 더 깊게 정리해볼게요.
+다음 글에서는 Microsoft 365 Copilot 의 실제 업무 활용 예시를 앱별로 더 깊게 정리해볼게요. → [Microsoft 365 Copilot 앱별 실전 활용](/coding/M365_Copilot_앱별_활용_깊게/)
