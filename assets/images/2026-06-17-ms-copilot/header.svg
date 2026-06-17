@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Microsoft Copilot 제품군 지도 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#15233b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#c084fc"/>
+    </linearGradient>
+    <style>
+      .ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="120" font-size="58" font-weight="800" fill="#f8fafc">Microsoft Copilot</text>
+  <text class="ko" x="82" y="168" font-size="26" font-weight="500" fill="#94a3b8">이름은 하나인데, 할 수 있는 일은 네 갈래</text>
+
+  <!-- 4 pills -->
+  <g class="ko" font-size="24" font-weight="700">
+    <rect x="80"  y="232" width="250" height="110" rx="16" fill="#13233f" stroke="#38bdf8" stroke-width="2"/>
+    <text x="205" y="280" fill="#7dd3fc" text-anchor="middle">365 Copilot</text>
+    <text x="205" y="314" class="ko" font-size="17" font-weight="500" fill="#cbd5e1" text-anchor="middle">오피스 업무</text>
+
+    <rect x="356" y="232" width="250" height="110" rx="16" fill="#1a1f3f" stroke="#818cf8" stroke-width="2"/>
+    <text x="481" y="280" fill="#a5b4fc" text-anchor="middle">소비자 Copilot</text>
+    <text x="481" y="314" class="ko" font-size="17" font-weight="500" fill="#cbd5e1" text-anchor="middle">채팅·검색·이미지</text>
+
+    <rect x="632" y="232" width="250" height="110" rx="16" fill="#231a3f" stroke="#c084fc" stroke-width="2"/>
+    <text x="757" y="280" fill="#d8b4fe" text-anchor="middle">GitHub Copilot</text>
+    <text x="757" y="314" class="ko" font-size="17" font-weight="500" fill="#cbd5e1" text-anchor="middle">코딩</text>
+
+    <rect x="908" y="232" width="212" height="110" rx="16" fill="#2a1733" stroke="#f0abfc" stroke-width="2"/>
+    <text x="1014" y="280" fill="#f5d0fe" text-anchor="middle">Copilot Studio</text>
+    <text x="1014" y="314" class="ko" font-size="17" font-weight="500" fill="#cbd5e1" text-anchor="middle">에이전트 제작</text>
+  </g>
+
+  <text class="ko" x="80" y="388" font-size="18" fill="#64748b">KayserDocs · 무엇을 어디서 시킬 수 있는지 한눈에</text>
+</svg>
