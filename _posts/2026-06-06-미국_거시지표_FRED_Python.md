@@ -58,9 +58,9 @@ description: "월가가 매달 챙겨 보는 거시 지표(CPI · PCE · 고용 
 
 | 출처 | 무엇을 발표하나 | 주소 |
 |------|----------------|------|
-| BLS (노동통계국) | CPI, 비농업 고용, 실업률, PPI | <https://www.bls.gov> |
-| BEA (경제분석국) | GDP, PCE(개인소비지출) | <https://www.bea.gov> |
-| Federal Reserve (연준) | 기준금리(FOMC), 산업생산 | <https://www.federalreserve.gov> |
+| BLS (노동통계국) | CPI, 비농업 고용,<br>실업률, PPI | <https://www.bls.gov> |
+| BEA (경제분석국) | GDP,<br>PCE(개인소비지출) | <https://www.bea.gov> |
+| Federal Reserve<br>(연준) | 기준금리(FOMC),<br>산업생산 | <https://www.federalreserve.gov> |
 | ISM | 제조업·서비스 PMI | <https://www.ismworld.org> |
 | U.S. Treasury | 국채 금리(yield curve) | <https://home.treasury.gov> |
 | CME FedWatch | 기준금리 인상/인하 확률 | <https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html> |

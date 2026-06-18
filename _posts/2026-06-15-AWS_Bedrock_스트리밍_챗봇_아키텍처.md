@@ -52,10 +52,10 @@ description: "AWS Bedrock 으로 토큰 스트리밍 챗봇을 만들 때 필요
 
 | 역할 | 구성요소 | 비고 |
 |---|---|---|
-| 모델 추론 | **Amazon Bedrock** | Claude 등 파운데이션 모델. 콘솔에서 모델 액세스 먼저 켜야 함 |
-| 권한 | **IAM 역할/정책** | `bedrock:InvokeModelWithResponseStream` 필요 |
-| 백엔드 컴퓨트 | **Lambda / ECS Fargate / App Runner** | 스트리밍을 끝까지 흘리려면 응답 스트리밍 지원이 핵심 |
-| 클라이언트 연결 | **API Gateway(WebSocket) / ALB / Lambda Function URL** | 단방향이면 SSE, 양방향이면 WebSocket |
+| 모델 추론 | **Amazon Bedrock** | Claude 등 파운데이션 모델.<br>콘솔에서 모델 액세스 먼저 켜야 함 |
+| 권한 | **IAM 역할/정책** | `bedrock:InvokeModelWithResponseStream`<br>필요 |
+| 백엔드 컴퓨트 | **Lambda / ECS Fargate /<br>App Runner** | 스트리밍을 끝까지 흘리려면<br>응답 스트리밍 지원이 핵심 |
+| 클라이언트 연결 | **API Gateway(WebSocket) / ALB /<br>Lambda Function URL** | 단방향이면 SSE,<br>양방향이면 WebSocket |
 | 대화 상태 | **DynamoDB** | 세션별 메시지 히스토리 |
 | 문서·검색(RAG) | **S3 + Bedrock Knowledge Bases** | 사내 문서 기반 답변 |
 | 안전장치 | **Bedrock Guardrails** | 금칙어·민감정보·주제 필터 |

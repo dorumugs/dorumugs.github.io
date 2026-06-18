@@ -214,11 +214,11 @@ kubectl -n airflow port-forward svc/airflow-api-server 8080:8080
 
 | 증상 | 원인 / 처방 |
 |---|---|
-| `migrations` job 이 계속 실패 | Postgres 비번 불일치. `kubectl -n airflow logs job/airflow-run-airflow-migrations` |
-| Pod 가 `Pending` | 노드 리소스 부족 또는 PVC 가 바인딩 안 됨. `kubectl describe pod` 의 Events |
-| Pod 가 `ImagePullBackOff` | 사설 레지스트리인데 `imagePullSecrets` 안 줌. (3/5) 의 `registry.secretName` 항목 참고 |
-| DAG 가 모두 빨간색 import error | 워커 이미지에 라이브러리가 없음. (3/5) 의 커스텀 이미지로 해결 |
-| `Fernet key must be 32 url-safe base64-encoded bytes` | `Fernet.generate_key()` 결과 그대로 써야 함 (끝 `=` 포함) |
+| `migrations` job 이<br>계속 실패 | Postgres 비번 불일치.<br>`kubectl -n airflow logs job/airflow-run-airflow-migrations` |
+| Pod 가 `Pending` | 노드 리소스 부족 또는<br>PVC 가 바인딩 안 됨.<br>`kubectl describe pod` 의 Events |
+| Pod 가 `ImagePullBackOff` | 사설 레지스트리인데<br>`imagePullSecrets` 안 줌.<br>(3/5) 의 `registry.secretName` 항목 참고 |
+| DAG 가 모두<br>빨간색 import error | 워커 이미지에 라이브러리가 없음.<br>(3/5) 의 커스텀 이미지로 해결 |
+| `Fernet key must be 32 url-safe base64-encoded bytes` | `Fernet.generate_key()` 결과<br>그대로 써야 함 (끝 `=` 포함) |
 
 `helm upgrade --install` 은 멱등하니까 values 만 고쳐서 같은 명령 다시 때리면 돼요. 처음엔 자잘하게 두세 번 돌리게 됩니다.
 

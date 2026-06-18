@@ -163,11 +163,11 @@ setup 마법사에서 제가 고른 값들은 다음과 같아요.
 
 | 항목 | 선택값 | 비고 |
 |------|--------|------|
-| Provider | **OpenAI Codex (ChatGPT account)** | device code flow — 호스트 브라우저로 ChatGPT 로그인 후 코드 입력 |
+| Provider | **OpenAI Codex (ChatGPT account)** | device code flow —<br>호스트 브라우저로 ChatGPT 로그인 후 코드 입력 |
 | Model | gpt-5.5 | |
 | TTS provider | Edge TTS | 기본값. 무료, 설정 불필요 |
 | Terminal backend | local | Hermes 자체가 컨테이너라 굳이 더 격리 안 함 |
-| Max iterations | 90 | 기본값. Codex OAuth는 ChatGPT 구독 rate limit 영향이 커서 무리하게 안 올림 |
+| Max iterations | 90 | 기본값. Codex OAuth는 ChatGPT 구독<br>rate limit 영향이 커서 무리하게 안 올림 |
 | Tool progress | all | 기본값 |
 | Compression threshold | 0.5 | 토큰 비용 절약 + rate limit 보호 |
 | Session reset | Inactivity + daily reset | |

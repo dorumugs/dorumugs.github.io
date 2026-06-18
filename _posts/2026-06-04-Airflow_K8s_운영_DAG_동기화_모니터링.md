@@ -133,9 +133,9 @@ config:
 
 | 층 | 지표 | 어디서 |
 |---|---|---|
-| Airflow 잡 단위 | DAG 성공/실패율, 태스크 평균 실행시간, 큐잉 시간 | Airflow UI + statsd/prom exporter |
-| 컴포넌트 단위 | scheduler heartbeat, triggerer 활성, api-server 응답, dag-processor 파싱 시간 | `/health` 엔드포인트, K8s probe |
-| 클러스터 단위 | 노드 CPU/메모리, Pod Pending 개수, OOM | Prometheus + node-exporter |
+| Airflow 잡 단위 | DAG 성공/실패율,<br>태스크 평균 실행시간,<br>큐잉 시간 | Airflow UI +<br>statsd/prom exporter |
+| 컴포넌트 단위 | scheduler heartbeat,<br>triggerer 활성,<br>api-server 응답,<br>dag-processor 파싱 시간 | `/health` 엔드포인트,<br>K8s probe |
+| 클러스터 단위 | 노드 CPU/메모리,<br>Pod Pending 개수, OOM | Prometheus +<br>node-exporter |
 
 Airflow 메트릭을 Prometheus 로 빼는 가장 간단한 길은 차트의 statsd → Prometheus exporter 를 켜는 거예요.
 
@@ -207,14 +207,14 @@ pgbouncer:
 
 | 증상 | 원인 후보 | 처방 |
 |---|---|---|
-| 워커 Pod 가 `Pending` 으로 쌓임 | 노드 리소스 부족, 노드 셀렉터/toleration 불일치 | `kubectl describe pod` Events, 오토스케일러 / 노드풀 점검 |
-| 태스크 끝나면 로그 사라짐 | remote logging 미설정 + Pod 휘발 | PVC 영속화 또는 remote logging 적용 |
+| 워커 Pod 가 `Pending` 으로<br>쌓임 | 노드 리소스 부족,<br>노드 셀렉터/toleration 불일치 | `kubectl describe pod` Events,<br>오토스케일러 / 노드풀 점검 |
+| 태스크 끝나면 로그 사라짐 | remote logging 미설정 +<br>Pod 휘발 | PVC 영속화 또는<br>remote logging 적용 |
 | `ImagePullBackOff` | 레지스트리 인증 / 태그 오타 | pull secret, 태그 재확인 |
-| DAG 가 UI 에 안 뜸 | git-sync 실패 / 권한 X | scheduler pod 의 `git-sync` 사이드카 로그 확인 |
-| 새 코드 배포 후 일부 워커는 옛 코드 | 동기화 시점 차이 (이미지 베이크 + PV 혼용 등) | 동기화 방식을 한 가지로 통일 |
-| `OOMKilled` 가 빈번 | 워커 메모리 limit 작음 | `workers.resources.limits.memory` 상향 또는 `pod_override` |
-| 스케줄러 heartbeat 지연 | DAG 파싱 시간 초과, DB 락 경합 | `dag_dir_list_interval` 늘리기, DAG 파일 분할, pgbouncer 도입 |
-| `airflow-run-airflow-migrations` 가 실패 | DB 비번 불일치, 외부 DB 권한 부족 | `kubectl logs job/...` |
+| DAG 가 UI 에 안 뜸 | git-sync 실패 / 권한 X | scheduler pod 의<br>`git-sync` 사이드카 로그 확인 |
+| 새 코드 배포 후<br>일부 워커는 옛 코드 | 동기화 시점 차이<br>(이미지 베이크 + PV 혼용 등) | 동기화 방식을<br>한 가지로 통일 |
+| `OOMKilled` 가 빈번 | 워커 메모리 limit 작음 | `workers.resources.limits.memory`<br>상향 또는 `pod_override` |
+| 스케줄러 heartbeat 지연 | DAG 파싱 시간 초과,<br>DB 락 경합 | `dag_dir_list_interval` 늘리기,<br>DAG 파일 분할,<br>pgbouncer 도입 |
+| `airflow-run-airflow-migrations`<br>가 실패 | DB 비번 불일치,<br>외부 DB 권한 부족 | `kubectl logs job/...` |
 
 
 <br>

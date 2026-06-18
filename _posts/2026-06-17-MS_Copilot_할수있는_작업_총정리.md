@@ -42,10 +42,10 @@ description: "MS Copilot 이라는 이름 하나에 묶여 있는 네 가지 제
 
 | 제품 | 들어가는 자리 | 주로 하는 일 | 비용 감각 |
 |---|---|---|---|
-| **Microsoft 365 Copilot** | Word · Excel · PowerPoint · Outlook · Teams 안 | 내 문서·메일·일정 기반 업무 자동화 | 유료(직장·학교 구독에 좌석 추가) |
-| **소비자용 Microsoft Copilot** | copilot.microsoft.com · Windows · Edge · 모바일 앱 | 일반 채팅·웹 검색·이미지 생성·요약 | 무료 + Copilot Pro(유료) |
-| **GitHub Copilot** | VS Code · Visual Studio · JetBrains · github.com | 코드 작성·설명·리뷰·에이전트 | 무료 티어 + 유료 플랜 |
-| **Copilot Studio** | 웹 제작 도구(Power Platform) | 내가 직접 만드는 커스텀 Copilot/에이전트 | 유료(메시지 단위 과금) |
+| **Microsoft 365 Copilot** | Word · Excel ·<br>PowerPoint ·<br>Outlook · Teams 안 | 내 문서·메일·일정<br>기반 업무 자동화 | 유료(직장·학교<br>구독에 좌석 추가) |
+| **소비자용 Microsoft Copilot** | copilot.microsoft.com ·<br>Windows · Edge ·<br>모바일 앱 | 일반 채팅·웹 검색·<br>이미지 생성·요약 | 무료 +<br>Copilot Pro(유료) |
+| **GitHub Copilot** | VS Code · Visual Studio ·<br>JetBrains · github.com | 코드 작성·설명·<br>리뷰·에이전트 | 무료 티어 +<br>유료 플랜 |
+| **Copilot Studio** | 웹 제작 도구<br>(Power Platform) | 내가 직접 만드는<br>커스텀 Copilot/에이전트 | 유료<br>(메시지 단위 과금) |
 
 여기에 더해 보안팀 전용인 **Security Copilot** 같은 특화 제품도 있어요. 핵심만 잡으면 이래요.
 
@@ -72,12 +72,12 @@ description: "MS Copilot 이라는 이름 하나에 묶여 있는 네 가지 제
 
 | 앱 | 시킬 수 있는 작업 | 예시로 던지는 말 |
 |---|---|---|
-| **Word** | 초안 작성, 문서 요약, 톤 바꾸기, 표로 정리 | "이 회의록을 3문단 보고서 초안으로 바꿔줘" |
-| **Excel** | 수식 제안, 데이터 분석, 추세·이상치 찾기, 표 정리 | "이 매출 표에서 분기별 성장률 열을 추가하고 이상치를 표시해줘" |
-| **PowerPoint** | Word 문서를 슬라이드로, 디자인 제안, 발표자 노트 | "이 기획서를 10장짜리 발표 자료로 만들어줘" |
-| **Outlook** | 긴 메일 스레드 요약, 답장 초안, 받은 편지함 정리 | "이 스레드 핵심만 요약하고 정중한 답장 초안 써줘" |
-| **Teams** | 회의 실시간/사후 요약, 안건·결정사항·액션아이템 추출 | "내가 늦게 들어왔는데 지금까지 회의 내용 정리해줘" |
-| **OneNote / Loop** | 노트 요약, 계획 정리, 브레인스토밍 | "이 노트들을 다음 주 실행 계획으로 묶어줘" |
+| **Word** | 초안 작성, 문서 요약,<br>톤 바꾸기, 표로 정리 | "이 회의록을 3문단<br>보고서 초안으로 바꿔줘" |
+| **Excel** | 수식 제안, 데이터 분석,<br>추세·이상치 찾기, 표 정리 | "이 매출 표에서 분기별<br>성장률 열을 추가하고<br>이상치를 표시해줘" |
+| **PowerPoint** | Word 문서를 슬라이드로,<br>디자인 제안, 발표자 노트 | "이 기획서를 10장짜리<br>발표 자료로 만들어줘" |
+| **Outlook** | 긴 메일 스레드 요약,<br>답장 초안, 받은 편지함 정리 | "이 스레드 핵심만 요약하고<br>정중한 답장 초안 써줘" |
+| **Teams** | 회의 실시간/사후 요약,<br>안건·결정사항·액션아이템 추출 | "내가 늦게 들어왔는데<br>지금까지 회의 내용 정리해줘" |
+| **OneNote / Loop** | 노트 요약, 계획 정리,<br>브레인스토밍 | "이 노트들을 다음 주<br>실행 계획으로 묶어줘" |
 
 ### Copilot Chat 과 Pages — 앱 밖에서 조직 데이터를 묻기
 

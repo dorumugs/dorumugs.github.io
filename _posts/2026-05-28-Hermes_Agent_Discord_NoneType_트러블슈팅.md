@@ -72,11 +72,11 @@ Non-retryable error (HTTP None) — trying fallback...
 
 | 단계 | 일어나는 일 |
 |------|------------|
-| 1 | chatgpt.com Codex 백엔드가 `response.completed` 스트림 이벤트에서 `output = []` 가 아니라 `output = null(None)` 을 내려보냄 |
+| 1 | chatgpt.com Codex 백엔드가 `response.completed` 스트림 이벤트에서<br>`output = []` 가 아니라 `output = null(None)` 을 내려보냄 |
 | 2 | OpenAI Python SDK는 `output` 이 **항상 iterable** 이라고 가정하고 순회 시도 |
 | 3 | `TypeError: 'NoneType' object is not iterable` 로 크래시 |
 | 4 | Hermes가 이 에러를 `Non-retryable` 로 분류 → 재시도 안 함 |
-| 5 | 폴백 경로(`output_text` 접근)도 같은 `output=None` 을 건드려 또 크래시 |
+| 5 | 폴백 경로(`output_text` 접근)도 같은<br>`output=None` 을 건드려 또 크래시 |
 
 폴백까지 같은 객체를 건드린다는 게 핵심이에요.   
 일반적인 폴백 설계 같으면 다른 경로로 빠져야 하는데, 여기선 둘 다 같은 깨진 데이터를 보고 있어서 결과가 똑같이 나옵니다. 

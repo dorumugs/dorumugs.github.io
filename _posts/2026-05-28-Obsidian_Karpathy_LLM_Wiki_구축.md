@@ -134,10 +134,10 @@ YouTube, arXiv, 회사 위키처럼 자주 가는 출처는 각각 템플릿을 
 | 증상 | 원인 / 해결 |
 |---|---|
 | 파일이 안 떨어진다 | Obsidian 이 실행 중이어야 함. 백그라운드라도 OK |
-| 제목이 `unsafe-filename.md` 가 됨 | Note name 에 `safe_name` 필터 안 걸음. `{% raw %}{{title|safe_name}}{% endraw %}` 로 수정 |
-| 본문이 광고/메뉴까지 다 들어옴 | `content` 가 아니라 `contentHtml` 을 썼을 때 그래요. `content` 로 바꾸면 Readability 가 본문만 뽑아냄 |
-| 같은 글이 두 번 들어감 | `Behavior` 가 `Create new note` 면 매번 새 파일. `Append to existing` 으로 바꾸면 기존 파일 뒤에 붙음 |
-| 한글 파일명이 깨짐 | 운영체제 인코딩 문제. iCloud 동기화 중인 Vault 에서 자주 나옴. Vault 를 로컬 디스크로 옮기면 해결 |
+| 제목이 `unsafe-filename.md` 가 됨 | Note name 에 `safe_name` 필터 안 걸음.<br>`{% raw %}{{title|safe_name}}{% endraw %}` 로 수정 |
+| 본문이 광고/메뉴까지 다 들어옴 | `content` 가 아니라 `contentHtml` 을 썼을 때 그래요.<br>`content` 로 바꾸면 Readability 가 본문만 뽑아냄 |
+| 같은 글이 두 번 들어감 | `Behavior` 가 `Create new note` 면 매번 새 파일.<br>`Append to existing` 으로 바꾸면 기존 파일 뒤에 붙음 |
+| 한글 파일명이 깨짐 | 운영체제 인코딩 문제. iCloud 동기화 중인 Vault 에서 자주 나옴.<br>Vault 를 로컬 디스크로 옮기면 해결 |
 
 
 <br>
