@@ -1,7 +1,7 @@
 ---
 layout: single
 title:  "ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 위해 알아야 할 것들"
-date: 2026-06-18 20:00:00 +0900
+date: 2026-06-18 11:30:00 +0900
 categories: coding
 tag: [ChromaDB, RAG, 벡터DB, embedding, vector-search, chunking, metadata-filter, cosine, retrieval, LLM]
 author_profile: false
