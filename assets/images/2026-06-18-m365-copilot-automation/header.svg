@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Microsoft 365 Copilot 자동화 배너 — 트리거에서 액션까지">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d24726"/>
+      <stop offset="0.5" stop-color="#6264a7"/>
+      <stop offset="1" stop-color="#217346"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="50" font-weight="800" fill="#f8fafc">Copilot 으로 대화 말고 <tspan fill="#f0a98c">자동화</tspan></text>
+  <text class="ko" x="82" y="156" font-size="24" font-weight="500" fill="#94a3b8">프롬프트를 매번 안 쳐도 알아서 도는 영역</text>
+
+  <!-- pipeline: 트리거 → 에이전트(판단) → 액션 -->
+  <g class="ko" text-anchor="middle">
+    <!-- 트리거 -->
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#2a1812" stroke="#d24726" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#f0a98c">트리거</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">메일 도착 · 스케줄 · 이벤트</text>
+
+    <!-- 에이전트 -->
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#b3b4e6">에이전트</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">근거로 판단 · 단계 실행</text>
+
+    <!-- 액션 -->
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#7dd3a8">액션</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">메일 발송 · 티켓 · 시스템</text>
+  </g>
+
+  <!-- arrows -->
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 트리거 → 판단 → 액션, 사람이 빠진 파이프라인</text>
+</svg>
