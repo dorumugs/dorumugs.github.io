@@ -152,8 +152,8 @@ $right-sidebar-width:        330px;
 @media (max-width: $medium) {
   .page__content table {
     display: block;
-    width: max-content;
-    min-width: 100%;
+    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }

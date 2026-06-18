@@ -35,3 +35,6 @@ codekit-config.json
 .sass-cache
 _asset_bundler_cache
 _site
+
+# Local scratch / skill output (check-tables screenshots 등)
+tmp/
