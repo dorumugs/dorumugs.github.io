@@ -398,4 +398,4 @@ outcome = Approve ?
 
 ---
 
-**← 이전 글:** [Copilot Studio 로 사내 규정 Q&A 봇 만들기](/coding/Copilot_Studio_사내규정_QA봇_만들기/) ｜ **함께 보기:** [Copilot 으로 대화 말고 자동화하기](/coding/M365_Copilot_대화말고_자동화/)
+**← 이전 글:** [Copilot Studio 로 사내 규정 Q&A 봇 만들기](/coding/Copilot_Studio_사내규정_QA봇_만들기/) ｜ **다음 글 →:** [자율 에이전트 만들기 — 스스로 도는 메일 분류봇](/coding/Copilot_Studio_자율에이전트_메일분류/)
