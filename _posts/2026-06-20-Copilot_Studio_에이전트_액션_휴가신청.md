@@ -1,7 +1,7 @@
 ---
 layout: single
 title:  "Copilot Studio 규정 봇에 액션 붙이기 — '안내'에서 '휴가 신청'까지"
-date: 2026-06-20 10:30:00 +0900
+date: 2026-06-20 06:00:00 +0900
 categories: coding
 tag: [Copilot, CopilotStudio, PowerAutomate, 액션, 에이전트, AdaptiveCard, 승인워크플로우, 휴가신청, 업무자동화, 핸즈온]
 author_profile: false
