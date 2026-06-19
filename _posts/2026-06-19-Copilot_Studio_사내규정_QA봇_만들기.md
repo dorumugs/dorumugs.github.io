@@ -388,4 +388,4 @@ https://contoso.sharepoint.com/sites/HR/사내규정
 
 ---
 
-**← 이전 글:** [Copilot 으로 대화 말고 자동화하기](/coding/M365_Copilot_대화말고_자동화/) ｜ **함께 보기:** [M365 Copilot 앱별 실전 활용](/coding/M365_Copilot_앱별_활용_깊게/)
+**← 이전 글:** [Copilot 으로 대화 말고 자동화하기](/coding/M365_Copilot_대화말고_자동화/) ｜ **다음 글 →:** [규정 봇에 액션 붙이기 — 휴가 신청까지](/coding/Copilot_Studio_에이전트_액션_휴가신청/)
