@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "Copilot Studio 규정 봇에 액션 붙이기 — '안내'에서 '휴가 신청'까지"
+title:  "(5/7) Copilot Studio 규정 봇에 액션 붙이기 — '안내'에서 '휴가 신청'까지"
 date: 2026-06-20 06:00:00 +0900
 categories: coding
 tag: [Copilot, CopilotStudio, PowerAutomate, 액션, 에이전트, AdaptiveCard, 승인워크플로우, 휴가신청, 업무자동화, 핸즈온]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-20-copilot-studio-action/header.svg
 description: "지난 글에서 만든 사내 규정 Q&A 봇에 Power Automate 액션을 붙여서, '안내'를 넘어 실제 '휴가 신청'까지 처리하게 만드는 핸즈온. 입력 슬롯·Adaptive Card·잔여 확인·사람 승인 게이트·기록까지 흐름과 테스트 대화로 정리합니다."
 ---
+
+{% include series-ms-copilot.html current="5" %}
 
 
 ## Summary
@@ -398,4 +400,4 @@ outcome = Approve ?
 
 ---
 
-**← 이전 글:** [Copilot Studio 로 사내 규정 Q&A 봇 만들기](/coding/Copilot_Studio_사내규정_QA봇_만들기/) ｜ **다음 글 →:** [자율 에이전트 만들기 — 스스로 도는 메일 분류봇](/coding/Copilot_Studio_자율에이전트_메일분류/)
+**← 이전 글:** [(4/7) 사내 규정 Q&A 봇 만들기](/coding/Copilot_Studio_사내규정_QA봇_만들기/) ｜ **다음 글 →:** [(6/7) 자율 에이전트 — 메일 분류봇](/coding/Copilot_Studio_자율에이전트_메일분류/)

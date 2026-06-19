@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "Copilot Studio 자율 에이전트 만들기 — 사람이 안 불러도 도는 메일 분류봇"
+title:  "(6/7) Copilot Studio 자율 에이전트 만들기 — 사람이 안 불러도 도는 메일 분류봇"
 date: 2026-06-20 07:00:00 +0900
 categories: coding
 tag: [Copilot, CopilotStudio, 자율에이전트, 트리거, 이벤트트리거, 메일분류, 오케스트레이션, 가드레일, 업무자동화, 핸즈온]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-20-copilot-studio-autonomous/header.svg
 description: "사람이 프롬프트를 치지 않아도 트리거로 스스로 깨어나는 자율 에이전트를, 공용 HR 메일함 자동 분류·라우팅 봇으로 직접 만드는 핸즈온. 이벤트 트리거·자율 판단·라우팅에 더해 무한 루프 차단·읽기전용 시작·과금·로그 같은 가드레일을 같은 비중으로 정리합니다."
 ---
+
+{% include series-ms-copilot.html current="6" %}
 
 
 ## Summary
@@ -322,4 +324,4 @@ description: "사람이 프롬프트를 치지 않아도 트리거로 스스로 
 
 ---
 
-**← 이전 글:** [규정 봇에 액션 붙이기 — 휴가 신청까지](/coding/Copilot_Studio_에이전트_액션_휴가신청/) ｜ **함께 보기:** [Copilot 으로 대화 말고 자동화하기](/coding/M365_Copilot_대화말고_자동화/)
+**← 이전 글:** [(5/7) 규정 봇에 액션 붙이기 — 휴가 신청](/coding/Copilot_Studio_에이전트_액션_휴가신청/) ｜ **다음 글 →:** [(7/7) Agents Toolkit 프로코드 에이전트](/coding/Agents_Toolkit_프로코드_에이전트_만들기/)

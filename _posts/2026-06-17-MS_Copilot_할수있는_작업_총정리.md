@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "MS Copilot 으로 할 수 있는 일 총정리 — 365 · 소비자 · GitHub · Studio"
+title:  "(1/7) MS Copilot 으로 할 수 있는 일 총정리 — 365 · 소비자 · GitHub · Studio"
 date: 2026-06-17 16:00:00 +0900
 categories: coding
 tag: [Copilot, Microsoft365, GitHubCopilot, CopilotStudio, 생산성, AI, 자동화, 오피스, 코딩, 에이전트]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-17-ms-copilot/header.svg
 description: "MS Copilot 이라는 이름 하나에 묶여 있는 네 가지 제품 — Microsoft 365 Copilot, 소비자용 Copilot, GitHub Copilot, Copilot Studio — 으로 실제로 무엇을 시킬 수 있는지 표와 예시 프롬프트로 한 번에 정리합니다."
 ---
+
+{% include series-ms-copilot.html current="1" %}
 
 
 ## Summary
@@ -215,4 +217,8 @@ SOC(보안관제) 팀을 위한 특화 Copilot 이에요. 보안 사고를 조�
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 Microsoft 365 Copilot 의 실제 업무 활용 예시를 앱별로 더 깊게 정리해볼게요. → [Microsoft 365 Copilot 앱별 실전 활용](/coding/M365_Copilot_앱별_활용_깊게/)
+다음 글에서는 Microsoft 365 Copilot 의 실제 업무 활용 예시를 앱별로 더 깊게 정리해볼게요.
+
+---
+
+**다음 글 →:** [(2/7) Microsoft 365 Copilot 앱별 실전 활용](/coding/M365_Copilot_앱별_활용_깊게/)

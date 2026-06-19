@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Agents Toolkit 프로코드 핸즈온 배너 — VS Code 에서 코드로 에이전트 정의">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="0.5" stop-color="#0891b2"/>
+      <stop offset="1" stop-color="#217346"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }
+      .mono { font-family: 'SF Mono','JetBrains Mono',Menlo,Consolas,monospace; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">코드로 정의하는 <tspan fill="#5fb0f6">프로코드</tspan> 에이전트</text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">Agents Toolkit — VS Code 에서 매니페스트로 직접</text>
+
+  <!-- pipeline: 스캐폴드 → 매니페스트·액션 코드 → 프로비전·배포 -->
+  <g class="ko" text-anchor="middle">
+    <!-- 스캐폴드 -->
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#11243f" stroke="#2563eb" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#5fb0f6">스캐폴드</text>
+    <text x="215" y="320" font-size="15" font-weight="500" fill="#cbd5e1" class="mono">atk new · 프로젝트 생성</text>
+
+    <!-- 매니페스트 -->
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0d2a30" stroke="#0891b2" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#5fd1e0">매니페스트</text>
+    <text x="600" y="320" font-size="15" font-weight="500" fill="#cbd5e1" class="mono">지식 · 액션 · OpenAPI</text>
+
+    <!-- 배포 -->
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#7dd3a8">배포</text>
+    <text x="985" y="320" font-size="15" font-weight="500" fill="#cbd5e1" class="mono">provision · sideload</text>
+  </g>
+
+  <!-- arrows -->
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 노코드로 안 되는 정밀 제어가 필요할 때만 내려가는 단계</text>
+</svg>

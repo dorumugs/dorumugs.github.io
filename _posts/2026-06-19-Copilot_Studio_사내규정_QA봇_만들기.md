@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "Copilot Studio 로 사내 규정 Q&A 봇 직접 만들기 — 지식 연결부터 게시까지"
+title:  "(4/7) Copilot Studio 로 사내 규정 Q&A 봇 직접 만들기 — 지식 연결부터 게시까지"
 date: 2026-06-19 10:30:00 +0900
 categories: coding
 tag: [Copilot, CopilotStudio, Microsoft365, 에이전트, RAG, 지식그라운딩, SharePoint, 사내봇, 핸즈온, 업무자동화]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-19-copilot-studio-qna/header.svg
 description: "Copilot Studio 로 '사내 규정 Q&A 봇' 하나를 처음부터 끝까지 만드는 핸즈온 튜토리얼. 지식(SharePoint) 연결, 출처를 강제하는 지시문, 모르면 모른다고 하게 만드는 폴백, 테스트, Teams·Copilot Chat 게시까지 실제 화면 흐름과 예시 대화로 정리합니다."
 ---
+
+{% include series-ms-copilot.html current="4" %}
 
 
 ## Summary
@@ -388,4 +390,4 @@ https://contoso.sharepoint.com/sites/HR/사내규정
 
 ---
 
-**← 이전 글:** [Copilot 으로 대화 말고 자동화하기](/coding/M365_Copilot_대화말고_자동화/) ｜ **다음 글 →:** [규정 봇에 액션 붙이기 — 휴가 신청까지](/coding/Copilot_Studio_에이전트_액션_휴가신청/)
+**← 이전 글:** [(3/7) 대화 말고 자동화하기](/coding/M365_Copilot_대화말고_자동화/) ｜ **다음 글 →:** [(5/7) 규정 봇에 액션 붙이기 — 휴가 신청](/coding/Copilot_Studio_에이전트_액션_휴가신청/)
