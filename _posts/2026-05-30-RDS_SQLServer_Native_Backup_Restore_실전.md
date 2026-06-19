@@ -213,7 +213,7 @@ WITH
 
 > ⚠️ `BUFFERCOUNT` 너무 크게 잡으면 백업 세션이 메모리를 많이 먹어요. 운영 DB 라면 50 정도가 무난.
 
-백업 끝나면 파일 크기와 무결성을 한 번 더 확인.
+백업 끝나면 파일 크기와 무결성을 한 번 더 확인하세요.
 
 ```sql
 RESTORE VERIFYONLY 
@@ -251,7 +251,7 @@ aws configure set default.s3.multipart_chunksize 64MB
 aws configure set default.s3.max_concurrent_requests 16
 ```
 
-업로드 끝나면 객체 리스트 한 번 확인.
+업로드 끝나면 객체 리스트 한 번 확인하세요.
 
 ```shell
 aws s3 ls s3://my-mssql-migration/mssql/
@@ -299,7 +299,7 @@ EXEC msdb.dbo.rds_task_status @db_name = 'MyDB';
 | `ERROR` | 실패 (에러 메시지는 `task_info` 컬럼) |
 | `CANCEL_REQUESTED` / `CANCELLED` | 취소 요청/완료 |
 
-✅ `SUCCESS` 가 뜨면 풀백업 복원 끝.
+✅ `SUCCESS` 가 뜨면 풀백업 복원이 끝나요.
 
 
 <br>
@@ -366,9 +366,9 @@ EXEC sp_change_users_login 'Update_One', 'app_user', 'app_user';
 ALTER USER [app_user] WITH LOGIN = [app_user];
 ```
 
-✅ 검증: `EXEC sp_change_users_login 'Report';` 로 고아 사용자가 남아있는지 한 번 더 확인.
+✅ 검증: `EXEC sp_change_users_login 'Report';` 로 고아 사용자가 남아있는지 한 번 더 확인하세요.
 
-> ⚠️ Windows 인증 기반 로그인은 RDS 가 Active Directory 연동(`SQLSERVER_AUDIT` / `SQLSERVER_AD` 옵션)되어 있어야 매핑 가능해요. 단순 SQL 로그인이면 위 절차로 충분.
+> ⚠️ Windows 인증 기반 로그인은 RDS 가 Active Directory 연동(`SQLSERVER_AUDIT` / `SQLSERVER_AD` 옵션)되어 있어야 매핑 가능해요. 단순 SQL 로그인이면 위 절차로 충분해요.
 
 
 <br>
@@ -394,7 +394,7 @@ WHERE p.index_id IN (0,1)
 ORDER BY p.rows DESC;
 ```
 
-같은 쿼리를 원본 / 대상 양쪽에서 돌려서 결과를 비교해요. 큰 테이블 몇 개만이라도 row count 와 `MAX(updated_at)`, `CHECKSUM_AGG()` 정도는 맞춰보고 컷오버 결정.
+같은 쿼리를 원본 / 대상 양쪽에서 돌려서 결과를 비교해요. 큰 테이블 몇 개만이라도 row count 와 `MAX(updated_at)`, `CHECKSUM_AGG()` 정도는 맞춰보고 컷오버를 결정하세요.
 
 
 <br>

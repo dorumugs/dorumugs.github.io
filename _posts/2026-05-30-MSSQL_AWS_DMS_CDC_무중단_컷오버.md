@@ -44,7 +44,7 @@ toc: true
 
 DMS 는 **Replication Instance** 라는 EC2 같은 워커를 하나 띄워두고, 거기서 소스의 **트랜잭션 로그** 를 읽어와 타깃에 흘려줘요. 원본은 CDC 만 켜두면 되고, DMS 가 직접 원본을 폴링하면서 변경을 잡아갑니다.
 
-> 💡 풀로드 + CDC 를 **같은 task** 에서 켜면 풀로드 진행 중에도 변경을 캐시해두고, 풀로드 끝나는 순간부터 따라잡기를 시작해요. "다운타임 거의 0" 의 핵심.
+> 💡 풀로드 + CDC 를 **같은 task** 에서 켜면 풀로드 진행 중에도 변경을 캐시해두고, 풀로드 끝나는 순간부터 따라잡기를 시작해요. "다운타임 거의 0" 의 핵심이에요.
 
 
 <br>
@@ -108,7 +108,7 @@ CDC 캡처 잡(`cdc.MyDB_capture`) 은 SQL Server Agent 가 돌려요. Agent 가
 EXEC msdb.dbo.sp_help_job @job_name = N'cdc.MyDB_capture';
 ```
 
-`current_execution_status` 가 `1` (idle 아닌 실행 중) 또는 정상 스케줄로 도는지 확인.
+`current_execution_status` 가 `1` (idle 아닌 실행 중) 또는 정상 스케줄로 도는지 확인하세요.
 
 > ⚠️ RDS for SQL Server **소스** 였다면 CDC 활성화 절차가 조금 달라요(`rds_cdc_enable_db`). 이 글은 **온프레미스/EC2 소스** 기준.
 
@@ -434,7 +434,7 @@ aws dms stop-replication-task --replication-task-arn arn:aws:dms:...:task:MSSQL-
 
 ## 8. 사후 정리 — 비싸게 두지 말기
 
-DMS Replication Instance 는 시간당 요금이 꾸준히 나와요. 컷오버 끝나면 빠르게 정리.
+DMS Replication Instance 는 시간당 요금이 꾸준히 나와요. 컷오버 끝나면 빠르게 정리하세요.
 
 ```shell
 # 1. Task 삭제

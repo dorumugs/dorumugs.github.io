@@ -107,7 +107,7 @@ EXEC msdb.dbo.rds_restore_log
   @with_norecovery = 0;
 ```
 
-🎉 이 시점에 타깃 DB 가 ONLINE 으로 올라오면서 컷오버 완료.
+🎉 이 시점에 타깃 DB 가 ONLINE 으로 올라오면서 컷오버가 완료돼요.
 
 ### 2-5. 옵션 A 의 장단점
 

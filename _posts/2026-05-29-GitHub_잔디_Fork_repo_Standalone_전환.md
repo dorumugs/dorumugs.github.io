@@ -137,7 +137,7 @@ URL 도 보존되고 (`https://dorumugs.github.io` 그대로), 잘못되면 arch
 
 ### 5-0. 로컬 백업 — 사고 났을 때 살아남는 보험
 
-뭐든 시작하기 전에 로컬에서 한 번 더 백업.
+뭐든 시작하기 전에 로컬에서 한 번 더 백업하세요.
 
 ```shell
 git fetch --all --tags
@@ -188,7 +188,7 @@ GitHub 웹 `https://github.com/new` 에서 새 repo 생성.
 - README / .gitignore / license **추가 안 함** (빈 repo 여야 push 가 깔끔)
 - ⚠️ template / fork 옵션 절대 건드리지 말기
 
-생성된 repo 페이지가 비어있고 "Quick setup" 가이드만 보이면 정상.
+생성된 repo 페이지가 비어있고 "Quick setup" 가이드만 보이면 정상이에요.
 
 
 <br>
@@ -267,7 +267,7 @@ curl -s https://api.github.com/repos/dorumugs/dorumugs.github.io | \
 
 ### 5-5. 이메일 verified 확인 — 자주 빼먹는 단계
 
-`Settings` → `Emails` 에서 commit author 로 쓰는 이메일이 verified 상태인지 확인.
+`Settings` → `Emails` 에서 commit author 로 쓰는 이메일이 verified 상태인지 확인하세요.
 
 > ⚠️ "Keep my email addresses private" 가 켜져 있으면 push 할 때 실제 이메일 대신 `*****+dorumugs@users.noreply.github.com` 으로 마스킹돼서 들어가요. 그러면 잔디 안 잡혀요. 끄거나, git config 를 noreply 이메일로 통일하거나, 둘 중 하나로 정리해두는 게 좋아요.
 
@@ -297,7 +297,7 @@ push 끝나고 Pages 도 잘 떴다면 이제 GitHub 가 백필을 돌려요.
 
 🎉 fork 가 아닌 standalone repo 가 되는 순간부터 과거 커밋도 사후 카운팅 대상으로 풀려요. 
 
-만약 48시간 지나도 잔디가 안 잡힌다면 이 두 가지를 다시 확인.
+만약 48시간 지나도 잔디가 안 잡힌다면 이 두 가지를 다시 확인하세요.
 
 - [ ] commit author email 이 정말 verified email 인지
 - [ ] repo 가 정말 `fork: false` 인지

@@ -572,7 +572,7 @@ API_TOKEN = os.environ["MY_API_TOKEN"]   # 코드에 값을 적지 않는다
 
 - 서버는 포트를 안 엽니다. `mcp.run()` 기본값이 stdio 라, 별다른 설정 없이 이미 로컬 전용입니다.
 - Python(FastMCP)으로 함수에 `@mcp.tool()` 만 붙이면 도구가 되고, 타입힌트·docstring 이 곧 스펙입니다.
-- Inspector(`mcp dev`)로 먼저 검증하고, Claude Desktop(`mcp install` / 설정 JSON)·Claude Code(`claude mcp add`)에 등록하면 끝.
+- Inspector(`mcp dev`)로 먼저 검증하고, Claude Desktop(`mcp install` / 설정 JSON)·Claude Code(`claude mcp add`)에 등록하면 끝이에요.
 - 장점은 **노출 0 · 설정 단순 · 로컬 자원 직결**, 단점은 **공유 불가 · 중앙 관리 약함 · stdout 취약** 입니다.
 
 내 컴퓨터 안의 작은 기능들을 모델의 손에 쥐여주되 인터넷엔 한 발짝도 안 내보내고 싶을 때, 이 구조가 가장 군더더기 없는 선택이에요.

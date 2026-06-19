@@ -103,7 +103,7 @@ EXEC msdb.dbo.rds_restore_database
 **단점**
 
 - RDS 가 **Native Backup/Restore 옵션 그룹** 활성화 + S3 권한이 사전에 세팅되어 있어야 해요.
-- AWS RDS for SQL Server 에서 **`differential` 복원은 일정 버전 이상부터** 지원돼요. 풀백업 + 차등은 미리 RDS 버전 확인.
+- AWS RDS for SQL Server 에서 **`differential` 복원은 일정 버전 이상부터** 지원돼요. 풀백업 + 차등은 미리 RDS 버전을 확인하세요.
 - 한 파일이 큼 → 전송 중 끊기면 처음부터 다시 (멀티파트 업로드로 어느 정도 보완 가능).
 
 > ✅ "그대로" 가 가장 잘 지켜지는 방법. one-shot 마이그레이션이라면 1순위 후보.
@@ -168,7 +168,7 @@ bcp MyDB.dbo.Orders in Orders.dat ^
 
 - **테이블별로 골라서** 옮길 수 있음. "이 테이블만 빨리" 가 가능.
 - 배치 사이즈 / 병렬 처리(여러 bcp 동시 실행) 로 **부하 조절** 이 비교적 쉬워요.
-- AWS 서비스 의존성 없음. 사내 jump 서버에서 그냥 돌리면 끝.
+- AWS 서비스 의존성 없음. 사내 jump 서버에서 그냥 돌리면 끝이에요.
 
 **단점**
 
