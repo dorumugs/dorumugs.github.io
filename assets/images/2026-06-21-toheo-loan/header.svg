@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="토허구역 세 낀 집 매수 자금 흐름 — 매매가는 승계 전세보증금, 주택담보대출, 내 현금 세 가지로 채운다는 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#217346"/>
+      <stop offset="0.5" stop-color="#0a7c8c"/>
+      <stop offset="1" stop-color="#6264a7"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">세 낀 집, 대출은 <tspan fill="#7dd3a8">어떻게</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">실거주 유예 케이스의 자금 흐름 — 승계 보증금 · 주담대 · 내 현금</text>
+
+  <text class="ko" x="80" y="216" font-size="22" font-weight="700" fill="#cbd5e1">매매가  =</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="248" width="320" height="110" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="250" y="294" font-size="22" font-weight="800" fill="#7dd3a8">승계 전세보증금</text>
+    <text x="250" y="326" font-size="16" font-weight="500" fill="#cbd5e1">세입자 돈 · 나중에 돌려줄 부채</text>
+    <rect x="440" y="248" width="320" height="110" rx="16" fill="#0e2630" stroke="#0a7c8c" stroke-width="3"/>
+    <text x="600" y="294" font-size="22" font-weight="800" fill="#5ec6d6">주택담보대출</text>
+    <text x="600" y="326" font-size="16" font-weight="500" fill="#cbd5e1">선순위 보증금 차감 · 전입의무 면제</text>
+    <rect x="790" y="248" width="320" height="110" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="950" y="294" font-size="22" font-weight="800" fill="#b3b4e6">내 현금</text>
+    <text x="950" y="326" font-size="16" font-weight="500" fill="#cbd5e1">나머지를 메우는 자기자본</text>
+  </g>
+
+  <text class="ko" x="415" y="312" font-size="30" font-weight="800" fill="#64748b">+</text>
+  <text class="ko" x="765" y="312" font-size="30" font-weight="800" fill="#64748b">+</text>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 새 전세대출이 아니라 '승계'라서 갭투자 규제를 피한다</text>
+</svg>
