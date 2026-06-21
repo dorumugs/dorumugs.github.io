@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="서울 집 팔고 서울로 갈아타기 — 순서는 사고 3년 안에 팔기, 자금은 전세 못 끼고 한 번에, 거주는 새집 2년 실거주 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0a7c8c"/>
+      <stop offset="0.5" stop-color="#6264a7"/>
+      <stop offset="1" stop-color="#217346"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">서울 집 팔고, 서울로 <tspan fill="#5ec6d6">갈아타기</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">2026년 선매수 후매도, 지금 꼭 챙길 세 가지</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="320" height="118" rx="16" fill="#0e2630" stroke="#0a7c8c" stroke-width="3"/>
+    <text x="250" y="284" font-size="22" font-weight="800" fill="#5ec6d6">① 순서</text>
+    <text x="250" y="318" font-size="16" font-weight="500" fill="#cbd5e1">사고 3년 안에 팔기</text>
+    <rect x="440" y="236" width="320" height="118" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="600" y="284" font-size="22" font-weight="800" fill="#b3b4e6">② 자금</text>
+    <text x="600" y="318" font-size="16" font-weight="500" fill="#cbd5e1">전세 못 끼고 한 번에</text>
+    <rect x="790" y="236" width="320" height="118" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="950" y="284" font-size="22" font-weight="800" fill="#7dd3a8">③ 거주</text>
+    <text x="950" y="318" font-size="16" font-weight="500" fill="#cbd5e1">새집 2년 실거주</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 일시적 2주택 비과세 · 토허 실거주 · 대출 한도, 한 장에</text>
+</svg>
