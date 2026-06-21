@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="입주 시점 세입자 보증금 반환 자금 — 전세퇴거자금대출 1억 한도와 나머지 현금 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b45309"/>
+      <stop offset="0.5" stop-color="#0a7c8c"/>
+      <stop offset="1" stop-color="#6264a7"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">입주할 때, 보증금은 <tspan fill="#fbbf24">어떻게</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">세입자 내보내고 실거주 전환 — 전세퇴거자금 1억 한도의 벽</text>
+
+  <text class="ko" x="80" y="216" font-size="22" font-weight="700" fill="#cbd5e1">돌려줄 보증금  =</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="248" width="360" height="110" rx="16" fill="#2a1a07" stroke="#b45309" stroke-width="3"/>
+    <text x="270" y="294" font-size="22" font-weight="800" fill="#fbbf24">전세퇴거자금대출</text>
+    <text x="270" y="326" font-size="16" font-weight="500" fill="#cbd5e1">취득 2025.6.27 이후 → 1억 한도</text>
+    <rect x="480" y="248" width="360" height="110" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="660" y="294" font-size="22" font-weight="800" fill="#b3b4e6">내 현금</text>
+    <text x="660" y="326" font-size="16" font-weight="500" fill="#cbd5e1">보증금 − 1억, 대부분을 현금으로</text>
+  </g>
+
+  <text class="ko" x="455" y="312" font-size="30" font-weight="800" fill="#64748b">+</text>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 사고 끝이 아니다 — 입주 시점에 한 번 더 큰 현금이 필요하다</text>
+</svg>
