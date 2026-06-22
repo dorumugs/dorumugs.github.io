@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="갈아타기 부대비용 — 중개보수 두 번, 취득세와 등기, 중도상환과 말소 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1a2420"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b07d2b"/>
+      <stop offset="0.5" stop-color="#217346"/>
+      <stop offset="1" stop-color="#0a7c8c"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">갈아타기 <tspan fill="#e0b65e">부대비용</tspan> 정리</text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">집값 말고도, 매도·매수에서 두 번씩 나가는 돈</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="320" height="118" rx="16" fill="#2a2113" stroke="#b07d2b" stroke-width="3"/>
+    <text x="250" y="284" font-size="22" font-weight="800" fill="#e0b65e">① 중개보수</text>
+    <text x="250" y="318" font-size="16" font-weight="500" fill="#cbd5e1">매도·매수 두 번</text>
+    <rect x="440" y="236" width="320" height="118" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="600" y="284" font-size="22" font-weight="800" fill="#7dd3a8">② 취득세·등기</text>
+    <text x="600" y="318" font-size="16" font-weight="500" fill="#cbd5e1">인지세·채권·법무사</text>
+    <rect x="790" y="236" width="320" height="118" rx="16" fill="#0e2630" stroke="#0a7c8c" stroke-width="3"/>
+    <text x="950" y="284" font-size="22" font-weight="800" fill="#5ec6d6">③ 매도측</text>
+    <text x="950" y="318" font-size="16" font-weight="500" fill="#cbd5e1">중도상환·근저당 말소</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 집값 외에 수천만 원, 미리 잡아두면 안 흔들린다</text>
+</svg>
