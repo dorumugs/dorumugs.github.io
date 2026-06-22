@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#1f2937"/>
+    </linearGradient>
+    <linearGradient id="pdp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#5b21b6"/>
+    </linearGradient>
+    <marker id="ar" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="500" fill="url(#bg)"/>
+
+  <text x="60" y="74" fill="#f9fafb" font-size="40" font-weight="800">제로트러스트 설계</text>
+  <text x="60" y="112" fill="#9ca3af" font-size="21" font-weight="500">Never Trust, Always Verify — 망분리 다음의 금융보안 아키텍처</text>
+
+  <!-- subject/device -->
+  <rect x="55" y="180" width="150" height="120" rx="14" fill="#1e293b" stroke="#38bdf8" stroke-width="1.6"/>
+  <text x="130" y="228" fill="#e0f2fe" font-size="16" font-weight="700" text-anchor="middle">사용자 · 단말</text>
+  <text x="130" y="256" fill="#7dd3fc" font-size="13" text-anchor="middle">신원 + 기기상태</text>
+  <text x="130" y="278" fill="#7dd3fc" font-size="13" text-anchor="middle">+ 맥락</text>
+
+  <!-- PEP -->
+  <rect x="290" y="190" width="130" height="100" rx="14" fill="#334155" stroke="#f59e0b" stroke-width="2"/>
+  <text x="355" y="232" fill="#fde68a" font-size="17" font-weight="700" text-anchor="middle">PEP</text>
+  <text x="355" y="258" fill="#fcd34d" font-size="12.5" text-anchor="middle">정책 집행점</text>
+  <text x="355" y="276" fill="#fcd34d" font-size="12.5" text-anchor="middle">(검문소)</text>
+
+  <!-- PDP -->
+  <rect x="500" y="165" width="230" height="150" rx="16" fill="url(#pdp)"/>
+  <text x="615" y="205" fill="#f5f3ff" font-size="18" font-weight="800" text-anchor="middle">PDP · 정책결정점</text>
+  <rect x="520" y="225" width="90" height="70" rx="9" fill="#5b21b6" stroke="#c4b5fd" stroke-width="1.4"/>
+  <text x="565" y="256" fill="#ede9fe" font-size="14" font-weight="700" text-anchor="middle">PE</text>
+  <text x="565" y="278" fill="#ddd6fe" font-size="11.5" text-anchor="middle">판단</text>
+  <rect x="620" y="225" width="90" height="70" rx="9" fill="#5b21b6" stroke="#c4b5fd" stroke-width="1.4"/>
+  <text x="665" y="256" fill="#ede9fe" font-size="14" font-weight="700" text-anchor="middle">PA</text>
+  <text x="665" y="278" fill="#ddd6fe" font-size="11.5" text-anchor="middle">집행지시</text>
+
+  <!-- resource -->
+  <rect x="810" y="180" width="150" height="120" rx="14" fill="#064e3b" stroke="#34d399" stroke-width="1.6"/>
+  <text x="885" y="228" fill="#d1fae5" font-size="16" font-weight="700" text-anchor="middle">보호 자원</text>
+  <text x="885" y="256" fill="#6ee7b7" font-size="13" text-anchor="middle">코어 · 데이터</text>
+  <text x="885" y="278" fill="#6ee7b7" font-size="13" text-anchor="middle">앱 · 클라우드</text>
+
+  <!-- flow arrows -->
+  <path d="M 207 240 L 286 240" stroke="#f59e0b" stroke-width="3" fill="none" marker-end="url(#ar)"/>
+  <path d="M 422 235 L 497 230" stroke="#f59e0b" stroke-width="3" fill="none" marker-end="url(#ar)"/>
+  <path d="M 422 250 L 805 245" stroke="#34d399" stroke-width="2.4" stroke-dasharray="7 5" fill="none" marker-end="url(#ar)"/>
+  <text x="610" y="345" fill="#9ca3af" font-size="12.5" text-anchor="middle">매 요청마다 검증 → 토큰 발급 → 세션 단위 집행 · 지속 재평가</text>
+
+  <!-- pillars -->
+  <text x="60" y="402" fill="#cbd5e1" font-size="15" font-weight="700">6대 핵심요소</text>
+  <text x="60" y="430" fill="#a5b4fc" font-size="14.5">식별·신원 ｜ 기기·엔드포인트 ｜ 네트워크 ｜ 시스템 ｜ 앱·워크로드 ｜ 데이터</text>
+  <text x="60" y="462" fill="#cbd5e1" font-size="15" font-weight="700">교차기능</text>
+  <text x="170" y="462" fill="#fcd34d" font-size="14.5">가시성·분석 ｜ 자동화·오케스트레이션　　성숙도 4단계: 기존 → 초기 → 향상 → 최적화</text>
+</svg>
