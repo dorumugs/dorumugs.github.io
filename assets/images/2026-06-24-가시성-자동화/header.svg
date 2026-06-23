@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#172033"/>
+    </linearGradient>
+    <linearGradient id="git" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9333ea"/>
+      <stop offset="1" stop-color="#6b21a8"/>
+    </linearGradient>
+    <marker id="g" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#34d399"/>
+    </marker>
+    <marker id="y" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="500" fill="url(#bg)"/>
+
+  <text x="60" y="74" fill="#f8fafc" font-size="40" font-weight="800">가시성 · 정책 자동화</text>
+  <text x="60" y="112" fill="#94a3b8" font-size="21" font-weight="500">보이지 않으면 지킬 수 없다 — 흐름 관찰에서 policy-as-code 까지</text>
+
+  <!-- VISIBILITY panel -->
+  <text x="245" y="172" fill="#7dd3fc" font-size="16" font-weight="700" text-anchor="middle">① 가시성 (eBPF 흐름 관찰)</text>
+  <rect x="70" y="190" width="350" height="220" rx="16" fill="#0f1b2e" stroke="#334155" stroke-width="1.5"/>
+  <circle cx="130" cy="245" r="20" fill="#075985" stroke="#7dd3fc"/>
+  <circle cx="245" cy="245" r="20" fill="#312e81" stroke="#a5b4fc"/>
+  <circle cx="360" cy="245" r="20" fill="#065f46" stroke="#6ee7b7"/>
+  <!-- allowed flows -->
+  <path d="M 150 245 L 225 245" stroke="#34d399" stroke-width="2.4" marker-end="url(#g)"/>
+  <path d="M 265 245 L 340 245" stroke="#34d399" stroke-width="2.4" marker-end="url(#g)"/>
+  <!-- dropped flow -->
+  <path d="M 150 268 C 230 330, 290 330, 352 268" stroke="#f87171" stroke-width="2.2" stroke-dasharray="5 4" fill="none"/>
+  <text x="245" y="345" fill="#fca5a5" font-size="12" text-anchor="middle">DROPPED (정책 위반 흐름까지 다 보임)</text>
+  <text x="245" y="378" fill="#cbd5e1" font-size="12.5" text-anchor="middle">누가 → 누구와 · 허용/차단 · L3/4/7</text>
+
+  <!-- arrow visibility -> automation -->
+  <path d="M 432 295 L 505 295" stroke="#fbbf24" stroke-width="3.5" marker-end="url(#y)"/>
+  <text x="468" y="280" fill="#fcd34d" font-size="12.5" text-anchor="middle">관찰→</text>
+  <text x="468" y="320" fill="#fcd34d" font-size="12.5" text-anchor="middle">정책</text>
+
+  <!-- AUTOMATION panel: GitOps loop -->
+  <text x="855" y="172" fill="#d8b4fe" font-size="16" font-weight="700" text-anchor="middle">② 자동화 (policy-as-code · GitOps)</text>
+  <rect x="520" y="220" width="150" height="64" rx="11" fill="url(#git)"/>
+  <text x="595" y="248" fill="#f5f3ff" font-size="15" font-weight="700" text-anchor="middle">Git</text>
+  <text x="595" y="270" fill="#e9d5ff" font-size="11.5" text-anchor="middle">정책 = 코드</text>
+
+  <rect x="715" y="220" width="150" height="64" rx="11" fill="#1e293b" stroke="#fbbf24" stroke-width="1.6"/>
+  <text x="790" y="248" fill="#fde68a" font-size="14" font-weight="700" text-anchor="middle">CI · 리뷰</text>
+  <text x="790" y="270" fill="#fcd34d" font-size="11.5" text-anchor="middle">테스트·승인</text>
+
+  <rect x="910" y="220" width="160" height="64" rx="11" fill="#0c4a6e" stroke="#38bdf8" stroke-width="1.6"/>
+  <text x="990" y="248" fill="#e0f2fe" font-size="14" font-weight="700" text-anchor="middle">클러스터</text>
+  <text x="990" y="270" fill="#7dd3fc" font-size="11.5" text-anchor="middle">자동 reconcile</text>
+
+  <path d="M 672 252 L 712 252" stroke="#fbbf24" stroke-width="2.6" marker-end="url(#y)"/>
+  <path d="M 867 252 L 907 252" stroke="#fbbf24" stroke-width="2.6" marker-end="url(#y)"/>
+  <!-- drift feedback loop -->
+  <path d="M 990 286 C 990 360, 595 360, 595 286" stroke="#34d399" stroke-width="2.2" stroke-dasharray="6 5" fill="none" marker-end="url(#g)"/>
+  <text x="795" y="352" fill="#6ee7b7" font-size="12" text-anchor="middle">drift 탐지 → Git 상태로 되돌림</text>
+
+  <text x="600" y="458" fill="#cbd5e1" font-size="15" text-anchor="middle">흐름을 관찰하고 → 정책을 코드로 → 자동 배포·검증 → 이탈을 되돌린다</text>
+</svg>
