@@ -17,6 +17,7 @@ toc: true
 [지난 글](/coding/내부망_MSSQL_AWS_RDS_마이그레이션/)에서 내부망 MSSQL → AWS RDS for SQL Server 마이그레이션 방법 6가지를 비교하고, **Native Backup/Restore** 를 1순위로 추천드렸어요. 이번 글은 그 실전편이에요. RDS 옵션 그룹 세팅부터 시작해서, 풀백업 → S3 업로드 → 복원, 마지막으로 컷오버 시점의 **차등 백업(differential)** 으로 다운타임을 짧게 끊는 데까지 한 번에 따라가봅니다.
 
 > 💡 이 글에서 다루는 것
+> - **백업이 처음이라면** — Full/Differential/Log 백업 3종 + 복구 모델(SIMPLE/FULL)
 > - RDS 옵션 그룹(`SQLSERVER_BACKUP_RESTORE`) + IAM Role + S3 버킷 사전 세팅
 > - 원본에서 `BACKUP DATABASE` 로 풀백업 (STRIPE / COMPRESSION / CHECKSUM)
 > - S3 업로드 시 주의점 (KMS, 멀티파트, 리전 매칭)
@@ -66,9 +67,51 @@ toc: true
 
 
 
-## 2. S3 버킷 + IAM Role 만들기
+## 2. 백업이 처음이라면 — 백업 3종과 복구 모델
 
-### 2-1. S3 버킷
+`BACKUP DATABASE` 로 바로 들어가기 전에, 이 시리즈 내내 나오는 두 가지 기초만 잡고 가요. 이걸 모르면 `WITH DIFFERENTIAL`, `NORECOVERY`, "SIMPLE 이면 로그 백업 불가" 같은 말이 다 외계어처럼 들려요.
+
+### 백업 3종 — Full · Differential · Log
+
+| 백업 종류 | 무엇을 담나 | 크기 | 언제 |
+|---|---|---|---|
+| **Full(전체)** | 그 시점 DB 전체 | 큼 | 기준점.<br>모든 체인의 시작 |
+| **Differential(차등)** | *마지막 Full 이후*<br>바뀐 페이지 | 중간 | Full 뒤 변경분을<br>한 번에 |
+| **Transaction Log(로그)** | *마지막 백업 이후*<br>트랜잭션 로그 | 작음 | 촘촘히(분 단위)<br>따라잡기 |
+
+핵심은 **체인**이에요. Full 하나를 기준으로, 그 뒤를 Differential 이나 Log 로 이어붙여 "Full 시점 → 컷오버 시점"의 간격을 좁혀요. 이 글은 **Full + Differential**(아래 컷오버 절), [4편](/coding/RDS_SQLServer_복원_이후_변경분_계속_쌓기/)은 **Full + Log 체인**을 써요.
+
+> 💡 Differential 은 *항상 마지막 Full 기준*이에요. 중간에 Full 을 또 뜨면 차등의 기준점이 그 새 Full 로 옮겨가니, 마이그레이션 중엔 기준 Full 을 함부로 새로 뜨지 마세요.
+
+### 복구 모델 — 로그 백업이 되냐 안 되냐를 가른다
+
+DB 마다 **복구 모델(Recovery Model)** 이 하나 걸려 있고, 이게 *로그 백업이 가능한지*를 결정해요.
+
+| 복구 모델 | 로그 백업 | 특징 |
+|---|---|---|
+| `SIMPLE` | ❌ 불가 | 로그를 자동으로 비움.<br>로그 백업 자체가 안 됨 |
+| `FULL` | ✅ 가능 | 모든 변경을 로그에 보존.<br>시점 복구·로그 체인 가능 |
+| `BULK_LOGGED` | ✅ 가능 | FULL 비슷하되<br>대량 작업 로그 최소화 |
+
+```sql
+-- 내 DB 의 복구 모델 확인
+SELECT name, recovery_model_desc FROM sys.databases WHERE name = 'MyDB';
+```
+
+> 🚨 **여기가 4편으로 이어지는 갈림길이에요.** 운영 DB 가 `SIMPLE` 이면 **로그 백업 기반 따라잡기(4편 옵션 A)가 아예 불가능**해요. 그땐 Full + Differential 로 가거나, DMS CDC 로 변경분을 따라잡아야 해요. 마이그레이션 계획 전에 복구 모델부터 확인하세요.
+
+이 두 개념만 잡으면 아래 백업/복원 명령들이 "왜 이렇게 쓰는지" 까지 보여요.
+
+
+<br>
+
+<br>
+
+
+
+## 3. S3 버킷 + IAM Role 만들기
+
+### 3-1. S3 버킷
 
 리전만 잘 맞춰주세요. 그리고 버킷 정책은 처음엔 **굳이 손대지 않아도** 동작해요. IAM Role 권한으로 처리되니까요.
 
@@ -78,7 +121,7 @@ aws s3 mb s3://my-mssql-migration --region ap-northeast-2
 
 > ⚠️ 인스턴스 리전과 버킷 리전이 다르면 RDS 가 접근 자체를 거부해요. 가장 흔히 깨지는 포인트 1위.
 
-### 2-2. IAM Role
+### 3-2. IAM Role
 
 RDS 의 SQL Server 서비스가 S3 에 접근하도록 신뢰관계를 잡아줘야 해요. trust policy 와 권한 정책 둘 다 필요.
 
@@ -143,7 +186,7 @@ aws iam put-role-policy \
 
 
 
-## 3. RDS Option Group 만들고 붙이기
+## 4. RDS Option Group 만들고 붙이기
 
 이제 만든 IAM Role 을 RDS 인스턴스가 쓰도록 옵션 그룹을 만들고 attach 해요.
 
@@ -185,7 +228,7 @@ EXEC msdb.dbo.rds_show_configuration;
 
 
 
-## 4. 원본에서 풀백업 만들기 (STRIPE + COMPRESSION)
+## 5. 원본에서 풀백업 만들기 (STRIPE + COMPRESSION)
 
 이제 원본 MSSQL 에서 백업을 떠요. 한 파일로 통째로 떨어뜨리지 말고 **STRIPE 으로 4~8 분할** 하는 걸 추천드려요. 백업/복원 둘 다 병렬화돼서 훨씬 빠릅니다.
 
@@ -236,7 +279,7 @@ WITH CHECKSUM;
 
 
 
-## 5. S3 로 업로드
+## 6. S3 로 업로드
 
 내부망 → S3 업로드는 S2S VPN 으로 가도 되고, 인터넷 게이트웨이로 가도 돼요. **VPC endpoint(S3 Gateway Endpoint)** 가 있으면 RDS 가 복원할 때도 더 안정적이고 빨라요.
 
@@ -269,9 +312,11 @@ aws s3 ls s3://my-mssql-migration/mssql/
 
 
 
-## 6. RDS 에서 복원 — `rds_restore_database`
+## 7. RDS 에서 복원 — `rds_restore_database`
 
 이제 본 게임. RDS 의 `msdb.dbo.rds_restore_database` 저장 프로시저를 호출해요. STRIPE 백업은 콤마로 ARN 을 이어 붙여요.
+
+> 💡 **왜 `RESTORE DATABASE` 가 아니라 저장 프로시저인가요?** RDS 는 관리형이라 우리가 OS 파일 시스템이나 `RESTORE DATABASE` 명령에 직접 손댈 수 없어요. 그래서 AWS 가 "S3 의 .bak 을 가져와 복원해줘" 를 대신 수행하는 `rds_restore_database` 같은 전용 SP 를 열어둔 거예요. 백업을 RDS→S3 로 뺄 때도 마찬가지로 `rds_backup_database` 를 씁니다.
 
 ```sql
 EXEC msdb.dbo.rds_restore_database
@@ -311,11 +356,11 @@ EXEC msdb.dbo.rds_task_status @db_name = 'MyDB';
 
 
 
-## 7. 컷오버 — 차등 백업으로 다운타임 줄이기
+## 8. 컷오버 — 차등 백업으로 다운타임 줄이기
 
 풀백업이 큰 DB 라면, **풀백업을 먼저 옮겨놓고** + **컷오버 직전에 차등 백업만 다시 옮기는** 방식으로 다운타임을 분 단위로 줄일 수 있어요.
 
-### 7-1. 원본에서 차등 백업
+### 8-1. 원본에서 차등 백업
 
 ```sql
 BACKUP DATABASE [MyDB]
@@ -330,7 +375,7 @@ WITH
 
 차등 백업은 풀백업 이후 변경된 페이지만 떠요. 보통 풀의 1~10% 크기로 끝납니다.
 
-### 7-2. S3 업로드 후 RDS 에 차등 복원
+### 8-2. S3 업로드 후 RDS 에 차등 복원
 
 ```sql
 EXEC msdb.dbo.rds_restore_database
@@ -353,7 +398,7 @@ EXEC msdb.dbo.rds_restore_database
 
 
 
-## 8. 복원 후 반드시 챙길 것 — 로그인 / 사용자 매핑
+## 9. 복원 후 반드시 챙길 것 — 로그인 / 사용자 매핑
 
 `.bak` 으로 복원하면 **DB 사용자(users)는 들어오지만**, 서버 레벨의 **로그인(logins)** 은 안 들어와요. 원본 서버에 있던 로그인을 RDS 마스터에 똑같이 만들고, DB 사용자와 다시 매핑해줘야 해요.
 
@@ -380,7 +425,7 @@ ALTER USER [app_user] WITH LOGIN = [app_user];
 
 
 
-## 9. 데이터 일관성 검증 — 한 번 더
+## 10. 데이터 일관성 검증 — 한 번 더
 
 복원이 끝나면 마지막으로 데이터 검증 한 사이클 돌려요.
 
@@ -406,7 +451,7 @@ ORDER BY p.rows DESC;
 
 
 
-## 10. 자주 깨지는 포인트 — 체크리스트
+## 11. 자주 깨지는 포인트 — 체크리스트
 
 이번 작업하면서 한 번씩 다 밟아봤던 함정들이에요. 미리 알면 안 밟습니다.
 
@@ -428,7 +473,7 @@ ORDER BY p.rows DESC;
 
 
 
-## 11. 정리
+## 12. 정리
 
 Native Backup/Restore 는 단계가 많아 보이지만, 한 번 셋업해두면 명령어 몇 줄로 끝나는 깔끔한 흐름이에요. 핵심만 다시 짚으면
 

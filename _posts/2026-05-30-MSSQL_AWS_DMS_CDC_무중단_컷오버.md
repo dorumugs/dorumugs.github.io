@@ -174,6 +174,43 @@ ORDER BY __$start_lsn DESC;
 > EXEC sys.sp_cdc_change_job @job_type = N'cleanup', @retention = 5760;  -- 4일(분)
 > ```
 
+### 2-6. CDC 를 잠깐 껐다 켰다면 — 공백(gap) 대처
+
+실무에서 자주 나오는 상황이에요. **"CDC 오버헤드가 부담돼서 잠깐 껐다가 두 시간 뒤에 다시 켰다."** 이러면 **그 두 시간 동안의 변경이 어디에도 안 잡혀요.** SQL Server CDC 를 `sp_cdc_disable_*` 로 *완전히 끄면* 그 사이 트랜잭션 로그는 그냥 truncate 되고, DMS 가 나중에 읽을 변경분이 통째로 사라집니다. 다시 켜면 **새 capture instance 가 새 LSN 부터** 시작하므로, 공백 구간은 영영 복구되지 않아요.
+
+대처는 **"애초에 완전히 끄지 않기"** 와 **"이미 공백이 생겼다면 재기준화"** 두 갈래예요.
+
+**① (권장) 오버헤드가 걱정이면 *끄지 말고* capture 잡만 멈추기**
+
+CDC 기능 자체는 켜둔 채 **capture 잡만** 멈추면, 그 사이 변경은 **트랜잭션 로그에 보존**됐다가(`log_reuse_wait_desc = REPLICATION`) 잡을 다시 켜는 순간 **공백 없이 따라잡혀요.** 대신 멈춘 동안 로그가 커지니 디스크만 보세요.
+
+```sql
+-- 멈추기 (오버헤드 잠깐 줄이고 싶을 때)
+EXEC sys.sp_cdc_stop_job  @job_type = N'capture';
+-- 두 시간 뒤 다시 켜기 → 로그에 쌓인 변경을 그대로 따라잡음(공백 없음)
+EXEC sys.sp_cdc_start_job @job_type = N'capture';
+```
+
+또는 아예 끄는 대신 capture 잡 **부하를 낮추는** 방법도 있어요(폴링 간격↑, 배치 축소).
+
+```sql
+EXEC sys.sp_cdc_change_job @job_type = N'capture',
+     @pollinginterval = 10,   -- 기본 5초 → 10초
+     @maxtrans = 500;         -- 한 번에 처리할 트랜잭션 수 축소
+```
+
+**② 이미 완전히 껐다 켜서 공백이 생겼다면 — 해당 테이블 재기준화**
+
+두 시간 공백은 CDC 로는 못 메꿔요. 영향받은 테이블만 **풀로드 한 번 더(reload)** 해서 타깃을 현재 스냅샷으로 다시 맞춘 뒤, 그 지점부터 CDC 를 재개하는 게 가장 안전해요.
+
+- [x] DMS task **중지**
+- [x] 원본 CDC **재활성화** (`sp_cdc_enable_table`) — 새 capture instance 생성
+- [x] DMS 콘솔의 **Table statistics → 해당 테이블 Reload** (영향 테이블만 풀로드 재실행)
+- [x] reload 끝나면 CDC 재개 → 이후 변경분은 새 LSN 부터 정상 추적
+- [x] 마지막에 [5편](/coding/MSSQL_마이그레이션_정합성_트러블슈팅/)의 행 수 · `CHECKSUM_AGG` 로 공백 구간 메꿔졌는지 확인
+
+> ⚠️ `updated_at` 같은 워터마크 컬럼이 있으면 그 구간만 골라 MERGE 로 메꾸고 싶을 수 있는데, 그 방식은 **DELETE 를 못 잡아요.** 공백 동안 삭제된 행이 타깃에 남아버리니, 안전을 원하면 워터마크 catch-up 보다 **테이블 reload** 를 택하세요.
+
 
 <br>
 
