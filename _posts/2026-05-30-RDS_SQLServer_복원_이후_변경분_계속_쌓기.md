@@ -17,6 +17,7 @@ toc: true
 [Native Backup/Restore 실전편](/coding/RDS_SQLServer_Native_Backup_Restore_실전/)을 따라 풀백업 복원까지 끝내고 나면, 다음 질문이 바로 나와요. **"이제 운영 중인 원본에서 새로 들어오는 데이터는 어떻게 따라잡지?"** 풀백업이 끝난 시점 이후 원본은 계속 INSERT/UPDATE 가 들어오는 중이니까요. 이번 글은 그 "복원 위에 변경분 계속 쌓기" 문제를 RDS for SQL Server 의 제약을 짚어가며 정리해볼게요.
 
 > 💡 이 글에서 다루는 것
+> - **CDC-only 가 처음이라면** — SQL Server CDC(소스 기능) vs DMS CDC 모드, migration-type 3종 차이
 > - 왜 "복원이 끝난 DB 위에 다시 백업을 못 올리는가" — RECOVERY/NORECOVERY 차이
 > - 옵션 A: 차등 + 트랜잭션 로그 백업 체인 (NORECOVERY 유지)
 > - 옵션 B: 한 번 ONLINE 된 후에는 **DMS CDC-only** 로 흘리기
@@ -137,13 +138,34 @@ EXEC msdb.dbo.rds_restore_log
 
 만약 이미 `WITH RECOVERY` 로 ONLINE 시켜버렸거나, 검증을 위해 타깃에서 쿼리를 돌려보고 싶다면 옵션 A 는 쓸 수 없어요. 이때 쓰는 게 **DMS 의 CDC-only 모드**.
 
-### 3-1. 핵심 아이디어
+### 3-1. CDC-only 가 처음이라면 — '두 개의 CDC' 부터
+
+여기서 한 번 정리하고 가요. CDC 라는 단어가 이 시리즈에 **두 군데**서 나오는데, 층이 달라요. 초보가 가장 많이 헷갈리는 지점이에요.
+
+| 'CDC' | 정체 | 켜는 곳 |
+|---|---|---|
+| **SQL Server CDC** | 소스 DB 가 변경을 트랜잭션 로그에서 떠서<br>`cdc.*` 테이블에 쌓는 *기능*<br>([3편](/coding/MSSQL_AWS_DMS_CDC_무중단_컷오버/)에서 켠 그것) | 원본 MSSQL 의<br>`sp_cdc_enable_db` |
+| **DMS 의 CDC 모드** | DMS task 가 그 변경을 읽어<br>타깃에 흘리는 *동작 방식*<br>(migration-type) | DMS task 의<br>`--migration-type cdc` |
+
+즉 **둘은 같이 가요.** 원본에 SQL Server CDC 가 켜져 있어야(아래층) DMS 가 CDC-only 모드로 그걸 퍼 나를(위층) 수 있어요. 원본 CDC 를 안 켜고 `--migration-type cdc` 만 주면 task 가 시작도 못 합니다.
+
+DMS task 의 migration-type 은 세 가지인데, CDC-only 는 그중 **풀로드를 통째로 생략**하는 모드예요.
+
+| migration-type | 풀로드 | 변경분(CDC) | 언제 |
+|---|---|---|---|
+| `full-load` | O | X | 한 번 통째로 복사, 그 뒤 변경은 무시 |
+| `full-load-and-cdc` | O | O | DMS 가 풀로드까지 다 함 (3편) |
+| `cdc` (CDC-only) | **X** | O | 풀로드는 백업/복원으로 끝냈고, 변경분만 DMS 로 (이 글) |
+
+> 💡 이 글의 핵심은 **무거운 풀카피는 백업/복원으로, 가벼운 변경분 추적만 DMS 로** 나누는 거예요. 그래서 DMS 한테 "풀로드는 됐고(`cdc`), 이 시점부터 바뀐 것만 따라와" 라고 시키는 게 CDC-only 입니다.
+
+### 3-2. 핵심 아이디어
 
 - 풀로드는 이미 끝났다 (Native Backup/Restore 로)
 - DMS 한테 **"풀로드 건너뛰고 변경분만 잡아 흘려"** 라고 시킴
 - 시작 시점(timestamp 또는 LSN)을 명시해서, 풀백업 시점 이후의 변경을 잡아냄
 
-### 3-2. Migration Type
+### 3-3. Migration Type
 
 ```shell
 aws dms create-replication-task \
@@ -164,7 +186,7 @@ aws dms create-replication-task \
 | `--migration-type cdc` | 풀로드 생략, 변경분만 |
 | `--cdc-start-time` | 변경 캡처 시작 시점. **풀백업 시작 시각** 또는 그 직전으로 |
 
-### 3-3. 시작 시점을 어떻게 정하나
+### 3-4. 시작 시점을 어떻게 정하나
 
 가장 안전한 방법은 **풀백업을 시작하기 직전의 시각** 을 기록해두는 거예요.
 
@@ -179,7 +201,7 @@ SELECT GETUTCDATE() AS backup_start_utc;
 
 > 💡 LSN 기준으로 더 정확하게 잡고 싶다면 `--cdc-start-position` 에 `LSN:xxxxx:xxxxxxxx` 형태로 줄 수 있어요. 풀백업 직전 LSN 을 `sys.fn_dblog` 로 따와서 넣는 패턴.
 
-### 3-4. 옵션 B 의 장단점
+### 3-5. 옵션 B 의 장단점
 
 **장점**
 
