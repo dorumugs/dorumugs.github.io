@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" width="1200" height="470" role="img" aria-label="미국 3배 레버리지 ETF 30년 백테스트 — 16.5배, 연복리 9.6%, 최대낙폭 마이너스 99.95%, 30년 보유해도 1배에 패배">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b0a0a"/>
+      <stop offset="1" stop-color="#0b1120"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f87171" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#f87171" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="470" fill="url(#bg)"/>
+  <circle cx="1080" cy="90" r="220" fill="#ffffff" opacity="0.05"/>
+  <circle cx="1140" cy="420" r="160" fill="#ffffff" opacity="0.04"/>
+  <!-- 1x reference line (steady up) -->
+  <path d="M80 392 L300 330 L520 300 L760 250 L1000 200 L1120 175" fill="none" stroke="#60a5fa" stroke-width="3" stroke-dasharray="6 7" stroke-linejoin="round" opacity="0.7"/>
+  <!-- 3x: dotcom moonshot then near-total crash, ends BELOW the 1x line -->
+  <path d="M80 400 L210 300 L300 70 L360 360 L430 430 L520 432 L640 410 L760 360 L860 300 L940 360 L1010 290 L1080 250 L1120 232 L1120 442 L80 442 Z" fill="url(#area)"/>
+  <path d="M80 400 L210 300 L300 70 L360 360 L430 430 L520 432 L640 410 L760 360 L860 300 L940 360 L1010 290 L1080 250 L1120 232" fill="none" stroke="#f87171" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <g font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif" fill="#ffffff">
+    <text x="80" y="92" font-size="30" font-weight="600" opacity="0.85">미국 3배 레버리지 ETF · TQQQ·SOXL·UPRO…</text>
+    <text x="74" y="210" font-size="104" font-weight="800" letter-spacing="-2">30년 백테스트</text>
+    <text x="80" y="268" font-size="29" opacity="0.92">1996–2026 실데이터 검증 · 분할·역분할 보정 수정종가</text>
+    <text x="80" y="340" font-size="38" font-weight="800" fill="#fde047">+16.5배</text>
+    <text x="300" y="340" font-size="38" font-weight="800" fill="#fdba74">CAGR 9.6%</text>
+    <text x="600" y="340" font-size="38" font-weight="800" fill="#f87171">MDD −99.95%</text>
+    <text x="80" y="398" font-size="27" font-weight="700" fill="#93c5fd" opacity="0.95">…그런데 같은 30년, 1배 나스닥100은 44배였습니다</text>
+  </g>
+</svg>
