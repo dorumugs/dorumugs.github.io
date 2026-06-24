@@ -4,6 +4,9 @@ title:  "(2/5) AWS RDS for SQL Server Native Backup/Restore 실전 — 옵션 �
 date: 2026-05-30 09:09:00 +0900
 description: "AWS RDS for SQL Server 의 Native Backup/Restore 를 옵션 그룹 세팅부터 S3 업로드, 복원, 컷오버 시 차등 백업까지 한 번에 따라가는 실전 가이드입니다."
 categories: coding
+header:
+  image: /assets/images/2026-05-30-rds-native-backup-restore/header.svg
+  teaser: /assets/images/2026-05-30-rds-native-backup-restore/header.svg
 tag: [mssql, aws, rds, backup, restore, s3, migration, native-backup, kayserdocs]
 author_profile: false
 toc: true

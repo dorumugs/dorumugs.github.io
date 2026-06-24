@@ -4,6 +4,9 @@ title:  "(4/5) Native Backup/Restore 뒤에 변경분 계속 쌓기 — NORECOVE
 date: 2026-05-30 10:26:00 +0900
 description: "Native Backup/Restore 로 풀카피한 뒤 원본의 변경분을 계속 따라잡는 방법. NORECOVERY 체인과 DMS CDC-only 결합 패턴을 RDS for SQL Server 제약과 함께 풀어봅니다."
 categories: coding
+header:
+  image: /assets/images/2026-05-30-rds-restore-cdc-incremental/header.svg
+  teaser: /assets/images/2026-05-30-rds-restore-cdc-incremental/header.svg
 tag: [mssql, aws, rds, backup, restore, dms, cdc, incremental, kayserdocs]
 author_profile: false
 toc: true

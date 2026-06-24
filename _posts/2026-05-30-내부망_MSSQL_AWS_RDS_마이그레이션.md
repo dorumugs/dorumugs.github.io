@@ -4,6 +4,9 @@ title:  "(1/5) 내부망 MSSQL → AWS RDS for SQL Server 옮기기 — 부하 �
 date: 2026-05-30 08:30:00 +0900
 description: "내부망 MSSQL 을 AWS RDS for SQL Server 로 옮기는 6가지 방법을 비교하고, 원본 부하 최소화 관점에서 Native Backup/Restore 를 1순위로 추천하는 글이에요."
 categories: coding
+header:
+  image: /assets/images/2026-05-30-mssql-rds-migration/header.svg
+  teaser: /assets/images/2026-05-30-mssql-rds-migration/header.svg
 tag: [mssql, aws, rds, dms, bcp, migration, s2s-vpn, database, kayserdocs]
 author_profile: false
 toc: true
@@ -136,6 +139,8 @@ AWS 가 만든 **마이그레이션 전용 매니지드 서비스**. Replication
 - DMS Replication Instance 비용이 따로 들어요.
 
 > 💡 "운영 중인 DB 를 무중단에 가깝게 옮기고 싶다" 가 강한 요건이면 DMS + CDC 가 최선.
+
+> 💡 **CDC 가 처음이라면** 개념 · MSSQL 2016 에디션 조건 · 동작 확인까지 [3편](/coding/MSSQL_AWS_DMS_CDC_무중단_컷오버/)에서 풀어둘게요. 여기선 "풀로드 뒤 변경분만 따라잡아 주는 기능" 정도로만 알고 넘어가도 돼요.
 
 
 <br>

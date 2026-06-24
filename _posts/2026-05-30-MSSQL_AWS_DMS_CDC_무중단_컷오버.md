@@ -4,6 +4,9 @@ title:  "(3/5) AWS DMS + CDC 로 MSSQL 무중단 컷오버 — 풀로드 후 변
 date: 2026-05-30 09:16:00 +0900
 description: "AWS DMS + CDC 로 MSSQL 을 다운타임 분 단위 이하로 RDS 에 옮기는 방법. 풀로드 + 변경분 실시간 따라잡기 + 컷오버 흐름을 단계별로 정리했어요."
 categories: coding
+header:
+  image: /assets/images/2026-05-30-mssql-dms-cdc-cutover/header.svg
+  teaser: /assets/images/2026-05-30-mssql-dms-cdc-cutover/header.svg
 tag: [mssql, aws, dms, cdc, migration, rds, zero-downtime, kayserdocs]
 author_profile: false
 toc: true
@@ -14,7 +17,9 @@ toc: true
 [지난 글](/coding/RDS_SQLServer_Native_Backup_Restore_실전/)에서 Native Backup/Restore 로 풀카피 → 컷오버 순서를 정리했어요. 그런데 운영 DB 라 **단 몇 분의 다운타임도 허용 안 되는** 케이스가 있죠. 이번 글은 그런 상황에서 쓰는 **AWS DMS + CDC** 구성법이에요. 원본을 운영 중 그대로 두고 풀로드 → 변경분 실시간 따라잡기 → 컷오버 순서로 다운타임을 분 단위 이하로 줄이는 흐름을 정리합니다.
 
 > 💡 이 글에서 다루는 것
+> - **CDC 가 처음이라면** — 개념 30초 + Change Tracking 과 차이 + MSSQL 2016 에디션 조건
 > - 원본 MSSQL 에서 CDC 활성화 (DB 레벨 + 테이블 레벨)
+> - 켠 CDC 가 진짜 변경을 잡는지 변경 테이블로 눈으로 확인
 > - DMS Replication Instance / Endpoints / Task 세팅
 > - Full Load + CDC 동시 모드 vs 분리 모드 차이
 > - 스키마/인덱스/IDENTITY 는 DMS 가 안 가져온다는 점과 대응
@@ -57,7 +62,33 @@ DMS 는 **Replication Instance** 라는 EC2 같은 워커를 하나 띄워두고
 
 DMS 가 MSSQL 의 변경분을 잡아가려면 **원본에서 CDC 가 켜져 있어야** 해요. SQL Server 의 CDC 는 트랜잭션 로그를 읽어서 변경을 별도 시스템 테이블에 기록하는 기능이에요.
 
-### 2-1. DB 레벨 CDC 켜기
+### 2-1. CDC 가 뭔지부터 — 30초 개념
+
+CDC 를 처음 만지는 분들을 위해 개념만 짧게 짚고 갈게요. CDC(Change Data Capture)는 **테이블에 일어난 INSERT/UPDATE/DELETE 를 트랜잭션 로그에서 읽어다가, 별도의 변경 기록 테이블에 차곡차곡 쌓아두는** SQL Server 기본 기능이에요. 원본 테이블에 트리거를 다는 게 아니라, **어차피 기록되는 트랜잭션 로그를 한 번 더 활용**하는 방식이라 원본 부하가 작아요.
+
+CDC 를 켜면 SQL Server 가 자동으로 이런 것들을 만들어줘요.
+
+| 생기는 것 | 역할 |
+|---|---|
+| `cdc.<schema>_<table>_CT` 변경 테이블 | 테이블별 변경 이력이 쌓이는 곳 (예: `cdc.dbo_Orders_CT`) |
+| `cdc.lsn_time_mapping` | LSN ↔ 시각 매핑. "언제의 변경인지"를 시간으로 환산 |
+| `cdc.<DB>_capture` 잡 | 로그를 읽어 변경 테이블에 채우는 SQL Agent 잡 |
+| `cdc.<DB>_cleanup` 잡 | 오래된 변경 기록을 자동 삭제 (기본 3일 보존) |
+
+> 💡 여기서 **LSN(Log Sequence Number)** 하나만 알고 가면 돼요. 트랜잭션 로그의 각 변경에 매겨진 일련번호예요. DMS 든 CDC-only 시작이든 "이 LSN 이후부터 따라잡아" 라고 좌표를 찍을 때 쓰는 값이에요. [4편](/coding/RDS_SQLServer_복원_이후_변경분_계속_쌓기/)의 `--cdc-start-position LSN:...` 이 바로 이거예요.
+
+> ⚠️ **CDC ≠ Change Tracking.** 이름이 비슷한 Change Tracking(CT)은 "이 row 가 바뀌었다"는 *사실만* 가볍게 남기고 **옛 값은 안 보관**해요. DMS 가 변경분을 실어 나르려면 옛 값·컬럼별 변경까지 들고 있는 **CDC** 가 필요해요. 둘을 헷갈려서 Change Tracking 만 켜두면 DMS 의 CDC task 가 안 돕니다.
+
+> 🚨 **MSSQL 2016 이면 에디션부터 확인하세요.** CDC 는 원래 Enterprise 전용이었는데, **SQL Server 2016 SP1 부터 Standard 에디션에서도** 풀렸어요. 즉 **2016 RTM(SP 미적용) Standard 에선 `sp_cdc_enable_db` 가 막혀요.** 켜기 전에 버전·에디션을 먼저 보세요.
+>
+> ```sql
+> SELECT SERVERPROPERTY('ProductVersion') AS version,   -- 13.0.4001 이상이면 SP1+
+>        SERVERPROPERTY('Edition')        AS edition;
+> ```
+>
+> `13.0.4001.0`(SP1) 미만의 Standard 면 SP1 이상으로 올린 뒤에 CDC 를 켜야 해요. Enterprise/Developer 면 RTM 이라도 됩니다.
+
+### 2-2. DB 레벨 CDC 켜기
 
 ```sql
 USE [MyDB];
@@ -71,7 +102,7 @@ WHERE name = 'MyDB';
 
 `is_cdc_enabled = 1` 이면 OK.
 
-### 2-2. 테이블 레벨 CDC 켜기
+### 2-3. 테이블 레벨 CDC 켜기
 
 CDC 는 **테이블 단위로 한 번 더 켜줘야** 해요. 마이그레이션 대상 테이블 전부에 대해 돌립니다.
 
@@ -100,7 +131,7 @@ WHERE s.name = 'dbo';
 EXEC sp_executesql @sql;
 ```
 
-### 2-3. SQL Server Agent 가 떠 있어야 함
+### 2-4. SQL Server Agent 가 떠 있어야 함
 
 CDC 캡처 잡(`cdc.MyDB_capture`) 은 SQL Server Agent 가 돌려요. Agent 가 죽어있으면 변경이 안 잡혀요.
 
@@ -111,6 +142,37 @@ EXEC msdb.dbo.sp_help_job @job_name = N'cdc.MyDB_capture';
 `current_execution_status` 가 `1` (idle 아닌 실행 중) 또는 정상 스케줄로 도는지 확인하세요.
 
 > ⚠️ RDS for SQL Server **소스** 였다면 CDC 활성화 절차가 조금 달라요(`rds_cdc_enable_db`). 이 글은 **온프레미스/EC2 소스** 기준.
+
+### 2-5. CDC 가 진짜 잡히는지 눈으로 확인
+
+켜기만 하고 넘어가면 불안하죠. 실제로 변경이 잡히는지 1분이면 확인할 수 있어요. 대상 테이블에 더미 변경을 하나 주고, 변경 테이블을 들여다봅니다.
+
+```sql
+-- 1) 변경을 하나 발생시키고
+UPDATE dbo.Orders SET updated_at = GETDATE() WHERE id = 1;
+
+-- 2) 잠깐(capture 잡 주기, 보통 5초) 뒤 변경 테이블 조회
+SELECT TOP 10 __$start_lsn, __$operation, *
+FROM cdc.dbo_Orders_CT
+ORDER BY __$start_lsn DESC;
+```
+
+`__$operation` 값의 의미만 알면 돼요.
+
+| `__$operation` | 의미 |
+|---|---|
+| 1 | DELETE |
+| 2 | INSERT |
+| 3 | UPDATE (이전 값) |
+| 4 | UPDATE (이후 값) |
+
+행이 보이면 CDC 가 살아있는 거예요. ✅ 아무리 기다려도 안 보이면 십중팔구 **SQL Server Agent 가 꺼져 있거나**(앞 절) capture 잡이 멈춘 거예요.
+
+> 💡 변경 테이블은 `cdc.<DB>_cleanup` 잡이 **기본 3일(4320분)** 만 보관하고 지워요. DMS 가 한참 뒤처지거나 task 를 멈춰둔 사이 보존 기간이 지나면 따라잡을 변경분이 날아가니, 따라잡기가 크게 밀릴 땐 보존 주기를 늘려두세요.
+>
+> ```sql
+> EXEC sys.sp_cdc_change_job @job_type = N'cleanup', @retention = 5760;  -- 4일(분)
+> ```
 
 
 <br>

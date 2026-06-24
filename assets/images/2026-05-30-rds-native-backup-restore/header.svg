@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="AWS RDS for SQL Server Native Backup Restore 실전 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#166534"/>
+      <stop offset="0.5" stop-color="#16a34a"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="108" font-size="44" font-weight="800" fill="#f8fafc">Native Backup/Restore <tspan fill="#7dd3a8">실전</tspan></text>
+  <text class="ko" x="82" y="152" font-size="22" font-weight="500" fill="#94a3b8">옵션 그룹부터 컷오버까지 · .bak → S3 → RDS (2/5)</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#1c2533" fill-opacity="0.9" stroke="#475569" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#cbd5e1">.bak</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">STRIPE · 압축 백업</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0e2436" stroke="#2563eb" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#93c5fd">S3</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">멀티파트 업로드</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#11291f" stroke="#16a34a" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#7dd3a8">RDS 복원</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">rds_restore_database</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · MSSQL → AWS RDS 마이그레이션 시리즈</text>
+</svg>
