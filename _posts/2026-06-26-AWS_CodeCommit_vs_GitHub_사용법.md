@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "AWS CodeCommit 사용법 — GitHub 과 나란히 놓고 비교하기"
+title:  "(1/2) AWS CodeCommit 사용법 — GitHub 과 나란히 놓고 비교하기"
 date: 2026-06-26 12:00:00 +0900
 categories: coding
 tag: [AWS, CodeCommit, GitHub, git, IAM, CodePipeline, GitHubActions, DevOps, 형상관리, 인증]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-26-codecommit-github/header.svg
 description: "AWS CodeCommit 을 GitHub 사용법과 1:1로 비교합니다. 리포 생성·clone·push·PR·CI/CD 연결을 같은 작업끼리 나란히 놓고, 가장 다른 인증(IAM vs PAT)과 권한 모델까지 명령어로 정리했어요."
 ---
+
+{% include series-codecommit-github.html current="1" %}
 
 ## Summary
 
@@ -375,4 +377,8 @@ CodeCommit 은 전부 **IAM 정책(JSON)** 으로 내려가요. 예를 들어 "�
 
 
 일단 오늘은 여기까지.....  
-다음 글에서는 CodeCommit 에서 GitHub 로 실제 리포를 옮기는 마이그레이션(미러 push·파이프라인 재구성) 과정을 정리해볼게요.
+다음 글에서는 CodeCommit 에서 GitHub 으로 실제 리포를 옮기는 마이그레이션(미러 push·파이프라인 재구성) 과정을 정리해볼게요.
+
+---
+
+**다음 글 →:** [(2/2) CodeCommit 에서 GitHub 으로 리포 옮기기 — 미러 마이그레이션 실전](/coding/CodeCommit_GitHub_마이그레이션/)

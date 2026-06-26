@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="src" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d97706"/>
+      <stop offset="1" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="dst" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#15803d"/>
+      <stop offset="1" stop-color="#14532d"/>
+    </linearGradient>
+    <marker id="mig" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="500" fill="url(#bg)"/>
+
+  <!-- title -->
+  <text x="60" y="78" fill="#f8fafc" font-size="40" font-weight="800">CodeCommit → GitHub 마이그레이션</text>
+  <text x="60" y="116" fill="#94a3b8" font-size="21" font-weight="500">미러 클론으로 전체 히스토리·브랜치·태그를 통째로 옮기기</text>
+
+  <!-- source -->
+  <rect x="60" y="190" width="360" height="210" rx="18" fill="url(#src)" opacity="0.92"/>
+  <text x="240" y="236" fill="#fef3c7" font-size="23" font-weight="700" text-anchor="middle">AWS CodeCommit</text>
+  <text x="240" y="268" fill="#fde68a" font-size="15" text-anchor="middle">기존 리포 (origin)</text>
+  <text x="240" y="312" fill="#fef9c3" font-size="14" text-anchor="middle">브랜치 · 태그 · 전체 커밋</text>
+  <text x="240" y="338" fill="#fef9c3" font-size="14" text-anchor="middle">--mirror 로 통째 복제</text>
+  <text x="240" y="372" fill="#fca5a5" font-size="13" text-anchor="middle">⚠ 신규 가입 중단 → 이관 대상</text>
+
+  <!-- middle: bare mirror -->
+  <rect x="470" y="232" width="260" height="126" rx="16" fill="#0c4a6e" stroke="#38bdf8" stroke-width="2"/>
+  <text x="600" y="278" fill="#e0f2fe" font-size="17" font-weight="700" text-anchor="middle">로컬 bare mirror</text>
+  <text x="600" y="306" fill="#bae6fd" font-size="13" text-anchor="middle">git clone --mirror</text>
+  <text x="600" y="330" fill="#bae6fd" font-size="13" text-anchor="middle">git push --mirror</text>
+  <path d="M 422 295 L 468 295" stroke="#38bdf8" stroke-width="3" fill="none" marker-end="url(#mig)"/>
+  <path d="M 732 295 L 778 295" stroke="#38bdf8" stroke-width="3" fill="none" marker-end="url(#mig)"/>
+
+  <!-- destination -->
+  <rect x="780" y="190" width="360" height="210" rx="18" fill="url(#dst)" opacity="0.94"/>
+  <text x="960" y="236" fill="#dcfce7" font-size="23" font-weight="700" text-anchor="middle">GitHub</text>
+  <text x="960" y="268" fill="#bbf7d0" font-size="15" text-anchor="middle">새 리포 (origin)</text>
+  <text x="960" y="312" fill="#dcfce7" font-size="14" text-anchor="middle">히스토리 그대로 보존</text>
+  <text x="960" y="338" fill="#dcfce7" font-size="14" text-anchor="middle">Actions · 보호 규칙 재구성</text>
+  <text x="960" y="372" fill="#86efac" font-size="13" text-anchor="middle">✓ 협업·CI/CD 표준 위로</text>
+
+  <!-- bottom band -->
+  <text x="600" y="456" fill="#cbd5e1" font-size="16" text-anchor="middle">clone --mirror · push --mirror · 파이프라인 전환 · 컷오버 체크리스트</text>
+</svg>
