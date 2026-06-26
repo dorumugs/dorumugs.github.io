@@ -1,7 +1,7 @@
 ---
 layout: single
 title:  "AWS CodeCommit 사용법 — GitHub 과 나란히 놓고 비교하기"
-date: 2026-06-26 14:10:00 +0900
+date: 2026-06-26 12:00:00 +0900
 categories: coding
 tag: [AWS, CodeCommit, GitHub, git, IAM, CodePipeline, GitHubActions, DevOps, 형상관리, 인증]
 author_profile: false
