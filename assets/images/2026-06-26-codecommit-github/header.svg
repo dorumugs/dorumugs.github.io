@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="aws" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d97706"/>
+      <stop offset="1" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="gh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#334155"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="500" fill="url(#bg)"/>
+
+  <!-- title -->
+  <text x="60" y="78" fill="#f8fafc" font-size="40" font-weight="800">AWS CodeCommit vs GitHub</text>
+  <text x="60" y="116" fill="#94a3b8" font-size="21" font-weight="500">같은 git, 다른 인증·권한·CI/CD — 명령어로 나란히 비교</text>
+
+  <!-- CodeCommit zone -->
+  <rect x="60" y="170" width="500" height="250" rx="18" fill="url(#aws)" opacity="0.92"/>
+  <text x="310" y="214" fill="#fef3c7" font-size="24" font-weight="700" text-anchor="middle">AWS CodeCommit</text>
+  <text x="310" y="248" fill="#fde68a" font-size="15" text-anchor="middle">AWS 계정 안에서 도는 비공개 git 호스팅</text>
+  <rect x="100" y="278" width="195" height="56" rx="10" fill="#92400e" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="197" y="312" fill="#fef3c7" font-size="14" text-anchor="middle">IAM 권한으로 접근</text>
+  <rect x="325" y="278" width="195" height="56" rx="10" fill="#92400e" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="422" y="312" fill="#fef3c7" font-size="14" text-anchor="middle">grc · HTTPS · SSH</text>
+  <text x="310" y="372" fill="#fcd34d" font-size="14" text-anchor="middle">CodePipeline · CodeBuild 와 한 묶음</text>
+  <text x="310" y="398" fill="#fca5a5" font-size="13" text-anchor="middle">⚠ 2024.7 이후 신규 고객 가입 중단</text>
+
+  <!-- vs -->
+  <text x="600" y="305" fill="#64748b" font-size="28" font-weight="800" text-anchor="middle">vs</text>
+
+  <!-- GitHub zone -->
+  <rect x="640" y="170" width="500" height="250" rx="18" fill="url(#gh)" opacity="0.95"/>
+  <text x="890" y="214" fill="#f1f5f9" font-size="24" font-weight="700" text-anchor="middle">GitHub</text>
+  <text x="890" y="248" fill="#cbd5e1" font-size="15" text-anchor="middle">공개 생태계 위의 git 호스팅</text>
+  <rect x="680" y="278" width="195" height="56" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <text x="777" y="312" fill="#e2e8f0" font-size="14" text-anchor="middle">PAT · SSH · gh CLI</text>
+  <rect x="905" y="278" width="195" height="56" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <text x="1002" y="312" fill="#e2e8f0" font-size="14" text-anchor="middle">조직·팀 권한</text>
+  <text x="890" y="372" fill="#cbd5e1" font-size="14" text-anchor="middle">GitHub Actions · Marketplace</text>
+  <text x="890" y="398" fill="#86efac" font-size="13" text-anchor="middle">✓ 오픈소스·협업 표준</text>
+
+  <!-- bottom band -->
+  <text x="600" y="462" fill="#cbd5e1" font-size="16" text-anchor="middle">clone · push · PR · CI/CD 까지, 두 서비스를 같은 작업으로 나란히 놓고 봅니다</text>
+</svg>
