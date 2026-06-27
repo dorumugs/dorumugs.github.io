@@ -135,6 +135,18 @@ aws eks associate-access-policy \
 
 > 💡 둘 중 헷갈리면 **Access Entry(방법 A)** 로 가세요. `aws-auth` 는 한 글자만 틀려도 클러스터 접근이 통째로 막히는 위험한 파일이라, 콘솔/CLI 로 깔끔하게 다루는 Access Entry 가 초보자에게 훨씬 안전합니다.
 
+**콘솔(UI)에서 Access Entry 추가하기** (방법 A) — 명령어보다 이쪽이 실수가 적어요.
+
+1. 콘솔 검색창 **EKS → 클러스터** → 해당 클러스터 선택.
+2. 위쪽 **액세스(Access)** 탭 → **액세스 항목 생성(Create access entry)**.
+3. **IAM 보안 주체(principal)**: CodeBuild 서비스 역할(`codebuild-deploy-role`) 선택, 유형은 *Standard*.
+4. 다음 화면에서 **정책 추가** → `AmazonEKSEditPolicy` 선택 → 범위를 *Namespace* `default` 로 한정 → 추가.
+5. **생성**.
+
+IAM 쪽 `eks:DescribeCluster` 정책은 1편 3장에서 했던 것과 똑같이 **IAM → 역할 → 인라인 정책 생성** 으로 붙이면 돼요.
+
+> ✅ 확인 포인트: **액세스** 탭 목록에 CodeBuild 역할이 보이고 연결 정책이 `AmazonEKSEditPolicy`(default 네임스페이스)로 찍히면 끝. 이제 그 역할로 도는 CodeBuild 가 클러스터 안에서 `Deployment` 를 바꿀 수 있어요.
+
 <br>
 
 <br>
@@ -196,6 +208,13 @@ kubectl set image deployment/my-app my-app=$REGISTRY/my-app:<예전_해시>
 ```
 
 > ✅ `latest` 만 쓸 땐 "예전 이미지" 를 가리킬 방법이 없어서 방법 2 가 불가능했어요. 커밋해시 태그로 졸업하면 **"그때 그 버전으로"** 가 한 줄로 됩니다. 이게 불변 태그를 쓰는 가장 큰 이유예요.
+
+**콘솔(UI)에서 확인하기** — `kubectl` 없이 눈으로도 확인할 수 있어요.
+
+- **배포가 돌았는지(CodeBuild)**: CodeBuild → 빌드 상세 → **빌드 로그** 탭에서 `kubectl set image ...` 와 `deployment "my-app" successfully rolled out` 줄이 보이면 배포까지 성공이에요.
+- **실제 도는 이미지(EKS)**: **EKS → 클러스터 → 리소스(Resources) 탭 → Deployments → `my-app`** 을 누르면 컨테이너 이미지가 `...my-app:a1b2c3d` 처럼 **커밋해시로** 찍혀요. `latest` 가 아니라 해시가 보이면 졸업 성공.
+
+> ✅ 확인 포인트: EKS 리소스 탭의 이미지 태그가 방금 push 한 커밋해시와 같은지. 1편에서 "권한 없음" 으로 안 보이던 이 리소스 탭이, 3장의 Access Entry 를 넣은 뒤부터는 콘솔 로그인 사용자한테도 보이기 시작해요.
 
 <br>
 

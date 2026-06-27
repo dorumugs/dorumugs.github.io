@@ -112,6 +112,15 @@ CodeBuild 프로젝트를 만들면 보통 역할이 자동 생성되는데, 거
 
 CodeBuild 가 CodeCommit 소스를 받아오는 권한(`codecommit:GitPull`)과 로그 권한(`logs:*`)은 프로젝트 생성 시 기본 역할에 대개 포함돼요. ECR 만 빠져서 막히는 경우가 대부분입니다.
 
+**콘솔(UI)로 붙이는 법** 도 같이 볼게요. CLI 가 낯설면 이쪽이 편해요.
+
+1. AWS 콘솔 상단 검색창에 **IAM** 입력 → 왼쪽 **역할(Roles)** 메뉴로 들어가요.
+2. CodeBuild 프로젝트를 만들 때 생긴 역할(보통 `codebuild-<프로젝트명>-service-role`)을 클릭.
+3. **권한 추가 → 인라인 정책 생성** 을 누르고, **JSON** 탭에 위 정책을 그대로 붙여넣어요.
+4. 정책 이름(예: `codebuild-ecr`)을 주고 **정책 생성**.
+
+> ✅ 확인 포인트: 역할 상세의 **권한** 목록에 방금 만든 정책이 보이면 끝이에요. 나중에 빌드가 ECR 단계에서 `AccessDenied` 로 죽으면, 거의 항상 이 역할에 정책이 안 붙은 거예요. 제일 먼저 여기를 보세요.
+
 <br>
 
 <br>
@@ -182,14 +191,22 @@ phases:
 
 > 🚨 **Privileged mode 를 안 켜면** CodeBuild 안에서 `docker build` 가 "Cannot connect to the Docker daemon" 으로 죽어요. 도커 인 도커가 필요해서 그래요. 초보자 단골 실수라 꼭 체크하세요.
 
-잘 만들었는지는 한 번 수동 실행으로 확인해요.
+**콘솔(UI)에서 프로젝트 만들기** — 클릭 순서로 풀면 이래요.
 
-```shell
-# 프로젝트를 수동으로 한 번 돌려보기
-aws codebuild start-build --project-name my-app-build
-```
+1. 콘솔 검색창 **CodeBuild** → **빌드 프로젝트 → 빌드 프로젝트 생성**.
+2. **프로젝트 이름**: `my-app-build`.
+3. **소스(Source)**: 공급자 *AWS CodeCommit*, 리포지토리와 브랜치(`main`) 선택.
+4. **환경(Environment)**: 관리형 이미지 → `aws/codebuild/standard` 최신 → **"권한 있음(Privileged)" 체크** ← 도커 빌드에 필수예요.
+5. **서비스 역할**: 3장에서 ECR 정책을 붙인 역할을 그대로 지정(기존 역할 사용).
+6. **Buildspec**: "buildspec 파일 사용"(리포 루트의 `buildspec.yml` 을 읽어요).
+7. 아래 **빌드 프로젝트 생성** 클릭.
 
-빌드 로그 끝에 ECR push 가 성공으로 찍히고, 콘솔의 ECR 에 `my-app` 리포와 `latest` 태그가 생겼으면 절반은 끝난 거예요.
+만들었으면 **콘솔에서 한 번 돌려보고 확인**해요. 프로젝트 화면 오른쪽 위 **빌드 시작(Start build)** 버튼을 누르면 됩니다. (CLI 로는 `aws codebuild start-build --project-name my-app-build`.)
+
+- **빌드 로그 보기**: 빌드 상세의 **빌드 로그(Build logs)** 탭에서 단계별 로그가 실시간으로 흘러요. 끝에 `Phase complete: POST_BUILD State: SUCCEEDED` 와 ECR push 성공이 보이면 OK.
+- **ECR 에서 결과 확인**: 콘솔 검색창 **ECR → 리포지토리** 에 `my-app` 이 생겼고, 클릭해 들어가면 **이미지 태그**에 `latest` 와 커밋해시 두 개가 보이면 성공이에요. 🎉
+
+> ✅ 확인 포인트: 빌드 상태가 **Succeeded(녹색)** + ECR 에 태그 두 개. 빌드가 빨갛게(Failed) 끝나면 어느 **Phase** 에서 멈췄는지 로그 탭에 색으로 표시되니, 거기부터 거꾸로 짚으면 돼요.
 
 <br>
 
@@ -225,6 +242,16 @@ aws events put-targets \
 ```
 
 > 🚨 위 `111122223333` 은 **AWS 계정 ID 자리**(예시값으로 마스킹)이고, `arn:...` 들도 본인 환경 값으로 바꿔야 해요. 그리고 EventBridge 가 CodeBuild 를 깨우려면 **`eventbridge-start-build` 역할에 `codebuild:StartBuild` 권한**이 있어야 합니다. 이 역할 권한을 빠뜨리면 push 해도 빌드가 안 돌아서 "왜 안 되지" 로 한참 헤매요.
+
+**콘솔(UI)에서 규칙 만들기** — 사실 콘솔이 권한 함정을 자동으로 피해줘서 초보자에겐 더 안전해요.
+
+1. 콘솔 검색창 **EventBridge → 규칙(Rules) → 규칙 생성**.
+2. 이름 `codecommit-main-to-codebuild`, 이벤트 버스는 `default`, 유형은 "이벤트 패턴이 있는 규칙".
+3. **이벤트 패턴**: 이벤트 소스 *AWS 서비스* → 서비스 *CodeCommit* → 이벤트 유형 *CodeCommit Repository State Change*. (위 JSON 패턴을 "사용자 지정 패턴" 칸에 그대로 붙여 넣어 `main`·`referenceUpdated` 로 좁혀도 됩니다.)
+4. **대상(Target)**: *CodeBuild 프로젝트* 선택 → 우리 프로젝트 지정. 역할은 **"이 리소스에 대해 새 역할 생성"** 을 고르면 `codebuild:StartBuild` 권한이 자동으로 붙어요(위 함정 자동 회피).
+5. **규칙 생성**.
+
+> ✅ 확인 포인트: 규칙 목록에 만든 규칙이 **사용(Enabled)** 으로 보이고, `main` 에 push 한 뒤 CodeBuild 의 **빌드 기록(Build history)** 에 새 빌드가 자동으로 뜨면 트리거 성공이에요.
 
 이제 진짜로 테스트해봅니다.
 
@@ -264,6 +291,8 @@ kubectl rollout restart deployment my-app
 ```
 
 > ⚠️ `latest` + `imagePullPolicy: Always` + `rollout restart` 조합은 초보 단계에서 가장 간단한 방법이에요. 다만 "지금 도는 게 정확히 어느 빌드인지" 가 흐려지는 단점이 있어요. 한 단계 성장하면 4장의 **커밋해시 태그**로 배포해서 (`kubectl set image ... my-app:<해시>`) 버전을 못 박는 방식으로 넘어가는 걸 추천드립니다.
+
+**콘솔(UI)에서 확인**: **EKS → 클러스터 → 해당 클러스터 → 리소스(Resources) 탭 → Workloads 의 Deployments → `my-app`** 을 누르면 지금 도는 이미지와 파드 상태가 보여요. (이 탭에서 "권한 없음" 비슷한 메시지가 뜨면, 콘솔 로그인 사용자도 EKS 접근 권한 매핑이 필요해서 그래요 — 바로 다음 [2편](/coding/CodeBuild_kubectl_EKS_자동배포_커밋해시/)에서 그 매핑을 다룹니다.)
 
 이 마지막 `rollout restart` 까지 자동화하려면 `buildspec.yml` 의 `post_build` 에 `aws eks update-kubeconfig` 와 `kubectl rollout restart` 를 더하면 되는데, 그러려면 CodeBuild 역할에 EKS 접근 권한과 클러스터 RBAC 설정이 더 필요해요. 이건 다음 단계 주제로 남겨둘게요.
 
