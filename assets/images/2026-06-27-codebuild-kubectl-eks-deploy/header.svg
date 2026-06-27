@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="old" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7f1d1d"/><stop offset="1" stop-color="#450a0a"/></linearGradient>
+    <linearGradient id="new" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d4ed8"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient>
+    <linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d9488"/><stop offset="1" stop-color="#115e59"/></linearGradient>
+    <linearGradient id="eks" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15803d"/><stop offset="1" stop-color="#14532d"/></linearGradient>
+    <marker id="ar" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#fbbf24"/></marker>
+  </defs>
+
+  <rect width="1200" height="500" fill="url(#bg)"/>
+
+  <text x="60" y="76" fill="#f8fafc" font-size="38" font-weight="800">latest 졸업 — 커밋해시로 EKS 자동 배포</text>
+  <text x="60" y="112" fill="#94a3b8" font-size="20" font-weight="500">CodeBuild 에서 kubectl 권한 잡기 · 버전 못 박기 · 롤백</text>
+
+  <!-- latest crossed -->
+  <rect x="60" y="180" width="250" height="100" rx="14" fill="url(#old)" opacity="0.9"/>
+  <text x="185" y="222" fill="#fecaca" font-size="19" font-weight="700" text-anchor="middle">:latest</text>
+  <text x="185" y="252" fill="#fca5a5" font-size="13" text-anchor="middle">어느 버전인지 모름</text>
+  <line x1="80" y1="200" x2="290" y2="260" stroke="#ef4444" stroke-width="4"/>
+
+  <!-- immutable tag -->
+  <rect x="60" y="320" width="250" height="110" rx="14" fill="url(#new)" opacity="0.93"/>
+  <text x="185" y="362" fill="#dbeafe" font-size="18" font-weight="700" text-anchor="middle">:a1b2c3d</text>
+  <text x="185" y="392" fill="#bfdbfe" font-size="13" text-anchor="middle">커밋해시 = 불변 태그</text>
+  <text x="185" y="414" fill="#bfdbfe" font-size="13" text-anchor="middle">버전 못 박기 · 롤백 가능</text>
+
+  <!-- arrow to codebuild -->
+  <path d="M312 375 L372 375" stroke="#fbbf24" stroke-width="3" fill="none" marker-end="url(#ar)"/>
+
+  <!-- codebuild -->
+  <rect x="380" y="300" width="240" height="150" rx="16" fill="url(#cb)" opacity="0.93"/>
+  <text x="500" y="346" fill="#ccfbf1" font-size="19" font-weight="700" text-anchor="middle">CodeBuild</text>
+  <text x="500" y="378" fill="#99f6e4" font-size="13" text-anchor="middle">update-kubeconfig</text>
+  <text x="500" y="400" fill="#99f6e4" font-size="13" text-anchor="middle">kubectl set image</text>
+  <text x="500" y="422" fill="#99f6e4" font-size="13" text-anchor="middle">rollout status</text>
+
+  <!-- access entry bridge -->
+  <rect x="660" y="320" width="220" height="110" rx="14" fill="#334155" stroke="#f59e0b" stroke-width="2"/>
+  <text x="770" y="360" fill="#fde68a" font-size="16" font-weight="700" text-anchor="middle">EKS 접근 권한</text>
+  <text x="770" y="388" fill="#fcd34d" font-size="13" text-anchor="middle">Access Entry /</text>
+  <text x="770" y="408" fill="#fcd34d" font-size="13" text-anchor="middle">aws-auth 매핑</text>
+  <path d="M622 375 L658 375" stroke="#fbbf24" stroke-width="3" fill="none" marker-end="url(#ar)"/>
+
+  <!-- eks -->
+  <rect x="920" y="300" width="230" height="150" rx="16" fill="url(#eks)" opacity="0.94"/>
+  <text x="1035" y="346" fill="#dcfce7" font-size="19" font-weight="700" text-anchor="middle">EKS</text>
+  <text x="1035" y="378" fill="#bbf7d0" font-size="13" text-anchor="middle">해당 해시로</text>
+  <text x="1035" y="400" fill="#bbf7d0" font-size="13" text-anchor="middle">파드 교체</text>
+  <text x="1035" y="422" fill="#bbf7d0" font-size="13" text-anchor="middle">버전 추적 가능</text>
+  <path d="M882 375 L918 375" stroke="#fbbf24" stroke-width="3" fill="none" marker-end="url(#ar)"/>
+
+  <text x="600" y="478" fill="#cbd5e1" font-size="15" text-anchor="middle">초보자용 후속편 — IAM 역할을 클러스터 안 권한으로 잇는 게 핵심</text>
+</svg>

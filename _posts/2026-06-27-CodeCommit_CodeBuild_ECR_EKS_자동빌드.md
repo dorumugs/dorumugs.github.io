@@ -291,3 +291,7 @@ kubectl rollout restart deployment my-app
 
 일단 오늘은 여기까지.....  
 다음 글에서는 `latest` 를 졸업하고 **커밋해시 태그로 EKS 까지 자동 배포**(CodeBuild 에서 `kubectl` 권한 잡기)를 정리해볼게요.
+
+---
+
+**다음 글 →:** [latest 졸업 — 커밋해시 태그로 EKS 자동 배포하기 (CodeBuild 에서 kubectl 권한 잡기)](/coding/CodeBuild_kubectl_EKS_자동배포_커밋해시/)
