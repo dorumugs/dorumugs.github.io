@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 위해 알아야 할 것들"
+title:  "(1/3) ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 위해 알아야 할 것들"
 date: 2026-06-18 11:30:00 +0900
 categories: coding
 tag: [ChromaDB, RAG, 벡터DB, embedding, vector-search, chunking, metadata-filter, cosine, retrieval, LLM]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-18-chromadb-rag/header.svg
 description: "ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 위한 핵심 — 클라이언트 모드, 컬렉션과 거리 함수, 임베딩 함수 일관성, 청킹, 메타데이터 필터, 검색 품질 끌어올리기까지 실제 코드와 함께 정리합니다."
 ---
+
+{% include series-chromadb-rag.html current="1" %}
 
 
 ## Summary
@@ -428,4 +430,8 @@ ChromaDB 자체는 정말 단순해요. 어려운 건 벡터 DB API 가 아니�
 처음엔 `PersistentClient` + `cosine` + 다국어 임베딩 + 적당한 청킹, 이 조합으로 시작해보시는 걸 추천드립니다. 거기서부터 리랭킹·하이브리드로 한 칸씩 올리면 돼요.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 검색해온 조각을 LLM 프롬프트에 끼워 넣어 실제 답변을 만드는 RAG 파이프라인 쪽을 정리해볼게요.
+여기까지는 "ChromaDB 를 잘 쓰는 법" 이었어요. 그런데 막상 RAG 를 서비스로 올리려면 한 가지가 더 필요해요 — **이 ChromaDB 를 어디에, 어떻게 띄워서 운영할 것인가** 입니다. 다음 글에서는 인메모리·`PersistentClient` 를 넘어서, ChromaDB 를 **Docker 서버 모드로 띄우고 볼륨·인증·백업까지 챙기는 운영** 을 정리해볼게요. (검색해온 조각을 LLM 프롬프트에 끼워 넣는 RAG 파이프라인 쪽은 별도 글로 따로 다룰게요.)
+
+---
+
+**다음 글 →:** [(2/3) ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업](/coding/ChromaDB_Docker_서버모드_운영/)

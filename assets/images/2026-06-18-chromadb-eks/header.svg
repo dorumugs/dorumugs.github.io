@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="ChromaDB 를 ECR EKS 로 운영하기 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1322"/>
+      <stop offset="1" stop-color="#1a1410"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#326ce5"/>
+      <stop offset="0.55" stop-color="#a855f7"/>
+      <stop offset="1" stop-color="#ff9900"/>
+    </linearGradient>
+    <style>
+      .ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="116" font-size="50" font-weight="800" fill="#f8fafc">ChromaDB 를 ECR · EKS 로 운영하기</text>
+  <text class="ko" x="82" y="160" font-size="24" font-weight="500" fill="#9aa6c0">공식 이미지 미러링 · StatefulSet · PVC</text>
+
+  <!-- flow: Docker Hub -> ECR -> EKS(StatefulSet+PVC) -->
+  <g class="ko" text-anchor="middle">
+    <rect x="80" y="232" width="236" height="116" rx="18" fill="#161a2a" stroke="#94a3b8" stroke-width="3"/>
+    <text x="198" y="278" font-size="21" font-weight="800" fill="#cbd5e1">공식 이미지</text>
+    <text x="198" y="312" font-size="15" font-weight="500" fill="#9aa6c0">chromadb/chroma</text>
+
+    <rect x="388" y="232" width="236" height="116" rx="18" fill="#241a10" stroke="#ff9900" stroke-width="3"/>
+    <text x="506" y="278" font-size="21" font-weight="800" fill="#ffc46b">ECR</text>
+    <text x="506" y="312" font-size="15" font-weight="500" fill="#cbd5e1">미러링 · pull</text>
+
+    <rect x="696" y="232" width="424" height="116" rx="18" fill="#131d34" stroke="#326ce5" stroke-width="3"/>
+    <text x="908" y="276" font-size="21" font-weight="800" fill="#8fb4f5">EKS · StatefulSet</text>
+    <text x="908" y="310" font-size="15" font-weight="500" fill="#cbd5e1">PVC(EBS) · Service · probe</text>
+  </g>
+
+  <g fill="#64748b" font-size="30" font-weight="800">
+    <text x="340" y="298">›</text>
+    <text x="648" y="298">›</text>
+  </g>
+
+  <text class="ko" x="80" y="392" font-size="18" fill="#6b7689">KayserDocs · 상태 있는 벡터 DB 를 쿠버네티스에서 안전하게 굴리기</text>
+</svg>

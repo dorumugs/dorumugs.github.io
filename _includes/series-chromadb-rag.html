@@ -1,0 +1,9 @@
+<div class="notice--info" markdown="0">
+<strong>🧩 ChromaDB RAG 벡터 DB 3부작</strong> — 검색 품질을 좌우하는 개념(1편)부터, Docker 서버 모드로 띄워 볼륨·인증·백업까지 챙기는 운영(2편), 공식 이미지를 ECR 로 미러링해 EKS 에 올리는 배포(3편)까지, 개념에서 운영까지 한 줄씩 이어집니다. 전체 3편.
+{%- assign c = include.current -%}
+<ol>
+<li>{% if c == "1" %}<strong>ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 — 거리함수·임베딩·청킹·메타데이터 필터</strong> ← <em>지금 글</em>{% else %}<a href="/coding/ChromaDB_RAG_벡터DB_제대로쓰기/">ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 — 거리함수·임베딩·청킹·메타데이터 필터</a>{% endif %}</li>
+<li>{% if c == "2" %}<strong>ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업</strong> ← <em>지금 글</em>{% else %}<a href="/coding/ChromaDB_Docker_서버모드_운영/">ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업</a>{% endif %}</li>
+<li>{% if c == "3" %}<strong>ChromaDB 를 ECR·EKS 로 올려 운영하기 — 공식 이미지 미러링·StatefulSet·PVC</strong> ← <em>지금 글</em>{% else %}<a href="/coding/ChromaDB_ECR_EKS_운영/">ChromaDB 를 ECR·EKS 로 올려 운영하기 — 공식 이미지 미러링·StatefulSet·PVC</a>{% endif %}</li>
+</ol>
+</div>
