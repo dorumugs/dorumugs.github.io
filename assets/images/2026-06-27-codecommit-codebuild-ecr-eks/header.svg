@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="b1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d97706"/><stop offset="1" stop-color="#92400e"/></linearGradient>
+    <linearGradient id="b2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient>
+    <linearGradient id="b3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d9488"/><stop offset="1" stop-color="#115e59"/></linearGradient>
+    <linearGradient id="b4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d4ed8"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient>
+    <linearGradient id="b5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15803d"/><stop offset="1" stop-color="#14532d"/></linearGradient>
+    <marker id="ar" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#fbbf24"/></marker>
+  </defs>
+
+  <rect width="1200" height="500" fill="url(#bg)"/>
+
+  <text x="60" y="76" fill="#f8fafc" font-size="38" font-weight="800">main 푸시 한 번으로 ECR · EKS 까지</text>
+  <text x="60" y="112" fill="#94a3b8" font-size="20" font-weight="500">CodeCommit → EventBridge → CodeBuild → ECR(자동생성·latest) → EKS</text>
+
+  <!-- pipeline boxes -->
+  <g text-anchor="middle">
+    <rect x="50" y="200" width="190" height="150" rx="16" fill="url(#b1)" opacity="0.93"/>
+    <text x="145" y="252" fill="#fef3c7" font-size="18" font-weight="700">CodeCommit</text>
+    <text x="145" y="284" fill="#fde68a" font-size="13">main 브랜치</text>
+    <text x="145" y="306" fill="#fde68a" font-size="13">git push</text>
+
+    <rect x="280" y="200" width="190" height="150" rx="16" fill="url(#b2)" opacity="0.93"/>
+    <text x="375" y="252" fill="#ede9fe" font-size="18" font-weight="700">EventBridge</text>
+    <text x="375" y="284" fill="#ddd6fe" font-size="13">main 변경 감지</text>
+    <text x="375" y="306" fill="#ddd6fe" font-size="13">빌드 트리거</text>
+
+    <rect x="510" y="200" width="190" height="150" rx="16" fill="url(#b3)" opacity="0.93"/>
+    <text x="605" y="252" fill="#ccfbf1" font-size="18" font-weight="700">CodeBuild</text>
+    <text x="605" y="284" fill="#99f6e4" font-size="13">docker build</text>
+    <text x="605" y="306" fill="#99f6e4" font-size="13">buildspec.yml</text>
+
+    <rect x="740" y="200" width="190" height="150" rx="16" fill="url(#b4)" opacity="0.93"/>
+    <text x="835" y="252" fill="#dbeafe" font-size="18" font-weight="700">ECR</text>
+    <text x="835" y="284" fill="#bfdbfe" font-size="13">리포 자동 생성</text>
+    <text x="835" y="306" fill="#bfdbfe" font-size="13">:latest 태그 push</text>
+
+    <rect x="970" y="200" width="180" height="150" rx="16" fill="url(#b5)" opacity="0.94"/>
+    <text x="1060" y="252" fill="#dcfce7" font-size="18" font-weight="700">EKS</text>
+    <text x="1060" y="284" fill="#bbf7d0" font-size="13">rollout restart</text>
+    <text x="1060" y="306" fill="#bbf7d0" font-size="13">새 이미지 배포</text>
+  </g>
+
+  <!-- arrows -->
+  <g stroke="#fbbf24" stroke-width="3" fill="none">
+    <path d="M242 275 L278 275" marker-end="url(#ar)"/>
+    <path d="M472 275 L508 275" marker-end="url(#ar)"/>
+    <path d="M702 275 L738 275" marker-end="url(#ar)"/>
+    <path d="M932 275 L968 275" marker-end="url(#ar)"/>
+  </g>
+
+  <text x="600" y="430" fill="#cbd5e1" font-size="16" text-anchor="middle">초보자용 — 트리거 · 권한(IAM) · buildspec · 컨테이너 빌드까지 한 번에</text>
+</svg>
