@@ -1,0 +1,9 @@
+<div class="notice--info" markdown="0">
+<strong>📦 CodeCommit → CodeBuild → EKS 자동화 3부작</strong> — main 에 push 한 번이면 이미지가 빌드돼 ECR 에 올라가고(1편), 커밋해시 태그로 EKS 까지 자동 배포되며(2편), 배포 전 자동 테스트로 깨진 코드를 막는 품질 게이트(3편)까지, 초보자 눈높이로 한 줄씩 이어집니다. 전체 3편.
+{%- assign c = include.current -%}
+<ol>
+<li>{% if c == "1" %}<strong>CodeCommit main 푸시 → CodeBuild 자동 빌드 → ECR(자동생성·latest) → EKS</strong> ← <em>지금 글</em>{% else %}<a href="/coding/CodeCommit_CodeBuild_ECR_EKS_자동빌드/">CodeCommit main 푸시 → CodeBuild 자동 빌드 → ECR(자동생성·latest) → EKS</a>{% endif %}</li>
+<li>{% if c == "2" %}<strong>latest 졸업 — 커밋해시 태그로 EKS 자동 배포 (CodeBuild 에서 kubectl 권한 잡기)</strong> ← <em>지금 글</em>{% else %}<a href="/coding/CodeBuild_kubectl_EKS_자동배포_커밋해시/">latest 졸업 — 커밋해시 태그로 EKS 자동 배포 (CodeBuild 에서 kubectl 권한 잡기)</a>{% endif %}</li>
+<li>{% if c == "3" %}<strong>배포 전 자동 테스트 품질 게이트 — 실패하면 배포를 멈추기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/배포전_자동테스트_품질게이트/">배포 전 자동 테스트 품질 게이트 — 실패하면 배포를 멈추기</a>{% endif %}</li>
+</ol>
+</div>

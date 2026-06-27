@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="test" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient>
+    <linearGradient id="pass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15803d"/><stop offset="1" stop-color="#14532d"/></linearGradient>
+    <linearGradient id="fail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7f1d1d"/><stop offset="1" stop-color="#450a0a"/></linearGradient>
+    <marker id="ar" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#fbbf24"/></marker>
+    <marker id="arg" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#4ade80"/></marker>
+    <marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#f87171"/></marker>
+  </defs>
+
+  <rect width="1200" height="500" fill="url(#bg)"/>
+
+  <text x="60" y="76" fill="#f8fafc" font-size="38" font-weight="800">배포 전 자동 테스트 품질 게이트</text>
+  <text x="60" y="112" fill="#94a3b8" font-size="20" font-weight="500">테스트가 깨지면 배포를 멈춘다 · CodeBuild phase 순서가 핵심</text>
+
+  <!-- code in -->
+  <rect x="55" y="220" width="180" height="110" rx="14" fill="#334155" opacity="0.95"/>
+  <text x="145" y="266" fill="#e2e8f0" font-size="17" font-weight="700" text-anchor="middle">git push</text>
+  <text x="145" y="296" fill="#cbd5e1" font-size="13" text-anchor="middle">새 코드</text>
+
+  <!-- gate -->
+  <path d="M275 270 L310 270" stroke="#fbbf24" stroke-width="3" fill="none" marker-end="url(#ar)"/>
+  <rect x="320" y="200" width="230" height="150" rx="16" fill="url(#test)" opacity="0.94"/>
+  <text x="435" y="250" fill="#ede9fe" font-size="19" font-weight="700" text-anchor="middle">품질 게이트</text>
+  <text x="435" y="282" fill="#ddd6fe" font-size="13" text-anchor="middle">lint · 유닛 테스트</text>
+  <text x="435" y="304" fill="#ddd6fe" font-size="13" text-anchor="middle">pre_build 단계</text>
+  <text x="435" y="330" fill="#fcd34d" font-size="13" text-anchor="middle">통과해야 다음으로</text>
+
+  <!-- pass path -->
+  <path d="M555 235 L640 235" stroke="#4ade80" stroke-width="3" fill="none" marker-end="url(#arg)"/>
+  <rect x="650" y="190" width="220" height="100" rx="14" fill="url(#pass)" opacity="0.94"/>
+  <text x="760" y="230" fill="#dcfce7" font-size="17" font-weight="700" text-anchor="middle">✓ 통과</text>
+  <text x="760" y="262" fill="#bbf7d0" font-size="13" text-anchor="middle">build → push → 배포</text>
+
+  <!-- fail path -->
+  <path d="M555 315 L640 315" stroke="#f87171" stroke-width="3" fill="none" marker-end="url(#arr)"/>
+  <rect x="650" y="300" width="220" height="100" rx="14" fill="url(#fail)" opacity="0.92"/>
+  <text x="760" y="340" fill="#fecaca" font-size="17" font-weight="700" text-anchor="middle">✗ 실패</text>
+  <text x="760" y="372" fill="#fca5a5" font-size="13" text-anchor="middle">배포 중단 · 운영 보존</text>
+
+  <!-- eks -->
+  <path d="M872 240 L920 240" stroke="#4ade80" stroke-width="3" fill="none" marker-end="url(#arg)"/>
+  <rect x="930" y="190" width="215" height="100" rx="14" fill="#1e3a8a" opacity="0.94"/>
+  <text x="1037" y="230" fill="#dbeafe" font-size="17" font-weight="700" text-anchor="middle">EKS</text>
+  <text x="1037" y="262" fill="#bfdbfe" font-size="13" text-anchor="middle">검증된 코드만 도달</text>
+
+  <text x="600" y="460" fill="#cbd5e1" font-size="15" text-anchor="middle">초보자용 후속편 — post_build 는 실패해도 도니까 가드가 필요해요</text>
+</svg>

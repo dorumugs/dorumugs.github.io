@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "CodeCommit main 푸시 → CodeBuild 자동 빌드 → ECR(자동생성·latest) → EKS, 초보자용"
+title:  "(1/3) CodeCommit main 푸시 → CodeBuild 자동 빌드 → ECR(자동생성·latest) → EKS, 초보자용"
 date: 2026-06-27 10:00:00 +0900
 categories: coding
 tag: [AWS, CodeCommit, CodeBuild, ECR, EKS, EventBridge, buildspec, Docker, CICD, 초보자]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-27-codecommit-codebuild-ecr-eks/header.svg
 description: "CodeCommit main 브랜치에 push 하면 EventBridge 가 CodeBuild 를 깨워 도커 이미지를 빌드하고, ECR 리포를 없으면 자동 생성한 뒤 latest 태그로 push, EKS 까지 연동하는 흐름을 초보자 눈높이로 처음부터 설정합니다."
 ---
+
+{% include series-codebuild-eks.html current="1" %}
 
 ## Summary
 
@@ -294,4 +296,4 @@ kubectl rollout restart deployment my-app
 
 ---
 
-**다음 글 →:** [latest 졸업 — 커밋해시 태그로 EKS 자동 배포하기 (CodeBuild 에서 kubectl 권한 잡기)](/coding/CodeBuild_kubectl_EKS_자동배포_커밋해시/)
+**다음 글 →:** [(2/3) latest 졸업 — 커밋해시 태그로 EKS 자동 배포하기 (CodeBuild 에서 kubectl 권한 잡기)](/coding/CodeBuild_kubectl_EKS_자동배포_커밋해시/)

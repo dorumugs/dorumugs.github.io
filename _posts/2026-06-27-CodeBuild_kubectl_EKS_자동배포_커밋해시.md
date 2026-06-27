@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "latest 졸업 — 커밋해시 태그로 EKS 자동 배포하기 (CodeBuild 에서 kubectl 권한 잡기), 초보자용"
+title:  "(2/3) latest 졸업 — 커밋해시 태그로 EKS 자동 배포하기 (CodeBuild 에서 kubectl 권한 잡기), 초보자용"
 date: 2026-06-27 10:40:00 +0900
 categories: coding
 tag: [AWS, CodeBuild, EKS, kubectl, ECR, IAM, AccessEntry, awsauth, CICD, 초보자]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-06-27-codebuild-kubectl-eks-deploy/header.svg
 description: "latest 태그를 졸업하고 커밋해시 태그로 EKS 에 자동 배포합니다. CodeBuild 안에서 kubectl 을 깔고, IAM 역할을 EKS 클러스터 권한(Access Entry/aws-auth)으로 잇고, 버전을 못 박아 롤백까지 가능하게 만드는 과정을 초보자 눈높이로 정리했어요."
 ---
+
+{% include series-codebuild-eks.html current="2" %}
 
 ## Summary
 
@@ -246,4 +248,4 @@ kubectl set image deployment/my-app my-app=$REGISTRY/my-app:<예전_해시>
 
 ---
 
-**← 이전 글:** [CodeCommit main 푸시 → CodeBuild 자동 빌드 → ECR(자동생성·latest) → EKS](/coding/CodeCommit_CodeBuild_ECR_EKS_자동빌드/)
+**← 이전 글:** [(1/3) CodeCommit main 푸시 → CodeBuild 자동 빌드 → ECR(자동생성·latest) → EKS](/coding/CodeCommit_CodeBuild_ECR_EKS_자동빌드/) ｜ **다음 글 →:** [(3/3) 배포 전 자동 테스트 품질 게이트 — 실패하면 배포를 멈추기](/coding/배포전_자동테스트_품질게이트/)
