@@ -1,7 +1,7 @@
 ---
 layout: single
-title:  "(1/3) ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 위해 알아야 할 것들"
-date: 2026-06-18 11:30:00 +0900
+title:  "(1/4) ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 위해 알아야 할 것들"
+date: 2026-06-28 09:00:00 +0900
 categories: coding
 tag: [ChromaDB, RAG, 벡터DB, embedding, vector-search, chunking, metadata-filter, cosine, retrieval, LLM]
 author_profile: false
@@ -434,4 +434,4 @@ ChromaDB 자체는 정말 단순해요. 어려운 건 벡터 DB API 가 아니�
 
 ---
 
-**다음 글 →:** [(2/3) ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업](/coding/ChromaDB_Docker_서버모드_운영/)
+**다음 글 →:** [(2/4) ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업](/coding/ChromaDB_Docker_서버모드_운영/)

@@ -1,7 +1,7 @@
 ---
 layout: single
-title:  "(2/3) ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업"
-date: 2026-06-18 14:00:00 +0900
+title:  "(2/4) ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업"
+date: 2026-06-28 09:30:00 +0900
 categories: coding
 tag: [ChromaDB, Docker, docker-compose, RAG, 벡터DB, volume, persistence, auth, backup, HttpClient]
 author_profile: false
@@ -365,4 +365,4 @@ ChromaDB 를 Docker 로 운영한다는 건 결국 네 가지를 챙기는 거�
 
 ---
 
-**← 이전 글:** [(1/3) ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기](/coding/ChromaDB_RAG_벡터DB_제대로쓰기/) ｜ **다음 글 →:** [(3/3) ChromaDB 를 ECR·EKS 로 올려 운영하기](/coding/ChromaDB_ECR_EKS_운영/)
+**← 이전 글:** [(1/4) ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기](/coding/ChromaDB_RAG_벡터DB_제대로쓰기/) ｜ **다음 글 →:** [(3/4) ChromaDB 를 ECR·EKS 로 올려 운영하기](/coding/ChromaDB_ECR_EKS_운영/)

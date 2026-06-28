@@ -1,7 +1,7 @@
 ---
 layout: single
-title:  "(3/3) ChromaDB 를 ECR·EKS 로 올려 운영하기 — 공식 이미지 미러링·StatefulSet·PVC"
-date: 2026-06-18 16:30:00 +0900
+title:  "(3/4) ChromaDB 를 ECR·EKS 로 올려 운영하기 — 공식 이미지 미러링·StatefulSet·PVC"
+date: 2026-06-28 10:00:00 +0900
 categories: coding
 tag: [ChromaDB, EKS, ECR, Kubernetes, StatefulSet, PVC, EBS, RAG, 벡터DB, 운영]
 author_profile: false
@@ -338,13 +338,13 @@ print(collection.count())
 
 ## 마무리
 
-3부작을 한 줄로 묶으면 이래요 — **1편에서 ChromaDB 로 검색 품질을 다루는 법을 익히고, 2편에서 Docker 로 한 대를 운영하고, 3편에서 EKS 로 클러스터에 올렸어요.** 개념이 같은 임베딩·거리 함수 위에서, ChromaDB 가 사는 위치만 인메모리 → 디스크 → 컨테이너 → 쿠버네티스로 한 칸씩 올라온 거예요. 코드의 본체(컬렉션·`add`·`query`·`where`)는 끝까지 안 바뀌었다는 게 핵심이고요.
+여기까지를 한 줄로 묶으면 이래요 — **1편에서 ChromaDB 로 검색 품질을 다루는 법을 익히고, 2편에서 Docker 로 한 대를 운영하고, 3편에서 EKS 로 클러스터에 올렸어요.** 개념이 같은 임베딩·거리 함수 위에서, ChromaDB 가 사는 위치만 인메모리 → 디스크 → 컨테이너 → 쿠버네티스로 한 칸씩 올라온 거예요. 코드의 본체(컬렉션·`add`·`query`·`where`)는 끝까지 안 바뀌었다는 게 핵심이고요.
 
 EKS 에 올릴 땐 **공식 이미지를 ECR 로 미러링 → StatefulSet + PVC(EBS) → ClusterIP Service → 토큰 Secret**, 이 순서를 기준선으로 잡으세요. 단일 노드 한계만 의식하면, 사내 RAG 정도의 규모는 이 구성으로 충분히 안정적으로 굴러가요.
 
 일단 오늘은 여기까지.....   
-다음 글에서는 이렇게 올린 ChromaDB 에서 검색해온 조각을 LLM 프롬프트에 끼워 넣어 실제 답변을 만드는 **RAG 파이프라인** 쪽을 따로 정리해볼게요.
+이제 ChromaDB 가 좋은 조각을 돌려주는 데까지 왔어요. 마지막 4편에서는 이렇게 올린 ChromaDB 에서 검색해온 조각을 LLM 프롬프트에 끼워 넣어 **실제 답변을 만드는 RAG 파이프라인** 을 정리하면서 시리즈를 마무리할게요.
 
 ---
 
-**← 이전 글:** [(2/3) ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업](/coding/ChromaDB_Docker_서버모드_운영/)
+**← 이전 글:** [(2/4) ChromaDB 를 Docker 로 띄우고 운영하기 — 볼륨·인증·백업](/coding/ChromaDB_Docker_서버모드_운영/) ｜ **다음 글 →:** [(4/4) ChromaDB RAG 파이프라인 — 검색 조각으로 답변 만들기](/coding/ChromaDB_RAG_파이프라인_LLM_답변생성/)

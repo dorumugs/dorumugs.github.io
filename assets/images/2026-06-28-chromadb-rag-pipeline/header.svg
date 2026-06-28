@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="ChromaDB RAG 파이프라인 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1a16"/>
+      <stop offset="1" stop-color="#101426"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a855f7"/>
+      <stop offset="0.5" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <style>
+      .ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="116" font-size="50" font-weight="800" fill="#f8fafc">ChromaDB RAG 파이프라인</text>
+  <text class="ko" x="82" y="160" font-size="24" font-weight="500" fill="#9aa6c0">검색 조각을 LLM 프롬프트에 끼워 답변 만들기</text>
+
+  <!-- retrieve -> assemble prompt -> LLM -> answer -->
+  <g class="ko" text-anchor="middle">
+    <rect x="80" y="236" width="216" height="104" rx="16" fill="#241832" stroke="#a855f7" stroke-width="3"/>
+    <text x="188" y="288" font-size="21" font-weight="800" fill="#cda6f7">검색 조각</text>
+    <text x="188" y="318" font-size="15" font-weight="500" fill="#cbd5e1">query · top-k</text>
+
+    <rect x="336" y="236" width="232" height="104" rx="16" fill="#16263a" stroke="#22d3ee" stroke-width="3"/>
+    <text x="452" y="282" font-size="21" font-weight="800" fill="#7fe3f0">프롬프트 조립</text>
+    <text x="452" y="314" font-size="15" font-weight="500" fill="#cbd5e1">문맥 + 질문 + 규칙</text>
+
+    <rect x="608" y="236" width="216" height="104" rx="16" fill="#102a20" stroke="#34d399" stroke-width="3"/>
+    <text x="716" y="288" font-size="21" font-weight="800" fill="#6ee7b7">LLM</text>
+    <text x="716" y="318" font-size="14" font-weight="500" fill="#cbd5e1">Claude·Bedrock·OpenAI·Gemini</text>
+
+    <rect x="864" y="236" width="256" height="104" rx="16" fill="#1a2236" stroke="#f8fafc" stroke-width="3"/>
+    <text x="992" y="288" font-size="21" font-weight="800" fill="#f1f5f9">답변 + 출처</text>
+    <text x="992" y="318" font-size="15" font-weight="500" fill="#cbd5e1">그라운딩·인용</text>
+  </g>
+
+  <g fill="#64748b" font-size="28" font-weight="800">
+    <text x="312" y="296">›</text>
+    <text x="584" y="296">›</text>
+    <text x="840" y="296">›</text>
+  </g>
+
+  <text class="ko" x="80" y="392" font-size="18" fill="#6b7689">KayserDocs · 검색에서 생성까지 — RAG 의 마지막 한 조각</text>
+</svg>
