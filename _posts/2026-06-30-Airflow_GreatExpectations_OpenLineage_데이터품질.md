@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "Great Expectations 품질 검사 결과를 OpenLineage 계보에 실어 보내기"
+title:  "(3/4) Great Expectations 품질 검사 결과를 OpenLineage 계보에 실어 보내기"
 date: 2026-06-30 06:00:00 +0900
 categories: coding
 tag: [Airflow, GreatExpectations, OpenLineage, 데이터품질, data-quality, lineage, Marquez, dataQualityAssertions, checkpoint, data-engineering]
@@ -11,6 +11,9 @@ header:
   teaser: /assets/images/2026-06-30-airflow-dataquality/header.svg
 description: "Great Expectations 로 데이터 품질을 검사하고, 그 결과를 OpenLineage 의 품질 facet 으로 만들어 계보 그래프에 함께 싣는 구성을 정리합니다. GX 핵심 개념, Airflow 에서 검사 돌리기, 검증 결과를 facet 으로 매핑해 Marquez 에서 품질까지 보기."
 ---
+
+
+{% include series-airflow-ops.html current="3" %}
 
 
 ## Summary
@@ -291,4 +294,4 @@ expect_table_row_count_to_be_between -> False (col: None )
 
 ---
 
-**← 이전 글:** [Airflow listener 와 OpenLineage 로 데이터 계보(lineage) 자동 수집하기](/coding/Airflow_listener_OpenLineage_데이터계보/)
+**← 이전 글:** [(2/4) Airflow listener 와 OpenLineage 로 데이터 계보(lineage) 자동 수집하기](/coding/Airflow_listener_OpenLineage_데이터계보/)

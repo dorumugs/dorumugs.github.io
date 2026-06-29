@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "Airflow listener 와 OpenLineage 로 데이터 계보(lineage) 자동 수집하기"
+title:  "(2/4) Airflow listener 와 OpenLineage 로 데이터 계보(lineage) 자동 수집하기"
 date: 2026-06-29 14:00:00 +0900
 categories: coding
 tag: [Airflow, listener, OpenLineage, lineage, 데이터계보, Marquez, hookimpl, data-engineering, observability, plugin]
@@ -11,6 +11,9 @@ header:
   teaser: /assets/images/2026-06-29-airflow-lineage/header.svg
 description: "Airflow 의 listener 이벤트 훅과 OpenLineage 프로바이더로 데이터 계보를 자동으로 모으는 구성을 정리합니다. listener 기본 구조, OpenLineage 가 listener 위에서 동작하는 원리, Marquez 수신 백엔드 세팅, 커스텀 오퍼레이터에 계보 붙이기까지 다뤄요."
 ---
+
+
+{% include series-airflow-ops.html current="2" %}
 
 
 ## Summary
@@ -301,4 +304,4 @@ public.orders
 
 ---
 
-**← 이전 글:** [Airflow 플러그인 제대로 활용하기 — Slack/Teams 알람부터 멀티 스케줄까지](/coding/Airflow_플러그인_제대로_활용하기/) ｜ **다음 글 →:** [Great Expectations 품질 검사 결과를 OpenLineage 계보에 실어 보내기](/coding/Airflow_GreatExpectations_OpenLineage_데이터품질/)
+**← 이전 글:** [(1/4) Airflow 플러그인 제대로 활용하기 — Slack/Teams 알람부터 멀티 스케줄까지](/coding/Airflow_플러그인_제대로_활용하기/) ｜ **다음 글 →:** [(3/4) Great Expectations 품질 검사 결과를 OpenLineage 계보에 실어 보내기](/coding/Airflow_GreatExpectations_OpenLineage_데이터품질/)

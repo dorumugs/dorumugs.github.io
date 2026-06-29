@@ -1,0 +1,10 @@
+<div class="notice--info" markdown="0">
+<strong>🛠️ Airflow 운영 확장 4부작</strong> — DAG 만 잘 짜는 단계를 넘어, DAG 바깥을 손봐 운영을 편하게 만드는 흐름입니다. 플러그인으로 알람·멀티 스케줄을 깔고(1편), listener·OpenLineage 로 데이터 계보를 자동 수집하고(2편), 그 위에 Great Expectations 품질 검사를 얹고(3편), 마지막으로 계보·품질 신호를 모아 Slack 으로 자동 리포트(4편)까지 한 줄로 이어집니다. 전체 4편.
+{%- assign c = include.current -%}
+<ol>
+<li>{% if c == "1" %}<strong>Airflow 플러그인 제대로 활용하기 — Slack/Teams 알람과 멀티 스케줄</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Airflow_플러그인_제대로_활용하기/">Airflow 플러그인 제대로 활용하기 — Slack/Teams 알람과 멀티 스케줄</a>{% endif %}</li>
+<li>{% if c == "2" %}<strong>listener 와 OpenLineage 로 데이터 계보 자동 수집하기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Airflow_listener_OpenLineage_데이터계보/">listener 와 OpenLineage 로 데이터 계보 자동 수집하기</a>{% endif %}</li>
+<li>{% if c == "3" %}<strong>Great Expectations 품질 검사를 OpenLineage 계보에 싣기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Airflow_GreatExpectations_OpenLineage_데이터품질/">Great Expectations 품질 검사를 OpenLineage 계보에 싣기</a>{% endif %}</li>
+<li>{% if c == "4" %}<strong>계보·품질 신호로 Slack 데이터 품질 리포트 자동화하기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Airflow_데이터품질_Slack_자동리포트/">계보·품질 신호로 Slack 데이터 품질 리포트 자동화하기</a>{% endif %}</li>
+</ol>
+</div>
