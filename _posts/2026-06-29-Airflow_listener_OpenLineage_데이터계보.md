@@ -301,4 +301,4 @@ public.orders
 
 ---
 
-**← 이전 글:** [Airflow 플러그인 제대로 활용하기 — Slack/Teams 알람부터 멀티 스케줄까지](/coding/Airflow_플러그인_제대로_활용하기/)
+**← 이전 글:** [Airflow 플러그인 제대로 활용하기 — Slack/Teams 알람부터 멀티 스케줄까지](/coding/Airflow_플러그인_제대로_활용하기/) ｜ **다음 글 →:** [Great Expectations 품질 검사 결과를 OpenLineage 계보에 실어 보내기](/coding/Airflow_GreatExpectations_OpenLineage_데이터품질/)
