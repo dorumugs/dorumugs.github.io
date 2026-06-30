@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#0c2230"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#22d3ee"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+
+  <!-- title block -->
+  <text x="70" y="80" fill="#e2e8f0" font-size="43" font-weight="700">ETF 괴리율 차익, 세후로 끝까지</text>
+  <text x="72" y="118" fill="#67e8f9" font-size="19" font-weight="500">세금은 오히려 우호적 — 진짜 적은 '괴리가 안 닫힐 위험'</text>
+
+  <!-- chart : NAV baseline + price line dipping to a discount then converging -->
+  <line x1="100" y1="233" x2="700" y2="233" stroke="#64748b" stroke-width="2" stroke-dasharray="3 4"/>
+  <text x="100" y="225" fill="#94a3b8" font-size="14">NAV (순자산가치)</text>
+
+  <!-- discount gap fill at the trough -->
+  <path d="M100,233 L700,233 L700,233 L640,233 L450,242 L380,260 L320,280 L260,256 L180,236 L100,232 Z"
+        fill="#22d3ee" fill-opacity="0.12"/>
+
+  <!-- price line -->
+  <polyline points="100,232 180,236 260,256 320,280 380,260 450,242 540,234 640,233 700,233"
+            fill="none" stroke="#22d3ee" stroke-width="3" marker-end="url(#arw)"/>
+
+  <!-- trough marker : buy -->
+  <circle cx="320" cy="280" r="6" fill="#22d3ee"/>
+  <text x="320" y="306" fill="#67e8f9" font-size="15" font-weight="600" text-anchor="middle">할인 → 매수</text>
+
+  <!-- gap double arrow -->
+  <line x1="250" y1="233" x2="250" y2="259" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="246" y1="236" x2="250" y2="233" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="254" y1="236" x2="250" y2="233" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="246" y1="256" x2="250" y2="259" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="254" y1="256" x2="250" y2="259" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="240" y="250" fill="#cbd5e1" font-size="14" text-anchor="end">괴리</text>
+
+  <!-- convergence label -->
+  <text x="560" y="222" fill="#94a3b8" font-size="14" text-anchor="middle">NAV로 수렴</text>
+
+  <!-- right panel : tax contrast -->
+  <g transform="translate(770,126)">
+    <rect x="0" y="0" width="372" height="192" rx="14" fill="#0b1220" stroke="#164e5a" stroke-width="1.5"/>
+    <text x="26" y="42" fill="#e2e8f0" font-size="18" font-weight="700">세금은 배당락과 정반대</text>
+    <circle cx="34" cy="78" r="4" fill="#22d3ee"/>
+    <text x="50" y="84" fill="#67e8f9" font-size="16" font-weight="600">국내주식형 ETF</text>
+    <text x="50" y="106" fill="#cbd5e1" font-size="15">매매차익 비과세 · 증권거래세 면제</text>
+    <circle cx="34" cy="138" r="4" fill="#fbbf24"/>
+    <text x="50" y="144" fill="#fde68a" font-size="16" font-weight="600">기타(해외 · 레버리지) ETF</text>
+    <text x="50" y="166" fill="#cbd5e1" font-size="15">매매차익 15.4% 과세</text>
+  </g>
+  <text x="772" y="350" fill="#64748b" font-size="13">KayserDocs · 2026 · 개념도(괴리폭 과장)</text>
+</svg>
