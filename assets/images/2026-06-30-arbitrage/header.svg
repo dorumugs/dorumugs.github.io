@@ -13,55 +13,52 @@
       <stop offset="0" stop-color="#3f2a1e"/>
       <stop offset="1" stop-color="#fbbf24"/>
     </linearGradient>
-    <linearGradient id="spread" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#34d399"/>
-      <stop offset="1" stop-color="#10b981"/>
-    </linearGradient>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#94a3b8"/>
+    </marker>
   </defs>
 
   <rect width="1200" height="420" fill="url(#bg)"/>
 
-  <!-- title -->
-  <text x="70" y="92" fill="#e2e8f0" font-size="46" font-weight="700">개인도 차익거래를 할 수 있을까</text>
-  <text x="72" y="138" fill="#7dd3fc" font-size="23" font-weight="500" letter-spacing="3">A R B I T R A G E · 유형별 진입장벽 · 리스크 · 세금</text>
+  <!-- title block -->
+  <text x="70" y="86" fill="#e2e8f0" font-size="44" font-weight="700">개인도 차익거래를 할 수 있을까</text>
+  <text x="72" y="128" fill="#7dd3fc" font-size="21" font-weight="500" letter-spacing="2">A R B I T R A G E · 유형별 진입장벽 · 리스크 · 세금</text>
 
+  <!-- chart area : two markets with a price gap -->
   <!-- baseline -->
-  <line x1="70" y1="360" x2="780" y2="360" stroke="#334155" stroke-width="2"/>
+  <line x1="120" y1="372" x2="770" y2="372" stroke="#334155" stroke-width="2"/>
 
-  <!-- market A : cheap -->
-  <rect x="150" y="230" width="150" height="130" rx="6" fill="url(#cheap)"/>
-  <text x="225" y="218" fill="#bae6fd" font-size="22" font-weight="600" text-anchor="middle">시장 A</text>
-  <text x="225" y="300" fill="#0b1220" font-size="30" font-weight="700" text-anchor="middle">100</text>
-  <text x="225" y="388" fill="#7dd3fc" font-size="18" text-anchor="middle">싸게 산다</text>
+  <!-- "same asset, at once" arrow above the bars -->
+  <text x="445" y="190" fill="#cbd5e1" font-size="17" text-anchor="middle">같은 자산을 동시에</text>
+  <line x1="265" y1="205" x2="625" y2="205" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
 
-  <!-- market B : rich -->
-  <rect x="560" y="190" width="150" height="170" rx="6" fill="url(#rich)"/>
-  <text x="635" y="178" fill="#fde68a" font-size="22" font-weight="600" text-anchor="middle">시장 B</text>
-  <text x="635" y="280" fill="#1c1407" font-size="30" font-weight="700" text-anchor="middle">103</text>
-  <text x="635" y="388" fill="#fbbf24" font-size="18" text-anchor="middle">비싸게 판다</text>
+  <!-- market A : cheap (buy) -->
+  <rect x="190" y="248" width="150" height="124" rx="6" fill="url(#cheap)"/>
+  <text x="265" y="296" fill="#0b1220" font-size="30" font-weight="700" text-anchor="middle">100</text>
+  <text x="265" y="240" fill="#bae6fd" font-size="21" font-weight="600" text-anchor="middle">시장 A</text>
+  <text x="265" y="402" fill="#7dd3fc" font-size="17" text-anchor="middle">싸게 산다</text>
 
-  <!-- spread bracket -->
-  <rect x="360" y="190" width="140" height="40" rx="20" fill="url(#spread)"/>
-  <text x="430" y="217" fill="#062b1e" font-size="22" font-weight="700" text-anchor="middle">스프레드 +3</text>
-  <path d="M300 250 C 360 250, 360 210, 360 210" stroke="#34d399" stroke-width="3" fill="none"/>
-  <path d="M560 230 C 500 230, 500 210, 500 210" stroke="#34d399" stroke-width="3" fill="none"/>
+  <!-- market B : rich (sell) -->
+  <rect x="550" y="232" width="150" height="140" rx="6" fill="url(#rich)"/>
+  <text x="625" y="296" fill="#1c1407" font-size="30" font-weight="700" text-anchor="middle">103</text>
+  <text x="625" y="224" fill="#fde68a" font-size="21" font-weight="600" text-anchor="middle">시장 B</text>
+  <text x="625" y="402" fill="#fbbf24" font-size="17" text-anchor="middle">비싸게 판다</text>
 
-  <!-- arrow buy->sell -->
-  <line x1="300" y1="150" x2="560" y2="150" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="7 6"/>
-  <polygon points="560,150 548,144 548,156" fill="#94a3b8"/>
-  <text x="430" y="140" fill="#cbd5e1" font-size="16" text-anchor="middle">같은 자산, 동시에</text>
+  <!-- spread pill in the empty gap between the bars -->
+  <rect x="375" y="248" width="140" height="40" rx="20" fill="#10b981"/>
+  <text x="445" y="275" fill="#052e1f" font-size="20" font-weight="700" text-anchor="middle">스프레드 +3</text>
 
   <!-- right panel: types -->
-  <g transform="translate(840,70)">
-    <rect x="0" y="0" width="300" height="290" rx="14" fill="#0b1220" stroke="#1e293b" stroke-width="1.5"/>
-    <text x="24" y="44" fill="#e2e8f0" font-size="20" font-weight="700">개인이 닿는 차익거래</text>
-    <g fill="#cbd5e1" font-size="17">
-      <circle cx="32" cy="84" r="4" fill="#38bdf8"/><text x="52" y="90">거래소 간 · 김치 프리미엄</text>
-      <circle cx="32" cy="122" r="4" fill="#fbbf24"/><text x="52" y="128">ETF 괴리율 (NAV)</text>
-      <circle cx="32" cy="160" r="4" fill="#34d399"/><text x="52" y="166">현·선물 베이시스</text>
-      <circle cx="32" cy="198" r="4" fill="#a78bfa"/><text x="52" y="204">옵션 풋·콜 패리티</text>
-      <circle cx="32" cy="236" r="4" fill="#f472b6"/><text x="52" y="242">배당락 · 통계적 차익</text>
+  <g transform="translate(840,66)">
+    <rect x="0" y="0" width="300" height="292" rx="14" fill="#0b1220" stroke="#1e293b" stroke-width="1.5"/>
+    <text x="24" y="46" fill="#e2e8f0" font-size="20" font-weight="700">개인이 닿는 차익거래</text>
+    <g font-size="17">
+      <circle cx="34" cy="86" r="4" fill="#38bdf8"/><text x="54" y="92" fill="#cbd5e1">거래소 간 · 김치 프리미엄</text>
+      <circle cx="34" cy="124" r="4" fill="#fbbf24"/><text x="54" y="130" fill="#cbd5e1">ETF 괴리율 (NAV)</text>
+      <circle cx="34" cy="162" r="4" fill="#34d399"/><text x="54" y="168" fill="#cbd5e1">현·선물 베이시스</text>
+      <circle cx="34" cy="200" r="4" fill="#a78bfa"/><text x="54" y="206" fill="#cbd5e1">옵션 풋·콜 패리티</text>
+      <circle cx="34" cy="238" r="4" fill="#f472b6"/><text x="54" y="244" fill="#cbd5e1">배당락 · 통계적 차익</text>
     </g>
-    <text x="24" y="278" fill="#64748b" font-size="14">KayserDocs · 2026</text>
+    <text x="24" y="280" fill="#64748b" font-size="14">KayserDocs · 2026</text>
   </g>
 </svg>
