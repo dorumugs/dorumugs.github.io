@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#2a1320"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <linearGradient id="cheap" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#1e3a5f"/>
+      <stop offset="1" stop-color="#60a5fa"/>
+    </linearGradient>
+    <linearGradient id="rich" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#4c1d24"/>
+      <stop offset="1" stop-color="#fb7185"/>
+    </linearGradient>
+    <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#fda4af"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+
+  <!-- title block -->
+  <text x="70" y="80" fill="#e2e8f0" font-size="43" font-weight="700">김치 프리미엄 차익, 세후로 끝까지</text>
+  <text x="72" y="118" fill="#fda4af" font-size="19" font-weight="500">세금보다 무서운 건 환전 · 송금 · 외국환거래법 — 프리미엄은 마찰의 가격표</text>
+
+  <!-- baseline -->
+  <line x1="100" y1="372" x2="740" y2="372" stroke="#334155" stroke-width="2"/>
+
+  <!-- premium arrow over the top -->
+  <text x="410" y="156" fill="#fda4af" font-size="17" font-weight="600" text-anchor="middle">+3% 프리미엄</text>
+  <line x1="240" y1="172" x2="600" y2="172" stroke="#fda4af" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arw)"/>
+
+  <!-- 해외 거래소 : cheap -->
+  <rect x="120" y="250" width="120" height="122" rx="6" fill="url(#cheap)"/>
+  <text x="180" y="296" fill="#0b1220" font-size="28" font-weight="700" text-anchor="middle">100</text>
+  <text x="180" y="242" fill="#bfdbfe" font-size="18" font-weight="600" text-anchor="middle">해외 거래소</text>
+  <text x="180" y="398" fill="#93c5fd" font-size="16" text-anchor="middle">싸게 산다</text>
+
+  <!-- 국내 거래소 : rich -->
+  <rect x="600" y="210" width="120" height="162" rx="6" fill="url(#rich)"/>
+  <text x="660" y="296" fill="#1c0a0e" font-size="28" font-weight="700" text-anchor="middle">103</text>
+  <text x="660" y="202" fill="#fecdd3" font-size="18" font-weight="600" text-anchor="middle">국내 거래소</text>
+  <text x="660" y="398" fill="#fb7185" font-size="16" text-anchor="middle">비싸게 판다</text>
+
+  <!-- the wall : friction & regulation -->
+  <rect x="300" y="196" width="220" height="176" rx="10" fill="#f43f5e" fill-opacity="0.10"
+        stroke="#9f1239" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="410" y="224" fill="#fecdd3" font-size="16" font-weight="700" text-anchor="middle">규제 · 마찰의 벽</text>
+  <g fill="#fda4af" font-size="14.5">
+    <text x="324" y="262">• 환전 스프레드 ~1%</text>
+    <text x="324" y="294">• 해외 송금 · 신고</text>
+    <text x="324" y="326">• 전송 지연 · 역전</text>
+    <text x="324" y="358">• 외국환거래법 · 트래블룰</text>
+  </g>
+
+  <!-- right panel : tax note -->
+  <g transform="translate(770,122)">
+    <rect x="0" y="0" width="372" height="196" rx="14" fill="#0b1220" stroke="#5b1f2c" stroke-width="1.5"/>
+    <text x="26" y="42" fill="#e2e8f0" font-size="18" font-weight="700">세금이 아니라 규제가 결론</text>
+    <circle cx="34" cy="80" r="4" fill="#fbbf24"/>
+    <text x="50" y="86" fill="#fde68a" font-size="16" font-weight="600">코인 양도세는 2027년으로 유예</text>
+    <text x="50" y="108" fill="#cbd5e1" font-size="15">(2026년 현재 표면상 비과세 · 변동 가능)</text>
+    <circle cx="34" cy="146" r="4" fill="#fb7185"/>
+    <text x="50" y="152" fill="#fecdd3" font-size="16" font-weight="600">진짜 비용 = 환전 · 송금 · 법률 리스크</text>
+    <text x="50" y="174" fill="#cbd5e1" font-size="15">전송하는 사이 프리미엄이 사라지기도</text>
+  </g>
+  <text x="772" y="350" fill="#64748b" font-size="13">KayserDocs · 2026 · 개념도</text>
+</svg>
