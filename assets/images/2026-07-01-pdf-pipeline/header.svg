@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="검증 레이어를 적재 파이프라인에 꿰기 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1422"/>
+      <stop offset="1" stop-color="#111c2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <style>
+      .ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="116" font-size="50" font-weight="800" fill="#f8fafc">검증을 거쳐야 DB 로 간다</text>
+  <text class="ko" x="82" y="160" font-size="24" font-weight="500" fill="#9aa6c0">배치 인입 → 검증 게이트 → 멱등 적재 → 사람 확인 큐</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="72" y="238" width="212" height="104" rx="16" fill="#0e2233" stroke="#38bdf8" stroke-width="3"/>
+    <text x="178" y="284" font-size="20" font-weight="800" fill="#7fc9f5">인입</text>
+    <text x="178" y="314" font-size="14" font-weight="500" fill="#cbd5e1">추출 · 지문 해시</text>
+
+    <rect x="340" y="238" width="212" height="104" rx="16" fill="#1c1830" stroke="#a78bfa" stroke-width="3"/>
+    <text x="446" y="284" font-size="20" font-weight="800" fill="#c4b1fb">검증 게이트</text>
+    <text x="446" y="314" font-size="14" font-weight="500" fill="#cbd5e1">타입 · 합계 · conf</text>
+
+    <rect x="608" y="238" width="212" height="104" rx="16" fill="#0e2a1e" stroke="#34d399" stroke-width="3"/>
+    <text x="714" y="284" font-size="20" font-weight="800" fill="#86efc3">멱등 적재</text>
+    <text x="714" y="314" font-size="14" font-weight="500" fill="#cbd5e1">UPSERT · 지문키</text>
+
+    <rect x="876" y="238" width="248" height="104" rx="16" fill="#2a1a0e" stroke="#f59e0b" stroke-width="3"/>
+    <text x="1000" y="284" font-size="20" font-weight="800" fill="#fbbf77">사람 확인 큐</text>
+    <text x="1000" y="314" font-size="14" font-weight="500" fill="#cbd5e1">거절 → 검토 → 재적재</text>
+  </g>
+
+  <g fill="#64748b" font-size="28" font-weight="800">
+    <text x="300" y="298">›</text>
+    <text x="568" y="298">›</text>
+    <text x="836" y="298">›</text>
+  </g>
+
+  <text class="ko" x="80" y="392" font-size="18" fill="#6b7689">KayserDocs · 틀린 값은 문 앞에서 돌려보내고, 통과한 값만 테이블로</text>
+</svg>

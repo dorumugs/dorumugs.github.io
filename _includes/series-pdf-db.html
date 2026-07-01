@@ -1,0 +1,8 @@
+<div class="notice--info" markdown="0">
+<strong>📄 PDF 에서 DB 로, 틀리지 않게 2부작</strong> — PDF 에서 값을 뽑는 두 갈래(구조체 파싱 vs OCR)를 정확도 관점에서 갈라 쓰는 법(1편)부터, 그렇게 뽑은 값을 <strong>검증 레이어를 거쳐 실제 적재 파이프라인</strong>(배치 인입 → 검증 게이트 → 멱등 적재 → 사람 확인 큐)에 꿰는 법(2편)까지, "틀린 값을 DB 에 넣지 않는다"는 한 목표로 이어집니다. 전체 2편.
+{%- assign c = include.current -%}
+<ol>
+<li>{% if c == "1" %}<strong>PDF 에서 데이터를 뽑아 DB 에 넣기 — 구조체 파싱 vs OCR, 뭘 언제 쓰나</strong> ← <em>지금 글</em>{% else %}<a href="/coding/PDF_구조체파싱_vs_OCR_데이터추출/">PDF 에서 데이터를 뽑아 DB 에 넣기 — 구조체 파싱 vs OCR, 뭘 언제 쓰나</a>{% endif %}</li>
+<li>{% if c == "2" %}<strong>검증 레이어를 적재 파이프라인에 꿰기 — 배치 인입·멱등 적재·사람 확인 큐</strong> ← <em>지금 글</em>{% else %}<a href="/coding/PDF_적재_파이프라인_검증_멱등적재/">검증 레이어를 적재 파이프라인에 꿰기 — 배치 인입·멱등 적재·사람 확인 큐</a>{% endif %}</li>
+</ol>
+</div>
