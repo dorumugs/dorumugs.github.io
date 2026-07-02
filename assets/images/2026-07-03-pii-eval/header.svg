@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="개인정보 게이트 평가 루프 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1422"/>
+      <stop offset="1" stop-color="#101526"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="0.5" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <style>
+      .ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="116" font-size="50" font-weight="800" fill="#f8fafc">게이트가 얼마나 잘 맞나 재기</text>
+  <text class="ko" x="82" y="160" font-size="24" font-weight="500" fill="#9aa6c0">라벨 수집 → 지표·스윕 → 안 보이는 절반(감사) → 루프백</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="72" y="238" width="212" height="104" rx="16" fill="#0e2a1e" stroke="#34d399" stroke-width="3"/>
+    <text x="178" y="284" font-size="20" font-weight="800" fill="#86efc3">라벨</text>
+    <text x="178" y="314" font-size="14" font-weight="500" fill="#cbd5e1">사람 큐 = 정답지</text>
+
+    <rect x="340" y="238" width="212" height="104" rx="16" fill="#0e2233" stroke="#38bdf8" stroke-width="3"/>
+    <text x="446" y="284" font-size="20" font-weight="800" fill="#7fc9f5">지표·스윕</text>
+    <text x="446" y="314" font-size="14" font-weight="500" fill="#cbd5e1">recall · Fβ · 임계값</text>
+
+    <rect x="608" y="238" width="212" height="104" rx="16" fill="#2a1a0e" stroke="#f59e0b" stroke-width="3"/>
+    <text x="714" y="284" font-size="20" font-weight="800" fill="#fbbf77">감사 샘플</text>
+    <text x="714" y="314" font-size="14" font-weight="500" fill="#cbd5e1">pass 의 미탐 추정</text>
+
+    <rect x="876" y="238" width="248" height="104" rx="16" fill="#1c1830" stroke="#a78bfa" stroke-width="3"/>
+    <text x="1000" y="284" font-size="20" font-weight="800" fill="#c4b1fb">루프백</text>
+    <text x="1000" y="314" font-size="14" font-weight="500" fill="#cbd5e1">allowlist · 검증기 · 승인</text>
+  </g>
+
+  <g fill="#64748b" font-size="28" font-weight="800">
+    <text x="300" y="298">›</text>
+    <text x="568" y="298">›</text>
+    <text x="836" y="298">↺</text>
+  </g>
+
+  <text class="ko" x="80" y="392" font-size="18" fill="#6b7689">KayserDocs · 한 번 정한 임계값은 썩는다 — 재고, 고치고, 다시 잰다</text>
+</svg>
