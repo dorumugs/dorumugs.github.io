@@ -1,0 +1,9 @@
+<div class="notice--info" markdown="0">
+<strong>🔐 문서 속 개인정보, 탐지부터 평가까지 3부작</strong> — 들어오는 문서에서 개인정보를 넓게 잡고 검증기로 확실히 거르는 <strong>탐지 게이트</strong>(1편), 잡은 값을 마스킹·가역 토큰화·봉투 암호화로 안전하게 다루는 <strong>뒷단</strong>(2편), 그리고 사람 확인 큐를 정답지 삼아 지표·임계값을 재고 되먹이는 <strong>평가 루프</strong>(3편)까지, "개인정보는 문 앞에서 거른다"는 한 목표로 이어집니다. 전체 3편.
+{%- assign c = include.current -%}
+<ol>
+<li>{% if c == "1" %}<strong>들어오는 문서에서 개인정보를 걸러내는 Airflow util — 넓게 잡고, 확실히 거른다</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Airflow_개인정보_탐지_게이트/">들어오는 문서에서 개인정보를 걸러내는 Airflow util — 넓게 잡고, 확실히 거른다</a>{% endif %}</li>
+<li>{% if c == "2" %}<strong>탐지한 개인정보를 안전하게 다루기 — 마스킹, 가역 토큰화, 격리 저장</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Airflow_개인정보_마스킹_격리저장/">탐지한 개인정보를 안전하게 다루기 — 마스킹, 가역 토큰화, 격리 저장</a>{% endif %}</li>
+<li>{% if c == "3" %}<strong>개인정보 게이트를 스스로 재게 하기 — 라벨·지표·임계값 스윕과 안 보이는 절반</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Airflow_개인정보_게이트_평가루프/">개인정보 게이트를 스스로 재게 하기 — 라벨·지표·임계값 스윕과 안 보이는 절반</a>{% endif %}</li>
+</ol>
+</div>
