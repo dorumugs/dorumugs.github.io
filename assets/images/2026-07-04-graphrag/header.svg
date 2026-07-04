@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="벡터 검색과 그래프 탐색을 결합하는 GraphRAG 파이프라인 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0a7c8c"/>
+      <stop offset="0.5" stop-color="#6264a7"/>
+      <stop offset="1" stop-color="#217346"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <!-- 배경 장식: 그래프(좌) + 벡터 점군(우) 가 만나는 모양 -->
+  <g opacity="0.35">
+    <line x1="870" y1="70" x2="960" y2="120" stroke="#38506e" stroke-width="2"/>
+    <line x1="960" y1="120" x2="1070" y2="85" stroke="#38506e" stroke-width="2"/>
+    <line x1="960" y1="120" x2="1020" y2="180" stroke="#38506e" stroke-width="2"/>
+    <circle cx="870" cy="70" r="9" fill="#5ec6d6"/>
+    <circle cx="960" cy="120" r="12" fill="#b3b4e6"/>
+    <circle cx="1070" cy="85" r="7" fill="#7dd3a8"/>
+    <circle cx="1020" cy="180" r="8" fill="#5ec6d6"/>
+    <circle cx="1120" cy="150" r="4" fill="#7dd3a8"/>
+    <circle cx="1135" cy="120" r="3" fill="#5ec6d6"/>
+    <circle cx="1110" cy="185" r="3" fill="#b3b4e6"/>
+    <circle cx="1150" cy="170" r="4" fill="#7dd3a8"/>
+  </g>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc"><tspan fill="#5ec6d6">GraphRAG</tspan> 제대로 얹기</text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">벡터 검색의 디테일 + 그래프 탐색의 관계 추론을 한 파이프라인에서</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#0e2630" stroke="#0a7c8c" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#5ec6d6">엔티티 링킹</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">질문 → 그래프 노드</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#b3b4e6">이중 검색</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">서브그래프 + 벡터 top-k</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#7dd3a8">근거 합성</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">출처 인용 답변</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 지식 그래프 위에 얹는 GraphRAG</text>
+</svg>
