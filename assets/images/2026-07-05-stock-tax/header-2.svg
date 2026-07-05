@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="해외주식 양도소득세 계산(차익 1,000만원, 공제 250만원, 세금 165만원)과 납부처 안내 배너" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#4ade80"/>
+      <stop offset="1" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#13233f"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <linearGradient id="gain" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#1e3a5f"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="ded" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#14532d"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="tax" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#7c2d12"/>
+      <stop offset="1" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <!-- title block -->
+  <text x="70" y="86" fill="#e2e8f0" font-size="44" font-weight="700">해외주식 양도소득세</text>
+  <text x="72" y="128" fill="#7dd3fc" font-size="21" font-weight="500" letter-spacing="2">계산 · 5월 신고 · 홈택스/손택스/위택스 납부</text>
+
+  <!-- formula strip -->
+  <text x="72" y="188" fill="#94a3b8" font-size="19">( 연간 차익 − 250만원 ) × 22%</text>
+
+  <!-- waterfall: 1,000만 차익 → 250만 공제 → 165만 세금 -->
+  <line x1="120" y1="372" x2="760" y2="372" stroke="#334155" stroke-width="2"/>
+
+  <rect x="160" y="222" width="150" height="150" rx="6" fill="url(#gain)"/>
+  <text x="235" y="214" fill="#bae6fd" font-size="19" font-weight="600" text-anchor="middle">양도차익</text>
+  <text x="235" y="305" fill="#0b1220" font-size="27" font-weight="700" text-anchor="middle">1,000만</text>
+
+  <rect x="380" y="334" width="150" height="38" rx="6" fill="url(#ded)"/>
+  <text x="455" y="326" fill="#bbf7d0" font-size="19" font-weight="600" text-anchor="middle">기본공제</text>
+  <text x="455" y="361" fill="#0b1220" font-size="21" font-weight="700" text-anchor="middle">−250만</text>
+
+  <rect x="600" y="286" width="150" height="86" rx="6" fill="url(#tax)"/>
+  <text x="675" y="278" fill="#fed7aa" font-size="19" font-weight="600" text-anchor="middle">세금 22%</text>
+  <text x="675" y="337" fill="#0b1220" font-size="25" font-weight="700" text-anchor="middle">165만</text>
+
+  <!-- right panel: where to pay -->
+  <rect x="830" y="180" width="310" height="200" rx="12" fill="#0b1220" stroke="#1e3a5f" stroke-width="1.5"/>
+  <text x="985" y="216" fill="#7dd3fc" font-size="20" font-weight="700" text-anchor="middle">어디서 내나</text>
+  <text x="860" y="254" fill="#cbd5e1" font-size="17">홈택스 · 손택스 — 전자납부</text>
+  <text x="860" y="286" fill="#cbd5e1" font-size="17">카드로택스 · 인터넷지로</text>
+  <text x="860" y="318" fill="#cbd5e1" font-size="17">가상계좌 · 은행 창구 · ATM</text>
+  <text x="860" y="352" fill="#94a3b8" font-size="16">지방세 2%는 위택스 원클릭</text>
+
+  <text x="72" y="402" fill="#64748b" font-size="16">주식 세금 완전정리 (2/3) — KayserDocs</text>
+</svg>

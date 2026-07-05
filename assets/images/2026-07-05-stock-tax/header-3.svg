@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="자녀 증여 한도 계단(0세·11세 2,000만원, 21세·31세 5,000만원, 총 1억 4,000만원) 배너" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4ade80"/>
+      <stop offset="0.5" stop-color="#facc15"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#16233a"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <linearGradient id="step" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#14532d"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="stepBig" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#713f12"/>
+      <stop offset="1" stop-color="#facc15"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <!-- title block -->
+  <text x="70" y="86" fill="#e2e8f0" font-size="44" font-weight="700">자녀 주식계좌와 증여세</text>
+  <text x="72" y="128" fill="#86efac" font-size="21" font-weight="500" letter-spacing="2">한도 · 0원 신고 · 수익의 세금 · 장기보유 원칙</text>
+
+  <!-- staircase: tax-free gifting schedule to age 31 -->
+  <line x1="120" y1="372" x2="800" y2="372" stroke="#334155" stroke-width="2"/>
+
+  <rect x="150" y="332" width="130" height="40" rx="6" fill="url(#step)"/>
+  <text x="215" y="359" fill="#0b1220" font-size="20" font-weight="700" text-anchor="middle">2,000만</text>
+  <text x="215" y="398" fill="#94a3b8" font-size="17" text-anchor="middle">0세</text>
+
+  <rect x="310" y="292" width="130" height="80" rx="6" fill="url(#step)"/>
+  <text x="375" y="321" fill="#0b1220" font-size="20" font-weight="700" text-anchor="middle">2,000만</text>
+  <text x="375" y="398" fill="#94a3b8" font-size="17" text-anchor="middle">11세</text>
+
+  <rect x="470" y="232" width="130" height="140" rx="6" fill="url(#stepBig)"/>
+  <text x="535" y="261" fill="#0b1220" font-size="20" font-weight="700" text-anchor="middle">5,000만</text>
+  <text x="535" y="398" fill="#94a3b8" font-size="17" text-anchor="middle">21세</text>
+
+  <rect x="630" y="172" width="130" height="200" rx="6" fill="url(#stepBig)"/>
+  <text x="695" y="201" fill="#0b1220" font-size="20" font-weight="700" text-anchor="middle">5,000만</text>
+  <text x="695" y="398" fill="#94a3b8" font-size="17" text-anchor="middle">31세</text>
+
+  <text x="455" y="180" fill="#cbd5e1" font-size="18" text-anchor="middle">10년마다 리셋되는 증여 한도</text>
+
+  <!-- right panel: total -->
+  <rect x="850" y="180" width="290" height="200" rx="12" fill="#0b1220" stroke="#14532d" stroke-width="1.5"/>
+  <text x="995" y="222" fill="#86efac" font-size="20" font-weight="700" text-anchor="middle">31세까지 무세 증여</text>
+  <text x="995" y="284" fill="#e2e8f0" font-size="42" font-weight="700" text-anchor="middle">1억 4,000만</text>
+  <text x="995" y="330" fill="#94a3b8" font-size="16" text-anchor="middle">0원이어도 홈택스 신고가 원칙</text>
+  <text x="995" y="358" fill="#94a3b8" font-size="16" text-anchor="middle">부모 운용(단타)은 추가 증여 위험</text>
+
+  <text x="72" y="402" fill="#64748b" font-size="16">주식 세금 완전정리 (3/3) — KayserDocs</text>
+</svg>
