@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="LLM API 비용 추적 4편 — 키 인벤토리와 키별 비용 귀속 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e11d48"/>
+      <stop offset="0.5" stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#e11d48"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">LLM API 비용 추적 <tspan fill="#fda4af">(4/4)</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">키가 난립할 때 — 누가 얼마 쓰는지 키 단위로 귀속하고 정리하기</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#2b1220" stroke="#e11d48" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#fda4af">키 인벤토리</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">Admin API 전수 조사</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0e2630" stroke="#0a7c8c" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#5ec6d6">키별 귀속</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">api_key_id 리더보드</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#2b1220" stroke="#e11d48" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#fda4af">가상 키</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">발급 · 회수 일원화</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 누가 쓴 돈인지 답할 수 있는 팀 만들기</text>
+</svg>

@@ -18,7 +18,7 @@
   <rect width="1200" height="420" fill="url(#bg)"/>
   <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
 
-  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">LLM API 비용 추적 <tspan fill="#5ec6d6">(1/3)</tspan></text>
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">LLM API 비용 추적 <tspan fill="#5ec6d6">(1/4)</tspan></text>
   <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">Claude · OpenAI · Gemini · Upstage — 과금 구조와 usage 필드 읽기</text>
 
   <g class="ko" text-anchor="middle">
