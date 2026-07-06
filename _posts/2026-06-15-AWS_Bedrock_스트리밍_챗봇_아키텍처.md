@@ -6,6 +6,9 @@ categories: coding
 tag: [AWS, Bedrock, 챗봇, streaming, converse_stream, FastAPI, LangChain, boto3, SSE, WebSocket, RAG]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-15-bedrock-streaming-chatbot/header.svg
+  teaser: /assets/images/2026-06-15-bedrock-streaming-chatbot/header.svg
 description: "AWS Bedrock 으로 토큰 스트리밍 챗봇을 만들 때 필요한 AWS 자산, 파이썬 라이브러리, 그리고 converse_stream → SSE/WebSocket 으로 사용자에게 글자를 흘려주는 아키텍처와 기능을 한 번에 정리했습니다."
 ---
 

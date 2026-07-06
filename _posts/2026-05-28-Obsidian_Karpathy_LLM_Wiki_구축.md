@@ -7,6 +7,9 @@ categories: coding
 tag: [Obsidian, Karpathy, LLM, Wiki, ZettelKasten, ClaudeCode, WebClipper, PKM, 지식관리]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-28-obsidian-llm-wiki/header.svg
+  teaser: /assets/images/2026-05-28-obsidian-llm-wiki/header.svg
 ---
 
 

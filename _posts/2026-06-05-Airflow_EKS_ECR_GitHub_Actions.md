@@ -7,6 +7,9 @@ categories: coding
 tag: [Airflow, EKS, ECR, GitHub Actions, AWS, OIDC, IRSA, KubernetesExecutor, CI/CD, DevOps]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-05-airflow-eks-ecr-actions/header.svg
+  teaser: /assets/images/2026-06-05-airflow-eks-ecr-actions/header.svg
 ---
 
 {% include series-airflow-k8s-helm.html current="5" %}

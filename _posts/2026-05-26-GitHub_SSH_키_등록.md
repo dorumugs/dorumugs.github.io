@@ -7,6 +7,9 @@ categories: coding
 tag: [github, ssh, ed25519, ssh-keygen, git]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-26-github-ssh-key/header.svg
+  teaser: /assets/images/2026-05-26-github-ssh-key/header.svg
 ---
 
 

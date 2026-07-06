@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Gemini CLI 플래그와 헤드리스 모드, 슬래시 명령어 정리 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6264a7"/>
+      <stop offset="0.5" stop-color="#a5b4fc"/>
+      <stop offset="1" stop-color="#6264a7"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">Gemini CLI 명령어 모음 <tspan fill="#b3b4e6">(3/4)</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">헤드리스 자동화 친화 — 플래그 · 승인 모드 · 슬래시 명령어</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#b3b4e6">CLI 플래그</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">-p · -i · --worktree</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0e2630" stroke="#0a7c8c" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#5ec6d6">승인 모드</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">auto_edit · yolo · plan</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#b3b4e6">슬래시 명령어</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">/chat · /memory reload</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 매일 쓰는 AI 코딩 CLI 치트시트</text>
+</svg>

@@ -6,6 +6,9 @@ categories: finance
 tag: [macro, FRED, CPI, PCE, 고용지표, 기준금리, 장단기금리차, VIX, yfinance, pandas-datareader, 경제지표, python]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-06-us-macro-fred-python/header.svg
+  teaser: /assets/images/2026-06-06-us-macro-fred-python/header.svg
 description: "월가가 매달 챙겨 보는 거시 지표(CPI · PCE · 고용 · 기준금리 · 장단기 금리차 · VIX)를 어디서 확인하고, FRED · yfinance · pandas-datareader 로 Python 에서 직접 받아오는 패턴까지 한 글에 정리했어요."
 ---
 

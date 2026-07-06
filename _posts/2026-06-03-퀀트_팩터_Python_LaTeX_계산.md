@@ -6,6 +6,9 @@ categories: finance
 tag: [quant, python, pandas, factor, PER, PBR, ROE, RSI, MACD, Bollinger, Sharpe, Beta]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-03-quant-factor-python-latex/header.svg
+  teaser: /assets/images/2026-06-03-quant-factor-python-latex/header.svg
 use_math: true
 description: "PER·ROE 같은 펀더멘털 팩터부터 RSI·MACD·Bollinger·Sharpe 까지, 수식 정의와 함께 pandas 로 직접 계산하는 코드를 한 글에 모았어요."
 ---

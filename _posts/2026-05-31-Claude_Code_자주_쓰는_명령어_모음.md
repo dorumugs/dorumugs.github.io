@@ -7,6 +7,9 @@ categories: coding
 tag: [ClaudeCode, CLI, AI코딩, 슬래시명령어, 워크플로우, 생산성, 개발도구, 입문]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-31-claude-code-commands/header.svg
+  teaser: /assets/images/2026-05-31-claude-code-commands/header.svg
 ---
 
 

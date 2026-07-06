@@ -7,6 +7,9 @@ categories: coding
 tag: [selenium, Crawling, Power English, Beautiful Soup]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2024-10-16-ebs-crawl/header.svg
+  teaser: /assets/images/2024-10-16-ebs-crawl/header.svg
 ---
 
 

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="LLM 자체를 지키는 프롬프트 인젝션과 가드레일 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#881337"/>
+      <stop offset="0.5" stop-color="#e11d48"/>
+      <stop offset="1" stop-color="#fb7185"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">LLM 그 자체의 보안 <tspan fill="#fb7185">(4/4)</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">프롬프트 인젝션·유출·RAG 오염과 가드레일 — OWASP LLM Top 10</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#2a0a12" stroke="#e11d48" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#fb7185">프롬프트 인젝션</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">직접·간접 인젝션</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#2a0a12" stroke="#f43f5e" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#fda4af">유출·RAG 오염</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">프롬프트 유출·문서 오염</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#2a0a12" stroke="#fb7185" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#fecdd3">가드레일 방어</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">입출력 필터·최소권한</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · OWASP LLM Top 10 으로 막기</text>
+</svg>

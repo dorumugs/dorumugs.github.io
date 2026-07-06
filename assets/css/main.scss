@@ -34,6 +34,18 @@ $right-sidebar-width:        330px;
   @include breakpoint($x-large) { padding-inline-start: 3em; }
 }
 
+// --- KayserDocs: gap between stacked TOC box and post title ---
+// Below $large the TOC <aside> is in normal flow right above the <header>
+// (we moved it to the top of .page__inner-wrap), and the theme's 1em
+// margin-bottom leaves the index box glued to the title. Give it a full
+// line of air. At $large+ the TOC is absolutely positioned, so this only
+// affects the stacked layout.
+@media (max-width: #{$large - 1px}) {
+  .page__inner-wrap > .sidebar__right {
+    margin-bottom: 3em;
+  }
+}
+
 // --- KayserDocs: widen "참고" (related posts) to full content width ---
 // Theme reserves right-sidebar width on .page__related so it leaves a left gutter.
 // At the bottom of the post the TOC sidebar isn't there anymore — use full width.

@@ -7,6 +7,9 @@ categories: coding
 tag: [Airflow, Kubernetes, K8s, Helm, KubernetesExecutor, Postgres, values, 셋업, DevOps]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-04-airflow-helm-install/header.svg
+  teaser: /assets/images/2026-06-04-airflow-helm-install/header.svg
 ---
 
 {% include series-airflow-k8s-helm.html current="2" %}

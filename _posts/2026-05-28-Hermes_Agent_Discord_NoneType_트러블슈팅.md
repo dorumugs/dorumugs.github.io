@@ -7,6 +7,9 @@ categories: coding
 tag: [hermes, discord, docker, troubleshooting, codex, openai, llm, agent, bug]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-28-hermes-discord-nonetype/header.svg
+  teaser: /assets/images/2026-05-28-hermes-discord-nonetype/header.svg
 ---
 
 

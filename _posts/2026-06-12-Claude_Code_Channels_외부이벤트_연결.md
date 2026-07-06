@@ -6,6 +6,9 @@ categories: coding
 tag: [claude-code, channels, telegram, discord, imessage, webhook, MCP, AI코딩]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-12-claude-code-channels/header.svg
+  teaser: /assets/images/2026-06-12-claude-code-channels/header.svg
 description: "Claude Code 의 Channels 로 텔레그램·디스코드·CI 웹훅 같은 외부 이벤트를 돌고 있는 세션에 실시간으로 흘려보내는 법을 정리했어요. 텔레그램 셋업 명령어, 권한 릴레이, 커스텀 웹훅, Remote Control 과의 차이까지."
 ---
 

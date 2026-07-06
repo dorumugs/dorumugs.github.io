@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="포트를 열지 않는 로컬 Claude 전용 MCP 서버 만들기 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#15803d"/>
+      <stop offset="0.5" stop-color="#16a34a"/>
+      <stop offset="1" stop-color="#0d9488"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">로컬 Claude 전용 MCP 서버 <tspan fill="#86efac">(1/2)</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">포트 없이 stdio 로 — 내 컴퓨터의 Claude Desktop·Code 만 붙는 FastMCP 서버</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#11291f" stroke="#15803d" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#86efac">stdio</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">포트 0개, 파이프 통신</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#102b1e" stroke="#16a34a" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#7dd3a8">FastMCP</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">도구·리소스·프롬프트</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#0d2926" stroke="#0d9488" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#5eead4">Claude 등록</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">Desktop·Code 에 연결</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · MCP 서버 만들기 1편 — 로컬 stdio</text>
+</svg>

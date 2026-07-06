@@ -7,6 +7,9 @@ categories: coding
 tag: [hermes, docker, docker-compose, llm, agent, n8n, prefect, codex, discord]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-26-hermes-agent-docker/header.svg
+  teaser: /assets/images/2026-05-26-hermes-agent-docker/header.svg
 ---
 
 

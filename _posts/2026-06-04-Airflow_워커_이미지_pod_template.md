@@ -7,6 +7,9 @@ categories: coding
 tag: [Airflow, Kubernetes, K8s, KubernetesExecutor, Docker, pod_template, 워커, 이미지, DevOps]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-04-airflow-worker-image-pod-template/header.svg
+  teaser: /assets/images/2026-06-04-airflow-worker-image-pod-template/header.svg
 ---
 
 {% include series-airflow-k8s-helm.html current="3" %}

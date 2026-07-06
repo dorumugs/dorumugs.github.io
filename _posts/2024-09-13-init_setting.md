@@ -7,6 +7,9 @@ categories: coding
 tag: [llm, langchain, settings, poetry]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2024-09-13-llm-init-setting/header.svg
+  teaser: /assets/images/2024-09-13-llm-init-setting/header.svg
 ---
 
 

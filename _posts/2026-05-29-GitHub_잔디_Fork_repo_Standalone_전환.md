@@ -7,6 +7,9 @@ categories: coding
 tag: [github, github-pages, jekyll, fork, contributions, troubleshooting, kayserdocs]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-29-github-fork-standalone/header.svg
+  teaser: /assets/images/2026-05-29-github-fork-standalone/header.svg
 ---
 
 블로그 글을 꾸준히 쓰고 있는데, 정작 GitHub 프로필의 잔디(컨트리뷰션 그래프)는 휑한 상태였어요. "내가 잘못 푸시했나?" 하고 며칠 무시했는데, 알고 보니 **저장소 자체가 fork** 라서 커밋이 잔디로 카운트가 안 되고 있던 거였어요. 이 글은 그 원인을 찾고 standalone repo 로 옮기기까지의 전 과정을 정리한 글이에요.

@@ -7,6 +7,9 @@ categories: coding
 tag: [Docker, Kubernetes, K8s, 컨테이너, 오케스트레이션, DevOps, 인프라, containerd, 입문]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-04-docker-k8s-orchestration/header.svg
+  teaser: /assets/images/2026-06-04-docker-k8s-orchestration/header.svg
 ---
 
 # Summary

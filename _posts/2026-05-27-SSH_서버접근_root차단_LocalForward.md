@@ -7,6 +7,9 @@ categories: coding
 tag: [ssh, sshd, port-forwarding, security, openssh, localforward]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-27-ssh-server-access/header.svg
+  teaser: /assets/images/2026-05-27-ssh-server-access/header.svg
 ---
 
 

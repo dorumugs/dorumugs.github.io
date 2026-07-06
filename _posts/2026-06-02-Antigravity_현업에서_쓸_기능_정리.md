@@ -6,6 +6,9 @@ categories: coding
 tag: [antigravity, google, gemini, agentic-ide, ai-coding, mission-control, browser-automation, subagents, knowledge-items]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-02-antigravity-features/header.svg
+  teaser: /assets/images/2026-06-02-antigravity-features/header.svg
 description: "Google 의 에이전트형 IDE Antigravity 를 현업 관점에서 정리합니다. Mission Control, Artifacts, 브라우저 자동화, Subagents, Knowledge Items 같이 실무에 바로 꽂아 쓸 수 있는 기능 위주로 살펴봤어요. AI IDE 현업 활용 시리즈 1편."
 ---
 

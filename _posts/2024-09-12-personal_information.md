@@ -7,6 +7,9 @@ categories: personal
 tag: [dorumugs, kayser, 주인장]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2024-09-12-about-me/header.svg
+  teaser: /assets/images/2024-09-12-about-me/header.svg
 ---
 
 # About ME

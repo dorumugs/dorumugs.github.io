@@ -7,6 +7,9 @@ categories: coding
 tag: [Airflow, Kubernetes, K8s, git-sync, 로그, 모니터링, Prometheus, DevOps, 운영, 트러블슈팅]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-04-airflow-k8s-operations/header.svg
+  teaser: /assets/images/2026-06-04-airflow-k8s-operations/header.svg
 ---
 
 {% include series-airflow-k8s-helm.html current="4" %}

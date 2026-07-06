@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="블로그 주인장의 경력·학력·기술을 소개하는 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="0.5" stop-color="#0d9488"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">About Me <tspan fill="#a5b4fc">· Kayser So</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">데이터 스페셜리스트의 학력·논문·경력 이야기</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#1c1d3a" stroke="#6366f1" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#a5b4fc">16년+ 경력</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">보안·이커머스·금융</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0e2a28" stroke="#0d9488" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#5eead4">석사·논문</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">컴퓨터공학·저서 출간</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#2a2010" stroke="#f59e0b" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#fbbf24">AI·ML</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">LLM·빅데이터·K8s</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 주인장 소개 페이지</text>
+</svg>

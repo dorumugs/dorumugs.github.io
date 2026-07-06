@@ -7,6 +7,9 @@ categories: coding
 tag: [GeminiCLI, Google, Gemini, CLI, AI코딩, 슬래시명령어, 워크플로우, 생산성, 개발도구]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-06-01-gemini-cli-commands/header.svg
+  teaser: /assets/images/2026-06-01-gemini-cli-commands/header.svg
 ---
 
 

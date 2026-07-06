@@ -7,6 +7,9 @@ categories: coding
 tag: [LSP, grep, AI코딩, ClaudeCode, Cursor, 코드탐색, 개발도구, 에디터, 입문]
 author_profile: false
 toc: true
+header:
+  image: /assets/images/2026-05-27-lsp-vs-grep/header.svg
+  teaser: /assets/images/2026-05-27-lsp-vs-grep/header.svg
 ---
 
 # Summary

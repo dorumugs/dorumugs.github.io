@@ -11,7 +11,7 @@
 
   <!-- title block -->
   <text x="70" y="80" fill="#e2e8f0" font-size="43" font-weight="700">배당락 차익, 세후로 끝까지</text>
-  <text x="72" y="118" fill="#f0abfc" font-size="19" font-weight="500">받은 배당에서 세금 · 배당락 · 비용을 빼면 — 거의 항상 마이너스</text>
+  <text x="72" y="112" fill="#f0abfc" font-size="19" font-weight="500">받은 배당에서 세금 · 배당락 · 비용을 빼면 — 거의 항상 마이너스</text>
 
   <!-- waterfall chart : zero line y=240, scale 0.00004 px/원 -->
   <line x1="100" y1="240" x2="700" y2="240" stroke="#475569" stroke-width="2" stroke-dasharray="2 4"/>
