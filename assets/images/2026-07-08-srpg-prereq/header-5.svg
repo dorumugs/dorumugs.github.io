@@ -19,7 +19,7 @@
   <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
 
   <rect x="1020" y="36" width="100" height="40" rx="20" fill="#31142a" stroke="#9d174d" stroke-width="2"/>
-  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#f472b6" text-anchor="middle">5 / 6</text>
+  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#f472b6" text-anchor="middle">5 / 7</text>
 
   <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">2D SRPG 만들기 선행학습 <tspan fill="#f472b6">턴제 전투</tspan></text>
   <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">상태머신으로 길들이는 전투 — 턴 순서 · 데미지 공식 · 적 AI</text>

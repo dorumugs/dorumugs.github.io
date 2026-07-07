@@ -19,7 +19,7 @@
   <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
 
   <rect x="1020" y="36" width="100" height="40" rx="20" fill="#14213d" stroke="#1d4ed8" stroke-width="2"/>
-  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#93c5fd" text-anchor="middle">4 / 6</text>
+  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#93c5fd" text-anchor="middle">4 / 7</text>
 
   <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">2D SRPG 만들기 선행학습 <tspan fill="#93c5fd">길찾기</tspan></text>
   <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">SRPG 의 파란 칸 — 다익스트라 이동 범위와 A* 최단 경로</text>
