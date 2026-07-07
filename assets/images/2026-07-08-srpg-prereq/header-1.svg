@@ -19,7 +19,7 @@
   <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
 
   <rect x="1020" y="36" width="100" height="40" rx="20" fill="#0e2630" stroke="#0a7c8c" stroke-width="2"/>
-  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#5ec6d6" text-anchor="middle">1 / 7</text>
+  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#5ec6d6" text-anchor="middle">1 / 8</text>
 
   <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">2D SRPG 만들기 선행학습 <tspan fill="#5ec6d6">게임 루프</tspan></text>
   <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">모든 게임의 심장 — 초당 60번 도는 무한 루프와 델타타임</text>
