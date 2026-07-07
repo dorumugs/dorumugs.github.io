@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="2D SRPG 만들기 선행학습 10편 연출 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a16207"/>
+      <stop offset="0.5" stop-color="#eab308"/>
+      <stop offset="1" stop-color="#fde047"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <rect x="1008" y="36" width="112" height="40" rx="20" fill="#2b2410" stroke="#a16207" stroke-width="2"/>
+  <text class="ko" x="1064" y="63" font-size="20" font-weight="800" fill="#fde047" text-anchor="middle">10 / 10</text>
+
+  <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">2D SRPG 만들기 선행학습 <tspan fill="#fde047">연출</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">손맛을 만드는 잔기술 — 화면 흔들림 · 히트스톱 · 이징 · 페이드</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#2b2410" stroke="#a16207" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#fde047">화면 흔들림</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">trauma 제곱 감쇠</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0e2630" stroke="#0a7c8c" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#5ec6d6">히트스톱 · 이징</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">dt=0 · ease_out · lerp</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#b3b4e6">페이드 전환</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">검은 커튼 + BGM 페이드</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 파랜드 택틱스 같은 게임을 직접 만들기 위한 기초 체력</text>
+</svg>
