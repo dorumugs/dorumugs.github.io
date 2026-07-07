@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(7/8) 2D SRPG 만들기 선행학습 — Tiled 맵 에디터로 전장 만들기"
+title:  "(7/9) 2D SRPG 만들기 선행학습 — Tiled 맵 에디터로 전장 만들기"
 date: 2026-07-08 06:45:00 +0900
 categories: coding
 tag: [게임개발, SRPG, 파랜드택틱스, pygame, Tiled, pytmx, TMX, 맵에디터, 타일맵, Python]
@@ -319,4 +319,4 @@ pygame.quit()
 
 ---
 
-**← 이전 글:** [(6/8) 2D SRPG 만들기 선행학습 — 데이터 설계와 세이브/로드](/coding/SRPG_만들기_선행학습_데이터_세이브/) ｜ **다음 글 →:** [(8/8) 2D SRPG 만들기 선행학습 — UI 와 메뉴, 정보를 보여주는 기술](/coding/SRPG_만들기_선행학습_UI_메뉴/)
+**← 이전 글:** [(6/9) 2D SRPG 만들기 선행학습 — 데이터 설계와 세이브/로드](/coding/SRPG_만들기_선행학습_데이터_세이브/) ｜ **다음 글 →:** [(8/9) 2D SRPG 만들기 선행학습 — UI 와 메뉴, 정보를 보여주는 기술](/coding/SRPG_만들기_선행학습_UI_메뉴/)
