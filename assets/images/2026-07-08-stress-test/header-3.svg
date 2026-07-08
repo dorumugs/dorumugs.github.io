@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="홈페이지 스트레스 테스트 3편 프론트엔드 성능 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1f18"/>
+      <stop offset="1" stop-color="#123024"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0f9d58"/>
+      <stop offset="0.5" stop-color="#2dd4a7"/>
+      <stop offset="1" stop-color="#6ee7b7"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <rect x="1020" y="36" width="100" height="40" rx="20" fill="#0e2a1f" stroke="#0f9d58" stroke-width="2"/>
+  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#6ee7b7" text-anchor="middle">3 / 6</text>
+
+  <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">홈페이지 스트레스 테스트 <tspan fill="#6ee7b7">프론트엔드</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#93b8a5">서버가 아니라 브라우저가 화면을 그리는 속도 — 코어 웹 바이탈</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#0e2a1f" stroke="#0f9d58" stroke-width="3"/>
+    <text x="215" y="284" font-size="26" font-weight="800" fill="#6ee7b7">LCP</text>
+    <text x="215" y="316" font-size="16" font-weight="500" fill="#cbe1d5">화면 뜨는 속도</text>
+    <text x="215" y="338" font-size="14" font-weight="500" fill="#7fae95">2.5초 이하</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#1a2a12" stroke="#7fa63d" stroke-width="3"/>
+    <text x="600" y="284" font-size="26" font-weight="800" fill="#c3e68f">INP</text>
+    <text x="600" y="316" font-size="16" font-weight="500" fill="#cbe1d5">반응 속도</text>
+    <text x="600" y="338" font-size="14" font-weight="500" fill="#95ae7f">200ms 이하</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#122a2a" stroke="#3da6a6" stroke-width="3"/>
+    <text x="985" y="284" font-size="26" font-weight="800" fill="#8fe6e6">CLS</text>
+    <text x="985" y="316" font-size="16" font-weight="500" fill="#cbe1d5">화면 밀림</text>
+    <text x="985" y="338" font-size="14" font-weight="500" fill="#7faeae">0.1 이하</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#5f7a6d">KayserDocs · Lighthouse·WebPageTest 로 저사양·느린망까지 스트레스</text>
+</svg>
