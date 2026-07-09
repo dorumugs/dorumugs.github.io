@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="홈페이지 스트레스 테스트 7편 샘플 리포트 결과 해석 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1a1a"/>
+      <stop offset="1" stop-color="#132a2f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0891b2"/>
+      <stop offset="0.5" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#a3e635"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <rect x="1020" y="36" width="100" height="40" rx="20" fill="#0e2a2f" stroke="#0891b2" stroke-width="2"/>
+  <text class="ko" x="1070" y="63" font-size="20" font-weight="800" fill="#22d3ee" text-anchor="middle">7 / 7</text>
+
+  <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">홈페이지 스트레스 테스트 <tspan fill="#22d3ee">리포트 해석</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#93b0b5">샘플 리포트로 읽는 결과 — 숫자를 판정과 액션으로</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#0e2a2f" stroke="#0891b2" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#22d3ee">총평</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">결론을 맨 위에</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#2a2410" stroke="#a68a3d" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#e6cf8f">발견</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">원인 + 근거</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#7dd3a8">액션</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">심각도 · 시점</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#5f7a7d">KayserDocs · 스트레스 테스트의 결과물은 그래프가 아니라 명확한 판단</text>
+</svg>
