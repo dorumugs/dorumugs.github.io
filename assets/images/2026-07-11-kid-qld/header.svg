@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="0세에 증여한 2,000만원을 19년 굴렸을 때 연복리 시나리오별 결과(5% 5천만·10% 1.2억·15% 2.9억)와 자녀 계좌 레버리지 3원칙 배너" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#16233a"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#155e75"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#4c1d95"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#14532d"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <!-- title block -->
+  <text x="70" y="86" fill="#e2e8f0" font-size="44" font-weight="700">물려준 돈, QLD로 굴려도 될까</text>
+  <text x="72" y="128" fill="#a5b4fc" font-size="21" font-weight="500" letter-spacing="2">자녀 계좌 2배 레버리지 — 시간 · 강제 장기보유 · 적립식</text>
+
+  <!-- scenario bars: 2,000만 at age 0, 19 years compounding -->
+  <line x1="120" y1="372" x2="700" y2="372" stroke="#334155" stroke-width="2"/>
+
+  <rect x="150" y="332" width="140" height="40" rx="6" fill="url(#bar1)"/>
+  <text x="220" y="322" fill="#7dd3fc" font-size="20" font-weight="700" text-anchor="middle">5,000만</text>
+  <text x="220" y="398" fill="#94a3b8" font-size="17" text-anchor="middle">연 5%</text>
+
+  <rect x="330" y="276" width="140" height="96" rx="6" fill="url(#bar2)"/>
+  <text x="400" y="266" fill="#c4b5fd" font-size="20" font-weight="700" text-anchor="middle">1.2억</text>
+  <text x="400" y="398" fill="#94a3b8" font-size="17" text-anchor="middle">연 10%</text>
+
+  <rect x="510" y="196" width="140" height="176" rx="6" fill="url(#bar3)"/>
+  <text x="580" y="186" fill="#86efac" font-size="20" font-weight="700" text-anchor="middle">2.9억</text>
+  <text x="580" y="398" fill="#94a3b8" font-size="17" text-anchor="middle">연 15%</text>
+
+  <text x="410" y="168" fill="#cbd5e1" font-size="18" text-anchor="middle">0세에 넘긴 2,000만원 · 19년 뒤 (연복리 시나리오)</text>
+
+  <!-- right panel: three rules -->
+  <rect x="850" y="180" width="290" height="200" rx="12" fill="#0b1220" stroke="#4c1d95" stroke-width="1.5"/>
+  <text x="995" y="222" fill="#c4b5fd" font-size="20" font-weight="700" text-anchor="middle">자녀 계좌 레버리지 3원칙</text>
+  <text x="995" y="266" fill="#e2e8f0" font-size="17" text-anchor="middle">① 전부가 아니라 위성 비중만</text>
+  <text x="995" y="302" fill="#e2e8f0" font-size="17" text-anchor="middle">② 적립식으로 사서 묻어두기</text>
+  <text x="995" y="338" fill="#e2e8f0" font-size="17" text-anchor="middle">③ 돈 쓸 시점 전에 디레버리징</text>
+
+  <text x="1140" y="52" fill="#64748b" font-size="16" text-anchor="end">KayserDocs</text>
+</svg>
