@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="아기에게 주는 사람별 증여 공제 한도(직계존속 합산 2,000만원, 고모·이모 등 기타친족 합산 1,000만원, 남남 0원) 배너" font-family="'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f9a8d4"/>
+      <stop offset="0.5" stop-color="#facc15"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#16233a"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <linearGradient id="barMain" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#14532d"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="barKin" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#713f12"/>
+      <stop offset="1" stop-color="#facc15"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <!-- title block -->
+  <text x="70" y="86" fill="#e2e8f0" font-size="44" font-weight="700">아이가 태어났다면, 누가 얼마까지?</text>
+  <text x="72" y="128" fill="#fbcfe8" font-size="21" font-weight="500" letter-spacing="2">부모 · 조부모 · 고모이모 · 남남 — 증여세 없는 한도</text>
+
+  <!-- horizontal bars: deduction limit by giver group (10-year basis) -->
+  <line x1="300" y1="170" x2="300" y2="380" stroke="#334155" stroke-width="2"/>
+
+  <text x="285" y="207" fill="#cbd5e1" font-size="19" text-anchor="end" font-weight="600">부모 · 조부모</text>
+  <text x="285" y="229" fill="#64748b" font-size="14" text-anchor="end">직계존속 전체 합산</text>
+  <rect x="300" y="188" width="440" height="40" rx="6" fill="url(#barMain)"/>
+  <text x="726" y="215" fill="#0b1220" font-size="20" font-weight="700" text-anchor="end">2,000만</text>
+
+  <text x="285" y="277" fill="#cbd5e1" font-size="19" text-anchor="end" font-weight="600">고모 · 이모 · 삼촌</text>
+  <text x="285" y="299" fill="#64748b" font-size="14" text-anchor="end">기타친족 전체 합산</text>
+  <rect x="300" y="258" width="220" height="40" rx="6" fill="url(#barKin)"/>
+  <text x="506" y="285" fill="#0b1220" font-size="20" font-weight="700" text-anchor="end">1,000만</text>
+
+  <text x="285" y="347" fill="#cbd5e1" font-size="19" text-anchor="end" font-weight="600">모르는 아저씨</text>
+  <text x="285" y="369" fill="#64748b" font-size="14" text-anchor="end">친족 아님</text>
+  <rect x="300" y="328" width="8" height="40" rx="3" fill="#475569"/>
+  <text x="322" y="355" fill="#94a3b8" font-size="20" font-weight="700">0원</text>
+
+  <text x="300" y="408" fill="#64748b" font-size="15">받는 사람(아기) 기준 · 10년 단위 공제 한도</text>
+
+  <!-- right panel: lifetime total -->
+  <rect x="850" y="180" width="290" height="200" rx="12" fill="#0b1220" stroke="#14532d" stroke-width="1.5"/>
+  <text x="995" y="222" fill="#86efac" font-size="20" font-weight="700" text-anchor="middle">출생부터 31세까지</text>
+  <text x="995" y="284" fill="#e2e8f0" font-size="42" font-weight="700" text-anchor="middle">1억 8,000만</text>
+  <text x="995" y="330" fill="#94a3b8" font-size="16" text-anchor="middle">직계존속 1억 4,000만</text>
+  <text x="995" y="358" fill="#94a3b8" font-size="16" text-anchor="middle">기타친족 4,000만 (10년 리셋)</text>
+
+  <text x="1140" y="52" fill="#64748b" font-size="16" text-anchor="end">KayserDocs</text>
+</svg>
