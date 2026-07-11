@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="DDoS 개념과 공격 지형도 — 계층별 공격 분류 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="0.5" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#a5b4fc"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">DDoS 완전정복 <tspan fill="#a5b4fc">공격 지형도</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">DoS와 DDoS · 봇넷과 반사증폭 · OSI 계층으로 나눈 공격의 지도</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#1a1d3a" stroke="#6366f1" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#a5b4fc">L3·L4 볼류메트릭</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">대역폭을 채운다</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#1a1d3a" stroke="#818cf8" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#c7d2fe">L4 프로토콜</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">상태 테이블 고갈</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#1a1d3a" stroke="#a5b4fc" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#ddd6fe">L7 애플리케이션</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">요청 처리량 소진</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 규모의 단위는 bps · pps · rps</text>
+</svg>
