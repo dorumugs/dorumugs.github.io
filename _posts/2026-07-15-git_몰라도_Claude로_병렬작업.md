@@ -240,12 +240,12 @@ git 을 모를수록 오히려 **안전장치를 습관으로** 두는 게 중�
 
 | 기능 | 이렇게 쓰면 | 관련 편 |
 | --- | --- | --- |
-| `-w, --worktree`<br>(+ `--tmux`) | 세션을 자기 워크트리에 자동 격리.<br>`--tmux` 를 같이 주면 여러 세션을<br>한 화면 패널로 | 1편 |
-| `--bg` +<br>`claude agents` | 세션을 **백그라운드**로 돌려 여러 작업을<br>안 지켜봐도 병렬 진행. `claude agents` 는<br>그 세션들을 보는 대시보드 | 3편 |
-| `--from-pr`<br>`<번호/URL>` | Claude 가 만든 PR 에 연결된 세션으로<br>바로 복귀 | 2편 |
-| `-c, --continue`<br>`-r, --resume` | 끊긴 세션 이어가기.<br>`-c` 는 이 폴더 최근 것,<br>`-r` 은 피커로 골라서 | 전체 |
-| `--permission-mode` | 실행 전 확인 강도를 모드로 고정<br>(아래 팁 참고) | 4편 5절 |
-| `/code-review ultra` | 브랜치·PR 을 클라우드 멀티 에이전트로<br>심층 리뷰 (직접 실행·과금) | 2편 |
+| `-w, --worktree`<br>(+ `--tmux`) | 세션을 자기 워크트리에 자동 격리.<br>`--tmux` 를 같이 주면 여러 세션을<br>한 화면 패널로 | [1편](/coding/여러_Claude_세션_git_worktree_격리/) |
+| `--bg` +<br>`claude agents` | 세션을 **백그라운드**로 돌려 여러 작업을<br>안 지켜봐도 병렬 진행. `claude agents` 는<br>그 세션들을 보는 대시보드 | [3편](/coding/병렬_PR_충돌_오케스트레이션/) |
+| `--from-pr`<br>`<번호/URL>` | Claude 가 만든 PR 에 연결된 세션으로<br>바로 복귀 | [2편](/coding/worktree_브랜치_PR_자동리뷰_통합/) |
+| `-c, --continue`<br>`-r, --resume` | 끊긴 세션 이어가기.<br>`-c` 는 이 폴더 최근 것,<br>`-r` 은 피커로 골라서 | 전체 편 |
+| `--permission-mode` | 실행 전 확인 강도를 모드로 고정<br>([아래 팁](#permission-mode-tip) 참고) | 이 글 아래 |
+| `/code-review ultra` | 브랜치·PR 을 클라우드 멀티 에이전트로<br>심층 리뷰 (직접 실행·과금) | [2편](/coding/worktree_브랜치_PR_자동리뷰_통합/) |
 
 특히 **권한 모드(`--permission-mode`)** 는 5절의 "실행 전 물어봐줘" 습관을 아예 세션 기본값으로 굳혀줘서, git 초보에게 제일 든든한 안전장치예요. 모드별로 이렇게 갈려요.
 
@@ -256,6 +256,8 @@ git 을 모를수록 오히려 **안전장치를 습관으로** 두는 게 중�
 - **`dontAsk` / `bypassPermissions` — 확인을 건너뜀.** 미리 허용한 것만 자동 실행하거나(CI용) 아예 다 건너뛰는(격리된 VM 전용) 모드예요. 익숙해지기 전엔 손대지 마세요.
 
 > ✅ 헷갈리기 쉬운 것 하나. 위 `auto` 모드와, 터미널의 `claude auto-mode` **명령**은 다른 겁니다. `auto` 는 **권한 모드의 한 값**이고, `claude auto-mode` 는 그 auto 모드가 쓰는 **판단 규칙을 들여다보고 손보는 도구**(`config`/`critique`/`defaults`)예요. 즉 `--permission-mode` 로 모드를 고르고, `auto-mode` 명령으로 그 모드의 규칙을 다듬는 관계입니다.
+
+<a id="permission-mode-tip"></a>
 
 > 💡 하나만 고르라면 초보는 **`manual`(매번 확인)** 이에요. 큰 변경을 앞뒀을 땐 `plan`(읽기 전용)으로 계획부터 받아보고요. "확인을 건너뛰는" 모드는 되돌리기 어려운 사고로 이어질 수 있으니, 앞 편들에서 강조한 **"애매하면 물어봐줘"** 와 같은 결로 생각하면 됩니다.
 
