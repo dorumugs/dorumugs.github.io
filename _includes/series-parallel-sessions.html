@@ -1,0 +1,10 @@
+<div class="notice--info" markdown="0">
+<strong>📦 병렬 Claude 세션 작업 안전하게 합치기 4부작</strong> — 같은 프로젝트에서 Claude Code 세션을 여러 개 병렬로 굴릴 때 코드가 서로 덮어써지는 문제를, worktree 로 세션마다 폴더·브랜치를 격리하고(1편), 그 브랜치를 PR·CI·리뷰 관문에 태워 통합하고(2편), 여러 PR 의 충돌을 통합 담당 세션이 자동으로 감지·정리하고(3편), 끝으로 git 을 전혀 몰라도 Claude 에게 이 전 과정을 통째로 맡기는 법(4편)까지 이어집니다. 전체 4편.
+{%- assign c = include.current -%}
+<ol>
+<li>{% if c == "1" %}<strong>여러 Claude 세션이 서로 덮어쓸 때 — git worktree 로 격리하기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/여러_Claude_세션_git_worktree_격리/">여러 Claude 세션이 서로 덮어쓸 때 — git worktree 로 격리하기</a>{% endif %}</li>
+<li>{% if c == "2" %}<strong>worktree 브랜치를 PR 로 묶고 자동 리뷰까지 통합하기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/worktree_브랜치_PR_자동리뷰_통합/">worktree 브랜치를 PR 로 묶고 자동 리뷰까지 통합하기</a>{% endif %}</li>
+<li>{% if c == "3" %}<strong>여러 PR 의 충돌을 자동으로 감지하고 정리하기 — 통합 오케스트레이션</strong> ← <em>지금 글</em>{% else %}<a href="/coding/병렬_PR_충돌_오케스트레이션/">여러 PR 의 충돌을 자동으로 감지하고 정리하기 — 통합 오케스트레이션</a>{% endif %}</li>
+<li>{% if c == "4" %}<strong>git 을 몰라도 괜찮다 — Claude 에게 병렬 작업과 통합을 통째로 맡기기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/git_몰라도_Claude로_병렬작업/">git 을 몰라도 괜찮다 — Claude 에게 병렬 작업과 통합을 통째로 맡기기</a>{% endif %}</li>
+</ol>
+</div>

@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "worktree 브랜치를 PR 로 묶고 자동 리뷰까지 — 병렬 세션 작업을 안전하게 통합하기"
+title:  "(2/4) worktree 브랜치를 PR 로 묶고 자동 리뷰까지 — 병렬 세션 작업을 안전하게 통합하기"
 date: 2026-07-15 14:00:00 +0900
 categories: coding
 tag: [claude-code, git, worktree, pull-request, gh-cli, code-review, github-actions, merge-queue, ci, 병렬작업]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-07-15-worktree-pr-review/header.svg
 description: "worktree 로 세션마다 격리한 브랜치를 손으로 순차 merge 하는 대신, gh CLI 로 각 브랜치를 PR 로 올리고 CI·코드 리뷰를 자동으로 태운 뒤 merge queue 로 안전하게 합치는 흐름. 각 Claude 세션이 자기 PR 을 관리하게 만드는 실전 워크플로우와 함정까지 정리했습니다."
 ---
+
+{% include series-parallel-sessions.html current="2" %}
 
 ## Summary
 
@@ -290,4 +292,4 @@ cd ~/Projects/myapp-auth
 
 ---
 
-**← 이전 글:** [여러 Claude 세션이 서로 덮어쓸 때 — git worktree 로 격리하기](/coding/여러_Claude_세션_git_worktree_격리/)
+**← 이전 글:** [(1/4) 여러 Claude 세션이 서로 덮어쓸 때 — git worktree 로 격리하기](/coding/여러_Claude_세션_git_worktree_격리/) ｜ **다음 글 →:** [(3/4) 여러 PR 의 충돌을 자동으로 감지하고 정리하기](/coding/병렬_PR_충돌_오케스트레이션/)

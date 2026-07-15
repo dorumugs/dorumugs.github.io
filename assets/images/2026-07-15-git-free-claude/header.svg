@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="git 몰라도 Claude 로 병렬 작업 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#047857"/>
+      <stop offset="0.5" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#047857"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">git 을 몰라도 <tspan fill="#34d399">괜찮다</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">병렬 작업과 통합을 Claude 에게 통째로 맡기기</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#0c2a20" stroke="#047857" stroke-width="3"/>
+    <text x="215" y="284" font-size="22" font-weight="800" fill="#34d399">말로 지시</text>
+    <text x="215" y="316" font-size="16" font-weight="500" fill="#cbd5e1">명령어 대신 자연어</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0c2a20" stroke="#047857" stroke-width="3"/>
+    <text x="600" y="284" font-size="22" font-weight="800" fill="#34d399">Claude 가 실행</text>
+    <text x="600" y="316" font-size="16" font-weight="500" fill="#cbd5e1">worktree · PR · 머지</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#0c2a20" stroke="#047857" stroke-width="3"/>
+    <text x="985" y="284" font-size="22" font-weight="800" fill="#34d399">안전장치</text>
+    <text x="985" y="316" font-size="16" font-weight="500" fill="#cbd5e1">되돌리기 · 확인 습관</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 병렬 에이전트 작업 안전하게 합치기 (4·완결)</text>
+</svg>

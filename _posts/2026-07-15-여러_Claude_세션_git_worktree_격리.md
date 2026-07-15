@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "여러 Claude 세션이 서로 덮어쓸 때 — 한 폴더 동시 작업을 git worktree 로 격리하기"
+title:  "(1/4) 여러 Claude 세션이 서로 덮어쓸 때 — 한 폴더 동시 작업을 git worktree 로 격리하기"
 date: 2026-07-15 10:30:00 +0900
 categories: coding
 tag: [claude-code, git, worktree, 병렬작업, 멀티에이전트, merge, 브랜치전략, workflow, 충돌해결, 협업]
@@ -11,6 +11,8 @@ header:
   teaser: /assets/images/2026-07-15-claude-sessions-worktree/header.svg
 description: "같은 폴더에서 Claude Code 세션을 여러 개 띄워 각자 작업하다 git 으로 합치면 과거 코드가 덮어써지는 문제. 왜 한 워킹트리에서의 동시 편집은 merge 로도 못 살리는지, git worktree 로 세션마다 폴더·브랜치를 격리하고 한 곳에서 순차 통합하는 실전 워크플로우를 정리했습니다."
 ---
+
+{% include series-parallel-sessions.html current="1" %}
 
 ## Summary
 
@@ -309,4 +311,4 @@ worktree 를 쓰기 시작하면 새로 만나는 자잘한 벽들이 있어요.
 
 ---
 
-**다음 글 →:** [worktree 브랜치를 PR 로 묶고 자동 리뷰까지 — 병렬 세션 작업을 안전하게 통합하기](/coding/worktree_브랜치_PR_자동리뷰_통합/)
+**다음 글 →:** [(2/4) worktree 브랜치를 PR 로 묶고 자동 리뷰까지 통합하기](/coding/worktree_브랜치_PR_자동리뷰_통합/)
