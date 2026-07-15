@@ -117,6 +117,54 @@ claude --worktree docs
 
 `--worktree <이름>` (짧게 `-w`) 이 워크트리 폴더와 브랜치를 자동으로 만들어줘요. git 명령을 한 줄도 몰라도, 그냥 **세션을 "따로 띄우는" 스위치** 라고 생각하면 됩니다. 이러면 1편의 격리가 터미널 한 단어로 끝나요.
 
+#### 같은 폴더에서 시작해도 각자 격리된다 — 예시로 따라가기
+
+여기가 핵심이라 예시로 천천히 볼게요. 당신은 지금 프로젝트 폴더 하나(`~/Projects/myapp`)에 있고, 터미널 탭을 세 개 열었어요. **셋 다 이 같은 폴더에서 시작**합니다. 1편에서는 바로 이게 사고의 원인이었죠(같은 폴더 = 덮어쓰기). 그런데 `--worktree` 를 붙이면, 같은 폴더에서 띄워도 각 세션이 **스스로 자기 작업 공간으로 옮겨가요.**
+
+```shell
+# 세 탭 모두 같은 폴더에서 시작 — 미리 cd 하거나 폴더를 나눌 필요가 없어요
+cd ~/Projects/myapp
+
+# 탭1
+claude --worktree auth
+# 탭2 (똑같이 이 폴더에서)
+claude --worktree api
+# 탭3 (똑같이 이 폴더에서)
+claude --worktree docs
+```
+
+겉보기엔 셋 다 같은 폴더에서 띄웠지만, 실제로 각 세션은 자기만의 워크트리 안에 들어가 있어요. 디스크에서는 이렇게 갈라집니다.
+
+```text
+~/Projects/myapp/                    ← 당신이 서 있는 원래 폴더 (main)
+└── .claude/worktrees/
+    ├── auth/   ← 탭1 세션이 진짜로 작업하는 곳 (worktree-auth 브랜치)
+    ├── api/    ← 탭2 세션 (worktree-api 브랜치)
+    └── docs/   ← 탭3 세션 (worktree-docs 브랜치)
+```
+
+그래서 탭1이 `config.py` 를 고치면 그건 `auth/` 안의 `config.py` 이고, 탭2가 만지는 `config.py` 는 `api/` 안의 것이라 **서로 완전히 다른 파일**이에요. 같은 폴더에서 출발했는데 물리적으로는 갈라진 거죠. 1장에서 봤던 "마지막에 저장한 게 이긴다" 식 덮어쓰기가 **원천적으로 안 생깁니다.**
+
+지금 어떤 작업 공간들이 열려 있는지 궁금하면, 원래 폴더에서 확인할 수 있어요. git 명령이 낯설면 Claude 에게 **"지금 열려 있는 작업 공간들 목록 보여줘"** 라고 해도 됩니다.
+
+```shell
+git worktree list
+```
+```text
+/home/me/Projects/myapp                          [main]
+/home/me/Projects/myapp/.claude/worktrees/auth   [worktree-auth]
+/home/me/Projects/myapp/.claude/worktrees/api    [worktree-api]
+/home/me/Projects/myapp/.claude/worktrees/docs   [worktree-docs]
+```
+
+합칠 때는 앞 편들 그대로예요. 원래 폴더(main)로 돌아가 각 브랜치를 합치거나 PR 로 올리면 됩니다. 자연어로는 이렇게요.
+
+> "auth 작업 다 됐어. **원래 자리(main)에 합쳐**줘. 문제 없으면."
+>
+> "이제 auth 작업 공간은 **정리(삭제)**해줘."
+
+정리(삭제)까지 부탁하면 `.claude/worktrees/auth` 워크트리를 깔끔하게 치워줘요. 즉 **"같은 폴더에서 세 탭 → 각자 `--worktree` → 다 되면 원래 자리에 합치고 정리"** 가 한 사이클입니다. 처음부터 끝까지 폴더를 손으로 나눌 일이 없어요.
+
 한 가지 헷갈리기 쉬운 게 있어요. 세션에 이름을 붙이는 `--name`(`-n`) 은 **격리가 아니라 이름표**예요. 이름만 다르게 주고 같은 폴더에서 돌리면 작업 공간은 그대로 공유돼서 덮어쓰기가 납니다. **격리는 `--worktree`, 이름표는 `--name`** — 헷갈리면 안 돼요. 둘을 같이 `claude --worktree auth --name auth` 로 쓰면 격리도 되고 보기도 좋습니다.
 
 > 💡 딱 하나만 기억하세요. 이 플래그는 **세션을 띄울 때마다 붙여줘야** 해요. "여러 개를 자동으로 각자 공간에" 몰아주는 전역 설정은 (CLI 에는) 없어서, 탭마다 `--worktree 이름` 을 붙이는 게 규칙이에요. 참고로 데스크톱 앱은 새 세션마다 이 격리를 자동으로 해줍니다.
