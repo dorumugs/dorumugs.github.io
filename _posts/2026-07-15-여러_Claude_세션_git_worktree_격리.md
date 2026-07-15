@@ -165,7 +165,27 @@ cd ~/Projects/myapp-docs && claude
 
 각 세션 입장에서는 그냥 평범한 git 저장소 하나가 통째로 자기 것이에요. 다른 세션의 존재를 몰라도 되고, 알 필요도 없습니다. 자기 폴더에서 마음껏 고치고 `git add`·`git commit` 하면 그게 자기 브랜치에 차곡차곡 쌓여요.
 
-> ✅ 팁: worktree 폴더 이름에 브랜치명을 그대로 박아두면(`myapp-auth`) 터미널 탭이 여러 개일 때 "지금 내가 어느 세션인지" 헷갈리지 않아요. 프롬프트에 git 브랜치를 표시하는 셸 설정도 같이 켜두면 더 안전합니다.
+사실 이 "`worktree add` → `cd` → `claude`" 3단계는 **Claude Code 의 `--worktree` 플래그로 한 줄로** 줄일 수 있어요. 세션을 띄울 때 워크트리를 알아서 만들어 그 안에서 시작합니다.
+
+```shell
+# git worktree add + cd + claude 를 한 번에
+claude --worktree auth      # .claude/worktrees/auth/ 에 worktree-auth 브랜치로 시작
+claude --worktree api       # 다른 탭에서
+claude --worktree docs
+```
+
+`--worktree` (짧게 `-w`) 는 워크트리를 `.claude/worktrees/<이름>/` 에 만들고 `worktree-<이름>` 브랜치를 붙여줘요(기본 브랜치에서 분기). `--tmux` 를 같이 주면 tmux 패널로도 띄워집니다. 다만 **세션마다 이 플래그를 붙여줘야** 하고, "여러 세션을 자동으로 각자 워크트리에" 몰아주는 전역 설정은 없어요(그건 데스크톱 앱이 세션마다 자동으로 해줍니다). 그래도 손으로 `git worktree add` 를 치는 것보다 훨씬 간편하죠.
+
+여기서 꼭 짚을 게 하나 있어요. 세션에 이름을 다르게 주는 **`--name`(짧게 `-n`) 은 격리가 아니에요.** `--name` 은 프롬프트 박스·`/resume` 피커·터미널 제목에 뜨는 **표시용 이름표**일 뿐, 작업 폴더와 파일은 그대로 공유합니다. 그래서 세션 이름만 갈라놓고 같은 폴더에서 돌리면 1장에서 본 덮어쓰기가 그대로 재현돼요. 이름이 다른 것과 작업 공간이 다른 것은 완전히 별개입니다.
+
+```shell
+claude --name auth          # 이름표만 다름 → 여전히 같은 폴더 공유 → 덮어쓰기 O
+claude --worktree auth      # 폴더 자체가 갈림 → 진짜 격리 → 덮어쓰기 X
+```
+
+> 🚨 이게 "세션명은 다 다르게 했는데 왜 코드가 덮어써지지?" 의 정확한 원인이에요. **`--name` 은 라벨, `--worktree` 는 격리.** 병렬로 돌릴 거면 이름이 아니라 워크트리(또는 폴더)를 갈라야 합니다. 둘을 같이 써서 `claude --worktree auth --name auth` 처럼 이름표까지 붙이면 보기도 편해요.
+
+> ✅ 팁: worktree 폴더 이름(또는 `--worktree <이름>` 의 이름)에 작업 성격을 박아두면 터미널 탭이 여러 개일 때 "지금 내가 어느 세션인지" 헷갈리지 않아요. 프롬프트에 git 브랜치를 표시하는 셸 설정도 같이 켜두면 더 안전합니다.
 
 <br>
 
@@ -272,8 +292,8 @@ worktree 를 쓰기 시작하면 새로 만나는 자잘한 벽들이 있어요.
 
 | 증상 | 원인 | 대응 |
 | --- | --- | --- |
-| `fatal: '...' is already checked out` | 같은 브랜치를 두 worktree 에 체크아웃 시도 | 브랜치는 worktree 당 하나. 새 브랜치를 `-b` 로 파거나 기존 걸 옮기기 |
-| 로컬 서버 포트 충돌 | 여러 worktree 에서 같은 포트로<br>동시에 `serve` 실행 | 포트를 다르게 (`-P 4001`, `--port 3001` 등) |
+| `fatal: '...'`<br>`already checked out` | 같은 브랜치를 두 worktree 에<br>체크아웃 시도 | 브랜치는 worktree 당 하나.<br>새 브랜치를 `-b` 로 파거나<br>기존 걸 옮기기 |
+| 로컬 서버 포트 충돌 | 여러 worktree 에서 같은 포트로<br>동시에 `serve` 실행 | 포트를 다르게<br>(`-P 4001`, `--port 3001` 등) |
 | `node_modules`·`.env` 가 없음 | worktree 는 추적 파일만 복제,<br>untracked 는 안 따라옴 | worktree 마다 `npm install` /<br>`.env` 복사 한 번씩 |
 | 빌드 산출물이 섞임 | `_site/`·`dist/` 를 커밋에 포함 | `.gitignore` 에 넣어 추적 제외 |
 | 메인 폴더에서 브랜치 삭제 거부 | 그 브랜치가 다른 worktree 에서<br>체크아웃 중 | 먼저 해당 worktree 를 `remove` 후 삭제 |
