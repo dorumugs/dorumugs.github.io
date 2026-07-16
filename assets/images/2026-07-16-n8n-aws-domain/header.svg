@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="온프레미스 Docker n8n 에 AWS Route 53 도메인을 입혀 IP 없이 접속하는 구성 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101a12"/>
+      <stop offset="1" stop-color="#1a2b1e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#166534"/>
+      <stop offset="0.5" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#166534"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="44" font-weight="800" fill="#f8fafc">온프레미스 n8n 에 <tspan fill="#34d399">AWS 도메인</tspan> 입히기</text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">IP 대신 https://n8n.example.com 으로 접속하기 (Route 53 + Caddy)</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="260" height="118" rx="16" fill="#0f2417" stroke="#166534" stroke-width="3"/>
+    <text x="220" y="280" font-size="21" font-weight="800" fill="#34d399">n8n.example.com</text>
+    <text x="220" y="312" font-size="16" font-weight="500" fill="#cbd5e1">Route 53 이름 해석</text>
+    <rect x="470" y="236" width="260" height="118" rx="16" fill="#0f2417" stroke="#166534" stroke-width="3"/>
+    <text x="600" y="280" font-size="21" font-weight="800" fill="#34d399">HTTPS · Caddy</text>
+    <text x="600" y="312" font-size="16" font-weight="500" fill="#cbd5e1">인증서 자동 · 리버스 프록시</text>
+    <rect x="850" y="236" width="260" height="118" rx="16" fill="#132218" stroke="#0d9488" stroke-width="3"/>
+    <text x="980" y="280" font-size="21" font-weight="800" fill="#5eead4">n8n 컨테이너</text>
+    <text x="980" y="312" font-size="16" font-weight="500" fill="#cbd5e1">온프레미스 Docker :5678</text>
+  </g>
+
+  <line x1="355" y1="295" x2="463" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="735" y1="295" x2="843" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · IP 없이 도메인으로 셀프호스팅 접속하기</text>
+</svg>
