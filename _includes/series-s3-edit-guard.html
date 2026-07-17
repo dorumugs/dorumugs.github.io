@@ -1,8 +1,9 @@
 {%- assign c = include.current -%}
 <div class="notice--info">
-  <p><strong>📦 브라우저→S3 동시 편집 버전 가드 2부작</strong> — 백엔드 없이 브라우저에서 공용 <code>data.json</code> 을 직접 저장하는 대시보드에서, 여러 명이 동시에 편집할 때 뒷사람이 앞사람 변경을 덮어쓰는 lost update 를 막는 이야기. <code>rev</code> 카운터 + 저장 직전 read-before-write 로 유실을 잡고(1편), 그 사이 남는 짧은 경쟁 구간을 조건부 쓰기(If-Match/ETag)로 원자적으로 닫는 것(2편)까지 이어집니다. 전체 2편.</p>
+  <p><strong>📦 브라우저→S3 동시 편집 버전 가드 3부작</strong> — 백엔드 없이 브라우저에서 공용 <code>data.json</code> 을 직접 저장하는 대시보드를 안전하게 만드는 이야기. 여러 명이 동시에 편집할 때 뒷사람이 앞사람 변경을 덮어쓰는 lost update 를 <code>rev</code> 카운터 + 저장 직전 read-before-write 로 잡고(1편), 그 사이 남는 짧은 경쟁 구간을 조건부 쓰기(If-Match/ETag)로 원자적으로 닫고(2편), 마지막으로 권한 없는 사람의 저장을 쓰기 경로 접근 제한으로 막는 것(3편)까지 이어집니다. 전체 3편.</p>
   <ol>
     <li>{% if c == "1" %}<strong>rev 버전 가드 — 저장 직전 재조회로 덮어쓰기 유실 막기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/브라우저_S3_직접저장_동시편집_버전가드/">rev 버전 가드 — 저장 직전 재조회로 덮어쓰기 유실 막기</a>{% endif %}</li>
     <li>{% if c == "2" %}<strong>조건부 쓰기(If-Match/ETag) — GET~PUT 경쟁 구간까지 닫기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/S3_조건부쓰기_ETag_원자적_버전가드/">조건부 쓰기(If-Match/ETag) — GET~PUT 경쟁 구간까지 닫기</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>접근 제한 — 누가 저장할 수 있는지(쓰기 경로 잠그기)</strong> ← <em>지금 글</em>{% else %}<a href="/coding/S3_쓰기경로_접근제한_누가_저장/">접근 제한 — 누가 저장할 수 있는지(쓰기 경로 잠그기)</a>{% endif %}</li>
   </ol>
 </div>
