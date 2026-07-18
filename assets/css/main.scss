@@ -156,6 +156,16 @@ $right-sidebar-width:        330px;
   }
 }
 
+// --- KayserDocs: keep footer "팔로우:" label on one line ---
+// CJK text may break between any two characters, so on narrow mobile widths
+// the "팔로우:" label (a bare <strong> in .page__footer-follow li) splits into
+// two lines. The social links already have white-space: nowrap on their <a>,
+// but the label li does not — add it so each item stays whole and only wraps
+// between list items.
+.page__footer-follow li {
+  white-space: nowrap;
+}
+
 // --- KayserDocs: mobile horizontal-scroll for wide tables ---
 // Theme _tables.scss uses display:table + width:100% (no overflow-x) to fix a
 // desktop cell-skew bug. On phones, long unbreakable cell content (단지명+가격)
