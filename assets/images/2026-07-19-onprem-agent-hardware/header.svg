@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="양자화로 FP16·FP8·4bit 에 따라 VRAM 이 절반·반의반으로 줄고 vLLM 으로 OpenAI 호환 API 를 띄우는 서빙 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071512"/>
+      <stop offset="1" stop-color="#0c2420"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="0.5" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="108" font-size="43" font-weight="800" fill="#f8fafc">GPU·VRAM·<tspan fill="#5eead4">양자화</tspan>로 모델 띄우기</text>
+  <text class="ko" x="82" y="152" font-size="23" font-weight="500" fill="#8fb3ac">파라미터 × 바이트수 = VRAM, vLLM 으로 OpenAI 호환 API</text>
+
+  <g class="ko">
+    <text x="90" y="212" font-size="17" font-weight="600" fill="#94a3b8">같은 480B, 정밀도별 VRAM (여유분 포함)</text>
+
+    <rect x="90"  y="232" width="900" height="34" rx="8" fill="#0f2a26" stroke="#334155" stroke-width="1"/>
+    <rect x="90"  y="232" width="900" height="34" rx="8" fill="#14b8a6" opacity="0.85"/>
+    <text class="ko" x="106" y="255" font-size="17" font-weight="800" fill="#04201c">FP16</text>
+    <text class="ko" x="1000" y="256" font-size="17" font-weight="700" fill="#cbd5e1">약 1152 GB</text>
+
+    <rect x="90"  y="278" width="450" height="34" rx="8" fill="#0f2a26" stroke="#334155" stroke-width="1"/>
+    <rect x="90"  y="278" width="450" height="34" rx="8" fill="#38bdf8" opacity="0.85"/>
+    <text class="ko" x="106" y="301" font-size="17" font-weight="800" fill="#062033">FP8</text>
+    <text class="ko" x="556" y="302" font-size="17" font-weight="700" fill="#cbd5e1">약 576 GB · 한 노드에 빠듯</text>
+
+    <rect x="90"  y="324" width="225" height="34" rx="8" fill="#0f2a26" stroke="#334155" stroke-width="1"/>
+    <rect x="90"  y="324" width="225" height="34" rx="8" fill="#f59e0b" opacity="0.9"/>
+    <text class="ko" x="106" y="347" font-size="17" font-weight="800" fill="#2c1a02">4bit</text>
+    <text class="ko" x="330" y="348" font-size="17" font-weight="700" fill="#cbd5e1">약 288 GB · 한 노드에 여유</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#5f7a74">KayserDocs · VRAM 은 활성이 아니라 총 파라미터로 계산</text>
+</svg>

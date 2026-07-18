@@ -1,0 +1,11 @@
+<div class="notice--info" markdown="0">
+<strong>🖥️ Claude Code·Codex 를 온프렘으로 옮기기 5부작</strong> — API 요금이 감당 안 될 때, 코딩 에이전트를 사내 GPU 위로 통째로 내리는 이야기예요. 먼저 무엇을 대체해야 하는지(모델·서빙·하네스 3층)와 비용 손익분기를 잡고(1편), 코딩 에이전트급 오픈웨이트 모델을 고른 뒤(2편), GPU·VRAM·양자화·vLLM 으로 실제로 띄우고(3편), 로컬 모델을 에이전트 CLI 에 물려 툴을 쓰게 만든 다음(4편), "클라우드와 완벽히 동일하게" 쓰려면 무엇을 검증해야 하고 어떤 갭이 남는지(5편)까지 이어집니다. 전체 5편.
+{%- assign c = include.current -%}
+<ol>
+<li>{% if c == "1" %}<strong>왜, 그리고 무엇을 갖춰야 하나 — 3층 구조와 손익분기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/온프렘_코딩에이전트_왜_그리고_전체그림/">왜, 그리고 무엇을 갖춰야 하나 — 3층 구조와 손익분기</a>{% endif %}</li>
+<li>{% if c == "2" %}<strong>모델 고르기 — 어떤 오픈웨이트가 코딩 에이전트급인가</strong> ← <em>지금 글</em>{% else %}<a href="/coding/온프렘_코딩에이전트_모델_오픈웨이트_선택/">모델 고르기 — 어떤 오픈웨이트가 코딩 에이전트급인가</a>{% endif %}</li>
+<li>{% if c == "3" %}<strong>하드웨어와 서빙 — GPU·VRAM·양자화·vLLM 로 띄우기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/온프렘_코딩에이전트_하드웨어_GPU_서빙/">하드웨어와 서빙 — GPU·VRAM·양자화·vLLM 로 띄우기</a>{% endif %}</li>
+<li>{% if c == "4" %}<strong>하네스 연결 — 로컬 모델을 에이전트 CLI 에 물리기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/온프렘_코딩에이전트_하네스_CLI_연결/">하네스 연결 — 로컬 모델을 에이전트 CLI 에 물리기</a>{% endif %}</li>
+<li>{% if c == "5" %}<strong>"완벽히 동일"의 조건 — 검증·남는 갭·하이브리드 운영</strong> ← <em>지금 글</em>{% else %}<a href="/coding/온프렘_코딩에이전트_동일성_검증_갭_하이브리드/">"완벽히 동일"의 조건 — 검증·남는 갭·하이브리드 운영</a>{% endif %}</li>
+</ol>
+</div>
