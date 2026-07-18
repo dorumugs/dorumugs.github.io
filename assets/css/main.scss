@@ -166,6 +166,15 @@ $right-sidebar-width:        330px;
   white-space: nowrap;
 }
 
+// --- KayserDocs: keep sidebar "팔로우" button on one line ---
+// Below $large the author profile is a table (avatar | content | button-cell).
+// On narrow phones (~320px) the content cell squeezes the button cell, and CJK
+// text breaks between any characters, so "팔로우" splits into "팔로"/"우". Keep
+// the button label on a single line.
+.author__urls-wrapper button {
+  white-space: nowrap;
+}
+
 // --- KayserDocs: mobile horizontal-scroll for wide tables ---
 // Theme _tables.scss uses display:table + width:100% (no overflow-x) to fix a
 // desktop cell-skew bug. On phones, long unbreakable cell content (단지명+가격)
