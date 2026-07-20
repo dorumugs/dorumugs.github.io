@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="외부망과 내부망 사이에 DMZ 완충 구간을 두고 방화벽으로 트래픽을 통제하는 3영역 네트워크 구조 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#101d33"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ef4444"/>
+      <stop offset="0.5" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="108" font-size="43" font-weight="800" fill="#f8fafc">외부망 · <tspan fill="#f59e0b">DMZ</tspan> · 내부망, 어디에 뭘 두나</text>
+  <text class="ko" x="82" y="152" font-size="23" font-weight="500" fill="#94a3b8">완충 구간을 두고 트래픽을 한 방향으로만 흘리는 경계 방어 설계</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="232" width="300" height="120" rx="16" fill="#2a1414" stroke="#ef4444" stroke-width="3"/>
+    <text x="240" y="278" font-size="22" font-weight="800" fill="#fca5a5">외부망 (Untrust)</text>
+    <text x="240" y="312" font-size="16" font-weight="500" fill="#cbd5e1">인터넷 · 신뢰 안 함</text>
+
+    <rect x="450" y="232" width="300" height="120" rx="16" fill="#2a2110" stroke="#f59e0b" stroke-width="3"/>
+    <text x="600" y="278" font-size="22" font-weight="800" fill="#fcd34d">DMZ (완충)</text>
+    <text x="600" y="312" font-size="16" font-weight="500" fill="#cbd5e1">공개 서비스만 · 격리</text>
+
+    <rect x="810" y="232" width="300" height="120" rx="16" fill="#12241c" stroke="#22c55e" stroke-width="3"/>
+    <text x="960" y="278" font-size="22" font-weight="800" fill="#86efac">내부망 (Trust)</text>
+    <text x="960" y="312" font-size="16" font-weight="500" fill="#cbd5e1">DB · 업무 · 직원 PC</text>
+  </g>
+
+  <line x1="392" y1="292" x2="448" y2="292" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="752" y1="292" x2="808" y2="292" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 침해당해도 내부망으로 못 넘어가게, 한 칸씩 끊어서</text>
+</svg>
