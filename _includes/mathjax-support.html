@@ -8,7 +8,42 @@
     },
     options: {
       skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    startup: {
+      // Run MathJax's normal typesetting, then shrink any too-wide equation to fit.
+      pageReady: function () {
+        return MathJax.startup.defaultPageReady().then(fitDisplayMath);
+      }
     }
   };
+
+  // Scale down each display equation ($$...$$) that is wider than its column so
+  // the whole formula stays visible on narrow phones — no clipping, no sideways
+  // scroll, and the page never stretches. Equations that already fit are left
+  // untouched. A floor keeps huge formulas readable; the CSS overflow-x:auto on
+  // mjx-container[display="true"] catches anything still wider than the floor.
+  function fitDisplayMath() {
+    var boxes = document.querySelectorAll('mjx-container[display="true"]');
+    // Reset any previous scaling first so measurements reflect natural size.
+    for (var i = 0; i < boxes.length; i++) { boxes[i].style.fontSize = ''; }
+    for (var j = 0; j < boxes.length; j++) {
+      var box = boxes[j];
+      var avail = box.clientWidth;   // width of the content column
+      var need = box.scrollWidth;    // full width the equation wants
+      if (need > avail + 1) {
+        var ratio = avail / need;
+        if (ratio < 0.55) { ratio = 0.55; }   // don't shrink to unreadable
+        var px = parseFloat(getComputedStyle(box).fontSize);
+        box.style.fontSize = (px * ratio * 0.98) + 'px';
+      }
+    }
+  }
+
+  // Re-fit on orientation change / resize (debounced).
+  var _mjFitTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(_mjFitTimer);
+    _mjFitTimer = setTimeout(fitDisplayMath, 150);
+  });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
