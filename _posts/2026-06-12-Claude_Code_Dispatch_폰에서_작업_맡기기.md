@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-12-claude-code-dispatch/header.svg
   teaser: /assets/images/2026-06-12-claude-code-dispatch/header.svg
 description: "Claude Code 의 Dispatch 로 폰에서 \"이 버그 고쳐줘\" 한 줄 보내면 내 데스크톱이 알아서 작업하고 결과를 푸시로 알려줍니다. 셋업·페어링·실전 예시와 Remote Control 과의 차이를 초보자 눈높이로 정리했어요."
+series: claude-code-remote
+series_order: 2
 ---
 
 {% include series-claude-code-remote.html current="2" %}

@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-06-18-chromadb-rag/header.svg
   teaser: /assets/images/2026-06-18-chromadb-rag/header.svg
 description: "ChromaDB 를 RAG 용 벡터 DB 로 제대로 쓰기 위한 핵심 — 클라이언트 모드, 컬렉션과 거리 함수, 임베딩 함수 일관성, 청킹, 메타데이터 필터, 검색 품질 끌어올리기까지 실제 코드와 함께 정리합니다."
+series: chromadb-rag
+series_order: 1
+series_title: "🧩 ChromaDB RAG 벡터 DB"
 ---
 
 {% include series-chromadb-rag.html current="1" %}

@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-06-06-us-macro-fred-python/header.svg
   teaser: /assets/images/2026-06-06-us-macro-fred-python/header.svg
 description: "월가가 매달 챙겨 보는 거시 지표(CPI · PCE · 고용 · 기준금리 · 장단기 금리차 · VIX)를 어디서 확인하고, FRED · yfinance · pandas-datareader 로 Python 에서 직접 받아오는 패턴까지 한 글에 정리했어요."
+series: macro-indicators
+series_order: 1
+series_title: "📈 미국 거시 지표 Python 시리즈"
 ---
 
 {% include series-macro-indicators.html current="1" %}

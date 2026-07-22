@@ -10,6 +10,8 @@ toc: true
 header:
   image: /assets/images/2026-05-27-ssh-server-access/header.svg
   teaser: /assets/images/2026-05-27-ssh-server-access/header.svg
+series: ssh
+series_order: 2
 ---
 
 

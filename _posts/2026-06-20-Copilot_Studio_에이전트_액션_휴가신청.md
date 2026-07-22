@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-20-copilot-studio-action/header.svg
   teaser: /assets/images/2026-06-20-copilot-studio-action/header.svg
 description: "지난 글에서 만든 사내 규정 Q&A 봇에 Power Automate 액션을 붙여서, '안내'를 넘어 실제 '휴가 신청'까지 처리하게 만드는 핸즈온. 입력 슬롯·Adaptive Card·잔여 확인·사람 승인 게이트·기록까지 흐름과 테스트 대화로 정리합니다."
+series: ms-copilot
+series_order: 5
 ---
 
 {% include series-ms-copilot.html current="5" %}

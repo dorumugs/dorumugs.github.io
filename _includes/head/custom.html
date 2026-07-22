@@ -19,4 +19,86 @@
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
 
+<!-- Series group cards (collapsible) on listing pages -->
+<style>
+  .series-group { position: relative; }
+  .series-group, .series-group * { word-break: keep-all; overflow-wrap: anywhere; }
+  .series-group > summary {
+    cursor: pointer;
+    list-style: none;
+    display: block;
+    border: 1px solid #e6e6e6;
+    border-left: 4px solid #7a8b99;
+    border-radius: 6px;
+    padding: 0.6em 0.9em;
+    background: #fafafa;
+    transition: background .15s ease, box-shadow .15s ease;
+  }
+  .series-group > summary::-webkit-details-marker { display: none; }
+  .series-group > summary:hover { background: #f2f5f7; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .series-group[open] > summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+  .series-group__teaser { margin-bottom: 0.6em; }
+  .series-group__teaser img { border-radius: 4px; width: 100%; }
+  .series-group__badge {
+    display: inline-block;
+    font-size: 0.7em;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: #fff;
+    background: #7a8b99;
+    padding: 0.15em 0.55em;
+    border-radius: 999px;
+    vertical-align: middle;
+    margin-right: 0.35em;
+  }
+  .series-group__body .archive__item-title { margin: 0.1em 0 0.25em; }
+  .series-group__excerpt { margin: 0.15em 0 0.35em; font-size: 0.8em; color: #5b5b5b; }
+  .series-group__meta { margin: 0; font-size: 0.72em; }
+  .series-group__toggle { font-weight: 700; color: #4d6070; margin-right: 0.9em; }
+  .series-group__toggle-close { display: none; }
+  .series-group[open] .series-group__toggle-open { display: none; }
+  .series-group[open] .series-group__toggle-close { display: inline; }
+
+  .series-group__list {
+    list-style: none;
+    margin: 0;
+    padding: 0.3em 0 0.2em;
+    border: 1px solid #e6e6e6;
+    border-top: none;
+    border-left: 4px solid #7a8b99;
+    border-radius: 0 0 6px 6px;
+    background: #fff;
+  }
+  .series-group__list-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    padding: 0.4em 0.9em;
+    border-top: 1px dashed #ededed;
+  }
+  .series-group__list-item:first-child { border-top: none; }
+  .series-group__num {
+    flex: 0 0 auto;
+    width: 1.6em; height: 1.6em;
+    line-height: 1.6em;
+    text-align: center;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: #4d6070;
+    background: #eef2f5;
+    border-radius: 50%;
+  }
+  .series-group__list-item a { flex: 1 1 auto; font-size: 0.85em; }
+  .series-group__list-date { flex: 0 0 auto; font-size: 0.72em; color: #9a9a9a; }
+  /* Home uses a narrow multi-column grid; drop the secondary date there so the
+     title gets the full column. Full-width list archives keep the date. */
+  .grid__item .series-group__list-date { display: none; }
+
+  @media (max-width: 600px) {
+    .series-group__list-date { display: none; }
+    .series-group__list-item { gap: 0.5em; padding: 0.4em 0.7em; }
+  }
+</style>
+
 <!-- end custom head snippets -->

@@ -10,6 +10,9 @@ header:
 tag: [mssql, aws, rds, dms, bcp, migration, s2s-vpn, database, kayserdocs]
 author_profile: false
 toc: true
+series: mssql-rds
+series_order: 1
+series_title: "📚 MSSQL → AWS RDS 마이그레이션 시리즈"
 ---
 
 {% include series-mssql-rds.html current="1" %}

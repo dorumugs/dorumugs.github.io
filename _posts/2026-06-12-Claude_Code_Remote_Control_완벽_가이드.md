@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-06-12-claude-code-remote-control/header.svg
   teaser: /assets/images/2026-06-12-claude-code-remote-control/header.svg
 description: "Claude Code 의 Remote Control 로 내 PC 에서 돌던 세션을 폰·태블릿·브라우저에서 그대로 이어받는 법을 초보자 눈높이로 정리했어요. 세 가지 시작 방법, QR 접속, 실전 워크플로우, 보안, 장단점까지."
+series: claude-code-remote
+series_order: 1
+series_title: "📱 터미널 밖에서 Claude Code 쓰기 시리즈"
 ---
 
 {% include series-claude-code-remote.html current="1" %}

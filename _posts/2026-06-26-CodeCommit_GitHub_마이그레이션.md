@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-26-codecommit-migration/header.svg
   teaser: /assets/images/2026-06-26-codecommit-migration/header.svg
 description: "CodeCommit 리포를 GitHub 으로 옮기는 실전 가이드. git clone --mirror / push --mirror 로 전체 히스토리·브랜치·태그를 통째 이관하고, CI/CD(CodePipeline→Actions)·보호 규칙·컷오버까지 체크리스트로 정리했어요."
+series: codecommit-github
+series_order: 2
 ---
 
 {% include series-codecommit-github.html current="2" %}

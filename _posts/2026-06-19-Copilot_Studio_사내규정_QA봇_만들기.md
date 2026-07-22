@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-19-copilot-studio-qna/header.svg
   teaser: /assets/images/2026-06-19-copilot-studio-qna/header.svg
 description: "Copilot Studio 로 '사내 규정 Q&A 봇' 하나를 처음부터 끝까지 만드는 핸즈온 튜토리얼. 지식(SharePoint) 연결, 출처를 강제하는 지시문, 모르면 모른다고 하게 만드는 폴백, 테스트, Teams·Copilot Chat 게시까지 실제 화면 흐름과 예시 대화로 정리합니다."
+series: ms-copilot
+series_order: 4
 ---
 
 {% include series-ms-copilot.html current="4" %}

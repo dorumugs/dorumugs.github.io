@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-27-codebuild-kubectl-eks-deploy/header.svg
   teaser: /assets/images/2026-06-27-codebuild-kubectl-eks-deploy/header.svg
 description: "latest 태그를 졸업하고 커밋해시 태그로 EKS 에 자동 배포합니다. CodeBuild 안에서 kubectl 을 깔고, IAM 역할을 EKS 클러스터 권한(Access Entry/aws-auth)으로 잇고, 버전을 못 박아 롤백까지 가능하게 만드는 과정을 초보자 눈높이로 정리했어요."
+series: codebuild-eks
+series_order: 2
 ---
 
 {% include series-codebuild-eks.html current="2" %}

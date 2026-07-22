@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-30-airflow-dataquality/header.svg
   teaser: /assets/images/2026-06-30-airflow-dataquality/header.svg
 description: "Great Expectations 로 데이터 품질을 검사하고, 그 결과를 OpenLineage 의 품질 facet 으로 만들어 계보 그래프에 함께 싣는 구성을 정리합니다. GX 핵심 개념, Airflow 에서 검사 돌리기, 검증 결과를 facet 으로 매핑해 Marquez 에서 품질까지 보기."
+series: airflow-ops
+series_order: 3
 ---
 
 

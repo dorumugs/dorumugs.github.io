@@ -27,9 +27,7 @@
       <section id="{{ taxonomy[0] | slugify }}" class="taxonomy__section">
         <h2 class="archive__subtitle">{{ taxonomy[0] }}</h2>
         <div class="entries-{{ entries_layout }}">
-          {% for post in taxonomy.last %}
-            {% include archive-single.html locale=locale type=entries_layout %}
-          {% endfor %}
+          {% include archive-grouped.html locale=locale entries=taxonomy.last type=entries_layout %}
         </div>
         <a href="#page-title" class="back-to-top">{{ site.data.ui-text[locale].back_to_top | default: 'Back to Top' }} &uarr;</a>
       </section>

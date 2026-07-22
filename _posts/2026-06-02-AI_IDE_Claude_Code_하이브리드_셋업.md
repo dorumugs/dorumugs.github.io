@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-02-ai-ide-claude-code-hybrid/header.svg
   teaser: /assets/images/2026-06-02-ai-ide-claude-code-hybrid/header.svg
 description: "Antigravity 와 Cursor 같은 AI IDE 에 Claude Code 를 같이 끼워 쓰는 하이브리드 셋업을 정리합니다. MCP, 룰/스킬 패키지화, 권한 분리, 실전 워크플로우까지. AI IDE 현업 활용 시리즈 3편(마무리)."
+series: ai-ide
+series_order: 3
 ---
 
 {% include series-ai-ide.html current="3" %}

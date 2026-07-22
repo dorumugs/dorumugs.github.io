@@ -10,6 +10,8 @@ toc: true
 header:
   image: /assets/images/2026-06-01-gemini-cli-commands/header.svg
   teaser: /assets/images/2026-06-01-gemini-cli-commands/header.svg
+series: ai-coding-cli
+series_order: 3
 ---
 
 

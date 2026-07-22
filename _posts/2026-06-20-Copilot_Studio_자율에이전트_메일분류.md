@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-20-copilot-studio-autonomous/header.svg
   teaser: /assets/images/2026-06-20-copilot-studio-autonomous/header.svg
 description: "사람이 프롬프트를 치지 않아도 트리거로 스스로 깨어나는 자율 에이전트를, 공용 HR 메일함 자동 분류·라우팅 봇으로 직접 만드는 핸즈온. 이벤트 트리거·자율 판단·라우팅에 더해 무한 루프 차단·읽기전용 시작·과금·로그 같은 가드레일을 같은 비중으로 정리합니다."
+series: ms-copilot
+series_order: 6
 ---
 
 {% include series-ms-copilot.html current="6" %}

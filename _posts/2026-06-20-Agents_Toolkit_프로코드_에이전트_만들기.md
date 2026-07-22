@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-20-agents-toolkit/header.svg
   teaser: /assets/images/2026-06-20-agents-toolkit/header.svg
 description: "Copilot Studio(노코드·로우코드)로 만들던 에이전트를, 이번엔 VS Code 의 Agents Toolkit 으로 코드·매니페스트에서 직접 정의하는 프로코드 편. 프로젝트 스캐폴드·declarativeAgent.json·OpenAPI API 플러그인·프로비전/배포까지, 언제 여기까지 내려와야 하는지와 함께 정리합니다."
+series: ms-copilot
+series_order: 7
 ---
 
 {% include series-ms-copilot.html current="7" %}

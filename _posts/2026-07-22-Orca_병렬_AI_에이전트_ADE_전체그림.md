@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-07-22-orca-overview/header.svg
   teaser: /assets/images/2026-07-22-orca-overview/header.svg
 description: "Orca 는 Claude Code·Codex 같은 코딩 에이전트를 여러 개 동시에 굴리고, 각자 격리된 git worktree 에서 경쟁시킨 뒤 제일 나은 결과만 골라 합치는 데스크톱 도구예요. Orca 가 정확히 뭘 해결하는지, 왜 'IDE' 가 아니라 'ADE(에이전트 개발 환경)' 인지, 핵심 개념(worktree·BYO 구독·30여 종 에이전트)과 전체 그림을 먼저 잡습니다."
+series: orca
+series_order: 1
+series_title: "🐳 Orca — 병렬 AI 에이전트 오케스트레이션"
 ---
 
 {% include series-orca.html current="1" %}

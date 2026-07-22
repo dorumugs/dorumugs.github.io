@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-06-27-codecommit-codebuild-ecr-eks/header.svg
   teaser: /assets/images/2026-06-27-codecommit-codebuild-ecr-eks/header.svg
 description: "CodeCommit main 브랜치에 push 하면 EventBridge 가 CodeBuild 를 깨워 도커 이미지를 빌드하고, ECR 리포를 없으면 자동 생성한 뒤 latest 태그로 push, EKS 까지 연동하는 흐름을 초보자 눈높이로 처음부터 설정합니다."
+series: codebuild-eks
+series_order: 1
+series_title: "📦 CodeCommit → CodeBuild → EKS 자동화"
 ---
 
 {% include series-codebuild-eks.html current="1" %}

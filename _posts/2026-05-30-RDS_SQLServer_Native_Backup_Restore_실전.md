@@ -10,6 +10,8 @@ header:
 tag: [mssql, aws, rds, backup, restore, s3, migration, native-backup, kayserdocs]
 author_profile: false
 toc: true
+series: mssql-rds
+series_order: 2
 ---
 
 {% include series-mssql-rds.html current="2" %}

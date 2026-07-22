@@ -10,6 +10,9 @@ toc: true
 header:
   image: /assets/images/2026-05-26-github-ssh-key/header.svg
   teaser: /assets/images/2026-05-26-github-ssh-key/header.svg
+series: ssh
+series_order: 1
+series_title: "🔐 SSH 키부터 서버 접근까지 시리즈"
 ---
 
 

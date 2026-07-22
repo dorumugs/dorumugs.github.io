@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-29-airflow-lineage/header.svg
   teaser: /assets/images/2026-06-29-airflow-lineage/header.svg
 description: "Airflow 의 listener 이벤트 훅과 OpenLineage 프로바이더로 데이터 계보를 자동으로 모으는 구성을 정리합니다. listener 기본 구조, OpenLineage 가 listener 위에서 동작하는 원리, Marquez 수신 백엔드 세팅, 커스텀 오퍼레이터에 계보 붙이기까지 다뤄요."
+series: airflow-ops
+series_order: 2
 ---
 
 

@@ -10,6 +10,8 @@ header:
 tag: [mssql, aws, rds, backup, restore, dms, cdc, incremental, kayserdocs]
 author_profile: false
 toc: true
+series: mssql-rds
+series_order: 4
 ---
 
 {% include series-mssql-rds.html current="4" %}

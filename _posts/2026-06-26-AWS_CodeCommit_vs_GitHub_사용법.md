@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-06-26-codecommit-github/header.svg
   teaser: /assets/images/2026-06-26-codecommit-github/header.svg
 description: "AWS CodeCommit 을 GitHub 사용법과 1:1로 비교합니다. 리포 생성·clone·push·PR·CI/CD 연결을 같은 작업끼리 나란히 놓고, 가장 다른 인증(IAM vs PAT)과 권한 모델까지 명령어로 정리했어요."
+series: codecommit-github
+series_order: 1
+series_title: "📦 CodeCommit 과 GitHub"
 ---
 
 {% include series-codecommit-github.html current="1" %}

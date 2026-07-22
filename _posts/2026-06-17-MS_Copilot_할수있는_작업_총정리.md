@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-06-17-ms-copilot/header.svg
   teaser: /assets/images/2026-06-17-ms-copilot/header.svg
 description: "MS Copilot 이라는 이름 하나에 묶여 있는 네 가지 제품 — Microsoft 365 Copilot, 소비자용 Copilot, GitHub Copilot, Copilot Studio — 으로 실제로 무엇을 시킬 수 있는지 표와 예시 프롬프트로 한 번에 정리합니다."
+series: ms-copilot
+series_order: 1
+series_title: "🤖 Microsoft Copilot 활용·제작 시리즈"
 ---
 
 {% include series-ms-copilot.html current="1" %}

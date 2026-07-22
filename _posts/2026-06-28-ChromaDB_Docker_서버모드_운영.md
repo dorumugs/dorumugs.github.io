@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-18-chromadb-docker/header.svg
   teaser: /assets/images/2026-06-18-chromadb-docker/header.svg
 description: "ChromaDB 를 Docker 서버 모드로 띄워 운영하는 법 — 볼륨 마운트로 데이터 영속, docker-compose 로 선언적 운영, 토큰 인증, 헬스체크·리소스 제한, 그리고 백업·복구까지 실제 설정과 함께 정리합니다."
+series: chromadb-rag
+series_order: 2
 ---
 
 {% include series-chromadb-rag.html current="2" %}

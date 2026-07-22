@@ -10,6 +10,8 @@ toc: true
 header:
   image: /assets/images/2024-09-24-finetuning-data/header.svg
   teaser: /assets/images/2024-09-24-finetuning-data/header.svg
+series: langchain-intro
+series_order: 3
 ---
 
 {% include series-langchain-intro.html current="3" %}

@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-07-15-git-free-claude/header.svg
   teaser: /assets/images/2026-07-15-git-free-claude/header.svg
 description: "worktree·PR·rebase 명령을 하나도 외우지 않고, 자연어 지시만으로 병렬 세션 작업과 통합을 Claude 에게 통째로 맡기는 법. git 초보가 알아야 할 최소 멘탈 모델 3가지, 안전하게 위임하는 습관, 막혔을 때 되돌리는 법까지 정리한 시리즈 완결편입니다."
+series: parallel-sessions
+series_order: 4
 ---
 
 {% include series-parallel-sessions.html current="4" %}

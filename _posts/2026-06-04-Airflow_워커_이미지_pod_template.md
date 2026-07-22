@@ -10,6 +10,8 @@ toc: true
 header:
   image: /assets/images/2026-06-04-airflow-worker-image-pod-template/header.svg
   teaser: /assets/images/2026-06-04-airflow-worker-image-pod-template/header.svg
+series: airflow-k8s-helm
+series_order: 3
 ---
 
 {% include series-airflow-k8s-helm.html current="3" %}

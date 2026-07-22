@@ -10,6 +10,9 @@ toc: true
 header:
   image: /assets/images/2026-05-26-hermes-agent-docker/header.svg
   teaser: /assets/images/2026-05-26-hermes-agent-docker/header.svg
+series: hermes-agent
+series_order: 1
+series_title: "🤖 Hermes Agent 셋업 ~ 트러블슈팅 시리즈"
 ---
 
 

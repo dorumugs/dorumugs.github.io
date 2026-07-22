@@ -10,6 +10,8 @@ toc: true
 header:
   image: /assets/images/2026-05-28-hermes-discord-nonetype/header.svg
   teaser: /assets/images/2026-05-28-hermes-discord-nonetype/header.svg
+series: hermes-agent
+series_order: 2
 ---
 
 

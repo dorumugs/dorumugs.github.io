@@ -1,0 +1,77 @@
+{%- comment -%}
+  Render a post list, collapsing each series into a single expandable card.
+
+  Params:
+    entries  - array of posts (any order; series is collapsed at the position
+               of its first-seen member, i.e. newest when the list is newest-first)
+    type     - 'grid' | 'list' (default 'list'), matches archive-single
+    locale   - locale string
+
+  A post joins a series via front matter `series: <slug>` + `series_order: <n>`;
+  the series display name lives in `series_title` on the part-1 post.
+{%- endcomment -%}
+{% assign locale = include.locale | default: site.locale %}
+{% assign gtype = include.type | default: 'list' %}
+{% assign entries = include.entries | where_exp: "post", "post.hidden != true" %}
+{% assign seen = "" %}
+
+{%- for post in entries -%}
+  {%- if post.series and post.series != "" -%}
+    {%- assign marker = post.series | append: "|##|" -%}
+    {%- unless seen contains marker -%}
+      {%- assign seen = seen | append: marker -%}
+      {%- assign members = entries | where: "series", post.series | sort: "series_order" -%}
+      {%- assign anchor = members | where: "series_order", 1 | first -%}
+      {%- unless anchor -%}{%- assign anchor = members.first -%}{%- endunless -%}
+      {%- assign stitle = anchor.series_title | default: post.series -%}
+      {%- assign scount = members | size -%}
+      {%- assign latest = members | sort: "date" | last -%}
+      {%- if anchor.header.teaser -%}
+        {%- assign steaser = anchor.header.teaser -%}
+      {%- else -%}
+        {%- assign steaser = site.teaser -%}
+      {%- endif -%}
+
+      <div class="{{ gtype }}__item">
+        <details class="archive__item series-group" itemscope itemtype="https://schema.org/Collection">
+          <summary class="series-group__summary">
+            {% if gtype == "grid" and steaser %}
+              <div class="archive__item-teaser series-group__teaser">
+                <img src="{{ steaser | relative_url }}" alt="">
+              </div>
+            {% endif %}
+            <div class="series-group__body">
+              <h2 class="archive__item-title no_toc" itemprop="headline">
+                <span class="series-group__badge">시리즈 · {{ scount }}편</span>
+                {{ stitle }}
+              </h2>
+              {% if anchor.description %}
+                <p class="archive__item-excerpt series-group__excerpt">{{ anchor.description | markdownify | strip_html | truncate: 140 }}</p>
+              {% endif %}
+              <p class="page__meta series-group__meta">
+                <span class="series-group__toggle">
+                  <i class="fas fa-layer-group" aria-hidden="true"></i>
+                  <span class="series-group__toggle-open">펼쳐서 {{ scount }}편 보기</span>
+                  <span class="series-group__toggle-close">접기</span>
+                </span>
+                <span class="series-group__latest"><i class="far fa-calendar-alt" aria-hidden="true"></i> 최신 {{ latest.date | date: "%Y.%m.%d" }}</span>
+              </p>
+            </div>
+          </summary>
+          <ol class="series-group__list">
+            {%- for m in members -%}
+              <li class="series-group__list-item">
+                <span class="series-group__num">{{ m.series_order }}</span>
+                <a href="{{ m.url | relative_url }}">{{ m.title | markdownify | remove: "<p>" | remove: "</p>" | strip }}</a>
+                <span class="series-group__list-date">{{ m.date | date: "%Y.%m.%d" }}</span>
+              </li>
+            {%- endfor -%}
+          </ol>
+        </details>
+      </div>
+
+    {%- endunless -%}
+  {%- else -%}
+    {% include archive-single.html locale=locale type=gtype %}
+  {%- endif -%}
+{%- endfor -%}

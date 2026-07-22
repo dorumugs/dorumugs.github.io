@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-28-chromadb-rag-pipeline/header.svg
   teaser: /assets/images/2026-06-28-chromadb-rag-pipeline/header.svg
 description: "검색해온 조각을 LLM 프롬프트에 끼워 실제 답변을 만드는 RAG 파이프라인 — 프롬프트 조립과 그라운딩 규칙, Claude·Bedrock·OpenAI·Gemini 제공자별 호출, 출처 표시, 스트리밍까지 코드와 함께 정리합니다."
+series: chromadb-rag
+series_order: 4
 ---
 
 {% include series-chromadb-rag.html current="4" %}

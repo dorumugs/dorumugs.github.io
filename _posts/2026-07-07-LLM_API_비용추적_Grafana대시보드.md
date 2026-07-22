@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-07-06-llm-cost/header-5.svg
   teaser: /assets/images/2026-07-06-llm-cost/header-5.svg
 description: "2편 트래커가 쌓아온 SQLite 비용 데이터를 Grafana 대시보드로 올립니다. Docker Compose 셋업, SQLite 데이터소스 프로비저닝, 일별·모델별·팀별 패널 쿼리, 예산 초과 알림, 그리고 Infinity 데이터소스로 공식 cost_report 를 겹쳐 보는 법까지 — 비용의 추세가 눈에 보이는 상태를 만듭니다."
+series: llm-cost
+series_order: 5
 ---
 
 {% include series-llm-cost.html current="5" %}

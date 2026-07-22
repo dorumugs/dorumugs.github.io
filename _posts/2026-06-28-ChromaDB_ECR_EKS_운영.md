@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-18-chromadb-eks/header.svg
   teaser: /assets/images/2026-06-18-chromadb-eks/header.svg
 description: "ChromaDB 를 EKS 에서 운영하는 법 — 공식 이미지를 ECR 로 미러링하고, 상태 있는 벡터 DB 를 StatefulSet + PVC(EBS)로 올리고, Service·probe·토큰 시크릿까지 실제 매니페스트와 함께 정리합니다."
+series: chromadb-rag
+series_order: 3
 ---
 
 {% include series-chromadb-rag.html current="3" %}

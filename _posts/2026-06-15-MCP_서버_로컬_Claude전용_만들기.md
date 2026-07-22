@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-06-15-mcp-local-stdio/header.svg
   teaser: /assets/images/2026-06-15-mcp-local-stdio/header.svg
 description: "외부에 포트 하나 열지 않고, 내 컴퓨터의 Claude(Desktop·Code)만 붙는 MCP 서버를 Python(FastMCP)으로 만드는 법을 처음부터 끝까지 정리합니다. stdio 트랜스포트, 도구·리소스·프롬프트, 등록·디버깅, 그리고 로컬 전용 방식의 장단점까지."
+series: mcp
+series_order: 1
+series_title: "📚 MCP 서버 직접 만들기 시리즈"
 ---
 
 {% include series-mcp.html current="1" %}

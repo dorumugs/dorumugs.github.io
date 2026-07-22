@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-06-30-airflow-slack-report/header.svg
   teaser: /assets/images/2026-06-30-airflow-slack-report/header.svg
 description: "지금까지 쌓은 계보·품질 신호를 모아 매일 Slack 으로 데이터 품질 리포트를 자동 발행하는 구성을 정리합니다. Marquez API 에서 실패한 품질 단언을 수집하고, Slack Block Kit 으로 다이제스트를 만들어 리포트 DAG 로 매일 보내기."
+series: airflow-ops
+series_order: 4
 ---
 
 {% include series-airflow-ops.html current="4" %}

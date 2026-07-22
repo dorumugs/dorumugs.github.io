@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-07-15-worktree-pr-review/header.svg
   teaser: /assets/images/2026-07-15-worktree-pr-review/header.svg
 description: "worktree 로 세션마다 격리한 브랜치를 손으로 순차 merge 하는 대신, gh CLI 로 각 브랜치를 PR 로 올리고 CI·코드 리뷰를 자동으로 태운 뒤 merge queue 로 안전하게 합치는 흐름. 각 Claude 세션이 자기 PR 을 관리하게 만드는 실전 워크플로우와 함정까지 정리했습니다."
+series: parallel-sessions
+series_order: 2
 ---
 
 {% include series-parallel-sessions.html current="2" %}

@@ -10,6 +10,8 @@ toc: true
 header:
   image: /assets/images/2026-06-05-airflow-eks-ecr-actions/header.svg
   teaser: /assets/images/2026-06-05-airflow-eks-ecr-actions/header.svg
+series: airflow-k8s-helm
+series_order: 5
 ---
 
 {% include series-airflow-k8s-helm.html current="5" %}

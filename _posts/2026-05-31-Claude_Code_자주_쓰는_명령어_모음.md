@@ -10,6 +10,9 @@ toc: true
 header:
   image: /assets/images/2026-05-31-claude-code-commands/header.svg
   teaser: /assets/images/2026-05-31-claude-code-commands/header.svg
+series: ai-coding-cli
+series_order: 1
+series_title: "🛠️ AI 코딩 CLI 명령어 모음 시리즈"
 ---
 
 

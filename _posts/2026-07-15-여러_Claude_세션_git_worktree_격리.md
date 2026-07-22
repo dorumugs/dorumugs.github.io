@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-07-15-claude-sessions-worktree/header.svg
   teaser: /assets/images/2026-07-15-claude-sessions-worktree/header.svg
 description: "같은 폴더에서 Claude Code 세션을 여러 개 띄워 각자 작업하다 git 으로 합치면 과거 코드가 덮어써지는 문제. 왜 한 워킹트리에서의 동시 편집은 merge 로도 못 살리는지, git worktree 로 세션마다 폴더·브랜치를 격리하고 한 곳에서 순차 통합하는 실전 워크플로우를 정리했습니다."
+series: parallel-sessions
+series_order: 1
+series_title: "📦 병렬 Claude 세션 작업 안전하게 합치기"
 ---
 
 {% include series-parallel-sessions.html current="1" %}

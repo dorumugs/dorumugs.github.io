@@ -10,6 +10,9 @@ header:
   image: /assets/images/2026-07-17-cdn-cloudfront/header.svg
   teaser: /assets/images/2026-07-17-cdn-cloudfront/header.svg
 description: "CDN 이 대체 무엇을 푸는 기술인지 원리부터 짚고, AWS CloudFront 로 실제 어떻게 붙이는지까지 한 번에 정리했어요. 엣지 로케이션·캐시 히트/미스·TTL·캐시 키·S3 오리진 + OAC·무효화(invalidation)·서명 URL·WAF·비용까지 — '원본은 하나, 캐시는 전 세계'라는 한 문장을 실무 감각으로 풀어봤습니다."
+series: cdn-cloudfront
+series_order: 1
+series_title: "🌐 CDN 부터 CloudFront 엣지까지"
 ---
 
 {% include series-cdn-cloudfront.html current="1" %}

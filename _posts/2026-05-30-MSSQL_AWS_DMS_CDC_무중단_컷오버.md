@@ -10,6 +10,8 @@ header:
 tag: [mssql, aws, dms, cdc, migration, rds, zero-downtime, kayserdocs]
 author_profile: false
 toc: true
+series: mssql-rds
+series_order: 3
 ---
 
 {% include series-mssql-rds.html current="3" %}

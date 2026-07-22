@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-07-22-orca-review-design/header.svg
   teaser: /assets/images/2026-07-22-orca-review-design/header.svg
 description: "에이전트가 짠 코드를 그냥 믿고 머지하지 않으려면 '검수하는 자리'가 필요해요. Orca 의 diff 줄에 코멘트를 달아 에이전트에게 되돌리는 리뷰 왕복, UI 버그를 코드가 아니라 화면을 클릭해서 잡는 Design Mode, worktree 별 브라우저 탭까지 — 사람이 최종 판단자로 개입하는 방법을 정리합니다."
+series: orca
+series_order: 3
 ---
 
 {% include series-orca.html current="3" %}

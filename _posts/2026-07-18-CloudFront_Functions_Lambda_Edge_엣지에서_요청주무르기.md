@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-07-18-cloudfront-functions-lambda-edge/header.svg
   teaser: /assets/images/2026-07-18-cloudfront-functions-lambda-edge/header.svg
 description: "CloudFront 에서 캐싱만으론 안 되는 '요청을 엣지에서 직접 주무르는' 영역을 CloudFront Functions 와 Lambda@Edge 로 갈라 정리했어요. 요청·응답의 네 실행 지점(Viewer/Origin Request·Response), 둘의 성능·제약·비용 차이, URL 리라이트·보안 헤더·리다이렉트·인증·A/B 테스트 같은 실전 예시와 '가벼운 건 Functions, 무거운 건 Lambda@Edge' 라는 선택 기준까지 한 번에 봅니다."
+series: cdn-cloudfront
+series_order: 2
 ---
 
 {% include series-cdn-cloudfront.html current="2" %}

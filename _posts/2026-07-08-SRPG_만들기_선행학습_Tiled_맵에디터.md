@@ -10,6 +10,8 @@ header:
   image: /assets/images/2026-07-08-srpg-prereq/header-7.svg
   teaser: /assets/images/2026-07-08-srpg-prereq/header-7.svg
 description: "2D SRPG 선행학습 7편. 배열 손편집을 졸업하고 무료 맵 에디터 Tiled 로 아이소메트릭 전장을 그립니다. 타일 커스텀 속성으로 지형 규칙을 데이터화하고, 오브젝트 레이어로 유닛 배치까지 — pytmx 로 읽어서 기존 코드에 그대로 꽂는 것까지 실행 코드로 정리했어요."
+series: srpg-prereq
+series_order: 7
 ---
 
 {% include series-srpg-prereq.html current="7" %}

@@ -10,6 +10,9 @@ toc: true
 header:
   image: /assets/images/2024-09-13-llm-init-setting/header.svg
   teaser: /assets/images/2024-09-13-llm-init-setting/header.svg
+series: langchain-intro
+series_order: 1
+series_title: "🦜 LangChain 입문 시리즈"
 ---
 
 
