@@ -1,0 +1,10 @@
+{%- assign c = include.current -%}
+<div class="notice--info">
+  <p><strong>🐳 Orca — 병렬 AI 에이전트 오케스트레이션 4부작</strong> — Claude Code·Codex 같은 코딩 에이전트를 <em>여러 개 동시에</em> 굴리고, 각자 격리된 git worktree 에서 경쟁시킨 뒤 제일 나은 결과만 골라 합치는 데스크톱 도구 Orca 를 실전 워크플로우 중심으로 정리했어요. 먼저 Orca 가 뭐고 왜 필요한지 전체 그림을 잡고(1편), add→worktree→agent→split→diff→ship 첫 3-에이전트 세션을 손에 익히고(2편), diff 리뷰·Design Mode·브라우저로 결과를 검수하고(3편), 원격(SSH·VPS)·모바일·CLI 로 스웜을 확장하는 것(4편)까지 이어집니다. 전체 4편.</p>
+  <ol>
+    <li>{% if c == "1" %}<strong>Orca 란 무엇인가 — 병렬 에이전트 ADE 의 전체 그림</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Orca_병렬_AI_에이전트_ADE_전체그림/">Orca 란 무엇인가 — 병렬 에이전트 ADE 의 전체 그림</a>{% endif %}</li>
+    <li>{% if c == "2" %}<strong>첫 3-에이전트 세션 — add→worktree→agent→split→diff→ship</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Orca_첫_3에이전트_세션_실전/">첫 3-에이전트 세션 — add→worktree→agent→split→diff→ship</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>결과 검수 — diff 리뷰·Design Mode·브라우저</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Orca_코드리뷰_DesignMode_브라우저/">결과 검수 — diff 리뷰·Design Mode·브라우저</a>{% endif %}</li>
+    <li>{% if c == "4" %}<strong>스웜 확장 — 원격(SSH·VPS)·모바일·CLI 자동화</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Orca_원격_모바일_CLI_자동화/">스웜 확장 — 원격(SSH·VPS)·모바일·CLI 자동화</a>{% endif %}</li>
+  </ol>
+</div>

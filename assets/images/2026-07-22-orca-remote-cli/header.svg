@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Orca 를 SSH·VPS 원격 worktree, 모바일 컴패니언, CLI 자동화로 확장하는 흐름 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="0.5" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">스웜 <tspan fill="#7dd3fc">확장</tspan> — 원격·모바일·CLI</text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">무거운 일은 원격 박스에, 조종은 폰으로, 반복은 CLI 스크립트로</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#0d2233" stroke="#0ea5e9" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#7dd3fc">SSH · VPS</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">원격 worktree 에서 실행</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0f2537" stroke="#38bdf8" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#7dd3fc">모바일</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">끝나면 알림 → 승인</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#171a34" stroke="#6366f1" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#a5b4fc">CLI</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">worktree·click·fill 스크립트</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · Orca 시리즈 4편 — 데스크톱 밖으로</text>
+</svg>
