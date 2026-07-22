@@ -204,3 +204,17 @@ $right-sidebar-width:        330px;
     word-break: break-word;
   }
 }
+
+// --- KayserDocs: keep wide LaTeX (MathJax) from stretching the page sideways ---
+// MathJax 3 CHTML renders display math ($$...$$) as <mjx-container display="true">.
+// A long equation (긴 분수·듀폰 전개 등) is wider than the phone viewport, so it
+// stretches the whole page and leaves blank space on the right (the body scrolls
+// horizontally). Cap each display-math box at the content width and let just that
+// box scroll instead — the page itself never widens. Applies at every width since
+// an equation can outgrow the desktop column too; normal-width math is untouched.
+.page__content mjx-container[display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
