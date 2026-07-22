@@ -180,10 +180,18 @@ $right-sidebar-width:        330px;
 // desktop cell-skew bug. On phones, long unbreakable cell content (단지명+가격)
 // overflows the ~390px viewport and the right column gets clipped. Re-enable
 // horizontal scroll on small screens only — desktop layout stays untouched.
+//
+// Cross-browser note: display:block turns the <table> into a block box whose
+// visible grid renders in an inner anonymous table sized to its content. With
+// width:100% Chrome stretches that inner grid to 100% but Safari leaves it at
+// content width, so table widths look 들쑥날쑥 on iOS. Use width:max-content
+// (the GitHub-markdown recipe) so the block hugs the grid identically in both
+// browsers; max-width:100% + overflow-x:auto keeps wide tables scrollable.
 @media (max-width: $medium) {
   .page__content table {
     display: block;
-    width: 100%;
+    width: -webkit-max-content;
+    width: max-content;
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
