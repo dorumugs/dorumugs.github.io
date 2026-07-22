@@ -175,25 +175,32 @@ $right-sidebar-width:        330px;
   white-space: nowrap;
 }
 
-// --- KayserDocs: mobile horizontal-scroll for wide tables ---
-// Theme _tables.scss uses display:table + width:100% (no overflow-x) to fix a
-// desktop cell-skew bug. On phones, long unbreakable cell content (단지명+가격)
-// overflows the ~390px viewport and the right column gets clipped. Re-enable
-// horizontal scroll on small screens only — desktop layout stays untouched.
+// --- KayserDocs: mobile tables fit the screen by wrapping, not scrolling ---
+// Theme _tables.scss already sets display:table + width:100%. On phones the
+// problem is only that long unbreakable cell content (단지명+가격, 긴 코드 토큰)
+// forces a column wider than the ~390px viewport, which clips or overflows.
 //
-// Cross-browser note: display:block turns the <table> into a block box whose
-// visible grid renders in an inner anonymous table sized to its content. With
-// width:100% Chrome stretches that inner grid to 100% but Safari leaves it at
-// content width, so table widths look 들쑥날쑥 on iOS. Use width:max-content
-// (the GitHub-markdown recipe) so the block hugs the grid identically in both
-// browsers; max-width:100% + overflow-x:auto keeps wide tables scrollable.
+// Earlier attempts used display:block + overflow-x:auto (and later width:
+// max-content). Both misbehaved: horizontal scroll exposed trailing whitespace,
+// max-content shrank small tables below full width, and display:block made the
+// inner grid render inconsistently on Safari vs Chrome (들쑥날쑥).
+//
+// Fix: keep the table as a real display:table at width:100% so it always fills
+// the screen identically on both browsers, and let cell text wrap
+// (overflow-wrap:anywhere) so long tokens break instead of overflowing. This
+// shrinks each cell's min-content, so table-layout:auto sizes columns to their
+// content proportions yet still fits inside 100% — no horizontal scroll, no
+// trailing whitespace, and small tables stay full width.
 @media (max-width: $medium) {
   .page__content table {
-    display: block;
-    width: -webkit-max-content;
-    width: max-content;
+    width: 100%;
     max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    table-layout: auto;
+  }
+
+  .page__content th,
+  .page__content td {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 }
