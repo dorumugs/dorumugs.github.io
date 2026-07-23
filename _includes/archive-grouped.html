@@ -26,6 +26,14 @@
       {%- assign stitle = anchor.series_title | default: post.series -%}
       {%- assign scount = members | size -%}
       {%- assign latest = members | sort: "date" | last -%}
+      {%- assign wpm = site.words_per_minute | default: 200 -%}
+      {%- assign total_words = 0 -%}
+      {%- for m in members -%}
+        {%- assign w = m.content | strip_html | number_of_words -%}
+        {%- assign total_words = total_words | plus: w -%}
+      {%- endfor -%}
+      {%- assign total_min = total_words | divided_by: wpm -%}
+      {%- if total_min < 1 -%}{%- assign total_min = 1 -%}{%- endif -%}
       {%- if anchor.header.teaser -%}
         {%- assign steaser = anchor.header.teaser -%}
       {%- else -%}
@@ -41,12 +49,12 @@
               </div>
             {% endif %}
             <div class="series-group__body">
-              <h2 class="archive__item-title no_toc" itemprop="headline">
-                <span class="series-group__badge">시리즈 · {{ scount }}편</span>
-                {{ stitle }}
-              </h2>
+              <p class="series-group__badge-row"><span class="series-group__badge">시리즈 · {{ scount }}편</span></p>
+              <h2 class="archive__item-title no_toc" itemprop="headline">{{ stitle }}</h2>
               <p class="page__meta series-group__meta">
                 <span class="series-group__latest"><i class="far fa-calendar-alt" aria-hidden="true"></i> 최신 {{ latest.date | date: "%Y.%m.%d" }}</span>
+                <span class="page__meta-sep"></span>
+                <span class="series-group__readtime"><i class="far fa-clock" aria-hidden="true"></i> {{ total_min }} {{ site.data.ui-text[locale].minute_read | default: "minute read" }}</span>
               </p>
               {% if anchor.description %}
                 <p class="archive__item-excerpt series-group__excerpt">{{ anchor.description | markdownify | strip_html | truncate: 140 }}</p>

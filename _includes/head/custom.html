@@ -100,6 +100,7 @@
     vertical-align: middle;
     margin-right: 0.35em;
   }
+  .series-group__badge-row { margin: 0 0 0.4em; }
   .series-group__body .archive__item-title { margin: 0.1em 0 0.2em; }
   .series-group__excerpt { margin: 0.15em 0 0.35em; font-size: 0.8em; color: #5b5b5b; }
   .series-group__meta { margin: 0 0 0.3em; font-size: 0.72em; }
@@ -109,30 +110,13 @@
   .series-group[open] .series-group__toggle-open { display: none; }
   .series-group[open] .series-group__toggle-close { display: inline; }
 
-  /* Home grid: uniform-height cards — clamp variable content, pin toggle to the
-     bottom, and equalise every grid row so cards never jag (even a sparse last
-     row). */
-  .entries-grid { grid-auto-rows: 1fr; }
-  .entries-grid .grid__item > .archive__item:not(.series-group),
-  .entries-grid .grid__item .series-group > summary {
-    min-height: 13.5rem;
-  }
-  .entries-grid .grid__item .series-group > summary {
-    display: flex;
-    flex-direction: column;
-  }
-  .entries-grid .grid__item .series-group__body {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-  }
-  .entries-grid .grid__item .archive__item-title {
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .entries-grid .grid__item .archive__item-excerpt {
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .entries-grid .grid__item .series-group__toggle-row { margin-top: auto; }
+  /* Home grid: each card sizes to its own content (full excerpt/title shown) and
+     stays independent. align-items:start + height:auto keep a card from
+     stretching when a neighbouring series card is expanded — so opening one
+     group never grows the cards beside or below it. */
+  .entries-grid { align-items: start; }
+  .entries-grid .grid__item > .archive__item,
+  .entries-grid .grid__item .series-group > summary { height: auto; }
 
   .series-group__list {
     list-style: none;
