@@ -19,23 +19,54 @@
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
 
+<!-- Long unbreakable tokens (arrow-chains like a→b→c, long URLs) must wrap
+     instead of pushing the page wider than the mobile viewport. -->
+<style>
+  .page__title, .page__title a { overflow-wrap: anywhere; word-break: break-word; }
+  .page__content { overflow-wrap: break-word; }
+</style>
+
 <!-- Series group cards (collapsible) on listing pages -->
 <style>
+  /* Unified card look — single posts and series groups render as the SAME box
+     in both grid (home) and list (archives) layouts. Series adds only a badge
+     and an expand toggle to distinguish itself. */
+  .entries-grid .grid__item > .archive__item,
+  .entries-list .list__item > .archive__item,
+  .series-group > summary {
+    border: 1px solid #e6e6e6;
+    border-radius: 6px;
+    padding: 0.7em 0.95em;
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .entries-grid .grid__item > .archive__item:hover,
+  .entries-list .list__item > .archive__item:hover,
+  .series-group > summary:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    border-color: #cfd6dc;
+  }
+  /* give list-layout single cards clear separation between boxes */
+  .entries-list .list__item { margin-bottom: 1em; }
+  /* single-card title: match the series title tone (dark, no blue underline) */
+  .entries-grid .grid__item > .archive__item .archive__item-title a,
+  .entries-list .list__item > .archive__item .archive__item-title a {
+    color: #2f3a44;
+    text-decoration: none;
+  }
+  .entries-grid .grid__item > .archive__item .archive__item-title a:hover,
+  .entries-list .list__item > .archive__item .archive__item-title a:hover {
+    text-decoration: underline;
+  }
+
   .series-group { position: relative; }
   .series-group, .series-group * { word-break: keep-all; overflow-wrap: anywhere; }
   .series-group > summary {
     cursor: pointer;
     list-style: none;
     display: block;
-    border: 1px solid #e6e6e6;
-    border-left: 4px solid #7a8b99;
-    border-radius: 6px;
-    padding: 0.6em 0.9em;
-    background: #fafafa;
-    transition: background .15s ease, box-shadow .15s ease;
   }
   .series-group > summary::-webkit-details-marker { display: none; }
-  .series-group > summary:hover { background: #f2f5f7; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
   .series-group[open] > summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 
   .series-group__teaser { margin-bottom: 0.6em; }
@@ -66,7 +97,6 @@
     padding: 0.3em 0 0.2em;
     border: 1px solid #e6e6e6;
     border-top: none;
-    border-left: 4px solid #7a8b99;
     border-radius: 0 0 6px 6px;
     background: #fff;
   }
