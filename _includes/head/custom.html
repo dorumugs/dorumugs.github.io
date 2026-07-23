@@ -28,34 +28,51 @@
 
 <!-- Series group cards (collapsible) on listing pages -->
 <style>
-  /* Unified card look — single posts and series groups render as the SAME box
-     in both grid (home) and list (archives) layouts. Series adds only a badge
-     and an expand toggle to distinguish itself. */
-  .entries-grid .grid__item > .archive__item,
-  .entries-list .list__item > .archive__item,
-  .series-group > summary {
-    border: 1px solid #e6e6e6;
-    border-radius: 6px;
-    padding: 0.7em 0.95em;
+  /* The theme already renders GRID cards as boxes
+     (.entries-grid .grid__item .archive__item: border #e8e8e9, radius 12px,
+     shadow, hover lift). Goal: series groups match that exact card, and
+     LIST-layout single cards (which the theme leaves unboxed) get the same box —
+     so single and series look identical in every layout. */
+
+  /* Canonical card = theme's grid-card values. Applied to the series summary
+     (both layouts) and to single cards in the list layout. */
+  .series-group > summary,
+  .entries-list .list__item > .archive__item:not(.series-group) {
     background: #fff;
-    transition: box-shadow .15s ease, border-color .15s ease;
+    border: 1px solid #e8e8e9;
+    border-radius: 12px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
-  .entries-grid .grid__item > .archive__item:hover,
-  .entries-list .list__item > .archive__item:hover,
-  .series-group > summary:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,.07);
-    border-color: #cfd6dc;
+  .series-group > summary:hover,
+  .entries-list .list__item > .archive__item:not(.series-group):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    border-color: #cdcfd2;
   }
-  /* give list-layout single cards clear separation between boxes */
-  .entries-list .list__item { margin-bottom: 1em; }
-  /* single-card title: match the series title tone (dark, no blue underline) */
-  .entries-grid .grid__item > .archive__item .archive__item-title a,
-  .entries-list .list__item > .archive__item .archive__item-title a {
-    color: #2f3a44;
+
+  /* In GRID the theme boxes the series <details> itself (it carries
+     .archive__item) — that would double-frame the summary. Neutralise it;
+     the box lives on the summary. */
+  .entries-grid .grid__item > .archive__item.series-group {
+    border: 0; padding: 0; background: none; box-shadow: none;
+  }
+  .entries-grid .grid__item > .archive__item.series-group:hover {
+    transform: none; box-shadow: none;
+  }
+
+  /* list-layout cards need vertical separation */
+  .entries-list .list__item { margin-bottom: 1.25rem; }
+
+  /* card title tone: match the series title (dark text, not a blue underline) */
+  .grid__item > .archive__item .archive__item-title a,
+  .list__item > .archive__item .archive__item-title a {
+    color: inherit;
     text-decoration: none;
   }
-  .entries-grid .grid__item > .archive__item .archive__item-title a:hover,
-  .entries-list .list__item > .archive__item .archive__item-title a:hover {
+  .grid__item > .archive__item .archive__item-title a:hover,
+  .list__item > .archive__item .archive__item-title a:hover {
     text-decoration: underline;
   }
 
@@ -95,9 +112,9 @@
     list-style: none;
     margin: 0;
     padding: 0.3em 0 0.2em;
-    border: 1px solid #e6e6e6;
+    border: 1px solid #e8e8e9;
     border-top: none;
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 12px 12px;
     background: #fff;
   }
   .series-group__list-item {
