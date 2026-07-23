@@ -45,16 +45,18 @@
                 <span class="series-group__badge">시리즈 · {{ scount }}편</span>
                 {{ stitle }}
               </h2>
+              <p class="page__meta series-group__meta">
+                <span class="series-group__latest"><i class="far fa-calendar-alt" aria-hidden="true"></i> 최신 {{ latest.date | date: "%Y.%m.%d" }}</span>
+              </p>
               {% if anchor.description %}
                 <p class="archive__item-excerpt series-group__excerpt">{{ anchor.description | markdownify | strip_html | truncate: 140 }}</p>
               {% endif %}
-              <p class="page__meta series-group__meta">
+              <p class="series-group__toggle-row">
                 <span class="series-group__toggle">
                   <i class="fas fa-layer-group" aria-hidden="true"></i>
                   <span class="series-group__toggle-open">펼쳐서 {{ scount }}편 보기</span>
                   <span class="series-group__toggle-close">접기</span>
                 </span>
-                <span class="series-group__latest"><i class="far fa-calendar-alt" aria-hidden="true"></i> 최신 {{ latest.date | date: "%Y.%m.%d" }}</span>
               </p>
             </div>
           </summary>
