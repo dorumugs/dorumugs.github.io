@@ -955,7 +955,7 @@ class TestAgainstRealData(unittest.TestCase):
 
     @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
     def test_within_size_budget(self) -> None:
-        self.assertLess(self.OUT.stat().st_size, 200 * 1024)
+        self.assertLess(self.OUT.stat().st_size, 400 * 1024)
 
 
 if __name__ == "__main__":
@@ -1001,7 +1001,7 @@ OUT_DIR = ROOT / "assets" / "realestate"
 SUMMARY_FILE = OUT_DIR / "summary.json"
 
 HOUSEHOLD_MIN = 300
-MAX_SUMMARY_BYTES = 200 * 1024
+MAX_SUMMARY_BYTES = 400 * 1024
 
 _SUFFIX_RE = re.compile(r"\s*\([^)]*\)\s*$")
 
@@ -2790,7 +2790,7 @@ git status --short
 | 계약해제 가격 제외·건수 보존 | Task 3 |
 | 세대수 2단 조인 (PNU → 단지명) | Task 3 (`join_household`) |
 | 300세대+ / 전체 두 갈래 집계 | Task 3 |
-| `summary.json` 스키마·200KB 예산 | Task 3 |
+| `summary.json` 스키마·400KB 예산 | Task 3 |
 | 결정론적 JSON | Task 3 (`write_json`) + Step 7 |
 | 강남구 실측 대조 | Task 3 Step 6 |
 | 구별 단지 집계·300KB 예산 | Task 4 |

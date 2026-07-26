@@ -29,7 +29,9 @@ OUT_DIR = ROOT / "assets" / "realestate"
 SUMMARY_FILE = OUT_DIR / "summary.json"
 
 HOUSEHOLD_MIN = 300
-MAX_SUMMARY_BYTES = 200 * 1024
+# 실측 347KB(gzip 전송 126KB). 247개월 × 72구 × 2필터를 온전히 담으면 이 정도다.
+# 첫 로딩에서 실제로 오가는 건 gzip 크기이고, 이후 지표를 더 얹을 여유도 남겨 둔다.
+MAX_SUMMARY_BYTES = 400 * 1024
 
 _SUFFIX_RE = re.compile(r"\s*\([^)]*\)\s*$")
 

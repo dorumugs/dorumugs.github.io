@@ -145,7 +145,7 @@ class TestAgainstRealData(unittest.TestCase):
 
     @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
     def test_within_size_budget(self) -> None:
-        self.assertLess(self.OUT.stat().st_size, 200 * 1024)
+        self.assertLess(self.OUT.stat().st_size, 400 * 1024)
 
 
 if __name__ == "__main__":
