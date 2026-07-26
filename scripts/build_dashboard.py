@@ -204,6 +204,69 @@ def build_summary(by_month: dict[str, list[dict]], months: list[str],
     }
 
 
+SGG_DIR = OUT_DIR / "sgg"
+DETAIL_WINDOW = 12          # 단지 랭킹은 최근 12개월
+MAX_DETAIL_BYTES = 300 * 1024
+
+
+def build_sgg_detail(by_month: dict[str, list[dict]], months: list[str], window: int,
+                     by_pnu: dict[str, dict], by_name: dict[tuple[str, str, str], int],
+                     sgg: str) -> dict:
+    """구 하나의 단지별 집계. 창(window)은 months 의 마지막 n개월.
+
+    1차 화면은 최근 12개월 랭킹만 쓴다. 창을 파라미터로 받아 두었으므로
+    단지 시계열이 필요해지면 같은 함수를 다시 부르면 된다.
+    """
+    target = months[-window:] if window else months
+    bucket_count = len(aggregate.AREA_EDGES) + 1
+
+    prices: dict[tuple[str, str], list[float]] = defaultdict(list)
+    buckets: dict[tuple[str, str], list[int]] = defaultdict(lambda: [0] * bucket_count)
+    households: dict[tuple[str, str], int | None] = {}
+    labels: dict[tuple[str, str], str] = {}
+
+    for ym in target:
+        for row in by_month.get(ym, []):
+            if row["sgg_cd"] != sgg or row.get("cdeal_type") == "O":
+                continue
+            try:
+                area = float(row["area_sqm"])
+                price = int(row["price_10k"])
+            except (ValueError, KeyError):
+                continue
+            pp = aggregate.pyeong_price(price, area)
+            if pp is None:
+                continue
+            dong = (row["umd_nm"] or "").split(" ")[-1]
+            key = (dong, normalize_name(row["apt_name"]))
+            prices[key].append(pp)
+            buckets[key][aggregate.area_bucket(area)] += 1
+            labels.setdefault(key, row["apt_name"])
+            if key not in households:
+                households[key] = join_household(row, by_pnu, by_name)
+
+    complexes = []
+    for key, vals in prices.items():
+        dong, _ = key
+        med = aggregate.median(vals)
+        complexes.append({
+            "name": labels[key],
+            "dong": dong,
+            "hh": households.get(key),
+            "med": round(med) if med is not None else None,
+            "n": len(vals),
+            "bk": buckets[key],
+        })
+    # 비싼 순, 같으면 이름순 — 정렬이 고정돼야 출력이 결정론적이다
+    complexes.sort(key=lambda c: (-(c["med"] or 0), c["name"]))
+
+    return {
+        "sgg": sgg,
+        "window": [target[0], target[-1]] if target else [],
+        "complexes": complexes,
+    }
+
+
 def write_json(path: Path, payload: dict) -> bool:
     """결정론적으로 쓴다. 내용이 같으면 건드리지 않고 False."""
     text = json.dumps(payload, ensure_ascii=False, sort_keys=True,
@@ -247,6 +310,29 @@ def main() -> int:
     print(f"summary.json {size:,}B {'갱신' if changed else '변경 없음'}")
     if size > MAX_SUMMARY_BYTES:
         print(f"summary.json 이 예산({MAX_SUMMARY_BYTES}B)을 넘었습니다.", file=sys.stderr)
+        return 1
+
+    # build_sgg_detail 은 시군구 72개마다 한 번씩(구별로 파일 하나) 불린다.
+    # by_month 로 LazyMonths 를 그대로 넘기면 .get() 이 호출마다 파일을
+    # 다시 읽어 같은 12개월 파일을 72번 재파싱하게 된다(864회 읽기). 대신
+    # 창(최근 12개월)에 해당하는 파일만 딱 한 번씩 읽어 일반 dict 에 캐시해
+    # 두고 재사용한다 — 247개월 전체를 올리는 게 아니라 창만 메모리에 둔다.
+    window_months = months[-DETAIL_WINDOW:]
+    window_cache = {ym: read_month(ym) for ym in window_months}
+
+    SGG_DIR.mkdir(parents=True, exist_ok=True)
+    updated, oversized = 0, []
+    for sgg in sorted(sgg_names):
+        detail = build_sgg_detail(window_cache, months, DETAIL_WINDOW,
+                                  by_pnu, by_name, sgg)
+        path = SGG_DIR / f"{sgg}.json"
+        if write_json(path, detail):
+            updated += 1
+        if path.stat().st_size > MAX_DETAIL_BYTES:
+            oversized.append((path.name, path.stat().st_size))
+    print(f"구별 JSON {len(sgg_names)}개 중 {updated}개 갱신")
+    if oversized:
+        print(f"예산({MAX_DETAIL_BYTES}B) 초과: {oversized}", file=sys.stderr)
         return 1
     return 0
 

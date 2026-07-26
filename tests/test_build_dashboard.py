@@ -132,6 +132,66 @@ class TestWriteJson(unittest.TestCase):
             self.assertEqual(a.read_bytes(), b.read_bytes())
 
 
+class TestBuildSggDetail(unittest.TestCase):
+    def setUp(self) -> None:
+        self.by_pnu = {"1168010100107550001": {"name": "개나리푸르지오", "dong": "역삼동",
+                                               "hh": 332, "sgg": "11680"}}
+        self.by_name = {("11680", "역삼동", "개나리푸르지오"): 332}
+        self.months = ["2026-05", "2026-06", "2026-07"]
+
+    def _run(self, by_month: dict[str, list[dict]], window: int = 2) -> dict:
+        return build_dashboard.build_sgg_detail(
+            by_month, self.months, window, self.by_pnu, self.by_name, "11680")
+
+    def test_only_window_months_counted(self) -> None:
+        by_month = {
+            "2026-05": [_trade(price="100000")],   # 창 밖
+            "2026-06": [_trade(price="200000")],
+            "2026-07": [_trade(price="200000")],
+        }
+        out = self._run(by_month, window=2)
+        self.assertEqual(out["window"], ["2026-06", "2026-07"])
+        self.assertEqual(out["complexes"][0]["n"], 2)
+
+    def test_median_over_window(self) -> None:
+        by_month = {"2026-06": [_trade(price="100000")],
+                    "2026-07": [_trade(price="300000")]}
+        out = self._run(by_month, window=2)
+        # (100000 + 300000)/2 규모의 평당가 중위 = 두 값의 평균
+        lo = 100_000 / (84.0 / 3.3058)
+        hi = 300_000 / (84.0 / 3.3058)
+        self.assertEqual(out["complexes"][0]["med"], round((lo + hi) / 2))
+
+    def test_area_buckets_counted(self) -> None:
+        by_month = {"2026-07": [_trade(area="59.0"), _trade(area="84.0"),
+                                _trade(area="84.0"), _trade(area="200.0")]}
+        out = self._run(by_month, window=2)
+        self.assertEqual(out["complexes"][0]["bk"], [1, 2, 0, 1])
+
+    def test_cancelled_excluded(self) -> None:
+        by_month = {"2026-07": [_trade(), _trade(cdeal="O")]}
+        out = self._run(by_month, window=2)
+        self.assertEqual(out["complexes"][0]["n"], 1)
+
+    def test_unmatched_complex_has_null_households(self) -> None:
+        by_month = {"2026-07": [_trade(apt="없는단지", jibun="9999-9999")]}
+        out = self._run(by_month, window=2)
+        self.assertIsNone(out["complexes"][0]["hh"])
+
+    def test_other_districts_excluded(self) -> None:
+        by_month = {"2026-07": [_trade(sgg="11110", umd="교북동", apt="경희궁자이")]}
+        out = self._run(by_month, window=2)
+        self.assertEqual(out["complexes"], [])
+
+    def test_sorted_by_median_desc_then_name(self) -> None:
+        by_month = {"2026-07": [
+            _trade(apt="싼단지", jibun="1-1", price="50000"),
+            _trade(apt="비싼단지", jibun="2-2", price="500000"),
+        ]}
+        out = self._run(by_month, window=2)
+        self.assertEqual([c["name"] for c in out["complexes"]], ["비싼단지", "싼단지"])
+
+
 class TestAgainstRealData(unittest.TestCase):
     """실제 원본으로 만든 summary.json 이 있을 때만 도는 대조 테스트.
 
@@ -168,6 +228,19 @@ class TestAgainstRealData(unittest.TestCase):
     @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
     def test_within_size_budget(self) -> None:
         self.assertLess(self.OUT.stat().st_size, 400 * 1024)
+
+    SGG_DIR = ROOT / "assets" / "realestate" / "sgg"
+
+    @unittest.skipUnless(SGG_DIR.exists(), "구별 JSON 없음 — 먼저 빌드하세요")
+    def test_every_region_has_a_detail_file(self) -> None:
+        files = sorted(p.stem for p in self.SGG_DIR.glob("*.json"))
+        self.assertEqual(len(files), 72)
+
+    @unittest.skipUnless(SGG_DIR.exists(), "구별 JSON 없음 — 먼저 빌드하세요")
+    def test_detail_files_within_size_budget(self) -> None:
+        oversized = [(p.name, p.stat().st_size) for p in self.SGG_DIR.glob("*.json")
+                     if p.stat().st_size > 300 * 1024]
+        self.assertEqual(oversized, [])
 
 
 if __name__ == "__main__":
