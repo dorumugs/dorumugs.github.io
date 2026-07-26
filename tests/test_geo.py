@@ -58,6 +58,38 @@ class TestMergeSgg(unittest.TestCase):
         self.assertEqual(build_geo.merge_sgg(feats), {})
 
 
+class TestDissolve(unittest.TestCase):
+    """행정동 경계 상쇄. 겹치는 변만 놓치면 대시보드 지도가 동 단위로 보인다."""
+
+    def test_dissolves_shared_edge_into_one_ring(self) -> None:
+        # 두 1x1 정사각형이 x=1 변을 공유 -> 2x1 직사각형 하나(꼭짓점 4개)로 합쳐져야 한다
+        a = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]
+        b = [[1.0, 0.0], [2.0, 0.0], [2.0, 1.0], [1.0, 1.0], [1.0, 0.0]]
+        rings = build_geo.dissolve([a, b])
+        self.assertEqual(len(rings), 1)
+        corners = rings[0][:-1] if rings[0][0] == rings[0][-1] else rings[0]
+        self.assertEqual(len(corners), 4)
+        self.assertEqual(
+            {tuple(p) for p in corners},
+            {(0.0, 0.0), (2.0, 0.0), (2.0, 1.0), (0.0, 1.0)},
+        )
+
+    def test_disjoint_squares_stay_separate(self) -> None:
+        a = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]
+        b = [[5.0, 5.0], [6.0, 5.0], [6.0, 6.0], [5.0, 6.0], [5.0, 5.0]]
+        rings = build_geo.dissolve([a, b])
+        self.assertEqual(len(rings), 2)
+
+    def test_handles_mixed_input_winding(self) -> None:
+        """원본 링의 시계/반시계 방향이 섞여 있어도 상쇄가 되어야 한다."""
+        a_cw = [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]]
+        b_ccw = [[1.0, 0.0], [2.0, 0.0], [2.0, 1.0], [1.0, 1.0], [1.0, 0.0]]
+        rings = build_geo.dissolve([a_cw, b_ccw])
+        self.assertEqual(len(rings), 1)
+        corners = rings[0][:-1] if rings[0][0] == rings[0][-1] else rings[0]
+        self.assertEqual(len(corners), 4)
+
+
 class TestRdp(unittest.TestCase):
     def test_collinear_points_removed(self) -> None:
         pts = [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (3.0, 0.0)]

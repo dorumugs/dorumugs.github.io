@@ -14,6 +14,7 @@ import argparse
 import json
 import math
 import sys
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -58,6 +59,116 @@ def merge_sgg(features: list[dict]) -> dict[str, list[Ring]]:
         for poly in polygons:
             if poly and poly[0]:
                 out.setdefault(code, []).append(poly[0])
+    return out
+
+
+ROUND_NDIGITS = 7  # 위경도 7자리 ~= 1cm. 부동소수점 잡음 없이 정점을 매칭하기 위한 키.
+
+
+def _round_pt(pt: list[float] | Point) -> Point:
+    return (round(pt[0], ROUND_NDIGITS), round(pt[1], ROUND_NDIGITS))
+
+
+def _ring_area2(ring: list[Point]) -> float:
+    """부호 있는 면적의 2배(신발끈 공식). 양수면 반시계, 음수면 시계 방향."""
+    n = len(ring)
+    total = 0.0
+    for i in range(n):
+        x1, y1 = ring[i]
+        x2, y2 = ring[(i + 1) % n]
+        total += x1 * y2 - x2 * y1
+    return total
+
+
+def _open_ccw_ring(ring: Ring) -> list[Point]:
+    """닫힌 링(첫점==끝점)을 열고, 좌표를 반올림한 뒤 반시계 방향으로 통일한다."""
+    pts = [_round_pt(p) for p in ring]
+    if len(pts) >= 2 and pts[0] == pts[-1]:
+        pts = pts[:-1]
+    if len(pts) >= 3 and _ring_area2(pts) < 0:
+        pts.reverse()
+    return pts
+
+
+def _drop_exact_collinear(ring: list[Point]) -> list[Point]:
+    """스티칭 직후 정확히 일직선인 통과점을 제거한다.
+
+    상쇄된 변의 양 끝점(원래 이웃 행정동 경계의 접점)은 진짜 꼭짓점이 아니라
+    합쳐진 변 위의 통과점일 수 있다. 이건 나중에 하는 eps 기반 단순화와는
+    별개로, 오차 없이 딱 일직선인 점만 정리하는 단계다.
+    """
+    n = len(ring)
+    if n < 3:
+        return ring
+    keep: list[Point] = []
+    for i in range(n):
+        ax, ay = ring[i - 1]
+        bx, by = ring[i]
+        cx, cy = ring[(i + 1) % n]
+        cross = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+        if cross != 0:
+            keep.append(ring[i])
+    return keep if len(keep) >= 3 else ring
+
+
+def dissolve(rings: list[Ring]) -> list[Ring]:
+    """한 시군구에 속한 행정동 외곽 링들을, 겹치는 경계를 상쇄해 하나로 합친다.
+
+    핵심 아이디어(정확한 변 상쇄): 모든 링을 반시계 방향으로 통일하면, 이웃한
+    두 행정동이 공유하는 변은 한쪽에서는 A->B, 다른 쪽에서는 B->A 로 정반대
+    방향으로 나타난다. 방향이 정확히 반대인 변끼리 상쇄해 지우면, 남는 변은
+    시군구의 진짜 외곽(과 진짜 구멍·떨어진 섬)뿐이다. 좌표는 투영·단순화 전
+    원본 위경도 상태여야 한다 — RDP 로 단순화하면 꼭짓점이 미세하게 어긋나서
+    더 이상 정확히 매칭되지 않기 때문이다.
+
+    남은 변은 끝점을 따라가며 이어붙여(스티칭) 닫힌 링들로 복원한다.
+    """
+    edges: list[tuple[Point, Point]] = []
+    for ring in rings:
+        pts = _open_ccw_ring(ring)
+        n = len(pts)
+        if n < 3:
+            continue
+        for i in range(n):
+            edges.append((pts[i], pts[(i + 1) % n]))
+
+    counts = Counter(edges)
+    result_edges: list[tuple[Point, Point]] = []
+    seen_pairs: set[tuple[Point, Point]] = set()
+    for (a, b), c in counts.items():
+        if (a, b) in seen_pairs or (b, a) in seen_pairs:
+            continue
+        seen_pairs.add((a, b))
+        seen_pairs.add((b, a))
+        rc = counts.get((b, a), 0)
+        net = c - rc
+        if net > 0:
+            result_edges.extend([(a, b)] * net)
+        elif net < 0:
+            result_edges.extend([(b, a)] * (-net))
+        # net == 0 이면 완전히 상쇄된 내부 경계 -> 버린다
+
+    adj: dict[Point, list[Point]] = {}
+    for a, b in result_edges:
+        adj.setdefault(a, []).append(b)
+
+    out: list[Ring] = []
+    while any(adj.values()):
+        start = next(v for v, lst in adj.items() if lst)
+        ring_pts = [start]
+        current = start
+        while True:
+            nxts = adj.get(current)
+            if not nxts:
+                break  # in=out 차수가 어긋나는 비정상 그래프에 대한 방어
+            current = nxts.pop()
+            if current == start:
+                break
+            ring_pts.append(current)
+        cleaned = _drop_exact_collinear(ring_pts)
+        if len(cleaned) >= 3:
+            closed = cleaned + [cleaned[0]]
+            out.append([list(p) for p in closed])
     return out
 
 
@@ -175,7 +286,10 @@ def main() -> int:
         print(f"시군구 불일치. 누락={missing} 잉여={extra}", file=sys.stderr)
         return 1
 
-    projected, w, h = project(merged, SVG_WIDTH)
+    # 투영·단순화 전에 원본 위경도 상태에서 행정동 경계를 시군구 외곽으로 합친다.
+    dissolved = {code: dissolve(rings) for code, rings in merged.items()}
+
+    projected, w, h = project(dissolved, SVG_WIDTH)
     projected = simplify(projected, args.eps, args.min_area)
 
     empty = sorted(c for c, rings in projected.items() if not rings)
@@ -202,7 +316,7 @@ def main() -> int:
              "properties": {"sgg": code, "name": names[code]},
              "geometry": {"type": "MultiPolygon",
                           "coordinates": [[[[round(c, 5) for c in pt] for pt in ring]]
-                                          for ring in merged[code]]}}
+                                          for ring in dissolved[code]]}}
             for code in sorted(merged)
         ],
     }
@@ -211,8 +325,9 @@ def main() -> int:
         encoding="utf-8")
     SVG_FILE.write_text(svg, encoding="utf-8")
 
-    print(f"시군구 {len(projected)}개, SVG {len(svg.encode('utf-8')):,}B, "
-          f"viewBox {w:.0f}x{h:.0f}")
+    subpaths = sum(len(rings) for rings in projected.values())
+    print(f"시군구 {len(projected)}개, 서브패스 {subpaths}개, "
+          f"SVG {len(svg.encode('utf-8')):,}B, viewBox {w:.0f}x{h:.0f}")
     return 0
 
 
