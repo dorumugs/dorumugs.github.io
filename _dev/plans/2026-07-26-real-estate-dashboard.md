@@ -1703,8 +1703,9 @@ export function initMap(root, { onSelect }) {
     setView(view) {
       const prefix = VIEW_PREFIX[view] ?? '';
       const shown = paths.filter((p) => p.dataset.sgg.startsWith(prefix));
+      const visible = new Set(shown);
       for (const p of paths) {
-        p.style.display = shown.includes(p) ? '' : 'none';
+        p.style.display = visible.has(p) ? '' : 'none';
       }
       const b = boundsOf(shown);
       svg.setAttribute('viewBox',
@@ -1730,7 +1731,7 @@ export function initMap(root, { onSelect }) {
 ```javascript
 import { setBase, loadSummary, loadSgg } from './data.js';
 import { initMap } from './map.js';
-import { divergingColor, sequentialColor } from './palette.js';
+import { divergingColor, sequentialColor, DIVERGING, SEQUENTIAL } from './palette.js';
 
 const root = document.querySelector('.re-app');
 setBase(root.dataset.base);
@@ -1824,9 +1825,8 @@ function repaint() {
 
 function drawLegend(min, max, kind, unit) {
   const el = root.querySelector('.re-legend');
-  const ramp = kind === 'diverging'
-    ? ['#184f95', '#2a78d6', '#86b6ef', '#f0efec', '#f0a8a8', '#d03b3b', '#a02020']
-    : ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#2a78d6', '#256abf', '#184f95', '#0d366b'];
+  // 램프는 palette.js 한 곳에서만 정의한다. 여기에 색을 다시 적지 말 것.
+  const ramp = kind === 'diverging' ? DIVERGING : SEQUENTIAL;
   const swatches = ramp.map((c) => `<i style="background:${c}"></i>`).join('');
   const fmt = (v) => (kind === 'diverging' ? `${v.toFixed(0)}%` : Math.round(v).toLocaleString());
   el.innerHTML = `<span>${fmt(min)}</span>${swatches}<span>${fmt(max)}${
