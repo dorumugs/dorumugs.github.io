@@ -45,3 +45,6 @@ tmp/
 # Python (수집 스크립트)
 __pycache__/
 *.py[cod]
+
+# Superpowers 브레인스토밍 목업 (로컬 전용)
+.superpowers/
