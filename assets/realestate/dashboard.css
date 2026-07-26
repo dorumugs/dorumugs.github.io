@@ -1,0 +1,94 @@
+/* 대시보드 전용. 테마 스타일을 건드리지 않도록 .re- 접두사만 쓴다. */
+
+.re-app {
+  --re-ink: #0b0b0b;
+  --re-ink2: #52514e;
+  --re-muted: #898781;
+  --re-grid: #e1e0d9;
+  --re-line: #2a78d6;
+  --re-border: rgba(11, 11, 11, 0.10);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--re-ink);
+  max-width: 100%;
+}
+
+.re-controls {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.re-tabs { display: flex; gap: 4px; }
+.re-tab, .re-toggle {
+  font-size: 13px; padding: 5px 13px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--re-border); background: transparent; color: var(--re-ink2);
+}
+.re-tab.is-on { background: var(--re-line); color: #fff; border-color: var(--re-line); }
+.re-toggle.is-on {
+  background: rgba(42, 120, 214, 0.10); color: var(--re-line);
+  border-color: rgba(42, 120, 214, 0.35);
+}
+.re-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.re-field { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+.re-field-label { color: var(--re-muted); }
+.re-field select {
+  font-size: 13px; padding: 4px 8px; border-radius: 6px;
+  border: 1px solid var(--re-border); background: transparent; color: var(--re-ink);
+}
+
+.re-body { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 20px; align-items: start; }
+.re-map-wrap { position: relative; }
+svg.re-map { width: 100%; height: auto; display: block; }
+svg.re-map path {
+  stroke: rgba(255, 255, 255, 0.85); stroke-width: 1;
+  cursor: pointer; transition: fill 120ms linear;
+}
+svg.re-map path:hover { stroke: var(--re-ink); stroke-width: 1.5; }
+svg.re-map path:focus-visible { outline: none; stroke: var(--re-ink); stroke-width: 2; }
+svg.re-map path.is-selected { stroke: var(--re-ink); stroke-width: 2; }
+
+.re-legend {
+  display: flex; align-items: center; gap: 0;
+  margin-top: 8px; font-size: 10.5px; color: var(--re-muted);
+}
+.re-legend i { width: 26px; height: 9px; display: block; }
+.re-legend span:first-child { margin-right: 6px; }
+.re-legend span:last-child { margin-left: 6px; }
+
+.re-tip {
+  position: absolute; transform: translate(-50%, -140%); pointer-events: none;
+  background: var(--re-ink); color: #fff; font-size: 11.5px;
+  padding: 3px 8px; border-radius: 5px; white-space: nowrap; z-index: 3;
+}
+
+.re-panel-title { font-size: 17px; margin: 0 0 10px; }
+.re-section-title { font-size: 13px; font-weight: 650; margin: 16px 0 8px; }
+.re-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.re-kpi { border: 1px solid var(--re-border); border-radius: 8px; padding: 9px 11px; }
+.re-kpi-label { font-size: 10.5px; color: var(--re-muted); margin-bottom: 4px; }
+.re-kpi-value { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+.re-kpi-value span { font-size: 11.5px; font-weight: 400; color: var(--re-ink2); margin-left: 2px; }
+.re-kpi-delta { font-size: 10.5px; margin-top: 3px; color: var(--re-ink2); }
+.re-kpi-delta.is-up { color: #006300; }
+.re-kpi-delta.is-down { color: #d03b3b; }
+
+.re-chart svg { width: 100%; height: auto; display: block; }
+
+.re-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.re-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.re-table th {
+  text-align: left; font-size: 10.5px; font-weight: 600; color: var(--re-muted);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 6px; border-bottom: 1px solid var(--re-grid); white-space: nowrap;
+}
+table.re-table td { padding: 6px; border-bottom: 1px solid var(--re-grid); }
+table.re-table td.is-num, table.re-table th.is-num {
+  text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+table.re-table td.is-dim { color: var(--re-ink2); }
+
+.re-footnote { font-size: 11.5px; color: var(--re-muted); margin-top: 12px; }
+
+@media (max-width: 720px) {
+  .re-body { grid-template-columns: 1fr; }
+  .re-kpis { grid-template-columns: 1fr; }
+  .re-controls { align-items: flex-start; }
+}
