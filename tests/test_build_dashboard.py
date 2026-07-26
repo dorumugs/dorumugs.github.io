@@ -95,6 +95,19 @@ class TestBuildSummary(unittest.TestCase):
         out = self._run({"2026-06": [_trade()]})
         self.assertEqual(out["sgg"]["11680"]["hh"]["300"], 332)
 
+    def test_cancel_present_and_full_length_for_every_filter(self) -> None:
+        # '300' 필터는 해제 건을 별도로 세지 않아 배열 값이 전부 0이지만,
+        # 키 자체는 두 필터 모두 항상 있어야 한다 — 프런트가 조건 없이
+        # series[filter][sgg].cancel 을 읽을 수 있어야 하기 때문.
+        rows = [_trade(price="100000"), _trade(price="900000", cdeal="O")]
+        out = self._run({"2026-05": [], "2026-06": rows})
+        for f in ("300", "all"):
+            s = out["series"][f]["11680"]
+            self.assertIn("cancel", s)
+            self.assertEqual(len(s["cancel"]), len(out["months"]))
+        self.assertEqual(out["series"]["all"]["11680"]["cancel"], [0, 1])
+        self.assertEqual(out["series"]["300"]["11680"]["cancel"], [0, 0])
+
 
 class TestWriteJson(unittest.TestCase):
     def test_skips_write_when_unchanged(self) -> None:
@@ -142,6 +155,15 @@ class TestAgainstRealData(unittest.TestCase):
         self.assertEqual(len(data["sgg"]), 72)
         self.assertEqual(len(data["months"]), 247)
         self.assertEqual(data["months"][0], "2006-01")
+
+    @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
+    def test_cancel_present_for_every_sgg_and_filter(self) -> None:
+        data = json.loads(self.OUT.read_text(encoding="utf-8"))
+        n_months = len(data["months"])
+        for f in ("300", "all"):
+            for sgg, s in data["series"][f].items():
+                self.assertIn("cancel", s, f"{f}/{sgg} 에 cancel 키가 없음")
+                self.assertEqual(len(s["cancel"]), n_months, f"{f}/{sgg}")
 
     @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
     def test_within_size_budget(self) -> None:

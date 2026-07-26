@@ -115,6 +115,9 @@ class LazyMonths:
             yield ym, rows
 
     def get(self, ym: str, default=None):
+        """단일 월만 필요할 때 쓴다. Task 4 의 build_sgg_detail 이 이걸로
+        by_month.get(ym, []) 처럼 호출해 월별 조회를 한다 — 지금은 여기서
+        직접 쓰지 않지만 죽은 코드가 아니다."""
         return read_month(ym) if ym in self._months else default
 
 
@@ -177,12 +180,13 @@ def build_summary(by_month: dict[str, list[dict]], months: list[str],
                 med.append(round(m) if m is not None else None)
                 cnt.append(len(vals))
                 can.append(cancels[sgg].get(mi, 0) if f == "all" else 0)
-            entry: dict = {"med": med, "n": cnt}
-            # 예산 완화책: cancel 배열이 전부 0인 구는 키 자체를 생략한다.
-            # '300' 필터는 해제 건수를 별도로 세지 않아(항상 0) 늘 생략된다.
-            if any(can):
-                entry["cancel"] = can
-            series[f][sgg] = entry
+            # cancel 은 필터와 무관하게 시군구·월 단위로 한 번만 집계한다(중복
+            # 계상 방지). '300' 필터에서는 항상 0으로 채워지는데, 이는 해제
+            # 건이 없어서가 아니라 '300' 쪽에 별도로 배분하지 않기 때문이다
+            # — 버그가 아니라 의도된 설계다. 예산이 400KB 로 늘어난 뒤로는
+            # 이 배열을 생략하지 않는다. months 와 길이가 항상 같아야
+            # 프런트가 series[filter][sgg].cancel 을 조건 없이 읽을 수 있다.
+            series[f][sgg] = {"med": med, "n": cnt, "cancel": can}
 
     return {
         "generated": generated,
