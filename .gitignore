@@ -38,3 +38,10 @@ _site
 
 # Local scratch / skill output (check-tables screenshots 등)
 tmp/
+
+# Claude Code 로컬 상태 (worktree 사본과 로컬 설정이 들어있어 커밋하면 안 됨)
+.claude/
+
+# Python (수집 스크립트)
+__pycache__/
+*.py[cod]

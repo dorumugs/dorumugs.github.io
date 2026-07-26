@@ -180,6 +180,9 @@ exclude:
   - tmp
   - /docs # ignore Minimal Mistakes /docs
   - /test # ignore Minimal Mistakes /test
+  - /data # 부동산 실거래가 원본 (수십 MB). 대시보드는 집계본만 읽는다
+  - /scripts # 수집 스크립트
+  - /tests # 수집 스크립트 테스트
 keep_files:
   - .git
   - .svn
