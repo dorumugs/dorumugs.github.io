@@ -42,9 +42,10 @@
   stroke-width: 3;
 }
 
-/* 구는 누를 대상이 아니라 배경이다. 점이 묻히지 않게 옅게 깐다. */
+/* 구는 누를 대상이 아니라 배경이다. 점이 묻히지 않게 옅게 깐다. interactive:
+   false 라 map.js 가 이 구들에 리스너를 아예 안 달므로(is-hover 클래스도 안
+   붙는다) 여기서 :hover 를 따로 지울 필요가 없다. */
 .re-app.is-schools svg.re-map path { cursor: default; }
-.re-app.is-schools svg.re-map path:hover { stroke: rgba(255, 255, 255, 0.85); stroke-width: 1; }
 
 .re-legend-dots { display: flex; gap: 14px; align-items: center; font-size: 12px; color: var(--re-ink2); }
 .re-legend-dots i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
@@ -63,26 +64,6 @@
 
 .re-school-meta { font-size: 13px; color: var(--re-ink2); margin: 0 0 12px; }
 
-.re-panel-head {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 10px; flex-wrap: wrap;
-}
-.re-panel-head .re-panel-title { margin: 0; }
-
-.re-back-btn {
-  font-size: 12px; padding: 3px 11px; border-radius: 999px; cursor: pointer;
-  border: 1px solid var(--re-border); background: transparent; color: var(--re-line);
-  white-space: nowrap;
-}
-.re-back-btn:hover { background: rgba(42, 120, 214, 0.08); }
-
-/* 지역 목록 표의 행. 마우스오버·is-hover(지도 점을 가리켰을 때 반대쪽에서
-   켜짐)·키보드 포커스가 모두 같은 표시를 쓴다 — 세 입력이 결국 "이 학교를
-   가리키고 있다"는 같은 상태이기 때문이다. */
-table.re-table tr.re-list-row { cursor: pointer; }
-table.re-table tr.re-list-row:hover,
-table.re-table tr.re-list-row.is-hover,
-table.re-table tr.re-list-row:focus-visible {
-  background: rgba(42, 120, 214, 0.08);
-  outline: none;
-}
+/* .re-panel-head / .re-back-btn / tr.re-list-row 호버 규칙은 실거래 대시보드도
+   똑같이 쓰므로 dashboard.css 로 옮겼다(중복 방지). 여기서는 학군 전용 규칙만
+   남긴다. */

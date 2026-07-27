@@ -16,7 +16,7 @@ function boundsOf(paths) {
   return { minX, minY, maxX, maxY };
 }
 
-export function initMap(root, { onSelect, interactive = true }) {
+export function initMap(root, { onSelect, onHover = () => {}, interactive = true }) {
   const svg = root.querySelector('svg.re-map');
   const tip = root.querySelector('.re-tip');
   // .re-tip 의 실제 위치 기준(포함 블록)은 position:relative 인 .re-map-wrap 이다.
@@ -26,6 +26,7 @@ export function initMap(root, { onSelect, interactive = true }) {
   const byCode = new Map(paths.map((p) => [p.dataset.sgg, p]));
   let labels = new Map();
   let selected = null;
+  let hovered = null;
 
   function showTip(path, evt) {
     const code = path.dataset.sgg;
@@ -49,6 +50,34 @@ export function initMap(root, { onSelect, interactive = true }) {
     tip.style.top = `${y}px`;
   }
 
+  // 점(가운데 위)이 없어 evt 없이 프로그램적으로 가리킬 때(표 행 호버 →
+  // 지도, setHovered) 쓸 좌표를 구의 화면 상자 중앙에서 만든다. 실제
+  // 마우스이동은 evt.clientX/Y 를 그대로 쓴다(showTip 참고).
+  function centerEvt(path) {
+    const box = path.getBoundingClientRect();
+    return { clientX: box.left + box.width / 2, clientY: box.top };
+  }
+
+  // 구를 "가리킨(hover/focus)" 상태로 표시한다. 실제 마우스이동·이탈, 구의
+  // 키보드 포커스·블러, 그리고 표 행 호버가 부르는 setHovered() 가 전부 이
+  // 함수를 거친다 — is-hover 클래스·툴팁·표 쪽으로 보내는 onHover 콜백을 한
+  // 곳에서만 관리하기 위해서다(schoolmap.js 의 applyHover 와 같은 얼개).
+  function applyHover(path, evt) {
+    if (hovered === path) {
+      if (path) showTip(path, evt || centerEvt(path));
+      return;
+    }
+    if (hovered) hovered.classList.remove('is-hover');
+    hovered = path;
+    if (hovered) {
+      hovered.classList.add('is-hover');
+      showTip(hovered, evt || centerEvt(hovered));
+    } else {
+      tip.hidden = true;
+    }
+    onHover(hovered ? hovered.dataset.sgg : null);
+  }
+
   // 학군 페이지처럼 구가 누를 대상이 아닌 화면에서는 포커스·클릭을 걸지 않는다.
   // 걸면 아무 동작도 하지 않는 포커스 가능한 버튼이 72개 생긴다.
   if (interactive) {
@@ -63,13 +92,10 @@ export function initMap(root, { onSelect, interactive = true }) {
           onSelect(path.dataset.sgg);
         }
       });
-      path.addEventListener('mousemove', (e) => showTip(path, e));
-      path.addEventListener('mouseleave', () => { tip.hidden = true; });
-      path.addEventListener('focus', () => {
-        const box = path.getBoundingClientRect();
-        showTip(path, { clientX: box.left + box.width / 2, clientY: box.top });
-      });
-      path.addEventListener('blur', () => { tip.hidden = true; });
+      path.addEventListener('mousemove', (e) => applyHover(path, e));
+      path.addEventListener('mouseleave', () => { if (hovered === path) applyHover(null); });
+      path.addEventListener('focus', () => applyHover(path));
+      path.addEventListener('blur', () => { if (hovered === path) applyHover(null); });
     }
   }
 
@@ -102,6 +128,14 @@ export function initMap(root, { onSelect, interactive = true }) {
     codesIn(view) {
       const prefix = VIEW_PREFIX[view] ?? '';
       return paths.map((p) => p.dataset.sgg).filter((c) => c.startsWith(prefix));
+    },
+    // 시군구 코드로 호버 상태를 프로그램적으로 건다 — 랭킹 표의 행을 마우스로
+    // 가리키거나 키보드로 포커스했을 때 app.js 가 호출한다. 지금 뷰에 없는
+    // (다른 지역 탭의, display:none 인) 코드나 존재하지 않는 코드면 안전하게
+    // 아무 일도 하지 않는다(= 켜져 있던 호버를 지우는 것으로 끝).
+    setHovered(code) {
+      const path = code ? byCode.get(code) : null;
+      applyHover(path && path.style.display !== 'none' ? path : null);
     },
   };
 }

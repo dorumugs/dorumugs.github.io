@@ -54,9 +54,42 @@ svg.re-map path {
   stroke: rgba(255, 255, 255, 0.85); stroke-width: 1;
   cursor: pointer; transition: fill 120ms linear;
 }
-svg.re-map path:hover { stroke: var(--re-ink); stroke-width: 1.5; }
-svg.re-map path:focus-visible { outline: none; stroke: var(--re-ink); stroke-width: 2; }
-svg.re-map path.is-selected { stroke: var(--re-ink); stroke-width: 2; }
+/* is-hover(가리킴 — 실제 마우스오버/키보드 포커스와, 랭킹 표 행 호버가 부르는
+   setHovered() 양쪽에서 켜짐)와 is-selected(클릭해 고른 구)는 색·굵기를 다르게
+   둬 두 상태가 같아 보이지 않게 한다. 학군 지도 점(schools.css 의 is-hover/
+   is-selected)과 같은 얼개 — ink2=가리킴, ink=선택. */
+svg.re-map path.is-hover,
+svg.re-map path:focus-visible {
+  outline: none;
+  stroke: var(--re-ink2);
+  stroke-width: 2;
+}
+svg.re-map path.is-selected { stroke: var(--re-ink); stroke-width: 2.5; }
+
+.re-panel-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap;
+}
+.re-panel-head .re-panel-title { margin: 0; }
+
+.re-back-btn {
+  font-size: 12px; padding: 3px 11px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--re-border); background: transparent; color: var(--re-line);
+  white-space: nowrap;
+}
+.re-back-btn:hover { background: rgba(42, 120, 214, 0.08); }
+
+/* 목록 표의 행(re-list-row). 마우스오버·is-hover(지도 쪽을 가리켰을 때 반대쪽
+   에서 켜짐)·키보드 포커스가 모두 같은 표시를 쓴다 — 세 입력이 결국 "이
+   항목을 가리키고 있다"는 같은 상태이기 때문이다. 학군 지도·실거래 대시보드
+   랭킹 표가 함께 쓰는 규칙이라 여기(dashboard.css)에 둔다. */
+table.re-table tr.re-list-row { cursor: pointer; }
+table.re-table tr.re-list-row:hover,
+table.re-table tr.re-list-row.is-hover,
+table.re-table tr.re-list-row:focus-visible {
+  background: rgba(42, 120, 214, 0.08);
+  outline: none;
+}
 
 .re-legend {
   display: flex; align-items: center; gap: 0;

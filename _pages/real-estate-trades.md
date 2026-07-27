@@ -47,7 +47,10 @@ description: "국토교통부 실거래가 435만 건으로 만든 서울·경�
       <div class="re-tip" role="status" hidden></div>
     </div>
     <div class="re-panel">
-      <h2 class="re-panel-title">지역을 선택하세요</h2>
+      <div class="re-panel-head">
+        <h2 class="re-panel-title">지역을 선택하세요</h2>
+        <button type="button" class="re-back-btn" hidden>← 목록으로</button>
+      </div>
       <div class="re-kpis"></div>
       <h3 class="re-section-title re-chart-heading" hidden>평당가 추이</h3>
       <div class="re-chart"></div>

@@ -9,6 +9,14 @@ const state = { view: 'seoul', metric: 'chg12', filter: '300', ym: null, sgg: nu
 let summary = null;
 let map = null;
 
+// 국토부 코드 목록에서 온 시군구 이름도 신뢰할 수 없는 외부 입력이다(charts.js
+// 의 단지명과 같은 이유). innerHTML 에 그대로 넣기 전에 이스케이프한다.
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[ch]));
+}
+
 const METRICS = {
   level: { label: '중위 평당가', unit: '만원/평', kind: 'sequential' },
   chg3: { label: '3개월 변화율', unit: '%', kind: 'diverging', lag: 3 },
@@ -110,7 +118,9 @@ function repaint() {
 }
 
 // 구 선택 전 첫 화면. 새로 지역 전체 중위값을 만들지 않고, 이미 지도에 칠한
-// 값을 그대로 표로 늘어놓는다 — 지도 툴팁과 값·서식이 완전히 같다.
+// 값을 그대로 표로 늘어놓는다 — 지도 툴팁과 값·서식이 완전히 같다. 행마다
+// data-code 를 심어 두 방향 호버(행 → 지도, 지도 → 행)와 클릭 선택이 코드로
+// 바로 이어지게 한다(학군 페이지의 re-list-row 와 같은 얼개).
 function renderLanding(raw, spec) {
   const rows = [...raw.entries()]
     .sort((a, b) => {
@@ -118,14 +128,95 @@ function renderLanding(raw, spec) {
       const bv = Number.isFinite(b[1]) ? b[1] : -Infinity;
       return bv - av;
     })
-    .map(([code, v], i) => `<tr><td class="is-num is-dim">${i + 1}</td>`
-      + `<td>${summary.sgg[code].name}</td>`
-      + `<td class="is-num">${formatMetric(v, spec)}</td></tr>`)
+    .map(([code, v], i) => {
+      const name = summary.sgg[code].name;
+      return `<tr class="re-list-row" data-code="${esc(code)}" tabindex="0" `
+        + `role="button" aria-label="${esc(name)} 상세 보기">`
+        + `<td class="is-num is-dim">${i + 1}</td>`
+        + `<td>${esc(name)}</td>`
+        + `<td class="is-num">${formatMetric(v, spec)}</td></tr>`;
+    })
     .join('');
   root.querySelector('.re-chart').innerHTML = rows
     ? `<table class="re-table"><thead><tr><th></th><th>시군구</th>`
       + `<th class="is-num">${spec.label}</th></tr></thead><tbody>${rows}</tbody></table>`
     : '<p class="re-error">표시할 데이터가 없습니다.</p>';
+}
+
+// 지도 구를 가리켰을 때(map.js 의 onHover) 랭킹 표의 해당 행을 표시한다 —
+// 반대 방향(행 → 구)은 map.setHovered() 가 맡는다. 구가 선택되면 .re-chart
+// 는 표 대신 추이 차트가 되므로(.re-table 이 없으므로) 조용히 아무 일도
+// 하지 않는다.
+function highlightRankRow(code) {
+  const table = root.querySelector('.re-chart .re-table');
+  const prev = table && table.querySelector('tr.re-list-row.is-hover');
+  if (prev) prev.classList.remove('is-hover');
+  if (!code || !table) return;
+  const tr = Array.from(table.querySelectorAll('tr.re-list-row'))
+    .find((r) => r.dataset.code === code);
+  if (tr) tr.classList.add('is-hover');
+}
+
+// 랭킹 표(.re-chart 안, 선택 전에만 존재) 행 인터랙션은 위임한다 — 탭 전환·
+// "목록으로" 마다 innerHTML 을 통째로 새로 써서 개별 리스너는 매번 사라지기
+// 때문이다(schools-app.js 의 bindTableInteractions 와 같은 이유). 위임 리스너는
+// 항상 존재하는 .re-chart 컨테이너에 한 번만 건다.
+function rowAt(target) {
+  return target.closest ? target.closest('tr.re-list-row') : null;
+}
+
+function bindLandingInteractions() {
+  const chart = root.querySelector('.re-chart');
+  chart.addEventListener('click', (e) => {
+    const tr = rowAt(e.target);
+    if (tr) selectSgg(tr.dataset.code);
+  });
+  chart.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const tr = rowAt(e.target);
+    if (!tr) return;
+    e.preventDefault();
+    selectSgg(tr.dataset.code);
+  });
+  chart.addEventListener('mouseover', (e) => {
+    const tr = rowAt(e.target);
+    if (tr) map.setHovered(tr.dataset.code);
+  });
+  chart.addEventListener('mouseout', (e) => {
+    const tr = rowAt(e.target);
+    if (!tr) return;
+    // 같은 행 안의 셀 사이를 옮겨다니는 것뿐이면(relatedTarget 이 여전히 이
+    // tr 안) 무시한다 — 아니면 행을 벗어날 때마다 반짝이며 지도 색이 껐다
+    // 켜졌다 한다.
+    if (e.relatedTarget && tr.contains(e.relatedTarget)) return;
+    map.setHovered(null);
+  });
+  chart.addEventListener('focusin', (e) => {
+    const tr = rowAt(e.target);
+    if (tr) map.setHovered(tr.dataset.code);
+  });
+  chart.addEventListener('focusout', (e) => {
+    const tr = rowAt(e.target);
+    if (!tr) return;
+    if (e.relatedTarget && tr.contains(e.relatedTarget)) return;
+    map.setHovered(null);
+  });
+}
+
+// "목록으로" — 구를 고르면 KPI/차트/단지 랭킹표가 랭킹 표(.re-chart)를
+// 대체한다. 되돌아갈 방법이 없으면 갇히므로 학군 페이지와 같은 이름·위치의
+// 버튼으로 초기 화면을 되돌린다.
+function showLanding() {
+  state.sgg = null;
+  map.setSelected(null);
+  map.setHovered(null);
+  root.querySelector('.re-panel-title').textContent = '지역을 선택하세요';
+  root.querySelector('.re-back-btn').hidden = true;
+  root.querySelector('.re-kpis').innerHTML = '';
+  root.querySelector('.re-chart-heading').hidden = true;
+  root.querySelector('.re-rank-heading').hidden = true;
+  root.querySelector('.re-table').innerHTML = '';
+  repaint();
 }
 
 function drawLegend(min, max, kind, unit) {
@@ -156,10 +247,13 @@ function fillMonths() {
 async function selectSgg(code) {
   state.sgg = code;
   map.setSelected(code);
+  map.setHovered(null);
   root.querySelector('.re-panel-title').textContent = summary.sgg[code].name;
-  // 랜딩 상태에서는 이 두 헤딩을 숨겨 뒀다. 구를 고르면 그 아래 실제 내용과 함께 되살린다.
+  // 랜딩 상태에서는 이 두 헤딩과 목록으로 버튼을 숨겨 뒀다. 구를 고르면 그
+  // 아래 실제 내용과 함께 되살린다.
   root.querySelector('.re-chart-heading').hidden = false;
   root.querySelector('.re-rank-heading').hidden = false;
+  root.querySelector('.re-back-btn').hidden = false;
   const chartEl = root.querySelector('.re-chart');
   chartEl.innerHTML = '';
   try {
@@ -204,6 +298,8 @@ function bind() {
     repaint();
     if (state.sgg) selectSgg(state.sgg);
   });
+  root.querySelector('.re-back-btn').addEventListener('click', showLanding);
+  bindLandingInteractions();
 }
 
 // 글에서 특정 화면을 바로 가리킬 수 있게 상태를 주소에 싣는다.
@@ -257,7 +353,7 @@ async function start() {
   state.ym = summary.months[Math.max(0, last - 1)];
   readParams();
 
-  map = initMap(root, { onSelect: selectSgg });
+  map = initMap(root, { onSelect: selectSgg, onHover: highlightRankRow });
   fillMonths();
   bind();
 
