@@ -1,0 +1,113 @@
+/* 부동산 허브(/real-estate/) 전용. 대시보드와 섞이지 않게 .rh- 접두사만 쓴다.
+   색·회색은 대시보드(dashboard.css)와 같은 테마 값을 쓴다. */
+
+.rh-grid {
+  --rh-ink: #3d4144;
+  --rh-ink2: #646769;
+  --rh-muted: #7a8288;
+  --rh-border: rgba(61, 65, 68, 0.12);
+  --rh-live: #2a78d6;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 1.5em 0 2.5em;
+}
+
+.rh-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rh-border);
+  border-radius: 10px;
+  padding: 18px 20px 16px;
+  color: var(--rh-ink);
+  background: #fff;
+}
+
+/* 카드 전체가 링크라 테마의 밑줄·색을 걷어낸다 */
+a.rh-card, a.rh-card:hover, a.rh-card:visited, a.rh-card:focus {
+  text-decoration: none;
+  color: var(--rh-ink);
+}
+
+a.rh-card {
+  transition: border-color 120ms linear, box-shadow 120ms linear, transform 120ms linear;
+}
+
+a.rh-card:hover, a.rh-card:focus-visible {
+  border-color: var(--rh-live);
+  box-shadow: 0 2px 10px rgba(42, 120, 214, 0.12);
+  transform: translateY(-1px);
+}
+
+.rh-card.is-planned { background: rgba(61, 65, 68, 0.02); }
+
+.rh-badge {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  color: var(--rh-muted);
+  border: 1px solid var(--rh-border);
+}
+
+.is-live .rh-badge {
+  color: var(--rh-live);
+  border-color: rgba(42, 120, 214, 0.35);
+  background: rgba(42, 120, 214, 0.08);
+}
+
+.rh-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+}
+
+.rh-desc {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--rh-ink2);
+  margin: 0 0 10px;
+}
+
+.rh-points {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--rh-muted);
+}
+
+.rh-points li {
+  padding-left: 14px;
+  position: relative;
+  margin-bottom: 4px;
+  line-height: 1.55;
+}
+
+.rh-points li::before {
+  content: "·";
+  position: absolute;
+  left: 4px;
+  color: var(--rh-muted);
+}
+
+.rh-go {
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rh-live);
+}
+
+.rh-go.is-muted {
+  color: var(--rh-muted);
+  font-weight: 500;
+}
+
+@media (max-width: 720px) {
+  .rh-grid { grid-template-columns: 1fr; }
+}
