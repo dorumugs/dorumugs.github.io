@@ -4,6 +4,15 @@
 
 이 환경에는 puppeteer/selenium 이 없다. 원시 소켓으로 CDP WebSocket 을 직접 쓴다.
 스크린샷은 뷰포트 폭으로 잘려 오버플로가 안 보이므로 scrollWidth 를 재는 게 핵심이다.
+
+두 가지 상태를 각각 잰다.
+
+1. click — 구를 하나 눌러 표까지 채운 상태. 빈 표는 넘칠 수가 없다.
+2. tooltip — 화면에 보이는 것 중 가장 오른쪽 구에 mousemove 를 쏴서 지도 툴팁
+   (.re-tip)을 실제로 띄운 상태. .re-tip 은 mousemove/focus 이벤트로만 나타나는데
+   click 한 번으로는 절대 렌더링되지 않으므로, click 상태만 재면 이 요소는 검사
+   대상에 아예 들어오지 않는다 — 실제로 이 경로에서 화면 오른쪽 끝 근처 구를
+   누르면 페이지가 넘치는 버그가 있었고, click 만 보내는 이전 버전은 이를 놓쳤다.
 """
 
 from __future__ import annotations
@@ -21,6 +30,48 @@ import urllib.request
 WIDTH = 390
 HEIGHT = 844
 PORT = 9334
+
+# .re-app 안에서 뷰포트보다 넓은 요소를 찾되, 스크롤 가능한 조상(.re-table-wrap 같은)
+# 안에 있으면 정상으로 보고 건너뛴다. click/tooltip 두 상태에서 그대로 재사용한다.
+MEASURE_JS = """
+  (() => {
+    const doc = document.documentElement.scrollWidth;
+    const bad = [];
+    for (const el of document.querySelectorAll('.re-app *')) {
+      const r = el.getBoundingClientRect();
+      if (r.width <= window.innerWidth + 1) continue;
+      let p = el.parentElement, scrollable = false;
+      while (p) {
+        if (getComputedStyle(p).overflowX === 'auto'
+            || getComputedStyle(p).overflowX === 'scroll') { scrollable = true; break; }
+        p = p.parentElement;
+      }
+      if (!scrollable) bad.push(el.className + ' w=' + Math.round(r.width));
+    }
+    return JSON.stringify({doc, inner: window.innerWidth, bad: bad.slice(0, 8)});
+  })()
+"""
+
+# 지도에서 화면에 보이는(.style.display !== 'none') 구 중 오른쪽 끝이 가장 먼 것을
+# 골라 mousemove 를 쏴 툴팁을 띄운다. 지도가 없는 페이지(일반 블로그 글)에서는
+# best 가 null 이라 조용히 실패하는데, 그런 페이지에는 애초에 이 시나리오가 없으므로
+# 문제 없다.
+TRIGGER_TOOLTIP_JS = """
+  (() => {
+    const paths = Array.from(document.querySelectorAll('svg.re-map path[data-sgg]'))
+      .filter((p) => p.style.display !== 'none');
+    let best = null, bestRight = -Infinity;
+    for (const p of paths) {
+      const r = p.getBoundingClientRect();
+      if (r.right > bestRight) { bestRight = r.right; best = p; }
+    }
+    if (!best) return;
+    const r = best.getBoundingClientRect();
+    best.dispatchEvent(new MouseEvent('mousemove', {
+      bubbles: true, clientX: r.right - 2, clientY: r.top + r.height / 2,
+    }));
+  })()
+"""
 
 
 class CDP:
@@ -76,6 +127,24 @@ class CDP:
                 return msg
 
 
+def measure(cdp: CDP) -> dict:
+    """현재 상태에서 document.scrollWidth 와 넘치는 요소 목록을 잰다."""
+    res = cdp.call("Runtime.evaluate", {"returnByValue": True, "expression": MEASURE_JS})
+    return json.loads(res["result"]["result"]["value"])
+
+
+def report(state: str, out: dict) -> bool:
+    """한 상태(state)의 측정 결과를 출력하고 합격 여부를 돌려준다."""
+    ok = out["doc"] <= out["inner"] and not out["bad"]
+    print(f"[{state}] scrollWidth={out['doc']} innerWidth={out['inner']}")
+    if out["bad"]:
+        print(f"[{state}] 스크롤 컨테이너 밖에서 넘치는 요소:")
+        for b in out["bad"]:
+            print(f"  - {b}")
+    print(f"[{state}] " + ("합격" if ok else "불합격"))
+    return ok
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         print("사용법: check_mobile.py <URL>", file=sys.stderr)
@@ -97,44 +166,27 @@ def main() -> int:
                  {"width": WIDTH, "height": HEIGHT, "deviceScaleFactor": 2, "mobile": True})
         cdp.call("Page.navigate", {"url": url})
         time.sleep(7)
-        # 구를 하나 눌러 표까지 채운 상태로 잰다. 빈 표는 넘칠 수가 없다.
+
+        # 1) 구를 하나 눌러 표까지 채운 상태로 잰다.
         cdp.call("Runtime.evaluate", {"expression":
             "(document.querySelector('path[data-sgg=\"11680\"]')"
             "||document.querySelector('path[data-sgg]'))"
             ".dispatchEvent(new MouseEvent('click',{bubbles:true}))"})
         time.sleep(3)
+        ok_click = report("click", measure(cdp))
 
-        res = cdp.call("Runtime.evaluate", {"returnByValue": True, "expression": """
-          (() => {
-            const doc = document.documentElement.scrollWidth;
-            const bad = [];
-            for (const el of document.querySelectorAll('.re-app *')) {
-              const r = el.getBoundingClientRect();
-              if (r.width <= window.innerWidth + 1) continue;
-              let p = el.parentElement, scrollable = false;
-              while (p) {
-                if (getComputedStyle(p).overflowX === 'auto'
-                    || getComputedStyle(p).overflowX === 'scroll') { scrollable = true; break; }
-                p = p.parentElement;
-              }
-              if (!scrollable) bad.push(el.className + ' w=' + Math.round(r.width));
-            }
-            return JSON.stringify({doc, inner: window.innerWidth, bad: bad.slice(0, 8)});
-          })()
-        """})
-        out = json.loads(res["result"]["result"]["value"])
+        # 2) 가장 오른쪽에 보이는 구에 mousemove 를 쏴 지도 툴팁을 띄운 채로 다시 잰다.
+        cdp.call("Runtime.evaluate", {"expression": TRIGGER_TOOLTIP_JS})
+        time.sleep(1)
+        ok_tip = report("tooltip", measure(cdp))
+
         shot = cdp.call("Page.captureScreenshot",
                         {"format": "png", "captureBeyondViewport": True})
         open("/tmp/re-mobile.png", "wb").write(base64.b64decode(shot["result"]["data"]))
-
-        ok = out["doc"] <= out["inner"] and not out["bad"]
-        print(f"scrollWidth={out['doc']} innerWidth={out['inner']}")
-        if out["bad"]:
-            print("스크롤 컨테이너 밖에서 넘치는 요소:")
-            for b in out["bad"]:
-                print(f"  - {b}")
-        print("합격" if ok else "불합격")
         print("스크린샷: /tmp/re-mobile.png")
+
+        ok = ok_click and ok_tip
+        print("전체 결과: " + ("합격" if ok else "불합격"))
         return 0 if ok else 1
     finally:
         proc.terminate()

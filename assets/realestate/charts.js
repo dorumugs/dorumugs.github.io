@@ -145,7 +145,7 @@ function renderTable(root, detail, state) {
   const head = '<thead><tr><th></th><th>단지</th><th>법정동</th>'
     + '<th class="is-num">평당가(만원)</th><th class="is-num">세대</th>'
     + '<th class="is-num">거래</th></tr></thead>';
-  const body = rows.map((c, i) => `<tr><td class="is-dim">${i + 1}</td>`
+  const body = rows.map((c, i) => `<tr><td class="is-num is-dim">${i + 1}</td>`
     + `<td>${c.name}</td><td class="is-dim">${c.dong}</td>`
     + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`
     + `<td class="is-num is-dim">${c.hh != null ? c.hh.toLocaleString() : '—'}</td>`

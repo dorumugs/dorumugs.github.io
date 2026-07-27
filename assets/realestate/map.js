@@ -19,6 +19,9 @@ function boundsOf(paths) {
 export function initMap(root, { onSelect }) {
   const svg = root.querySelector('svg.re-map');
   const tip = root.querySelector('.re-tip');
+  // .re-tip 의 실제 위치 기준(포함 블록)은 position:relative 인 .re-map-wrap 이다.
+  // (root=.re-app 은 position 이 없어 기준이 아니다.) 클램프도 같은 상자를 써야 맞는다.
+  const wrap = root.querySelector('.re-map-wrap');
   const paths = Array.from(svg.querySelectorAll('path[data-sgg]'));
   const byCode = new Map(paths.map((p) => [p.dataset.sgg, p]));
   let labels = new Map();
@@ -29,9 +32,21 @@ export function initMap(root, { onSelect }) {
     const text = labels.get(code) || path.dataset.name;
     tip.textContent = text;
     tip.hidden = false;
-    const box = root.getBoundingClientRect();
-    tip.style.left = `${evt.clientX - box.left}px`;
-    tip.style.top = `${evt.clientY - box.top}px`;
+    const box = wrap.getBoundingClientRect();
+    const tipBox = tip.getBoundingClientRect();
+    // transform: translate(-50%, -140%) 로 중앙정렬 + 위로 뜨므로, 그 절반/1.4배만큼
+    // 여유를 두고 컨테이너 상자 안쪽으로 클램프한다. 화면 끝 근처 구를 눌러도
+    // 툴팁이 잘리거나 컨테이너 밖으로 나가지 않게 하기 위함.
+    const halfW = tipBox.width / 2;
+    const minX = Math.min(halfW, box.width / 2);
+    const maxX = Math.max(box.width - halfW, box.width / 2);
+    let x = evt.clientX - box.left;
+    x = Math.min(Math.max(x, minX), maxX);
+    let y = evt.clientY - box.top;
+    const minY = tipBox.height * 1.4;
+    if (y < minY) y = minY;
+    tip.style.left = `${x}px`;
+    tip.style.top = `${y}px`;
   }
 
   for (const path of paths) {
