@@ -24,6 +24,22 @@ import schools_api  # noqa: E402
 OUT_FILE = ROOT / "data" / "schools.csv.gz"
 
 
+class IncompleteCollection(Exception):
+    """실제 수신 건수가 서버가 보고한 totalCount 보다 적을 때.
+
+    schools_api.parse_response 는 빈 items 를 오류로 보지 않는다(Task 2 테스트로
+    보장됨) — 즉 페이지 중간의 빈 응답도 resultCode 상으로는 정상이다. 그래서
+    "이번 페이지가 비었다 = 다 받았다" 로 단정하면, 서버 일시 오류로 중간에 빈
+    페이지가 와도 정상 종료로 오인해 잘린 파일을 그대로 커밋하게 된다. 수신량과
+    totalCount 를 직접 대조해 이런 경우를 실패로 잡아낸다.
+    """
+
+    def __init__(self, received: int, total: int) -> None:
+        super().__init__(f"수신 {received:,}건 < 서버 보고 {total:,}건")
+        self.received = received
+        self.total = total
+
+
 def rows_to_csv(rows: list[dict]) -> str:
     """schools_api.COLUMNS 순서로 쓴다. rtms.rows_to_csv 는 실거래 컬럼 고정이라 못 쓴다."""
     buf = io.StringIO(newline="")
@@ -35,9 +51,17 @@ def rows_to_csv(rows: list[dict]) -> str:
 
 
 def collect(key: str, page_size: int = 1000) -> list[dict]:
-    """전수를 받아 서울·경기 초·중만 남긴다. 정렬해 결정론을 지킨다."""
+    """전수를 받아 서울·경기 초·중만 남긴다. 정렬해 결정론을 지킨다.
+
+    Raises:
+        IncompleteCollection: 수신 건수가 서버가 보고한 totalCount 에 못 미칠 때.
+            페이지 중간의 빈 응답(정상 resultCode)도 '끝'이 아니라 이 실패로
+            취급한다 — totalCount 가 0인 정상적인 '결과 없음' 은 seen == total(0)
+            이므로 여기 해당하지 않는다.
+    """
     kept: list[dict] = []
     seen = 0
+    total = 0
     page = 1
     while True:
         items, total = schools_api.fetch_page(key, page, page_size)
@@ -52,6 +76,8 @@ def collect(key: str, page_size: int = 1000) -> list[dict]:
         if seen >= total:
             break
         page += 1
+    if seen < total:
+        raise IncompleteCollection(seen, total)
     kept.sort(key=lambda r: (r["school_id"], r["school_name"]))
     return kept
 
@@ -72,6 +98,14 @@ def main() -> int:
             print(f"엔드포인트가 존재하지 않습니다: {schools_api.ENDPOINT}", file=sys.stderr)
         else:
             print(f"API 오류: {exc}", file=sys.stderr)
+        return 1
+    except IncompleteCollection as exc:
+        print(
+            f"수집이 완료되지 않았습니다: {exc.received:,}건 수신 / 서버 보고 "
+            f"{exc.total:,}건. 일시적 서버 오류로 보고 파일을 쓰지 않습니다. 다시 "
+            "실행하세요.",
+            file=sys.stderr,
+        )
         return 1
 
     if not rows:
