@@ -121,6 +121,22 @@ class LazyMonths:
         return read_month(ym) if ym in self._months else default
 
 
+def _is_better_peak(pp: float, trade_date: str, apt: str, current: dict | None) -> bool:
+    """새 후보가 현재까지의 peak보다 우선하는지 판정한다.
+
+    평당가가 더 높으면 무조건 우선. 평당가가 같으면(같은 단지·같은 면적·같은
+    가격이 다른 날짜에 또 거래되는 경우가 실제로 있다) 날짜가 이른 쪽을,
+    날짜까지 같으면 단지명 사전순으로 앞선 쪽을 우선한다 — 입력 행 순서와
+    무관하게 항상 같은 승자를 골라야 빌드 결과가 두 번 돌려도 바이트가
+    같아진다.
+    """
+    if current is None:
+        return True
+    cand = (-pp, trade_date, apt)
+    cur = (-current["pp"], current["date"], current["apt"])
+    return cand < cur
+
+
 def build_summary(by_month: dict[str, list[dict]], months: list[str],
                   by_pnu: dict[str, dict], by_name: dict[tuple[str, str, str], int],
                   sgg_names: dict[str, str], generated: str) -> dict:
@@ -136,6 +152,10 @@ def build_summary(by_month: dict[str, list[dict]], months: list[str],
     cancels: dict[str, dict[int, int]] = defaultdict(lambda: defaultdict(int))
     households: dict[str, dict[str, int]] = {f: defaultdict(int) for f in filters}
     seen_complex: dict[str, set[tuple[str, str]]] = {f: set() for f in filters}
+    # 필터별 · 구별 역대 최고 평당가 거래 1건. {"pp", "date", "apt", "area", "dong"}.
+    # 해제(cdeal_type == 'O') 거래는 아래 루프에서 가격 집계 전에 걸러지므로
+    # 여기 후보로 들어오지 않는다.
+    peaks: dict[str, dict[str, dict]] = {f: {} for f in filters}
 
     index = {ym: i for i, ym in enumerate(months)}
 
@@ -161,11 +181,17 @@ def build_summary(by_month: dict[str, list[dict]], months: list[str],
             if hh is not None and hh >= HOUSEHOLD_MIN:
                 targets.append("300")
             key = (sgg, normalize_name(row["apt_name"]))
+            trade_date = row["trade_date"]
+            apt = row["apt_name"]
+            dong = (row["umd_nm"] or "").split(" ")[-1]
             for f in targets:
                 prices[f][sgg][mi].append(pp)
                 if hh and key not in seen_complex[f]:
                     seen_complex[f].add(key)
                     households[f][sgg] += hh
+                if _is_better_peak(pp, trade_date, apt, peaks[f].get(sgg)):
+                    peaks[f][sgg] = {"pp": pp, "date": trade_date, "apt": apt,
+                                     "area": area, "dong": dong}
 
     series: dict[str, dict[str, dict]] = {}
     for f in filters:
@@ -187,6 +213,18 @@ def build_summary(by_month: dict[str, list[dict]], months: list[str],
             # 이 배열을 생략하지 않는다. months 와 길이가 항상 같아야
             # 프런트가 series[filter][sgg].cancel 을 조건 없이 읽을 수 있다.
             series[f][sgg] = {"med": med, "n": cnt, "cancel": can}
+            # peak: 이 필터·이 구에서 역대 가장 비쌌던 평당가 거래 1건. med 와
+            # 나란히 series[filter][sgg] 밑에 둔다 — 프런트가 구 상세를 열 때
+            # 어차피 이 경로를 이미 읽고 있으므로 새 요청 없이 바로 붙일 수
+            # 있다. 유효 거래가 한 건도 없던 구·필터는 키 자체를 생략한다
+            # (명시적 null 대신 '없음'을 부재로 표현 — 프런트는 'peak' in s
+            # 로 존재를 확인해야 한다).
+            peak = peaks[f].get(sgg)
+            if peak is not None:
+                series[f][sgg]["peak"] = {
+                    "pp": round(peak["pp"]), "date": peak["date"], "apt": peak["apt"],
+                    "area": peak["area"], "dong": peak["dong"],
+                }
 
     return {
         "generated": generated,

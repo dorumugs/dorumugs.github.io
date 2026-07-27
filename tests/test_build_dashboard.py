@@ -109,6 +109,70 @@ class TestBuildSummary(unittest.TestCase):
         self.assertEqual(out["series"]["300"]["11680"]["cancel"], [0, 0])
 
 
+class TestBuildSummaryPeak(unittest.TestCase):
+    def _run(self, by_month: dict[str, list[dict]]) -> dict:
+        complexes = {"1168010100107550001": {"name": "개나리푸르지오", "dong": "역삼동",
+                                             "hh": 332, "sgg": "11680"}}
+        by_name = {("11680", "역삼동", "개나리푸르지오"): 332}
+        return build_dashboard.build_summary(
+            by_month, sorted(by_month), complexes, by_name,
+            {"11680": "강남구"}, generated="2026-07-26")
+
+    def test_peak_picks_highest_pyeong_price(self) -> None:
+        rows = [_trade(price="100000", date="2026-06-01"),
+                _trade(price="300000", date="2026-06-15")]
+        out = self._run({"2026-06": rows})
+        peak = out["series"]["all"]["11680"]["peak"]
+        # 300000 / (84/3.3058) = 11806.4... -> 11806
+        self.assertEqual(peak["pp"], 11806)
+        self.assertEqual(peak["date"], "2026-06-15")
+        self.assertEqual(peak["apt"], "개나리푸르지오")
+        self.assertEqual(peak["dong"], "역삼동")
+
+    def test_cancelled_trade_never_becomes_peak(self) -> None:
+        rows = [_trade(price="100000", date="2026-06-01"),
+                _trade(price="900000", date="2026-06-15", cdeal="O")]
+        out = self._run({"2026-06": rows})
+        peak = out["series"]["all"]["11680"]["peak"]
+        self.assertEqual(peak["date"], "2026-06-01")  # 해제 건이 아니라 유효 거래가 peak
+
+    def test_household_filters_get_independent_peaks(self) -> None:
+        rows = [
+            _trade(price="500000", date="2026-06-01", apt="없는단지", jibun="9999-9999"),
+            _trade(price="100000", date="2026-06-02"),  # 300세대 이상 매칭
+        ]
+        out = self._run({"2026-06": rows})
+        self.assertEqual(out["series"]["all"]["11680"]["peak"]["apt"], "없는단지")
+        self.assertEqual(out["series"]["300"]["11680"]["peak"]["apt"], "개나리푸르지오")
+
+    def test_tie_breaks_by_earlier_date_then_name(self) -> None:
+        # 같은 평당가(같은 면적·가격)가 서로 다른 날짜/단지명으로 두 번 나온다.
+        rows = [
+            _trade(price="100000", date="2026-06-20", apt="나중단지", jibun="1-1"),
+            _trade(price="100000", date="2026-06-05", apt="먼저단지", jibun="2-2"),
+        ]
+        out = self._run({"2026-06": rows})
+        peak = out["series"]["all"]["11680"]["peak"]
+        self.assertEqual(peak["date"], "2026-06-05")
+        self.assertEqual(peak["apt"], "먼저단지")
+
+    def test_tie_break_is_deterministic_regardless_of_row_order(self) -> None:
+        rows_a = [
+            _trade(price="100000", date="2026-06-05", apt="가단지", jibun="1-1"),
+            _trade(price="100000", date="2026-06-05", apt="나단지", jibun="2-2"),
+        ]
+        rows_b = list(reversed(rows_a))
+        peak_a = self._run({"2026-06": rows_a})["series"]["all"]["11680"]["peak"]
+        peak_b = self._run({"2026-06": rows_b})["series"]["all"]["11680"]["peak"]
+        self.assertEqual(peak_a, peak_b)
+        self.assertEqual(peak_a["apt"], "가단지")  # 이름 사전순으로 앞선 쪽
+
+    def test_district_with_no_valid_trades_has_no_peak(self) -> None:
+        out = self._run({"2026-06": [_trade(area="0"), _trade(cdeal="O")]})
+        self.assertNotIn("peak", out["series"]["all"]["11680"])
+        self.assertNotIn("peak", out["series"]["300"]["11680"])
+
+
 class TestWriteJson(unittest.TestCase):
     def test_skips_write_when_unchanged(self) -> None:
         with tempfile.TemporaryDirectory() as d:
