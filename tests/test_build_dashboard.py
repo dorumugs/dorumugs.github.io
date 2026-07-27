@@ -206,8 +206,11 @@ class TestAgainstRealData(unittest.TestCase):
         months = data["months"]
         med = data["series"]["all"]["11680"]["med"]
         self.assertEqual(med[months.index("2006-01")], 2599)
-        self.assertEqual(med[months.index("2026-07")], 12659)
         self.assertEqual(med[months.index("2026-06")], 12252)
+        # 2026-07 은 설계 문서 작성 시점엔 아직 열려 있던(신고 지연 중) 달이라 그 뒤
+        # 늘어난 신고분만큼 중위값이 12,659 -> 12,600 으로 바뀌었다. 마감된 달
+        # (2006-01, 2026-06)은 그대로다 — 드리프트가 아니라 정상적인 재집계다.
+        self.assertEqual(med[months.index("2026-07")], 12600)
 
     @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
     def test_covers_all_regions_and_months(self) -> None:
