@@ -24,16 +24,30 @@ python3 -u scripts/collect_trades.py --max-calls "$MAX_CALLS"
 
 # 수집이 일일 한도로 중간에 멈춘 날에도 집계는 돌린다.
 # 그날까지 받은 데이터로 만든 대시보드가 어제 것보다 낫다.
+#
+# build_dashboard.py 는 summary.json/구별 JSON 이 예산을 넘으면 1로 종료한다.
+# set -e 아래서 그냥 호출하면 그 순간 스크립트가 죽어 커밋 단계 자체를 못 가고,
+# 그날 수집한 data/trades 마저 커밋되지 않은 채 유실된다 — 다음 cron 실행도
+# 같은 지점에서 또 죽으므로 사람이 개입할 때까지 매일 반복된다. 집계 실패는
+# 기록만 해 두고 커밋/푸시는 그대로 진행한다: 집계본 없이 수집분만 커밋하는 게
+# 아무것도 커밋하지 않는 것보다 항상 낫다. 대신 스크립트 마지막에 반드시
+# 비정상 종료해 cron 로그에 남긴다.
 echo "----- 집계 시작 -----"
-python3 -u scripts/build_dashboard.py
+BUILD_FAILED=0
+if ! python3 -u scripts/build_dashboard.py; then
+  BUILD_FAILED=1
+  echo "집계 실패 — build_dashboard.py 가 예산 초과 등으로 비정상 종료했습니다. 집계본 없이 수집분만 커밋합니다." >&2
+fi
 
 if [ "$AUTO_COMMIT" != "1" ]; then
   echo "AUTO_COMMIT 이 꺼져 있어 커밋하지 않습니다."
+  if [ "$BUILD_FAILED" = "1" ]; then exit 1; fi
   exit 0
 fi
 
 if [ -z "$(git status --porcelain data assets/realestate)" ]; then
   echo "변경된 데이터 파일이 없어 커밋을 건너뜁니다."
+  if [ "$BUILD_FAILED" = "1" ]; then exit 1; fi
   exit 0
 fi
 
@@ -44,14 +58,22 @@ export GIT_COMMITTER_NAME="Jaehyun So"
 export GIT_COMMITTER_EMAIL="dorumugs@gmail.com"
 
 MONTHS=$(git status --porcelain data/trades | wc -l | tr -d ' ')
-git add data assets/realestate
-git commit -q -m "Accumulate Seoul/Gyeonggi apartment trade data
+COMMIT_MSG="Accumulate Seoul/Gyeonggi apartment trade data
 
 수집 스크립트가 자동 갱신한 월별 실거래가 파일 ${MONTHS}개와 대시보드 집계본."
+if [ "$BUILD_FAILED" = "1" ]; then
+  COMMIT_MSG="Accumulate Seoul/Gyeonggi apartment trade data
+
+수집 스크립트가 자동 갱신한 월별 실거래가 파일 ${MONTHS}개. 집계 단계는 예산 초과 등으로 실패해
+대시보드 파일 상태가 최신이 아닐 수 있음."
+fi
+git add data assets/realestate
+git commit -q -m "$COMMIT_MSG"
 
 echo "커밋 완료."
 
 if [ "$AUTO_PUSH" != "1" ]; then
+  if [ "$BUILD_FAILED" = "1" ]; then exit 1; fi
   exit 0
 fi
 
@@ -68,3 +90,6 @@ fi
 
 git push -q origin gh-pages
 echo "push 완료."
+
+# 집계가 실패했으면 커밋/푸시는 끝까지 했더라도 cron 로그·종료 코드에는 남긴다.
+if [ "$BUILD_FAILED" = "1" ]; then exit 1; fi
