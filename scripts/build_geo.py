@@ -2,7 +2,7 @@
 
 원본: vuski/admdongkor ver20260701 (약 34MB). 저장소에 넣지 않고 결과물만 커밋한다.
 
-    python3 scripts/build_geo.py --input /tmp/geo/hjd.geojson
+    python3 scripts/build_geo.py --input /tmp/geo/hjd.geojson --eps 0.05
 
 서울/경기 탭은 같은 SVG 의 viewBox 를 바꿔 구현하므로 지도는 한 장만 만든다.
 따라서 단순화 강도는 가장 확대되는 뷰(서울) 기준으로 잡아야 한다.
@@ -268,13 +268,19 @@ def simplify(projected: dict[str, list[list[Point]]], eps: float,
     return out
 
 
-def main() -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="행정동 GeoJSON 경로")
-    parser.add_argument("--eps", type=float, default=1.0,
+    # 0.05 는 dissolve 도입 후 커밋된 지도(225,350B, 88 서브패스)를 그대로
+    # 재현하는 값이다. 기본값을 바꾸면 이 주석과 커밋된 SVG 도 함께 갱신할 것.
+    parser.add_argument("--eps", type=float, default=0.05,
                         help="단순화 강도. 서울 뷰 기준으로 정한다")
     parser.add_argument("--min-area", type=float, default=4.0)
-    args = parser.parse_args()
+    return parser
+
+
+def main() -> int:
+    args = build_parser().parse_args()
 
     data = json.loads(Path(args.input).read_text(encoding="utf-8"))
     merged = merge_sgg(data["features"])

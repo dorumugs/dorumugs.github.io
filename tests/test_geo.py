@@ -144,6 +144,17 @@ class TestToSvg(unittest.TestCase):
         self.assertLess(a.index("sgg-11680"), a.index("sgg-41135"))  # 코드 정렬
 
 
+class TestBuildParser(unittest.TestCase):
+    def test_eps_default_reproduces_committed_svg(self) -> None:
+        """기본 --eps 는 dissolve 도입 후 커밋된 지도를 낸 값(0.05)과 같아야 한다.
+
+        어긋나면 인자 없이 재실행했을 때 커밋된 SVG 와 다른(더 거친) 지도가
+        조용히 만들어진다.
+        """
+        args = build_geo.build_parser().parse_args(["--input", "x.geojson"])
+        self.assertEqual(args.eps, 0.05)
+
+
 class TestAgainstRealSource(unittest.TestCase):
     """원본 GeoJSON 이 있을 때만 도는 대조 테스트."""
 
