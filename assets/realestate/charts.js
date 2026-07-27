@@ -98,6 +98,14 @@ function pct(v) {
   return v == null ? '자료 없음' : `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
 }
 
+// 국토부 원본 단지명은 신뢰할 수 없는 외부 입력이다. innerHTML 에 그대로
+// 넣으면 '<1동,2동>' 같은 이름이 태그로 파싱된다. HTML 특수문자를 이스케이프한다.
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[ch]));
+}
+
 export function renderPanel(root, summary, detail, state) {
   const series = summary.series[state.filter][detail.sgg];
   const index = summary.months.indexOf(state.ym);
@@ -105,7 +113,10 @@ export function renderPanel(root, summary, detail, state) {
   const months = summary.months.slice(0, index + 1);
 
   const now = med[index];
-  const yoy = index >= 12 && med[index - 12] ? (now / med[index - 12] - 1) * 100 : null;
+  const before = index >= 12 ? med[index - 12] : null;
+  const yoy = now != null && before != null && before !== 0
+    ? (now / before - 1) * 100
+    : null;
 
   let n12 = 0, prev12 = 0;
   for (let i = Math.max(0, index - 11); i <= index; i += 1) n12 += series.n[i] || 0;
@@ -146,10 +157,10 @@ function renderTable(root, detail, state) {
     + '<th class="is-num">평당가(만원)</th><th class="is-num">세대</th>'
     + '<th class="is-num">거래</th></tr></thead>';
   const body = rows.map((c, i) => `<tr><td class="is-num is-dim">${i + 1}</td>`
-    + `<td>${c.name}</td><td class="is-dim">${c.dong}</td>`
+    + `<td>${esc(c.name)}</td><td class="is-dim">${esc(c.dong)}</td>`
     + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`
     + `<td class="is-num is-dim">${c.hh != null ? c.hh.toLocaleString() : '—'}</td>`
-    + `<td class="is-num is-dim">${c.n}</td></tr>`).join('');
+    + `<td class="is-num is-dim">${c.n.toLocaleString()}</td></tr>`).join('');
   root.querySelector('.re-table').innerHTML = rows.length
     ? `${head}<tbody>${body}</tbody>`
     : `${head}<tbody><tr><td colspan="6">최근 12개월 거래 5건 이상 단지가 없습니다.</td></tr></tbody>`;
