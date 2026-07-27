@@ -54,7 +54,7 @@ if [ "$AUTO_COMMIT" != "1" ]; then
   exit 0
 fi
 
-if [ -z "$(git status --porcelain data assets/realestate/summary.json assets/realestate/sgg assets/realestate/schools.json)" ]; then
+if [ -z "$(git status --porcelain data/trades data/state assets/realestate/summary.json assets/realestate/sgg assets/realestate/schools.json)" ]; then
   echo "변경된 데이터 파일이 없어 커밋을 건너뜁니다."
   if [ "$BUILD_FAILED" = "1" ]; then exit 1; fi
   exit 0
@@ -82,7 +82,16 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 fi
 # 손으로 쓴 소스(app.js/charts.js/map.js/data.js/palette.js/dashboard.css)를
 # 실수로 함께 커밋하지 않도록 생성물 경로만 스테이징한다.
-git add data assets/realestate/summary.json assets/realestate/sgg assets/realestate/schools.json
+#
+# data/trades, data/state 만 스테이징한다 — 이 크론이 실제로 만드는 경로다.
+# data/geo/(투영·map.svg 짝) 와 data/schools.csv.gz 는 사람이 수동으로 돌리고
+# 커밋하는 경로라 여기서 건드리면 안 된다. build_geo.py 는 projection.json 과
+# map.svg 를 항상 같이 쓰는데, map.svg 는 _includes/realestate/ 에 있어 이
+# 크론이 스테이징하는 경로 밖이다 — data 를 통째로 add 하면 누군가 지도를
+# 재생성만 해 두고 커밋하지 않은 상태에서 이 크론이 돌 때 projection.json 과
+# 그걸로 다시 만든 schools.json 만 커밋되고 map.svg 는 옛날 것으로 남아,
+# 학교 점이 조용히 어긋난다.
+git add data/trades data/state assets/realestate/summary.json assets/realestate/sgg assets/realestate/schools.json
 git commit -q -m "$COMMIT_MSG"
 
 echo "커밋 완료."
