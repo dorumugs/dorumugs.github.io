@@ -25,6 +25,7 @@ import regions  # noqa: E402
 GEO_DIR = ROOT / "data" / "geo"
 GEO_FILE = GEO_DIR / "sgg_seoul_gyeonggi.geojson"
 SVG_FILE = ROOT / "_includes" / "realestate" / "map.svg"
+PROJECTION_FILE = GEO_DIR / "projection.json"
 
 SIDO = ("11", "41")
 SVG_WIDTH = 1000.0
@@ -203,11 +204,11 @@ def rdp(points: list[Point], eps: float) -> list[Point]:
     return [p for p, k in zip(points, keep) if k]
 
 
-def project(rings: dict[str, list[Ring]], width: float) -> tuple[dict[str, list[list[Point]]], float, float]:
-    """등장방형 투영 + 위도 보정. 전체가 width 에 꽉 차도록 맞춘다.
+def projection_params(rings: dict[str, list[Ring]], width: float) -> dict[str, float]:
+    """투영에 필요한 상수를 계산한다.
 
-    이 정도 면적(서울·경기)에서는 왜곡이 눈에 띄지 않아 별도 라이브러리가 필요 없다.
-    y 는 위가 북쪽이 되도록 뒤집는다.
+    학교 점처럼 나중에 같은 지도 위에 올릴 좌표가 이 값을 그대로 써야 한다.
+    두 곳에서 각자 계산하면 경계 데이터나 --eps 를 갱신할 때 조용히 어긋난다.
     """
     pts = [pt for rs in rings.values() for r in rs for pt in r]
     lons = [p[0] for p in pts]
@@ -217,16 +218,33 @@ def project(rings: dict[str, list[Ring]], width: float) -> tuple[dict[str, list[
     k = math.cos(math.radians((min_lat + max_lat) / 2))
     span_x = (max_lon - min_lon) * k
     span_y = max_lat - min_lat
-    height = width * span_y / span_x
+    return {
+        "min_lon": min_lon,
+        "max_lat": max_lat,
+        "k": k,
+        "span_x": span_x,
+        "span_y": span_y,
+        "width": width,
+        "height": width * span_y / span_x,
+    }
+
+
+def project(rings: dict[str, list[Ring]], width: float) -> tuple[dict[str, list[list[Point]]], float, float]:
+    """등장방형 투영 + 위도 보정. 전체가 width 에 꽉 차도록 맞춘다.
+
+    이 정도 면적(서울·경기)에서는 왜곡이 눈에 띄지 않아 별도 라이브러리가 필요 없다.
+    y 는 위가 북쪽이 되도록 뒤집는다.
+    """
+    p = projection_params(rings, width)
 
     def to_xy(pt: list[float]) -> Point:
         return (
-            (pt[0] - min_lon) * k / span_x * width,
-            (max_lat - pt[1]) / span_y * height,
+            (pt[0] - p["min_lon"]) * p["k"] / p["span_x"] * p["width"],
+            (p["max_lat"] - pt[1]) / p["span_y"] * p["height"],
         )
 
     out = {code: [[to_xy(pt) for pt in ring] for ring in rs] for code, rs in rings.items()}
-    return out, width, height
+    return out, p["width"], p["height"]
 
 
 def to_svg(projected: dict[str, list[list[Point]]], names: dict[str, str],
@@ -296,6 +314,7 @@ def main() -> int:
     dissolved = {code: dissolve(rings) for code, rings in merged.items()}
 
     projected, w, h = project(dissolved, SVG_WIDTH)
+    params = projection_params(dissolved, SVG_WIDTH)
     projected = simplify(projected, args.eps, args.min_area)
 
     empty = sorted(c for c, rings in projected.items() if not rings)
@@ -330,6 +349,9 @@ def main() -> int:
         json.dumps(geo, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
         encoding="utf-8")
     SVG_FILE.write_text(svg, encoding="utf-8")
+    PROJECTION_FILE.write_text(
+        json.dumps(params, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8")
 
     subpaths = sum(len(rings) for rings in projected.values())
     print(f"시군구 {len(projected)}개, 서브패스 {subpaths}개, "

@@ -104,6 +104,33 @@ class TestRdp(unittest.TestCase):
         self.assertEqual(build_geo.rdp(pts, 99.0), pts)
 
 
+class TestProjectionParams(unittest.TestCase):
+    RING = [[126.0, 37.0], [127.0, 37.0], [127.0, 38.0], [126.0, 37.0]]
+
+    def test_returns_every_key_the_consumer_needs(self) -> None:
+        p = build_geo.projection_params({"11680": [self.RING]}, 1000.0)
+        self.assertEqual(
+            sorted(p),
+            ["height", "k", "max_lat", "min_lon", "span_x", "span_y", "width"],
+        )
+
+    def test_matches_project_output(self) -> None:
+        """같은 점을 params 로 직접 변환한 값과 project() 결과가 같아야 한다."""
+        rings = {"11680": [self.RING]}
+        projected, _, _ = build_geo.project(rings, 1000.0)
+        p = build_geo.projection_params(rings, 1000.0)
+        lon, lat = self.RING[1]
+        x = (lon - p["min_lon"]) * p["k"] / p["span_x"] * p["width"]
+        y = (p["max_lat"] - lat) / p["span_y"] * p["height"]
+        got_x, got_y = projected["11680"][0][1]
+        self.assertAlmostEqual(x, got_x, places=9)
+        self.assertAlmostEqual(y, got_y, places=9)
+
+    def test_height_follows_aspect_ratio(self) -> None:
+        p = build_geo.projection_params({"x": [self.RING]}, 1000.0)
+        self.assertAlmostEqual(p["height"], p["width"] * p["span_y"] / p["span_x"], places=9)
+
+
 class TestProject(unittest.TestCase):
     def test_fills_requested_width_and_flips_y(self) -> None:
         ring = [[126.0, 37.0], [127.0, 37.0], [127.0, 38.0], [126.0, 37.0]]
