@@ -1,0 +1,46 @@
+/* 학군 지도 전용. 색은 dashboard.css 의 --re-* 와 palette.js 를 따른다. */
+
+.re-school-layer .re-dot {
+  cursor: pointer;
+  stroke: #fff;
+  stroke-width: 1.5;
+  transition: r 100ms linear;
+}
+
+/* 학교급 색은 palette.js 의 범주형 앞 두 칸과 같은 값이다.
+   초=blue slot 1, 중=orange slot 2. 2종이라 모든 대비 판정에 여유가 있다. */
+.re-school-layer .re-dot.is-초 { fill: #2a78d6; }
+.re-school-layer .re-dot.is-중 { fill: #eb6834; }
+
+.re-school-layer .re-dot:hover,
+.re-school-layer .re-dot:focus-visible {
+  r: 7;
+  outline: none;
+}
+
+.re-school-layer .re-dot.is-selected {
+  r: 8;
+  stroke: var(--re-ink);
+  stroke-width: 2.5;
+}
+
+/* 구는 누를 대상이 아니라 배경이다. 점이 묻히지 않게 옅게 깐다. */
+.re-app.is-schools svg.re-map path { cursor: default; }
+.re-app.is-schools svg.re-map path:hover { stroke: rgba(255, 255, 255, 0.85); stroke-width: 1; }
+
+.re-legend-dots { display: flex; gap: 14px; align-items: center; font-size: 12px; color: var(--re-ink2); }
+.re-legend-dots i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.re-legend-dots .is-초 { background: #2a78d6; }
+.re-legend-dots .is-중 { background: #eb6834; }
+
+.re-caveat {
+  font-size: 12px;
+  color: var(--re-ink2);
+  background: rgba(61, 65, 68, 0.05);
+  border-radius: 6px;
+  padding: 8px 11px;
+  margin: 10px 0 0;
+  line-height: 1.6;
+}
+
+.re-school-meta { font-size: 13px; color: var(--re-ink2); margin: 0 0 12px; }

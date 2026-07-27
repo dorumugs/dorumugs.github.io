@@ -16,7 +16,7 @@ function boundsOf(paths) {
   return { minX, minY, maxX, maxY };
 }
 
-export function initMap(root, { onSelect }) {
+export function initMap(root, { onSelect, interactive = true }) {
   const svg = root.querySelector('svg.re-map');
   const tip = root.querySelector('.re-tip');
   // .re-tip 의 실제 위치 기준(포함 블록)은 position:relative 인 .re-map-wrap 이다.
@@ -49,24 +49,28 @@ export function initMap(root, { onSelect }) {
     tip.style.top = `${y}px`;
   }
 
-  for (const path of paths) {
-    path.setAttribute('tabindex', '0');
-    path.setAttribute('role', 'button');
-    path.setAttribute('aria-label', path.dataset.name);
-    path.addEventListener('click', () => onSelect(path.dataset.sgg));
-    path.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onSelect(path.dataset.sgg);
-      }
-    });
-    path.addEventListener('mousemove', (e) => showTip(path, e));
-    path.addEventListener('mouseleave', () => { tip.hidden = true; });
-    path.addEventListener('focus', () => {
-      const box = path.getBoundingClientRect();
-      showTip(path, { clientX: box.left + box.width / 2, clientY: box.top });
-    });
-    path.addEventListener('blur', () => { tip.hidden = true; });
+  // 학군 페이지처럼 구가 누를 대상이 아닌 화면에서는 포커스·클릭을 걸지 않는다.
+  // 걸면 아무 동작도 하지 않는 포커스 가능한 버튼이 72개 생긴다.
+  if (interactive) {
+    for (const path of paths) {
+      path.setAttribute('tabindex', '0');
+      path.setAttribute('role', 'button');
+      path.setAttribute('aria-label', path.dataset.name);
+      path.addEventListener('click', () => onSelect(path.dataset.sgg));
+      path.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(path.dataset.sgg);
+        }
+      });
+      path.addEventListener('mousemove', (e) => showTip(path, e));
+      path.addEventListener('mouseleave', () => { tip.hidden = true; });
+      path.addEventListener('focus', () => {
+        const box = path.getBoundingClientRect();
+        showTip(path, { clientX: box.left + box.width / 2, clientY: box.top });
+      });
+      path.addEventListener('blur', () => { tip.hidden = true; });
+    }
   }
 
   return {
