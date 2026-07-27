@@ -140,7 +140,6 @@ latitude, longitude, referenceDate, insttCode, insttNm
 `numOfRows=1000` 으로 13번 부르면 전국이 다 온다. 서울·경기 필터는 `lnmadr` 접두사
 (`서울특별시` / `경기도`)로 거른다 — `cddcNm` 도 쓸 수 있지만 주소가 법정동 조인에
 어차피 필요하므로 한 곳만 본다.
-data.go.kr 에서 데이터셋별로 활용신청이 필요하다. 표준데이터는 보통 자동승인이다.
 
 ### 두 단계로 나눠 낸다
 
@@ -186,7 +185,7 @@ data.go.kr 에서 데이터셋별로 활용신청이 필요하다. 표준데이�
 data/geo/projection.json ──────────────┤  scripts/build_schools.py
   (build_geo.py 가 내보낸 투영 파라미터)  │  필터 + 위경도→SVG 좌표 + 법정동 조인
                                           ▼
-                        assets/realestate/schools.json  (걸러진 250~350개 전부)
+                        assets/realestate/schools.json  (걸러진 255개 전부)
                                           │
                                           ▼
               _pages/real-estate-schools.md  →  /real-estate/schools/
@@ -194,7 +193,7 @@ data/geo/projection.json ──────────────┤  scripts/
 
 원본 → 집계 → 표현 3단 분리는 실거래 때와 같다.
 
-**구별로 쪼개지 않는다.** 걸러낸 학교가 300개 안팎이라 한 파일에 다 들어간다
+**구별로 쪼개지 않는다.** 걸러낸 학교가 255개라 한 파일에 다 들어간다
 (예상 40KB 내외). 실거래 대시보드가 구별 lazy load 를 쓴 건 단지가 구당
 수만 건이어서였다. 여기서는 그럴 이유가 없고, 한 번에 받아야 전체 분포를
 첫 화면에 뿌릴 수 있다.
