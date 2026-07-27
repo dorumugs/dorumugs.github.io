@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import itertools
 import json
+import math
 import sys
 import unittest
 from pathlib import Path
@@ -13,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import build_geo  # noqa: E402
 import build_schools  # noqa: E402
 
 PARAMS = {"min_lon": 126.0, "max_lat": 38.0, "k": 0.8,
@@ -40,6 +43,44 @@ class TestToSvgXy(unittest.TestCase):
         _, y_north = build_schools.to_svg_xy(37.9, 127.0, PARAMS)
         _, y_south = build_schools.to_svg_xy(37.1, 127.0, PARAMS)
         self.assertLess(y_north, y_south)
+
+
+class TestCrossModuleProjection(unittest.TestCase):
+    """build_schools.to_svg_xy 와 build_geo.project 가 같은 투영식을 쓰는지 묶어 검증한다.
+
+    두 모듈은 각자 파일에 같은 산식을 손으로 다시 적어 뒀다(build_schools.py 의
+    to_svg_xy, build_geo.py 의 project). test_geo.py 는 build_geo.py 만, 이 파일의
+    TestToSvgXy 는 build_schools.py 만 각자 자기 공식을 되풀이해 검증할 뿐 서로
+    대조하지 않는다 — build_geo.py 의 식을 바꾸고 build_schools.py 를 그대로 두면
+    어느 쪽도 실패하지 않는다. 이 테스트가 그 틈을 잇는다: build_geo.projection_params
+    가 낸 파라미터로 build_schools.to_svg_xy 가 계산한 좌표가, 같은 점을
+    build_geo.project 로 투영한 좌표와 정확히 같아야 한다.
+    """
+
+    # (위도, 경도). 서울시청은 설계 문서(2026-07-27-school-map-design.md)의
+    # 투영 일치 검증에 쓰인 좌표다.
+    POINTS = [
+        (37.5663, 126.9779),  # 서울시청
+        (37.0, 126.0),
+        (38.0, 127.0),
+        (37.25, 126.75),
+        (37.9, 126.1),
+    ]
+    # project() 는 링이 기하학적으로 유효한 폴리곤인지 따지지 않고 점마다 독립적으로
+    # 투영한다 — 검증하려는 점들을 그대로 링 하나에 담아 project() 를 통과시킨다.
+    RING = [[lon, lat] for lat, lon in POINTS]
+    RINGS = {"11680": [RING]}
+    WIDTH = 1000.0
+
+    def test_to_svg_xy_matches_build_geo_project(self) -> None:
+        params = build_geo.projection_params(self.RINGS, self.WIDTH)
+        projected, _, _ = build_geo.project(self.RINGS, self.WIDTH)
+        got_points = projected["11680"][0]
+        self.assertEqual(len(got_points), len(self.POINTS))
+        for (lat, lon), (px, py) in zip(self.POINTS, got_points):
+            x, y = build_schools.to_svg_xy(lat, lon, params)
+            self.assertAlmostEqual(x, px, places=9, msg=f"x mismatch at ({lat}, {lon})")
+            self.assertAlmostEqual(y, py, places=9, msg=f"y mismatch at ({lat}, {lon})")
 
 
 class TestParseAddr(unittest.TestCase):
@@ -133,6 +174,45 @@ class TestBuild(unittest.TestCase):
         ]
         got = [s["name"] for s in self._run(rows)["schools"]]
         self.assertEqual(got, ["다초등학교", "가초등학교", "나초등학교"])
+
+
+class TestFanOut(unittest.TestCase):
+    """겹치는 점(예: 리라초/숭의초)이 클릭·터치로 닿지 않던 회귀에 대한 검증."""
+
+    def test_coincident_points_are_separated(self) -> None:
+        # _school() 기본 lat/lon 이 전부 같아 투영하면 정확히 같은 좌표가 된다.
+        rows = [_school(school_id=str(i), school_name=f"{chr(65 + i)}초등학교")
+                for i in range(4)]
+        schools = build_schools.build(rows, PARAMS, generated="2026-07-27")["schools"]
+        for a, b in itertools.combinations(schools, 2):
+            dist = math.hypot(a["x"] - b["x"], a["y"] - b["y"])
+            self.assertGreaterEqual(dist, build_schools.FAN_OUT_MIN_DIST,
+                                     f"{a['name']} vs {b['name']}")
+
+    def test_untouched_when_far_apart(self) -> None:
+        rows = [
+            _school(school_id="A", school_name="가초등학교",
+                    addr="서울특별시 종로구 청운동 1", lat="37.9", lon="126.5"),
+            _school(school_id="B", school_name="나초등학교",
+                    addr="서울특별시 종로구 청운동 2", lat="37.1", lon="127.5"),
+        ]
+        by_name = {r["school_name"]: r for r in rows}
+        out = build_schools.build(rows, PARAMS, generated="2026-07-27")["schools"]
+        for s in out:
+            row = by_name[s["name"]]
+            x, y = build_schools.to_svg_xy(float(row["lat"]), float(row["lon"]), PARAMS)
+            self.assertEqual(s["x"], round(x, 1))
+            self.assertEqual(s["y"], round(y, 1))
+
+    def test_two_runs_produce_identical_bytes(self) -> None:
+        """오프셋이 정렬된 위치만의 함수라면 재빌드해도 바이트가 같아야 한다."""
+        rows = [_school(school_id=str(i), school_name=f"{chr(65 + i)}초등학교")
+                for i in range(6)]
+        out1 = build_schools.build(rows, PARAMS, generated="2026-07-27")
+        out2 = build_schools.build(rows, PARAMS, generated="2026-07-27")
+        dump = lambda o: json.dumps(  # noqa: E731
+            o, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        self.assertEqual(dump(out1), dump(out2))
 
 
 class TestAgainstRealOutput(unittest.TestCase):
