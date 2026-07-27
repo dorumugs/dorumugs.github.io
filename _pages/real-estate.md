@@ -33,19 +33,19 @@ description: "수도권 부동산을 데이터로 보는 도구들을 모았습�
     <span class="rh-go">열어보기 →</span>
   </a>
 
-  <div class="rh-card is-planned">
-    <span class="rh-badge">준비 중</span>
+  <a class="rh-card is-live" href="{{ '/real-estate/schools/' | relative_url }}">
+    <span class="rh-badge">쓸 수 있음</span>
     <h2 class="rh-title">학군 지도</h2>
     <p class="rh-desc">
-      이미 글로 정리한 학군지·국제중·사립중 이야기를 지도 위에 올립니다.
-      학교 위치와 배정, 그리고 그 동네 실거래가를 같은 화면에서 보는 것이 목표입니다.
+      서울·경기 <strong>사립초 41곳</strong>을 지도에 올렸습니다.
+      학교를 누르면 그 학교가 속한 법정동의 아파트 실거래 시세가 나옵니다.
     </p>
     <ul class="rh-points">
-      <li>중학교 배정과 진학 경로</li>
-      <li>학군과 평당가를 같은 지도에서 비교</li>
+      <li>학교 위치와 그 동네 평당가를 한 화면에서</li>
+      <li>진학 상위권 중학교는 준비 중</li>
     </ul>
-    <span class="rh-go is-muted">글 먼저 읽기 ↓</span>
-  </div>
+    <span class="rh-go">열어보기 →</span>
+  </a>
 
   <div class="rh-card is-planned">
     <span class="rh-badge">구상 중</span>
