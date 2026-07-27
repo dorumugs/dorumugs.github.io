@@ -1,15 +1,22 @@
 /* 대시보드 전용. 테마 스타일을 건드리지 않도록 .re- 접두사만 쓴다. */
 
 .re-app {
-  --re-ink: #0b0b0b;
-  --re-ink2: #52514e;
-  --re-muted: #898781;
-  --re-grid: #e1e0d9;
+  /* 잉크·회색은 테마 변수에서 그대로 가져온다. dataviz 기준 팔레트의 회색은
+     따뜻한 계열(#0b0b0b/#52514e/#898781)이라 이 사이트의 차가운 회색
+     ($dark-gray #3d4144, $primary-color #6f777d) 옆에 두면 색이 튄다.
+     데이터 색(램프·라인·증감)은 검증을 통과한 값이라 그대로 둔다.
+     palette.js 의 INK/INK2/MUTED/GRID/AXIS 와 같은 값을 유지할 것. */
+  --re-ink: #3d4144;
+  --re-ink2: #646769;
+  --re-muted: #7a8288;
+  --re-grid: #e3e5e7;
   --re-line: #2a78d6;
   --re-up: #006300;
   --re-down: #d03b3b;
-  --re-border: rgba(11, 11, 11, 0.10);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --re-border: rgba(61, 65, 68, 0.12);
+  /* 폰트를 지정하지 않고 사이트(Pretendard Variable)를 그대로 물려받는다.
+     system-ui 를 강제하면 본문 글과 서체가 갈리고, 테마의 table 규칙이 다시
+     Pretendard 를 덮어써서 대시보드 안에서도 표만 다른 서체로 나온다. */
   color: var(--re-ink);
   max-width: 100%;
   /* 지도 위 툴팁(.re-tip)처럼 커서를 따라가는 절대배치 요소가 화면 오른쪽 끝 근처에서

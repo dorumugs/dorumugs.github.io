@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="서울·경기 아파트 실거래 대시보드 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2a78d6"/>
+      <stop offset="0.5" stop-color="#86b6ef"/>
+      <stop offset="1" stop-color="#d03b3b"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">서울·경기 아파트 <tspan fill="#86b6ef">실거래 대시보드</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">2006년부터 435만 건 · 72개 시군구를 지도에서 눌러 봅니다</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#0e2233" stroke="#2a78d6" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#86b6ef">국토부 실거래</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">매일 누적 수집</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#16202e" stroke="#6da7ec" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#b7d3f6">평당가 집계</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">구 × 월 중위값</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#2b1618" stroke="#d03b3b" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#f0a8a8">지도로 비교</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">어디가 오르나</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 실거래가로 보는 수도권 아파트</text>
+</svg>

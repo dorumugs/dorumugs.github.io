@@ -1,4 +1,8 @@
-// dataviz 기준 팔레트(라이트 표면 #fcfcfb). 값을 바꾸지 말 것 — 검증을 통과한 조합이다.
+// 데이터 색은 dataviz 기준 팔레트 그대로다 — 색맹 대비·명도 검증을 통과한 조합이라
+// 바꾸지 말 것. 잉크·회색·표면만 이 사이트에 맞춰 바꿨다. 기준 팔레트의 회색은
+// 따뜻한 계열인데 이 블로그는 차가운 회색($dark-gray #3d4144, $primary-color #6f777d)을
+// 쓰므로, 그대로 두면 대시보드만 색이 튀어 보인다.
+// dashboard.css 의 --re-ink/--re-ink2/--re-muted/--re-grid 와 같은 값을 유지할 것.
 
 export const SEQUENTIAL = [
   '#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5',
@@ -10,16 +14,18 @@ export const DIVERGING = [
   '#184f95', '#2a78d6', '#86b6ef', '#f0efec', '#f0a8a8', '#d03b3b', '#a02020',
 ];
 
-export const INK = '#0b0b0b';
-export const INK2 = '#52514e';
-export const MUTED = '#898781';
-export const GRID = '#e1e0d9';
-export const AXIS = '#c3c2b7';
+export const INK = '#3d4144';
+export const INK2 = '#646769';
+export const MUTED = '#7a8288';
+export const GRID = '#e3e5e7';
+export const AXIS = '#bcc0c4';
 export const LINE = '#2a78d6';
 export const UP = '#006300';
 export const DOWN = '#d03b3b';
-export const NO_DATA = '#e8e8e4';
-export const SURFACE = '#fcfcfb';
+// 발산 램프의 중립(#f0efec)과 확실히 구분돼야 한다. 기존 #e8e8e4 는 중립과 거의
+// 같은 밝기라, 세대수 자료가 없는 화성시 4개 구가 '변화 없음' 으로 읽혔다.
+export const NO_DATA = '#c9ced1';
+export const SURFACE = '#ffffff';
 
 export function rampColor(ramp, t) {
   if (!Number.isFinite(t)) return NO_DATA;
