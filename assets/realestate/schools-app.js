@@ -1,7 +1,7 @@
 import { setBase, loadSgg } from './data.js';
 import { initMap } from './map.js';
 import { initSchoolLayer } from './schoolmap.js';
-import { NO_DATA, INK2 } from './palette.js';
+import { NO_DATA } from './palette.js';
 
 const root = document.querySelector('.re-app');
 setBase(root.dataset.base);

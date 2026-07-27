@@ -7,8 +7,9 @@
   transition: r 100ms linear;
 }
 
-/* 학교급 색은 palette.js 의 범주형 앞 두 칸과 같은 값이다.
-   초=blue slot 1, 중=orange slot 2. 2종이라 모든 대비 판정에 여유가 있다. */
+/* 학교급 색은 palette.js 의 CATEGORICAL(범주형 슬롯 1·2)과 같은 값이다.
+   초=CATEGORICAL[0](파랑), 중=CATEGORICAL[1](주황). CSS 는 그 모듈을 import 할
+   수 없어 여기 값을 그대로 옮겨 적었다 — palette.js 쪽을 바꾸면 여기도 바꿀 것. */
 .re-school-layer .re-dot.is-초 { fill: #2a78d6; }
 .re-school-layer .re-dot.is-중 { fill: #eb6834; }
 

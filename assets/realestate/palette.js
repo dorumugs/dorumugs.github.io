@@ -27,6 +27,12 @@ export const DOWN = '#d03b3b';
 export const NO_DATA = '#c9ced1';
 export const SURFACE = '#ffffff';
 
+// 기준 팔레트의 범주형 슬롯 1·2(파랑·주황) — 색맹 대비 검증을 통과한 조합이다.
+// 학군 지도에서 학교급(초/중)을 구분하는 색으로 쓴다. CSS 는 이 모듈을 import 할
+// 수 없어 assets/realestate/schools.css 에 같은 값을 그대로 옮겨 적었다 — 한쪽을
+// 바꾸면 다른 쪽도 바꿀 것.
+export const CATEGORICAL = ['#2a78d6', '#eb6834'];
+
 export function rampColor(ramp, t) {
   if (!Number.isFinite(t)) return NO_DATA;
   const i = Math.min(ramp.length - 1, Math.max(0, Math.floor(t * ramp.length)));
