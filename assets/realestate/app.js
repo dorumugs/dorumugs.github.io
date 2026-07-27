@@ -45,18 +45,33 @@ function metricValue(code, metric, index) {
     for (let i = Math.max(0, index - 11); i <= index; i += 1) n += series.n[i] || 0;
     return (n / hh) * 100;
   }
-  const thin = (series.n[index] || 0) < THIN;
-  const base = thin ? smoothed(series, index) : series.med;
-  const now = base[index];
+  // 얇은 달(거래 5건 미만)은 그 달만 3개월 이동중위로 대체한다. 기준월이
+  // 두꺼워도 비교 대상(n개월 전) 달이 얇으면 그 달만 스무딩해야 한다 —
+  // 두 끝점 중 하나를 통째로 원값/스무딩값으로 고정하면 안 된다.
+  const smooth = smoothed(series, index);
+  const valueAt = (i) => {
+    if (i < 0 || i >= series.med.length) return null;
+    return (series.n[i] || 0) < THIN ? smooth[i] : series.med[i];
+  };
+  const now = valueAt(index);
   if (now == null) return null;
   if (metric === 'peak') {
     let peak = -Infinity;
-    for (let i = 0; i <= index; i += 1) if (base[i] != null) peak = Math.max(peak, base[i]);
+    for (let i = 0; i <= index; i += 1) {
+      const v = valueAt(i);
+      if (v != null) peak = Math.max(peak, v);
+    }
     return peak > 0 ? (now / peak - 1) * 100 : null;
   }
-  const before = base[index - spec.lag];
+  const before = valueAt(index - spec.lag);
   if (before == null || before === 0) return null;
   return (now / before - 1) * 100;
+}
+
+// 지도 툴팁과 랜딩 랭킹표가 같은 문구를 쓰게 한 곳에 모은다.
+function formatMetric(v, spec) {
+  if (!Number.isFinite(v)) return '자료 없음';
+  return spec.kind === 'diverging' ? `${v.toFixed(1)}%` : v.toLocaleString();
 }
 
 function repaint() {
@@ -74,7 +89,7 @@ function repaint() {
     for (const [code, v] of raw) {
       values.set(code, {
         color: divergingColor(v, span),
-        label: `${summary.sgg[code].name} ${Number.isFinite(v) ? `${v.toFixed(1)}%` : '자료 없음'}`,
+        label: `${summary.sgg[code].name} ${formatMetric(v, spec)}`,
       });
     }
     drawLegend(-span, span, 'diverging', spec.unit);
@@ -84,23 +99,50 @@ function repaint() {
     for (const [code, v] of raw) {
       values.set(code, {
         color: sequentialColor(v, min, max),
-        label: `${summary.sgg[code].name} ${Number.isFinite(v) ? v.toLocaleString() : '자료 없음'}`,
+        label: `${summary.sgg[code].name} ${formatMetric(v, spec)}`,
       });
     }
     drawLegend(min, max, 'sequential', spec.unit);
   }
   map.paint(values);
+  if (!state.sgg) renderLanding(raw, spec);
   writeParams();
+}
+
+// 구 선택 전 첫 화면. 새로 지역 전체 중위값을 만들지 않고, 이미 지도에 칠한
+// 값을 그대로 표로 늘어놓는다 — 지도 툴팁과 값·서식이 완전히 같다.
+function renderLanding(raw, spec) {
+  const rows = [...raw.entries()]
+    .sort((a, b) => {
+      const av = Number.isFinite(a[1]) ? a[1] : -Infinity;
+      const bv = Number.isFinite(b[1]) ? b[1] : -Infinity;
+      return bv - av;
+    })
+    .map(([code, v], i) => `<tr><td class="is-num is-dim">${i + 1}</td>`
+      + `<td>${summary.sgg[code].name}</td>`
+      + `<td class="is-num">${formatMetric(v, spec)}</td></tr>`)
+    .join('');
+  root.querySelector('.re-chart').innerHTML = rows
+    ? `<table class="re-table"><thead><tr><th></th><th>시군구</th>`
+      + `<th class="is-num">${spec.label}</th></tr></thead><tbody>${rows}</tbody></table>`
+    : '<p class="re-error">표시할 데이터가 없습니다.</p>';
 }
 
 function drawLegend(min, max, kind, unit) {
   const el = root.querySelector('.re-legend');
   // 램프는 palette.js 한 곳에서만 정의한다. 여기에 색을 다시 적지 말 것.
   const ramp = kind === 'diverging' ? DIVERGING : SEQUENTIAL;
-  const swatches = ramp.map((c) => `<i style="background:${c}"></i>`).join('');
+  // 스와치(<i>)는 색만 있고 글자가 없어 스크린리더에 읽을 게 없다. 대신
+  // 컨테이너를 role="img" + aria-label 하나로 묶어 값 전체를 설명한다.
+  const swatches = ramp.map((c) => `<i aria-hidden="true" style="background:${c}"></i>`).join('');
   const fmt = (v) => (kind === 'diverging' ? `${v.toFixed(0)}%` : Math.round(v).toLocaleString());
-  el.innerHTML = `<span>${fmt(min)}</span>${swatches}<span>${fmt(max)}${
-    kind === 'sequential' ? ` ${unit}` : ''}</span>`;
+  const lo = fmt(min);
+  const hi = `${fmt(max)}${kind === 'sequential' ? ` ${unit}` : ''}`;
+  el.innerHTML = `<span aria-hidden="true">${lo}</span>${swatches}<span aria-hidden="true">${hi}</span>`;
+  el.setAttribute('role', 'img');
+  el.setAttribute('aria-label', kind === 'diverging'
+    ? `지도 색상 범례. 파랑 ${lo}에서 회색을 지나 빨강 ${hi}까지, 하락에서 상승 순서.`
+    : `지도 색상 범례. 옅은 색 ${lo}에서 짙은 색 ${hi}까지, 값이 클수록 진하다.`);
 }
 
 function fillMonths() {
@@ -115,6 +157,9 @@ async function selectSgg(code) {
   state.sgg = code;
   map.setSelected(code);
   root.querySelector('.re-panel-title').textContent = summary.sgg[code].name;
+  // 랜딩 상태에서는 이 두 헤딩을 숨겨 뒀다. 구를 고르면 그 아래 실제 내용과 함께 되살린다.
+  root.querySelector('.re-chart-heading').hidden = false;
+  root.querySelector('.re-rank-heading').hidden = false;
   const chartEl = root.querySelector('.re-chart');
   chartEl.innerHTML = '';
   try {
@@ -176,7 +221,12 @@ function readParams() {
   const ym = q.get('ym');
   if (ym && summary.months.includes(ym)) state.ym = ym;
   const sgg = q.get('sgg');
-  if (sgg && Object.prototype.hasOwnProperty.call(summary.sgg, sgg)) state.sgg = sgg;
+  if (sgg && Object.prototype.hasOwnProperty.call(summary.sgg, sgg)) {
+    state.sgg = sgg;
+    // view= 가 명시되지 않았으면 고른 구의 시도 코드로 뷰를 추정한다.
+    // 그러지 않으면 '?sgg=41135' 처럼 경기 구를 가리키는 링크가 서울 지도로 열린다.
+    if (!view) state.view = sgg.startsWith('11') ? 'seoul' : 'gyeonggi';
+  }
 }
 
 function writeParams() {

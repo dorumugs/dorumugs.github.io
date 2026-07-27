@@ -39,18 +39,18 @@ toc: false
   <div class="re-body">
     <div class="re-map-wrap">
       {% include realestate/map.svg %}
-      <div class="re-legend" aria-hidden="true"></div>
+      <div class="re-legend"></div>
       <div class="re-tip" role="status" hidden></div>
     </div>
     <div class="re-panel">
       <h2 class="re-panel-title">지역을 선택하세요</h2>
       <div class="re-kpis"></div>
-      <h3 class="re-section-title">평당가 추이</h3>
+      <h3 class="re-section-title re-chart-heading" hidden>평당가 추이</h3>
       <div class="re-chart"></div>
     </div>
   </div>
 
-  <h3 class="re-section-title">단지 랭킹 · 최근 12개월</h3>
+  <h3 class="re-section-title re-rank-heading" hidden>단지 랭킹 · 최근 12개월</h3>
   <div class="re-table-wrap"><table class="re-table"></table></div>
   <p class="re-footnote"></p>
 </div>

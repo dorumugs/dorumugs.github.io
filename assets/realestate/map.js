@@ -52,6 +52,7 @@ export function initMap(root, { onSelect }) {
   for (const path of paths) {
     path.setAttribute('tabindex', '0');
     path.setAttribute('role', 'button');
+    path.setAttribute('aria-label', path.dataset.name);
     path.addEventListener('click', () => onSelect(path.dataset.sgg));
     path.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
