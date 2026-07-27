@@ -1,10 +1,22 @@
 /* 학군 지도 전용. 색은 dashboard.css 의 --re-* 와 palette.js 를 따른다. */
 
 .re-school-layer .re-dot {
-  cursor: pointer;
   stroke: #fff;
   stroke-width: 1.5;
   transition: r 100ms linear;
+  cursor: pointer;
+  outline: none;
+}
+
+/* 점의 실제 지오메트리(r=5, viewBox 스케일에 따라 화면 픽셀이 줄어든다)는
+   클릭/호버 판정에 안 쓴다. schoolmap.js 가 svg 전체에서 클릭·마우스이동을
+   한 번만 받아 커서에서 가장 가까운 점을 골라 이 is-hover/is-selected 클래스를
+   붙인다 — 화면 기준 히트 반경이 viewBox 스케일과 무관하게 일정하다(서울 뷰
+   ↔ 전체 뷰 전환 시에도). 점마다 각자 큰 히트 영역을 그리는 방식은 겹친 점의
+   히트 영역까지 서로 겹쳐 DOM 순서상 나중 점이 항상 클릭을 가로채는 회귀가
+   나서(390px 서울 뷰 38개 중 9개가 자신이 아닌 다른 학교로 뜸) 채택하지 않았다. */
+.re-school-layer .re-dot.is-hover {
+  r: 7;
 }
 
 /* 학교급 색은 palette.js 의 CATEGORICAL(범주형 슬롯 1·2)과 같은 값이다.
@@ -13,10 +25,8 @@
 .re-school-layer .re-dot.is-초 { fill: #2a78d6; }
 .re-school-layer .re-dot.is-중 { fill: #eb6834; }
 
-.re-school-layer .re-dot:hover,
 .re-school-layer .re-dot:focus-visible {
   r: 7;
-  outline: none;
 }
 
 .re-school-layer .re-dot.is-selected {

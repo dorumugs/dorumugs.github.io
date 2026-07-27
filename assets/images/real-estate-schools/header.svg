@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="서울·경기 학군 지도 배너">
+  <!-- #2a78d6/#eb6834 는 assets/realestate/palette.js 의 CATEGORICAL(범주형 슬롯 1·2)과
+       같은 값이다. 이 SVG 는 정적 배너라 palette.js 를 import 할 수 없어 값을 그대로
+       옮겨 적었다 — palette.js 쪽을 바꾸면 여기도 바꿀 것 (schools.css 와 같은 방식). -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0e1726"/>

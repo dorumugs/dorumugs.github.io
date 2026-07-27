@@ -11,8 +11,14 @@ const state = { view: 'seoul', school: null };
 let schools = [];
 let map = null;
 let layer = null;
+let selectSeq = 0; // 학교를 고를 때마다 올라간다 — 뒤늦게 끝난 요청의 결과를 버리는 데 쓴다
 
 const VIEW_PREFIX = { seoul: '11', gyeonggi: '41', all: '' };
+
+// 학교급(lvl) 을 화면 문구로 늘려 쓴다. school.found 는 초등학교에만 있어
+// '${school.found} 초등학교' 처럼 하드코딩하면 중학교(2단계)가 항상
+// '(빈값) 초등학교' 로 잘못 표시된다.
+const LEVEL_LABEL = { 초: '초등학교', 중: '중학교' };
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => (
@@ -37,14 +43,21 @@ async function selectSchool(school) {
   state.school = school;
   layer.setSelected(school.name);
   root.querySelector('.re-panel-title').textContent = school.name;
+  const levelLabel = LEVEL_LABEL[school.lvl] || school.lvl;
   root.querySelector('.re-school-meta').textContent =
-    `${school.found} 초등학교 · ${school.addr}`;
+    `${levelLabel} · ${school.addr}`;
   root.querySelector('.re-rank-heading').hidden = false;
   writeParams();
 
+  // selectSchool 은 제목을 동기로 세팅한 뒤 loadSgg 를 기다린다. 구를 빠르게
+  // 두 번 눌러 두 번째 클릭이 진행 중일 때 첫 번째 요청이 나중에 끝나면,
+  // 새 제목 아래 옛 표가 남는 경합이 생긴다. 요청마다 세대 번호를 찍어 두고
+  // 자신이 최신 요청이 아니면 결과를 버린다.
+  const mySeq = ++selectSeq;
   const table = root.querySelector('.re-table');
   try {
     const detail = await loadSgg(school.sgg);
+    if (mySeq !== selectSeq) return;
     const rows = detail.complexes
       .filter((c) => c.dong === school.dong && c.n >= 5)
       .slice(0, 30);
@@ -59,6 +72,7 @@ async function selectSchool(school) {
       : `${head}<tbody><tr><td colspan="4">${esc(school.dong)}에 최근 12개월 거래 `
         + '5건 이상 단지가 없습니다.</td></tr></tbody>';
   } catch (err) {
+    if (mySeq !== selectSeq) return;
     table.innerHTML = '<tbody><tr><td>시세를 불러오지 못했습니다.</td></tr></tbody>';
   }
 }
