@@ -22,12 +22,17 @@ echo "===== $(date '+%F %T') 수집 시작 (예산 ${MAX_CALLS}콜) ====="
 
 python3 -u scripts/collect_trades.py --max-calls "$MAX_CALLS"
 
+# 수집이 일일 한도로 중간에 멈춘 날에도 집계는 돌린다.
+# 그날까지 받은 데이터로 만든 대시보드가 어제 것보다 낫다.
+echo "----- 집계 시작 -----"
+python3 -u scripts/build_dashboard.py
+
 if [ "$AUTO_COMMIT" != "1" ]; then
   echo "AUTO_COMMIT 이 꺼져 있어 커밋하지 않습니다."
   exit 0
 fi
 
-if [ -z "$(git status --porcelain data)" ]; then
+if [ -z "$(git status --porcelain data assets/realestate)" ]; then
   echo "변경된 데이터 파일이 없어 커밋을 건너뜁니다."
   exit 0
 fi
@@ -39,10 +44,10 @@ export GIT_COMMITTER_NAME="Jaehyun So"
 export GIT_COMMITTER_EMAIL="dorumugs@gmail.com"
 
 MONTHS=$(git status --porcelain data/trades | wc -l | tr -d ' ')
-git add data
+git add data assets/realestate
 git commit -q -m "Accumulate Seoul/Gyeonggi apartment trade data
 
-수집 스크립트가 자동 갱신한 월별 실거래가 파일 ${MONTHS}개."
+수집 스크립트가 자동 갱신한 월별 실거래가 파일 ${MONTHS}개와 대시보드 집계본."
 
 echo "커밋 완료."
 
