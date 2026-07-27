@@ -1,12 +1,22 @@
-import { LINE, GRID, AXIS, MUTED, INK } from './palette.js';
+import { LINE, GRID, AXIS, MUTED, INK, SURFACE } from './palette.js';
 
 const W = 520, H = 190, PAD_L = 46, PAD_R = 10, PAD_T = 12, PAD_B = 24;
 
+// 목표 눈금 개수(대략 5개)에 맞춰 1/2/2.5/5/10 배수 중 가장 가까운 step 을 고른다.
+// 10의 거듭제곱 경계 근처에서 눈금이 3개~10개 사이로 들쭉날쭉해지는 문제를 막는다.
 function niceTicks(max) {
-  const step = Math.pow(10, Math.floor(Math.log10(max))) / 2;
+  if (!(max > 0)) return [0];
+  const target = 5;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(max / target)));
+  let best = null;
+  for (const m of [1, 2, 2.5, 5, 10]) {
+    const step = m * magnitude;
+    const count = Math.floor(max / step) + 1;
+    if (!best || Math.abs(count - target) < Math.abs(best.count - target)) best = { step, count };
+  }
   const out = [];
-  for (let v = 0; v <= max; v += step) out.push(v);
-  return out.length > 6 ? out.filter((_, i) => i % 2 === 0) : out;
+  for (let v = 0; v <= max; v += best.step) out.push(v);
+  return out;
 }
 
 export function lineChart(months, values, { partialFrom } = {}) {
@@ -28,8 +38,11 @@ export function lineChart(months, values, { partialFrom } = {}) {
     parts.push(`<line x1="${PAD_L}" y1="${Y(t).toFixed(1)}" x2="${W - PAD_R}" `
       + `y2="${Y(t).toFixed(1)}" stroke="${GRID}" stroke-width="1"/>`);
     parts.push(`<text x="${PAD_L - 6}" y="${(Y(t) + 3.5).toFixed(1)}" text-anchor="end" `
-      + `font-size="9" fill="${MUTED}">${t >= 1000 ? `${Math.round(t / 1000)}천` : Math.round(t)}</text>`);
+      + `font-size="9" fill="${MUTED}">${Math.round(t).toLocaleString()}</text>`);
   }
+  // 축 눈금은 만원/평 단위다. 숫자만 봐서는 단위를 알 수 없으므로 한 번만 표기한다.
+  parts.push(`<text x="${PAD_L - 6}" y="${(PAD_T - 3).toFixed(1)}" text-anchor="end" `
+    + `font-size="8.5" fill="${MUTED}">만원/평</text>`);
 
   for (let i = 0; i < n; i += 1) {
     if (!months[i].endsWith('-01') || Number(months[i].slice(0, 4)) % 5 !== 0) continue;
@@ -60,7 +73,7 @@ export function lineChart(months, values, { partialFrom } = {}) {
   if (lastIdx >= 0) {
     const lx = X(lastIdx), ly = Y(values[lastIdx]);
     parts.push(`<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4" fill="${LINE}" `
-      + `stroke="#fcfcfb" stroke-width="2"/>`);
+      + `stroke="${SURFACE}" stroke-width="2"/>`);
     parts.push(`<text x="${(lx - 7).toFixed(1)}" y="${(ly - 9).toFixed(1)}" text-anchor="end" `
       + `font-size="11" font-weight="600" fill="${INK}">`
       + `${values[lastIdx].toLocaleString()}만원/평</text>`);
@@ -98,6 +111,9 @@ export function renderPanel(root, summary, detail, state) {
   for (let i = Math.max(0, index - 11); i <= index; i += 1) n12 += series.n[i] || 0;
   for (let i = Math.max(0, index - 23); i <= index - 12; i += 1) prev12 += series.n[i] || 0;
   const volDelta = prev12 ? (n12 / prev12 - 1) * 100 : null;
+  // 신고 지연으로 최근 3개월치는 아직 덜 들어온 상태다. 이 구간이 12개월 창에
+  // 걸쳐 있으면 등락을 사실처럼 색으로 보여주지 않고 문구로만 알린다.
+  const settling = index >= summary.months.length - 3;
 
   let peak = -Infinity, peakAt = null;
   med.forEach((v, i) => { if (v != null && v > peak) { peak = v; peakAt = months[i]; } });
@@ -107,7 +123,10 @@ export function renderPanel(root, summary, detail, state) {
     kpi('중위 평당가', now != null ? now.toLocaleString() : '—', '만원',
       `전년 대비 ${pct(yoy)}`, yoy == null ? 0 : Math.sign(yoy)),
     kpi('최근 12개월 거래', n12.toLocaleString(), '건',
-      `직전 12개월 대비 ${pct(volDelta)}`, volDelta == null ? 0 : Math.sign(volDelta)),
+      settling
+        ? `직전 12개월 대비 ${pct(volDelta)} · 최근 3개월 신고 지연으로 과소 집계`
+        : `직전 12개월 대비 ${pct(volDelta)}`,
+      settling || volDelta == null ? 0 : Math.sign(volDelta)),
     kpi('전고점 대비', fromPeak != null ? fromPeak.toFixed(1) : '—', '%',
       peakAt ? `${peakAt} ${peak.toLocaleString()}만원/평` : '—', 0),
   ].join('');

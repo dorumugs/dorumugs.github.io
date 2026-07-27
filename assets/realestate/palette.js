@@ -19,6 +19,7 @@ export const LINE = '#2a78d6';
 export const UP = '#006300';
 export const DOWN = '#d03b3b';
 export const NO_DATA = '#e8e8e4';
+export const SURFACE = '#fcfcfb';
 
 export function rampColor(ramp, t) {
   if (!Number.isFinite(t)) return NO_DATA;
