@@ -45,7 +45,7 @@ if [ "$AUTO_COMMIT" != "1" ]; then
   exit 0
 fi
 
-if [ -z "$(git status --porcelain data assets/realestate)" ]; then
+if [ -z "$(git status --porcelain data assets/realestate/summary.json assets/realestate/sgg)" ]; then
   echo "변경된 데이터 파일이 없어 커밋을 건너뜁니다."
   if [ "$BUILD_FAILED" = "1" ]; then exit 1; fi
   exit 0
@@ -60,14 +60,20 @@ export GIT_COMMITTER_EMAIL="dorumugs@gmail.com"
 MONTHS=$(git status --porcelain data/trades | wc -l | tr -d ' ')
 COMMIT_MSG="Accumulate Seoul/Gyeonggi apartment trade data
 
-수집 스크립트가 자동 갱신한 월별 실거래가 파일 ${MONTHS}개와 대시보드 집계본."
+수집 스크립트가 자동 갱신한 월별 실거래가 파일 ${MONTHS}개와 대시보드 집계본.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 if [ "$BUILD_FAILED" = "1" ]; then
   COMMIT_MSG="Accumulate Seoul/Gyeonggi apartment trade data
 
 수집 스크립트가 자동 갱신한 월별 실거래가 파일 ${MONTHS}개. 집계 단계는 예산 초과 등으로 실패해
-대시보드 파일 상태가 최신이 아닐 수 있음."
+대시보드 파일 상태가 최신이 아닐 수 있음.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 fi
-git add data assets/realestate
+# 손으로 쓴 소스(app.js/charts.js/map.js/data.js/palette.js/dashboard.css)를
+# 실수로 함께 커밋하지 않도록 생성물 경로만 스테이징한다.
+git add data assets/realestate/summary.json assets/realestate/sgg
 git commit -q -m "$COMMIT_MSG"
 
 echo "커밋 완료."
