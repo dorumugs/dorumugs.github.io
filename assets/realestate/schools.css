@@ -14,9 +14,14 @@
    붙인다 — 화면 기준 히트 반경이 viewBox 스케일과 무관하게 일정하다(서울 뷰
    ↔ 전체 뷰 전환 시에도). 점마다 각자 큰 히트 영역을 그리는 방식은 겹친 점의
    히트 영역까지 서로 겹쳐 DOM 순서상 나중 점이 항상 클릭을 가로채는 회귀가
-   나서(390px 서울 뷰 38개 중 9개가 자신이 아닌 다른 학교로 뜸) 채택하지 않았다. */
+   나서(390px 서울 뷰 38개 중 9개가 자신이 아닌 다른 학교로 뜸) 채택하지 않았다.
+
+   is-hover(가리킴, 표 행 마우스오버/포커스와 연동)와 is-selected(클릭해 고른
+   학교)는 크기·링 색·굵기를 모두 다르게 둬 두 상태가 같아 보이지 않게 한다. */
 .re-school-layer .re-dot.is-hover {
   r: 7;
+  stroke: var(--re-ink2);
+  stroke-width: 2.5;
 }
 
 /* 학교급 색은 palette.js 의 CATEGORICAL(범주형 슬롯 1·2)과 같은 값이다.
@@ -27,12 +32,14 @@
 
 .re-school-layer .re-dot:focus-visible {
   r: 7;
+  stroke: var(--re-ink2);
+  stroke-width: 2.5;
 }
 
 .re-school-layer .re-dot.is-selected {
   r: 8;
   stroke: var(--re-ink);
-  stroke-width: 2.5;
+  stroke-width: 3;
 }
 
 /* 구는 누를 대상이 아니라 배경이다. 점이 묻히지 않게 옅게 깐다. */
@@ -55,3 +62,27 @@
 }
 
 .re-school-meta { font-size: 13px; color: var(--re-ink2); margin: 0 0 12px; }
+
+.re-panel-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap;
+}
+.re-panel-head .re-panel-title { margin: 0; }
+
+.re-back-btn {
+  font-size: 12px; padding: 3px 11px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--re-border); background: transparent; color: var(--re-line);
+  white-space: nowrap;
+}
+.re-back-btn:hover { background: rgba(42, 120, 214, 0.08); }
+
+/* 지역 목록 표의 행. 마우스오버·is-hover(지도 점을 가리켰을 때 반대쪽에서
+   켜짐)·키보드 포커스가 모두 같은 표시를 쓴다 — 세 입력이 결국 "이 학교를
+   가리키고 있다"는 같은 상태이기 때문이다. */
+table.re-table tr.re-list-row { cursor: pointer; }
+table.re-table tr.re-list-row:hover,
+table.re-table tr.re-list-row.is-hover,
+table.re-table tr.re-list-row:focus-visible {
+  background: rgba(42, 120, 214, 0.08);
+  outline: none;
+}

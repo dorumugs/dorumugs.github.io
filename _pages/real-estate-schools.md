@@ -32,7 +32,10 @@ description: "서울·경기 사립초 위치를 지도에 올리고, 학교를 
       <div class="re-tip" role="status" hidden></div>
     </div>
     <div class="re-panel">
-      <h2 class="re-panel-title">학교를 선택하세요</h2>
+      <div class="re-panel-head">
+        <h2 class="re-panel-title">학교를 선택하세요</h2>
+        <button type="button" class="re-back-btn" hidden>← 목록으로</button>
+      </div>
       <p class="re-school-meta"></p>
       <h3 class="re-section-title re-rank-heading" hidden>같은 법정동 아파트</h3>
     </div>

@@ -7,7 +7,7 @@ const NS = 'http://www.w3.org/2000/svg';
 // 약 21px)에 맞춰 잡았다.
 const HIT_RADIUS_PX = 12;
 
-export function initSchoolLayer(root, { onSelect }) {
+export function initSchoolLayer(root, { onSelect, onHover = () => {} }) {
   const svg = root.querySelector('svg.re-map');
   const tip = root.querySelector('.re-tip');
   const layer = document.createElementNS(NS, 'g');
@@ -59,7 +59,12 @@ export function initSchoolLayer(root, { onSelect }) {
     return best;
   }
 
-  function setHovered(item) {
+  // 점을 "가리킨(hover/focus)" 상태로 표시한다. 마우스 이동·이탈과 점의
+  // 키보드 포커스·블러가 전부 이 함수를 거친다 — 툴팁 표시와 표 쪽으로 보내는
+  // onHover 콜백을 한 곳에서만 관리하기 위해서다. 이름은 setHovered 지만
+  // 외부에 노출하는 이름이 같은 API(아래 반환 객체의 setHovered(name))와는
+  // 다르다 — 저건 학교 이름으로 이 함수를 대신 불러주는 얇은 래퍼다.
+  function applyHover(item) {
     if (hovered === item) return;
     if (hovered) hovered.dot.classList.remove('is-hover');
     hovered = item;
@@ -69,14 +74,15 @@ export function initSchoolLayer(root, { onSelect }) {
     } else {
       tip.hidden = true;
     }
+    onHover(hovered ? hovered.school : null);
   }
 
   svg.addEventListener('click', (e) => {
     const hit = nearestDot(e);
     if (hit) onSelect(hit.school);
   });
-  svg.addEventListener('mousemove', (e) => setHovered(nearestDot(e)));
-  svg.addEventListener('mouseleave', () => setHovered(null));
+  svg.addEventListener('mousemove', (e) => applyHover(nearestDot(e)));
+  svg.addEventListener('mouseleave', () => applyHover(null));
 
   function showTip(dot, school) {
     tip.textContent = `${school.name} · ${school.dong}`;
@@ -114,21 +120,26 @@ export function initSchoolLayer(root, { onSelect }) {
         dot.setAttribute('tabindex', '0');
         dot.setAttribute('role', 'button');
         dot.setAttribute('aria-label', `${school.name}, ${school.dong}`);
+        const item = { school, dot };
         dot.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             onSelect(school);
           }
         });
-        dot.addEventListener('focus', () => showTip(dot, school));
-        dot.addEventListener('blur', () => { if (!hovered) tip.hidden = true; });
+        // 키보드 포커스도 마우스 호버와 같은 경로(applyHover)를 타게 해
+        // 툴팁·is-hover 표시·표 쪽 onHover 콜백이 마우스/키보드 양쪽에서
+        // 똑같이 움직이게 한다.
+        dot.addEventListener('focus', () => applyHover(item));
+        dot.addEventListener('blur', () => { if (hovered === item) applyHover(null); });
         layer.appendChild(dot);
-        current.push({ school, dot });
+        current.push(item);
       }
     },
     setSelected(name) {
       if (selected) selected.classList.remove('is-selected');
       selected = null;
+      if (!name) return; // 목록으로 돌아갈 때 등 — 선택만 지우면 된다
       for (const dot of layer.children) {
         if (dot.getAttribute('aria-label').startsWith(`${name},`)) {
           selected = dot;
@@ -145,6 +156,15 @@ export function initSchoolLayer(root, { onSelect }) {
         layer.appendChild(selected);
         if (hadFocus) selected.focus({ preventScroll: true });
       }
+    },
+    // 학교 이름으로 호버 상태를 프로그램적으로 건다 — 표의 행을 마우스로
+    // 가리키거나 키보드로 포커스했을 때 schools-app.js 가 호출한다. 지금
+    // 뷰에 없는(다른 지역 탭의) 학교 이름이면 아무 점도 못 찾으니 안전하게
+    // 아무 일도 하지 않는다(= 켜져 있던 호버를 지우는 것으로 끝).
+    setHovered(name) {
+      if (!name) { applyHover(null); return; }
+      const item = current.find((it) => it.school.name === name);
+      applyHover(item || null);
     },
   };
 }
