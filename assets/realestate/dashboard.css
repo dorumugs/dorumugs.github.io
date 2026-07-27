@@ -12,6 +12,10 @@
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--re-ink);
   max-width: 100%;
+  /* 지도 위 툴팁(.re-tip)처럼 커서를 따라가는 절대배치 요소가 화면 오른쪽 끝 근처에서
+     중앙정렬 transform 때문에 뷰포트를 살짝 넘길 수 있다. 표(.re-table-wrap)는 자체
+     overflow-x:auto 로 따로 스크롤되므로 여기서 잘라도 영향이 없다. */
+  overflow-x: hidden;
 }
 
 .re-controls {
@@ -59,6 +63,7 @@ svg.re-map path.is-selected { stroke: var(--re-ink); stroke-width: 2; }
   position: absolute; transform: translate(-50%, -140%); pointer-events: none;
   background: var(--re-ink); color: #fff; font-size: 11.5px;
   padding: 3px 8px; border-radius: 5px; white-space: nowrap; z-index: 3;
+  max-width: 60vw;
 }
 
 .re-panel-title { font-size: 17px; margin: 0 0 10px; }
