@@ -211,7 +211,8 @@ function bind() {
 function readParams() {
   const q = new URLSearchParams(window.location.search);
   const view = q.get('view');
-  if (['seoul', 'gyeonggi', 'all'].includes(view)) state.view = view;
+  const viewValid = ['seoul', 'gyeonggi', 'all'].includes(view);
+  if (viewValid) state.view = view;
   const metric = q.get('metric');
   // 대괄호 접근은 '__proto__' 같은 값에서도 진짜 값을 돌려주므로
   // hasOwnProperty 로 실제 소유 키인지 반드시 확인한다.
@@ -223,9 +224,12 @@ function readParams() {
   const sgg = q.get('sgg');
   if (sgg && Object.prototype.hasOwnProperty.call(summary.sgg, sgg)) {
     state.sgg = sgg;
-    // view= 가 명시되지 않았으면 고른 구의 시도 코드로 뷰를 추정한다.
-    // 그러지 않으면 '?sgg=41135' 처럼 경기 구를 가리키는 링크가 서울 지도로 열린다.
-    if (!view) state.view = sgg.startsWith('11') ? 'seoul' : 'gyeonggi';
+    // 쓸 만한 view= 가 없으면 고른 구의 시도 코드로 뷰를 추정한다. 그러지 않으면
+    // '?sgg=41135' 처럼 경기 구를 가리키는 링크가 서울 지도로 열린다.
+    // 값이 '없을 때'가 아니라 '유효하지 않을 때'로 판단해야 한다. 오타나 잘린 URL로
+    // ?view=bogus 가 들어오면 존재 여부로만 보는 순간 추정이 막혀 같은 버그가 되살아나고,
+    // writeParams 가 그 상태를 주소에 다시 써서 잘못된 링크가 그대로 굳는다.
+    if (!viewValid) state.view = sgg.startsWith('11') ? 'seoul' : 'gyeonggi';
   }
 }
 

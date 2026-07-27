@@ -205,19 +205,30 @@ class TestAgainstRealData(unittest.TestCase):
         data = json.loads(self.OUT.read_text(encoding="utf-8"))
         months = data["months"]
         med = data["series"]["all"]["11680"]["med"]
+        # 마감된 달만 정확값으로 못박는다. 손으로 원본에서 계산한 대조값이다.
         self.assertEqual(med[months.index("2006-01")], 2599)
-        self.assertEqual(med[months.index("2026-06")], 12252)
-        # 2026-07 은 설계 문서 작성 시점엔 아직 열려 있던(신고 지연 중) 달이라 그 뒤
-        # 늘어난 신고분만큼 중위값이 12,659 -> 12,600 으로 바뀌었다. 마감된 달
-        # (2006-01, 2026-06)은 그대로다 — 드리프트가 아니라 정상적인 재집계다.
-        self.assertEqual(med[months.index("2026-07")], 12600)
+
+        # 최근 3개월은 신고 지연으로 계속 움직인다 (프로덕션의 settling 창과 같다).
+        # 값을 못박으면 수집이 돌 때마다 테스트가 깨지고, 깨진 값을 결과물에서 읽어
+        # 갱신하는 순간 '원본에서 손으로 계산한 값과 맞춰 본다'는 대조 의미 자체가
+        # 사라진다 — 파이프라인이 제 지난 출력을 재현하는지만 확인하게 된다.
+        # 그래서 열려 있는 달은 존재와 타당성만 본다.
+        for ym in months[-3:]:
+            value = med[months.index(ym)]
+            self.assertIsNotNone(value, f"{ym} 중위 평당가가 비어 있다")
+            self.assertGreater(value, 0)
 
     @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
     def test_covers_all_regions_and_months(self) -> None:
         data = json.loads(self.OUT.read_text(encoding="utf-8"))
         self.assertEqual(len(data["sgg"]), 72)
-        self.assertEqual(len(data["months"]), 247)
         self.assertEqual(data["months"][0], "2006-01")
+        # 개수를 못박으면 달이 하나 넘어가는 순간 깨진다. 2006-01 부터 마지막 달까지
+        # 빠짐없이 이어지는지를 대신 본다 — 중간에 구멍이 나는 것이 진짜 문제다.
+        first, last = data["months"][0], data["months"][-1]
+        y0, m0 = (int(x) for x in first.split("-"))
+        y1, m1 = (int(x) for x in last.split("-"))
+        self.assertEqual(len(data["months"]), (y1 - y0) * 12 + (m1 - m0) + 1)
 
     @unittest.skipUnless(OUT.exists(), "summary.json 없음 — 먼저 빌드하세요")
     def test_cancel_present_for_every_sgg_and_filter(self) -> None:
