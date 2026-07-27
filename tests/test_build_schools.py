@@ -64,6 +64,28 @@ class TestParseAddr(unittest.TestCase):
     def test_unknown_region_is_none(self) -> None:
         self.assertIsNone(build_schools.parse_addr("부산광역시 해운대구 우동 1"))
 
+    def test_unspaced_mountain_parcel_stripped(self) -> None:
+        """'산26-127' 처럼 '산' 과 번지가 붙어 있으면 마지막 토큰이 숫자로
+        시작하지도, '산' 그 자체이지도 않아 놓치기 쉽다. 실제 조인 실패 사례
+        (명지초등학교)와 같은 모양이다."""
+        self.assertEqual(build_schools.parse_addr("서울특별시 서대문구 홍은동 산26-127"),
+                         ("서울특별시 서대문구", "홍은동"))
+
+    def test_spaced_mountain_parcel_stripped(self) -> None:
+        """'산 26-127' 처럼 '산' 과 번지가 띄어 쓰인 경우도 같이 떨어져야 한다."""
+        self.assertEqual(build_schools.parse_addr("서울특별시 마포구 성산동 산 11-31"),
+                         ("서울특별시 마포구", "성산동"))
+
+    def test_plain_hyphenated_jibun_stripped(self) -> None:
+        """'산' 없는 일반 하이픈 지번(100-4)도 그대로 떨어져야 한다."""
+        self.assertEqual(build_schools.parse_addr("서울특별시 금천구 시흥동 100-4"),
+                         ("서울특별시 금천구", "시흥동"))
+
+    def test_eup_myeon_ri_with_mountain_parcel(self) -> None:
+        """읍면리 두 토큰 접미사와 산 지번 제거가 함께 작동해야 한다."""
+        self.assertEqual(build_schools.parse_addr("경기도 여주시 가남읍 태평리 산12-3"),
+                         ("경기도 여주시", "가남읍 태평리"))
+
 
 class TestSelectPrivateElementary(unittest.TestCase):
     def test_keeps_only_private_elementary(self) -> None:
