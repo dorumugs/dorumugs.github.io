@@ -114,9 +114,15 @@ async function selectSgg(code) {
   state.sgg = code;
   map.setSelected(code);
   root.querySelector('.re-panel-title').textContent = summary.sgg[code].name;
-  const detail = await loadSgg(code);
-  const { renderPanel } = await import('./charts.js');
-  renderPanel(root, summary, detail, state);
+  const chartEl = root.querySelector('.re-chart');
+  chartEl.innerHTML = '';
+  try {
+    const detail = await loadSgg(code);
+    const { renderPanel } = await import('./charts.js');
+    renderPanel(root, summary, detail, state);
+  } catch (err) {
+    chartEl.innerHTML = '<p class="re-error">데이터를 불러오지 못했습니다. 다시 시도해 주세요.</p>';
+  }
 }
 
 function bind() {
@@ -154,7 +160,14 @@ function bind() {
 }
 
 async function start() {
-  summary = await loadSummary();
+  try {
+    summary = await loadSummary();
+  } catch (err) {
+    root.querySelector('.re-panel-title').textContent = '데이터를 불러오지 못했습니다';
+    root.querySelector('.re-chart').innerHTML =
+      '<p class="re-error">잠시 후 새로고침해 주세요.</p>';
+    return;
+  }
   // 마지막 달은 신고가 덜 들어와 항상 미완성이다. 직전 완료 월을 기본으로 둔다.
   const last = summary.months.length - 1;
   state.ym = summary.months[Math.max(0, last - 1)];

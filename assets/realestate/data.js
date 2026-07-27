@@ -15,11 +15,22 @@ async function getJson(url) {
 }
 
 export function loadSummary() {
-  if (!summaryPromise) summaryPromise = getJson(`${base}/summary.json`);
+  if (!summaryPromise) {
+    // 실패한 요청을 캐시에 남겨두면 재시도가 영영 막힌다 — 실패 시 비워서 다음 호출이 다시 받게 한다.
+    summaryPromise = getJson(`${base}/summary.json`).catch((err) => {
+      summaryPromise = null;
+      throw err;
+    });
+  }
   return summaryPromise;
 }
 
 export function loadSgg(code) {
-  if (!sggCache.has(code)) sggCache.set(code, getJson(`${base}/sgg/${code}.json`));
+  if (!sggCache.has(code)) {
+    sggCache.set(code, getJson(`${base}/sgg/${code}.json`).catch((err) => {
+      sggCache.delete(code);
+      throw err;
+    }));
+  }
   return sggCache.get(code);
 }

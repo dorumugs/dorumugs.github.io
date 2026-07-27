@@ -71,6 +71,7 @@ svg.re-map path.is-selected { stroke: var(--re-ink); stroke-width: 2; }
 .re-kpi-delta.is-down { color: #d03b3b; }
 
 .re-chart svg { width: 100%; height: auto; display: block; }
+.re-error { font-size: 12.5px; color: var(--re-ink2); margin: 0; }
 
 .re-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table.re-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
