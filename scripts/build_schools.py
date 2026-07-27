@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import re
 import sys
 from datetime import date
@@ -31,15 +30,6 @@ OUT_FILE = ROOT / "assets" / "realestate" / "schools.json"
 
 MAX_BYTES = 100 * 1024
 JOIN_FAIL_LIMIT = 0.10
-
-# schoolmap.js 가 그리는 점의 반지름(SVG 사용자 단위)과 같은 값이다. 겹치는 두 점을
-# 완전히 포개면 아래 점이 클릭/터치로 닿지 않으므로, 지름(2*r)보다 가까운 점은
-# 벌린다. schoolmap.js 의 `r` 을 바꾸면 이 값도 같이 바꿀 것.
-DOT_RADIUS = 5.0
-FAN_OUT_MIN_DIST = 2 * DOT_RADIUS
-# 황금각(라디안). 벌릴 때 방향을 순서에 따라 고르게 흩어 특정 패턴(항상 정동쪽
-# 등)으로 몰리지 않게 한다. 값 자체에 의미는 없고 고르게 퍼지는 무리수 각도다.
-_GOLDEN_ANGLE = math.radians(137.50776405)
 
 # 학교급 표기를 화면용 한 글자로 줄인다. 2단계에서 '중학교' 가 추가된다.
 LEVEL_SHORT = {"초등학교": "초", "중학교": "중"}
@@ -91,45 +81,6 @@ def to_svg_xy(lat: float, lon: float, params: dict) -> tuple[float, float]:
     return x, y
 
 
-#  좌표를 소수점 한 자리로 반올림하면 점 하나당 최대 0.05 씩(대각선으로는
-# 약 0.07) 밀릴 수 있다. 벌리는 반지름에 여유를 더해 반올림 후에도 최종
-# 거리가 FAN_OUT_MIN_DIST 아래로 떨어지지 않게 한다.
-_FAN_OUT_ROUND_MARGIN = 0.15
-
-
-def _fan_out(points: list[dict]) -> None:
-    """정렬된 순서를 기준으로 FAN_OUT_MIN_DIST 보다 가까운 점을 벌린다 (제자리 수정).
-
-    각 점은 자기보다 앞 순서(이미 확정되고 반올림까지 끝난) 점들과만 비교한다.
-    오프셋은 정렬된 위치(인덱스)만의 함수라, 같은 입력을 몇 번 다시 빌드해도
-    같은 좌표가 나온다. 포개진 점은 아래쪽이 마우스/터치로 닿지 않는다 —
-    완전 전순서 정렬 다음에 호출해야 한다.
-    """
-    placed: list[tuple[float, float]] = []
-    for i, p in enumerate(points):
-        x, y = p["x"], p["y"]
-        attempt = 0
-        while True:
-            conflict = next(
-                ((px, py) for px, py in placed
-                 if math.hypot(x - px, y - py) < FAN_OUT_MIN_DIST),
-                None,
-            )
-            if conflict is None:
-                break
-            if attempt > 360:  # 실전에서는 도달하지 않는 안전판
-                raise RuntimeError(f"{p['name']} 를 벌리지 못했습니다")
-            angle = (i * _GOLDEN_ANGLE) + attempt
-            radius = FAN_OUT_MIN_DIST + _FAN_OUT_ROUND_MARGIN
-            x = conflict[0] + radius * math.cos(angle)
-            y = conflict[1] + radius * math.sin(angle)
-            attempt += 1
-        rx, ry = round(x, 1), round(y, 1)
-        p["x"], p["y"] = rx, ry
-        # 반올림된 값을 기준으로 다음 점을 검사해야 최종 출력 거리가 보장된다.
-        placed.append((rx, ry))
-
-
 def select_private_elementary(rows: list[dict]) -> list[dict]:
     """1단계 대상: 사립 초등학교만. 국립은 요구사항이 '사립초' 라 넣지 않는다."""
     return [r for r in rows
@@ -174,8 +125,6 @@ def build(rows: list[dict], params: dict, generated: str) -> dict:
 
     # 완전 전순서. 동점이 흔들리면 재빌드마다 바이트가 달라진다.
     out.sort(key=lambda s: (s["sgg"], s["name"], s["dong_cd"]))
-    # 정렬 다음에만 벌린다 — 오프셋이 정렬된 위치의 함수여야 결정론이 지켜진다.
-    _fan_out(out)
     return {"generated": generated, "schools": out, "join_failed": len(failed)}
 
 

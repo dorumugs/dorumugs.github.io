@@ -5,9 +5,7 @@
 
 from __future__ import annotations
 
-import itertools
 import json
-import math
 import sys
 import unittest
 from pathlib import Path
@@ -176,36 +174,18 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(got, ["다초등학교", "가초등학교", "나초등학교"])
 
 
-class TestFanOut(unittest.TestCase):
-    """겹치는 점(예: 리라초/숭의초)이 클릭·터치로 닿지 않던 회귀에 대한 검증."""
+class TestBuildDeterminism(unittest.TestCase):
+    """build() 는 순수 함수라 같은 입력을 몇 번 빌드해도 바이트가 같아야 한다.
 
-    def test_coincident_points_are_separated(self) -> None:
-        # _school() 기본 lat/lon 이 전부 같아 투영하면 정확히 같은 좌표가 된다.
-        rows = [_school(school_id=str(i), school_name=f"{chr(65 + i)}초등학교")
-                for i in range(4)]
-        schools = build_schools.build(rows, PARAMS, generated="2026-07-27")["schools"]
-        for a, b in itertools.combinations(schools, 2):
-            dist = math.hypot(a["x"] - b["x"], a["y"] - b["y"])
-            self.assertGreaterEqual(dist, build_schools.FAN_OUT_MIN_DIST,
-                                     f"{a['name']} vs {b['name']}")
-
-    def test_untouched_when_far_apart(self) -> None:
-        rows = [
-            _school(school_id="A", school_name="가초등학교",
-                    addr="서울특별시 종로구 청운동 1", lat="37.9", lon="126.5"),
-            _school(school_id="B", school_name="나초등학교",
-                    addr="서울특별시 종로구 청운동 2", lat="37.1", lon="127.5"),
-        ]
-        by_name = {r["school_name"]: r for r in rows}
-        out = build_schools.build(rows, PARAMS, generated="2026-07-27")["schools"]
-        for s in out:
-            row = by_name[s["name"]]
-            x, y = build_schools.to_svg_xy(float(row["lat"]), float(row["lon"]), PARAMS)
-            self.assertEqual(s["x"], round(x, 1))
-            self.assertEqual(s["y"], round(y, 1))
+    이전엔 좌표를 밀어내는 fan-out 단계가 있었고 이 테스트가 그 결정론을
+    같이 검증했다. fan-out 은 되돌렸다(1 SVG 단위가 약 130m 라, 겹친 점을
+    벌리는 게 최대 3.5km 까지 실제 좌표를 왜곡했다 — "이 학교 근처 집은
+    얼마인가" 를 답하는 도구에서 학교 위치 자체가 틀리면 안 된다). 좌표는 이제
+    to_svg_xy() 의 순수 투영 결과 그대로이므로, 결정론은 여전히 지켜야 할
+    성질로 남아 이 테스트를 그대로 유지한다.
+    """
 
     def test_two_runs_produce_identical_bytes(self) -> None:
-        """오프셋이 정렬된 위치만의 함수라면 재빌드해도 바이트가 같아야 한다."""
         rows = [_school(school_id=str(i), school_name=f"{chr(65 + i)}초등학교")
                 for i in range(6)]
         out1 = build_schools.build(rows, PARAMS, generated="2026-07-27")
