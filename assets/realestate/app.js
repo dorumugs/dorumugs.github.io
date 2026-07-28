@@ -1,7 +1,7 @@
 import { setBase, loadSummary, loadSgg } from './data.js';
 import { initMap } from './map.js';
 import {
-  divergingColor, sequentialColor, DIVERGING, SEQUENTIAL, INK2, LINE,
+  divergingColor, sequentialColor, DIVERGING, SEQUENTIAL, INK2, LINE, DOWN,
 } from './palette.js';
 
 const root = document.querySelector('.re-app');
@@ -145,6 +145,23 @@ const SPARK_W = 100;
 const SPARK_H = 24;
 const SPARK_PAD = 2.5;
 
+// 월 중위 평당가가 가장 높았던 달. 기준월과 무관한 "전 기간(2006~) 고점"이라
+// 기준월을 과거로 돌려도 움직이지 않는다 — 기준월까지만 보는 '전고점 대비'
+// 지표와는 기준이 다르니 두 값을 나란히 읽을 때 주의해야 한다. 같은 값이
+// 오도록 최고점을 처음 찍은 달을 고르는 방식은 charts.js 의 KPI 와 맞춘다.
+function peakOf(code) {
+  const series = summary.series[state.filter][code];
+  const med = series && series.med;
+  if (!med) return null;
+  let value = -Infinity;
+  let index = -1;
+  for (let i = 0; i < med.length; i += 1) {
+    const v = med[i];
+    if (v != null && v > value) { value = v; index = i; }
+  }
+  return index < 0 ? null : { value, index };
+}
+
 function sparkline(code, index) {
   const series = summary.series[state.filter][code];
   const med = series && series.med;
@@ -175,17 +192,24 @@ function sparkline(code, index) {
   const at = med[index];
   const dot = at == null ? ''
     : `<circle cx="${x(index).toFixed(1)}" cy="${y(at).toFixed(1)}" r="2" fill="${LINE}"/>`;
+  // 고점 표시는 기준월 점보다 뒤에 그려 겹칠 때 위로 오게 한다 — 고점이 마지막
+  // 달인 구가 많아 두 점이 거의 같은 자리에 놓인다.
+  const pk = peakOf(code);
+  const peakDot = pk
+    ? `<circle cx="${x(pk.index).toFixed(1)}" cy="${y(pk.value).toFixed(1)}" `
+      + `r="2" fill="${DOWN}"/>`
+    : '';
   const first = pts[0];
   const last = pts[pts.length - 1];
   const ymOf = (i) => summary.months[i];
   const label = `${summary.sgg[code].name} 평당가 추이. `
     + `${ymOf(first[0])} ${first[1].toLocaleString()}만원에서 `
     + `${ymOf(last[0])} ${last[1].toLocaleString()}만원까지, `
-    + `최저 ${min.toLocaleString()} 최고 ${max.toLocaleString()}만원.`;
+    + `고점 ${pk ? `${ymOf(pk.index)} ${pk.value.toLocaleString()}` : '없음'}만원.`;
   return `<svg class="re-spark" viewBox="0 0 ${SPARK_W} ${SPARK_H}" `
     + `preserveAspectRatio="none" role="img" aria-label="${esc(label)}">`
     + `<polyline points="${d}" fill="none" stroke="${INK2}" stroke-width="1" `
-    + `vector-effect="non-scaling-stroke"/>${dot}</svg>`;
+    + `vector-effect="non-scaling-stroke"/>${dot}${peakDot}</svg>`;
 }
 
 // 구 선택 전 첫 화면. 새로 지역 전체 중위값을 만들지 않고, 이미 지도에 칠한
@@ -208,20 +232,29 @@ function renderLanding(raw, spec, index) {
       // 중위값은 지도·툴팁과 같은 metricValue() 로 뽑는다. 여기서 series.med 를
       // 직접 읽으면 나중에 계산이 바뀔 때 두 곳이 조용히 어긋난다.
       const level = dupLevel ? null : metricValue(code, 'level', index);
+      const pk = peakOf(code);
+      const levelCell = `<td class="is-num">${formatMetric(level, levelSpec)}</td>`;
+      const peakCell = `<td class="is-num is-peak">${formatMetric(pk && pk.value, levelSpec)}</td>`;
+      const metricCell = `<td class="is-num">${formatMetric(v, spec)}</td>`;
+      // 열 순서는 언제나 "지금 값 → 고점 → 지표". 지표가 중위 평당가일 때는
+      // 지표 열이 곧 지금 값이므로 그 열을 앞에 두고 고점을 뒤에 붙인다 —
+      // 그러지 않으면 고점이 지금 값보다 왼쪽에 와서 거꾸로 읽힌다.
       return `<tr class="re-list-row" data-code="${esc(code)}" tabindex="0" `
         + `role="button" aria-label="${esc(name)} 상세 보기">`
         + `<td class="is-num is-dim">${i + 1}</td>`
         + `<td>${esc(name)}</td>`
-        + (dupLevel ? '' : `<td class="is-num">${formatMetric(level, levelSpec)}</td>`)
-        + `<td class="is-num">${formatMetric(v, spec)}</td>`
+        + (dupLevel ? metricCell + peakCell : levelCell + peakCell + metricCell)
         + `<td class="is-spark">${sparkline(code, index)}</td></tr>`;
     })
     .join('');
   const since = (summary.months[0] || '').slice(0, 4);
+  // 헤더도 본문과 같은 순서 규칙을 따른다(지금 값 → 고점 → 지표).
+  const levelTh = `<th class="is-num">${levelSpec.label}</th>`;
+  const peakTh = '<th class="is-num is-peak">중위 고점</th>';
+  const metricTh = `<th class="is-num">${spec.label}</th>`;
   root.querySelector('.re-chart').innerHTML = rows
     ? `<table class="re-table is-landing"><thead><tr><th></th><th>시군구</th>`
-      + (dupLevel ? '' : `<th class="is-num">${levelSpec.label}</th>`)
-      + `<th class="is-num">${spec.label}</th>`
+      + (dupLevel ? metricTh + peakTh : levelTh + peakTh + metricTh)
       + `<th class="is-spark">추이 ${since}~</th></tr></thead><tbody>${rows}</tbody></table>`
     : '<p class="re-error">표시할 데이터가 없습니다.</p>';
 }

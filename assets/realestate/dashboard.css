@@ -202,6 +202,12 @@ table.re-table th.is-spark, table.re-table td.is-spark {
   width: 96px; height: 22px; display: inline-block; vertical-align: middle;
 }
 .re-spark-none { color: var(--re-muted); }
+/* 스파크라인의 빨간 점이 어느 열의 값인지 헤더에 같은 색 점으로 묶어 준다.
+   색만으로 구분하지 않도록 열 이름('중위 고점')은 그대로 둔다. */
+table.re-table th.is-peak::before {
+  content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--re-down); margin-right: 4px; vertical-align: middle;
+}
 /* 랜딩 표는 .re-table-wrap 밖(.re-chart 안)에 있어 가로 스크롤이 없다. 좁은
    화면에서는 넘치는 대신 스파크라인·여백을 먼저 줄여 5열을 그대로 담는다. */
 @media (max-width: 720px) {
