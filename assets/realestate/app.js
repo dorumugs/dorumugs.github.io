@@ -371,7 +371,12 @@ function bind() {
         b.setAttribute('aria-selected', String(on));
       });
       map.setView(state.view);
-      repaint();
+      // 탭은 지역 선택이다 — 고른 구가 새 지역에 없을 수도 있고, 상세가 열린
+      // 채로는 repaint() 가 renderLanding() 을 건너뛰어 목록이 영영 안 돌아온다.
+      // 그래서 탭을 누르면 항상 그 지역의 전체 목록으로 되돌린다
+      // (schools-app.js 의 지역 탭과 같은 규칙). showLanding() 이 repaint() 까지 한다.
+      if (state.sgg) showLanding();
+      else repaint();
     });
   });
   root.querySelector('.re-metric').addEventListener('change', (e) => {
