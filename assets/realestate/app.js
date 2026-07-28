@@ -26,6 +26,24 @@ const METRICS = {
   turnover: { label: '거래 회전율', unit: '%', kind: 'sequential' },
 };
 
+// 지표 옆 "?" 에 뜨는 설명. metricValue() 가 실제로 계산하는 방식 그대로
+// 적는다 — 무엇과 비교한 값인지, 어떤 보정이 들어가는지가 핵심이다.
+const METRIC_HELP = {
+  level: '그 달 그 구에서 거래된 아파트의 평당가 중위값입니다(현재 세대수 필터 기준). '
+    + '평형·연식·입지가 섞여 있어 구 사이 절대 비교보다는 흐름을 보는 데 쓰고, 최근 3개월치는 '
+    + '신고 지연으로 아직 다 채워지지 않았습니다.',
+  chg3: '현재 세대수 필터 기준으로, 기준월의 중위 평당가를 3개월 전 같은 값과 비교한 변화율입니다. '
+    + '거래 5건 미만인 얇은 달은 3개월 이동중위로 대체해 비교하며, 최근 3개월치는 신고 지연으로 값이 계속 바뀔 수 있습니다.',
+  chg6: '현재 세대수 필터 기준으로, 기준월의 중위 평당가를 6개월 전 같은 값과 비교한 변화율입니다. '
+    + '거래 5건 미만인 얇은 달은 3개월 이동중위로 대체해 비교하며, 최근 3개월치는 신고 지연으로 값이 계속 바뀔 수 있습니다.',
+  chg12: '현재 세대수 필터 기준으로, 기준월의 중위 평당가를 12개월 전 같은 값과 비교한 변화율입니다. '
+    + '거래 5건 미만인 얇은 달은 3개월 이동중위로 대체해 비교하며, 최근 3개월치는 신고 지연으로 값이 계속 바뀔 수 있습니다.',
+  peak: '현재 세대수 필터 기준으로, 기준월까지 있었던 역대 최고 월 중위 평당가 대비 지금이 몇 % 인지입니다. '
+    + '미래의 최고가와는 비교하지 않으므로, 과거 월을 골라 보면 "그 시점까지의" 전고점 대비라는 뜻입니다.',
+  turnover: '최근 12개월 거래 건수를, 이 구에서 필터 조건을 만족하는 단지들의 총 세대수로 나눈 값입니다. '
+    + '거래가 얼마나 활발했는지 보는 지표일 뿐 가격 수준과는 관계없습니다.',
+};
+
 // 얇은 달(거래 5건 미만)이 변화율을 흔들지 않도록 3개월 이동중위를 쓴다.
 const THIN = 5;
 
@@ -213,7 +231,10 @@ function showLanding() {
   root.querySelector('.re-panel-title').textContent = '지역을 선택하세요';
   root.querySelector('.re-back-btn').hidden = true;
   root.querySelector('.re-kpis').innerHTML = '';
+  root.querySelector('.re-peak').innerHTML = '';
   root.querySelector('.re-chart-heading').hidden = true;
+  root.querySelector('.re-peers-heading').hidden = true;
+  root.querySelector('.re-peers').innerHTML = '';
   root.querySelector('.re-rank-heading').hidden = true;
   root.querySelector('.re-table').innerHTML = '';
   repaint();
@@ -236,6 +257,79 @@ function drawLegend(min, max, kind, unit) {
     : `지도 색상 범례. 옅은 색 ${lo}에서 짙은 색 ${hi}까지, 값이 클수록 진하다.`);
 }
 
+// "?" 팝오버 내용을 현재 선택된 지표로 채운다. 지표를 바꿀 때마다 다시
+// 불러야 팝오버가 항상 지금 보고 있는 지표를 설명한다.
+function updateMetricHelp() {
+  const pop = root.querySelector('.re-help-pop');
+  if (pop) pop.textContent = METRIC_HELP[state.metric] || '';
+}
+
+// re-help-pop 은 position:fixed 라 뷰포트 기준 좌표를 직접 계산해야 한다. 버튼
+// 왼쪽에 맞춰 펼치되, 지표 필드가 화면 오른쪽에 붙어 있을 때(390px 폭에서
+// 흔하다) 뷰포트를 넘기지 않도록 안쪽으로 당긴다 — .re-app 의 overflow-x:hidden
+// 은 넘친 걸 "숨길" 뿐 읽히게 해 주진 않으므로, 애초에 안 넘치게 좌표를 잡는다.
+function positionMetricHelp() {
+  const btn = root.querySelector('.re-help-btn');
+  const pop = root.querySelector('.re-help-pop');
+  if (!btn || !pop) return;
+  const r = btn.getBoundingClientRect();
+  const margin = 8;
+  const pw = pop.offsetWidth || 240;
+  let left = Math.min(r.left, window.innerWidth - pw - margin);
+  left = Math.max(left, margin);
+  pop.style.left = `${left}px`;
+  pop.style.top = `${r.bottom + 6}px`;
+}
+
+// 마우스오버·키보드 포커스·탭 세 입력 모두 열 수 있어야 한다(hover 만으론
+// 터치 기기에서 닿을 수 없다). hover/focus 는 손을 떼면 닫히는 임시 상태,
+// 탭(click)은 다시 탭하거나 바깥을 탭하거나 Esc 를 눌러야 닫히는 고정 상태로
+// 나눠 두 입력 방식이 서로 방해하지 않게 한다.
+function bindMetricHelp() {
+  const help = root.querySelector('.re-help');
+  const btn = root.querySelector('.re-help-btn');
+  const pop = root.querySelector('.re-help-pop');
+  if (!help || !btn || !pop) return;
+  let sticky = false;
+  let hovering = false;
+  const sync = () => {
+    const show = sticky || hovering;
+    if (show) {
+      pop.style.display = 'block';
+      positionMetricHelp();
+    } else {
+      pop.style.display = 'none';
+    }
+    help.classList.toggle('is-open', show);
+    btn.setAttribute('aria-expanded', String(show));
+  };
+  btn.addEventListener('mouseenter', () => { hovering = true; sync(); });
+  btn.addEventListener('mouseleave', () => { hovering = false; sync(); });
+  btn.addEventListener('focus', () => { hovering = true; sync(); });
+  btn.addEventListener('blur', () => { hovering = false; sync(); });
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sticky = !sticky;
+    sync();
+  });
+  document.addEventListener('click', (e) => {
+    if (sticky && !help.contains(e.target)) { sticky = false; sync(); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && (sticky || hovering)) {
+      sticky = false;
+      hovering = false;
+      sync();
+      btn.focus();
+    }
+  });
+  // 뜬 채로 스크롤되면 fixed 좌표가 버튼에서 어긋나 보인다 — 탭으로 고정한
+  // 상태만 닫는다(가벼운 hover는 어차피 곧 사라질 상태라 그냥 둬도 된다).
+  window.addEventListener('scroll', () => {
+    if (sticky) { sticky = false; sync(); }
+  }, { passive: true });
+}
+
 function fillMonths() {
   const sel = root.querySelector('.re-month');
   sel.innerHTML = summary.months
@@ -252,6 +346,7 @@ async function selectSgg(code) {
   // 랜딩 상태에서는 이 두 헤딩과 목록으로 버튼을 숨겨 뒀다. 구를 고르면 그
   // 아래 실제 내용과 함께 되살린다.
   root.querySelector('.re-chart-heading').hidden = false;
+  root.querySelector('.re-peers-heading').hidden = false;
   root.querySelector('.re-rank-heading').hidden = false;
   root.querySelector('.re-back-btn').hidden = false;
   const chartEl = root.querySelector('.re-chart');
@@ -282,6 +377,7 @@ function bind() {
   root.querySelector('.re-metric').addEventListener('change', (e) => {
     state.metric = e.target.value;
     repaint();
+    updateMetricHelp();
   });
   root.querySelector('.re-month').addEventListener('change', (e) => {
     state.ym = e.target.value;
@@ -300,6 +396,7 @@ function bind() {
   });
   root.querySelector('.re-back-btn').addEventListener('click', showLanding);
   bindLandingInteractions();
+  bindMetricHelp();
 }
 
 // 글에서 특정 화면을 바로 가리킬 수 있게 상태를 주소에 싣는다.
@@ -363,6 +460,7 @@ async function start() {
     b.setAttribute('aria-selected', String(on));
   });
   root.querySelector('.re-metric').value = state.metric;
+  updateMetricHelp();
   const toggle = root.querySelector('.re-toggle');
   const on300 = state.filter === '300';
   toggle.classList.toggle('is-on', on300);

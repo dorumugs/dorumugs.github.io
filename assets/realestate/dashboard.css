@@ -47,6 +47,35 @@
   border: 1px solid var(--re-border); background: transparent; color: var(--re-ink);
 }
 
+.re-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* 지표 옆 "?" — 마우스오버·포커스·탭 모두 app.js(bindMetricHelp)가 연다.
+   팝오버는 position:fixed 로 두고 app.js(positionMetricHelp)가 버튼 위치를
+   보고 뷰포트 좌표를 직접 계산해 넣는다 — .re-help 가 화면 오른쪽 끝에
+   가깝게 있어도(지표 필드는 필터 줄 뒤쪽이라 390px 화면에서 흔하다) 안쪽으로
+   당겨 텍스트가 잘리지 않게 하기 위해서다. display 도 app.js 가 인라인
+   스타일로 켜고 끄므로 여기 CSS 에는 :hover/:focus 로 여는 규칙을 두지 않는다. */
+.re-help { position: relative; display: inline-flex; }
+.re-help-btn {
+  width: 16px; height: 16px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--re-border); background: transparent; color: var(--re-muted);
+  font-size: 10.5px; line-height: 1; display: inline-flex; align-items: center;
+  justify-content: center;
+}
+.re-help-btn:hover, .re-help-btn:focus-visible, .re-help.is-open .re-help-btn {
+  color: var(--re-line); border-color: var(--re-line); outline: none;
+}
+.re-help-pop {
+  display: none; position: fixed; z-index: 50;
+  width: 240px; max-width: min(240px, 86vw); font-size: 11.5px; line-height: 1.5;
+  color: var(--re-ink); background: #fff;
+  border: 1px solid var(--re-border); border-radius: 8px; padding: 8px 10px;
+  box-shadow: 0 4px 14px rgba(61, 65, 68, 0.14);
+}
+
 .re-body { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 20px; align-items: start; }
 .re-map-wrap { position: relative; }
 svg.re-map { width: 100%; height: auto; display: block; }
@@ -117,8 +146,38 @@ table.re-table tr.re-list-row:focus-visible {
 .re-kpi-delta.is-up { color: var(--re-up); }
 .re-kpi-delta.is-down { color: var(--re-down); }
 
+/* 역대 최고 평당가 — KPI 타일(현재 상태)과 헷갈리지 않도록 점선 테두리 +
+   "역대 최고" 배지로 "오늘의 값이 아니라 기록"임을 분명히 한다. peak 이 없는
+   구(거래가 아예 없던 필터 조합)에서는 renderPanel 이 빈 문자열을 넣어 조용히
+   생략한다. */
+.re-peak-note {
+  margin: 8px 0 0; padding: 7px 11px; border: 1px dashed var(--re-border);
+  border-radius: 8px; font-size: 12px; color: var(--re-ink2);
+}
+.re-peak-badge {
+  display: inline-block; font-size: 10px; font-weight: 650; color: var(--re-line);
+  border: 1px solid var(--re-line); border-radius: 999px; padding: 1px 7px; margin-right: 6px;
+}
+
 .re-chart svg { width: 100%; height: auto; display: block; }
 .re-error { font-size: 12.5px; color: var(--re-ink2); margin: 0; }
+
+/* 5년 단위 짝꿍 동네 표. 왼쪽 색 막대(re-peer-row 의 border-left)가
+   charts.js peerColors() 가 고른 CATEGORICAL 색이다 — 시기별 짝꿍 구 조합이
+   바뀌면 색도 바뀐다. 짝이 없는 기간(is-nopeer)은 색 대신 점선 테두리 +
+   흐린 글자로 "짝이 없다"는 것 자체가 보이게 한다. */
+.re-peers { display: flex; flex-direction: column; gap: 6px; }
+.re-peer-row {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 6px 9px; border-left: 3px solid var(--re-muted); border-radius: 4px;
+  background: rgba(61, 65, 68, 0.03); font-size: 12.5px;
+}
+.re-peer-row.is-nopeer { border-left-style: dashed; color: var(--re-ink2); }
+.re-peer-ym {
+  min-width: 58px; font-weight: 650; color: var(--re-ink2);
+  font-variant-numeric: tabular-nums;
+}
+.re-peer-list { flex: 1; min-width: 0; word-break: keep-all; overflow-wrap: anywhere; }
 
 .re-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table.re-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }

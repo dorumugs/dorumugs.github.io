@@ -27,11 +27,13 @@ export const DOWN = '#d03b3b';
 export const NO_DATA = '#c9ced1';
 export const SURFACE = '#ffffff';
 
-// 기준 팔레트의 범주형 슬롯 1·2(파랑·주황) — 색맹 대비 검증을 통과한 조합이다.
-// 학군 지도에서 학교급(초/중)을 구분하는 색으로 쓴다. CSS 는 이 모듈을 import 할
-// 수 없어 assets/realestate/schools.css 에 같은 값을 그대로 옮겨 적었다 — 한쪽을
-// 바꾸면 다른 쪽도 바꿀 것.
-export const CATEGORICAL = ['#2a78d6', '#eb6834'];
+// 기준 팔레트의 범주형 슬롯 1~4(파랑·주황·초록·황토) — dataviz 체커로 인접쌍(라이트
+// 서페이스) 전부 통과를 확인한 4색 조합이다. 슬롯 1·2(파랑·주황)는 학군 지도에서
+// 학교급(초/중)을 구분하는 색으로 쓴다. 슬롯 1~4 전체는 실거래 상세의 "5년 단위
+// 짝꿍 동네" 표에서 시기별 짝꿍 구 조합이 바뀔 때 색을 바꾸는 데 쓴다(charts.js
+// peerColors). CSS 는 이 모듈을 import 할 수 없어 assets/realestate/schools.css 에
+// 슬롯 1·2 값을 그대로 옮겨 적었다 — 그 두 슬롯 값을 바꾸면 그쪽도 바꿀 것.
+export const CATEGORICAL = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100'];
 
 export function rampColor(ramp, t) {
   if (!Number.isFinite(t)) return NO_DATA;

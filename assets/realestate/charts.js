@@ -1,4 +1,4 @@
-import { LINE, GRID, AXIS, MUTED, INK, SURFACE } from './palette.js';
+import { LINE, GRID, AXIS, MUTED, INK, SURFACE, CATEGORICAL } from './palette.js';
 
 const W = 520, H = 190, PAD_L = 46, PAD_R = 10, PAD_T = 12, PAD_B = 24;
 
@@ -142,10 +142,99 @@ export function renderPanel(root, summary, detail, state) {
       peakAt ? `${peakAt} ${peak.toLocaleString()}만원/평` : '—', 0),
   ].join('');
 
+  // 역대 최고 평당가 — KPI 타일과 나란히 두되, 오늘의 값이 아니라 기록임을
+  // 배지("역대 최고")와 점선 테두리로 분명히 한다(dashboard.css re-peak-note).
+  // 해당 필터로 유효 거래가 아예 없던 구는 summary.json 에 peak 자체가 없을
+  // 수 있으므로(집계 스크립트 쪽 규칙) 조용히 생략한다.
+  const recordPeak = series.peak;
+  root.querySelector('.re-peak').innerHTML = recordPeak
+    ? `<div class="re-peak-note"><span class="re-peak-badge">역대 최고</span>`
+      + `<b>${recordPeak.pp.toLocaleString()}만원/평</b> · ${esc(recordPeak.date)} · `
+      + `${esc(recordPeak.apt)}${recordPeak.dong ? ` (${esc(recordPeak.dong)})` : ''}</div>`
+    : '';
+
   const partialFrom = summary.partial ? months.indexOf(summary.partial) : -1;
   root.querySelector('.re-chart').innerHTML = lineChart(months, med, { partialFrom });
 
+  renderPeers(root, summary, state);
   renderTable(root, detail, state);
+}
+
+// 기준월부터 5·10·15·20년 전 같은 달을 훑는다(개월수가 아니라 연·월로 빼서
+// 항상 "그 해 같은 달"이 나오게 한다). summary.months 범위 밖으로 나가는
+// 시점은 아예 빼고, 있는 것만 돌려준다.
+function peerPeriods(baseYm, months) {
+  const [y, m] = baseYm.split('-').map(Number);
+  return [0, 5, 10, 15, 20]
+    .map((k) => `${y - k}-${String(m).padStart(2, '0')}`)
+    .filter((ym) => months.includes(ym));
+}
+
+const PEER_PCT = 3;
+
+// 한 시점에서 code 구의 중위 평당가와 ±3% 이내인 다른 구를 모두 찾는다. 하나도
+// 없으면(강남구처럼 꼭대기에 있는 구) "짝이 없다"는 것 자체가 결과이므로 가장
+// 가까운 구와 그 격차를 nearest 로 같이 돌려준다.
+function peersAt(summary, filter, code, ym) {
+  const idx = summary.months.indexOf(ym);
+  const series = summary.series[filter];
+  const sel = series[code] ? series[code].med[idx] : null;
+  if (sel == null) return { ym, sel: null, peers: [], nearest: null };
+  const peers = [];
+  let nearest = null;
+  for (const [c, s] of Object.entries(series)) {
+    if (c === code) continue;
+    const v = s.med[idx];
+    if (v == null) continue;
+    const gap = (v / sel - 1) * 100;
+    if (Math.abs(gap) <= PEER_PCT) peers.push({ code: c, name: summary.sgg[c].name, gap });
+    if (!nearest || Math.abs(gap) < Math.abs(nearest.gap)) nearest = { code: c, name: summary.sgg[c].name, gap };
+  }
+  peers.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  return { ym, sel, peers, nearest };
+}
+
+// 짝꿍 구 "집합"이 같은 동안은 같은 색, 바뀌면 팔레트의 다음 슬롯으로 넘어간다.
+// 짝이 없는 시점(row.peers 가 비어 있음)은 애초에 "짝 집합"이 아니라 점선
+// 테두리로만 표시하므로 색을 배정하지 않는다(dashboard.css is-nopeer).
+function peerColors(rows) {
+  let idx = -1;
+  let prevSig = null;
+  return rows.map((row) => {
+    if (!row.peers.length) return null;
+    const sig = row.peers.map((p) => p.code).sort().join('|');
+    if (sig !== prevSig) {
+      idx = (idx + 1) % CATEGORICAL.length;
+      prevSig = sig;
+    }
+    return CATEGORICAL[idx];
+  });
+}
+
+function renderPeers(root, summary, state) {
+  const wrap = root.querySelector('.re-peers');
+  const periods = peerPeriods(state.ym, summary.months);
+  const rows = periods.map((ym) => peersAt(summary, state.filter, state.sgg, ym));
+  const colors = peerColors(rows);
+
+  wrap.innerHTML = rows.map((row, i) => {
+    let body;
+    if (row.sel == null) {
+      body = '자료 없음';
+    } else if (row.peers.length) {
+      body = row.peers.map((p) => esc(p.name)).join(' · ');
+    } else if (row.nearest) {
+      const sign = row.nearest.gap >= 0 ? '+' : '';
+      body = `가장 가까운 곳도 ${esc(row.nearest.name)} ${sign}${row.nearest.gap.toFixed(1)}%`;
+    } else {
+      body = '비교할 구가 없습니다';
+    }
+    const cls = row.peers.length ? '' : ' is-nopeer';
+    const style = colors[i] ? ` style="border-left-color:${colors[i]}"` : '';
+    return `<div class="re-peer-row${cls}"${style}>`
+      + `<span class="re-peer-ym">${esc(row.ym)}</span>`
+      + `<span class="re-peer-list">${body}</span></div>`;
+  }).join('');
 }
 
 function renderTable(root, detail, state) {

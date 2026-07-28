@@ -31,6 +31,12 @@ description: "국토교통부 실거래가 435만 건으로 만든 서울·경�
           <option value="peak">전고점 대비</option>
           <option value="turnover">거래 회전율</option>
         </select>
+        <span class="re-help">
+          <button type="button" class="re-help-btn" aria-expanded="false" aria-controls="re-metric-help">
+            <span aria-hidden="true">?</span><span class="re-sr-only">지표 설명 보기</span>
+          </button>
+          <span class="re-help-pop" id="re-metric-help" role="note"></span>
+        </span>
       </label>
       <label class="re-field">
         <span class="re-field-label">기준월</span>
@@ -52,8 +58,11 @@ description: "국토교통부 실거래가 435만 건으로 만든 서울·경�
         <button type="button" class="re-back-btn" hidden>← 목록으로</button>
       </div>
       <div class="re-kpis"></div>
+      <div class="re-peak"></div>
       <h3 class="re-section-title re-chart-heading" hidden>평당가 추이</h3>
       <div class="re-chart"></div>
+      <h3 class="re-section-title re-peers-heading" hidden>비슷한 평당가 동네 · 5년 단위(±3%)</h3>
+      <div class="re-peers"></div>
     </div>
   </div>
 
