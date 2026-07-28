@@ -11,7 +11,7 @@ header:
 description: "수도권 부동산을 데이터로 보는 도구들을 모았습니다. 국토교통부 실거래가 435만 건으로 만든 시군구 지도 대시보드부터, 학군·입지까지 하나씩 늘려갑니다."
 ---
 
-<link rel="stylesheet" href="{{ '/assets/realestate/hub.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/realestate/hub.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 
 수도권에서 집을 고를 때 실제로 보게 되는 것들을 하나씩 도구로 만들고 있습니다.
 글로 한 번 정리한 주제를 눌러볼 수 있는 화면으로 옮기는 식입니다.

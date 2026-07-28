@@ -11,8 +11,8 @@ header:
 description: "서울·경기 사립초·사립중 위치를 지도에 올리고, 학교를 누르면 그 학교가 속한 법정동의 아파트 실거래 시세를 보여줍니다. 국토교통부 실거래가와 학교 위치 공공데이터를 겹쳐 봅니다."
 ---
 
-<link rel="stylesheet" href="{{ '/assets/realestate/dashboard.css' | relative_url }}">
-<link rel="stylesheet" href="{{ '/assets/realestate/schools.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/realestate/dashboard.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+<link rel="stylesheet" href="{{ '/assets/realestate/schools.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 
 <div class="re-app is-schools" data-base="{{ '/assets/realestate' | relative_url }}">
   <div class="re-controls">
@@ -74,4 +74,4 @@ description: "서울·경기 사립초·사립중 위치를 지도에 올리고,
   <p class="re-footnote"></p>
 </div>
 
-<script type="module" src="{{ '/assets/realestate/schools-app.js' | relative_url }}"></script>
+<script type="module" src="{{ '/assets/realestate/schools-app.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

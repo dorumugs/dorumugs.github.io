@@ -11,7 +11,7 @@ header:
 description: "국토교통부 실거래가 435만 건으로 만든 서울·경기 아파트 대시보드입니다. 72개 시군구를 지도에서 눌러 평당가 수준·변화율·전고점 대비·거래 회전율을 비교하고, 구별 단지 랭킹까지 봅니다."
 ---
 
-<link rel="stylesheet" href="{{ '/assets/realestate/dashboard.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/realestate/dashboard.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 
 <div class="re-app" data-base="{{ '/assets/realestate' | relative_url }}">
   <div class="re-controls">
@@ -71,4 +71,4 @@ description: "국토교통부 실거래가 435만 건으로 만든 서울·경�
   <p class="re-footnote"></p>
 </div>
 
-<script type="module" src="{{ '/assets/realestate/app.js' | relative_url }}"></script>
+<script type="module" src="{{ '/assets/realestate/app.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
