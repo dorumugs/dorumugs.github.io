@@ -7,7 +7,7 @@ const root = document.querySelector('.re-app');
 setBase(root.dataset.base);
 const BASE = root.dataset.base.replace(/\/$/, '');
 
-const state = { view: 'seoul', school: null };
+const state = { view: 'seoul', lvl: 'all', school: null };
 let schools = [];
 let map = null;
 let layer = null;
@@ -17,10 +17,13 @@ let currentList = []; // 지금 목록 표에 그려진 학교들. 행 클릭/�
 const VIEW_PREFIX = { seoul: '11', gyeonggi: '41', all: '' };
 const VIEW_LABEL = { seoul: '서울', gyeonggi: '경기', all: '전체' };
 
-// 학교급(lvl) 을 화면 문구로 늘려 쓴다. school.found 는 초등학교에만 있어
-// '${school.found} 초등학교' 처럼 하드코딩하면 중학교(2단계)가 항상
-// '(빈값) 초등학교' 로 잘못 표시된다.
+// 학교급(lvl) 을 화면 문구로 늘려 쓴다. school.found 는 항상 '사립' 이라
+// '${school.found} 초등학교' 처럼 하드코딩하면 뜻이 맞지 않는다.
 const LEVEL_LABEL = { 초: '초등학교', 중: '중학교' };
+
+// 학교급 필터 탭·목록 제목에 쓰는 표기. 'all' 은 두 급을 같이 본다는 뜻이다.
+const LVL_TAB_VALUES = ['all', '초', '중'];
+const LVL_LIST_LABEL = { all: '사립초·사립중', 초: '사립초', 중: '사립중' };
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => (
@@ -29,7 +32,8 @@ function esc(s) {
 
 function visibleSchools() {
   const prefix = VIEW_PREFIX[state.view] ?? '';
-  return schools.filter((s) => s.sgg.startsWith(prefix));
+  return schools.filter((s) => s.sgg.startsWith(prefix)
+    && (state.lvl === 'all' || s.lvl === state.lvl));
 }
 
 // school.addr 는 "서울특별시 강남구 대치동 942" 같은 지번주소 전체다. school.dong
@@ -61,20 +65,23 @@ function renderList() {
   currentList = list;
 
   root.querySelector('.re-panel-title').textContent =
-    `${VIEW_LABEL[state.view]} 사립초 ${list.length}곳`;
+    `${VIEW_LABEL[state.view]} ${LVL_LIST_LABEL[state.lvl]} ${list.length}곳`;
   root.querySelector('.re-school-meta').textContent =
     '학교를 누르면(또는 지도에서 점을 누르면) 같은 법정동 아파트 시세를 볼 수 있습니다.';
   root.querySelector('.re-rank-heading').hidden = true;
   root.querySelector('.re-back-btn').hidden = true;
 
+  // 학교급 칸은 한 글자(초/중)만 쓴다 — '사립초'처럼 풀어 쓰면 좁은 화면에서
+  // 칸이 두 줄로 접혀 표가 들쭉날쭉해진다. 열 이름(학교급)이 이미 맥락을 준다.
   const table = root.querySelector('.re-table');
-  const head = '<thead><tr><th>학교명</th><th>시군구</th><th>법정동</th></tr></thead>';
+  const head = '<thead><tr><th>학교명</th><th>학교급</th><th>시군구</th><th>법정동</th></tr></thead>';
   const body = list.map((s, i) => `<tr class="re-list-row" data-idx="${i}" tabindex="0" `
     + `role="button" aria-label="${esc(s.name)} 시세 보기">`
-    + `<td>${esc(s.name)}</td><td>${esc(sggLabel(s))}</td><td>${esc(s.dong)}</td></tr>`).join('');
+    + `<td>${esc(s.name)}</td><td>${esc(s.lvl)}</td>`
+    + `<td>${esc(sggLabel(s))}</td><td>${esc(s.dong)}</td></tr>`).join('');
   table.innerHTML = list.length
     ? `${head}<tbody>${body}</tbody>`
-    : `${head}<tbody><tr><td colspan="3">이 지역에는 표시할 학교가 없습니다.</td></tr></tbody>`;
+    : `${head}<tbody><tr><td colspan="4">이 조건에는 표시할 학교가 없습니다.</td></tr></tbody>`;
 }
 
 async function selectSchool(school) {
@@ -119,6 +126,7 @@ async function selectSchool(school) {
 function writeParams() {
   const q = new URLSearchParams();
   q.set('view', state.view);
+  if (state.lvl !== 'all') q.set('lvl', state.lvl);
   if (state.school) q.set('school', state.school.name);
   window.history.replaceState(null, '', `${window.location.pathname}?${q}`);
 }
@@ -128,6 +136,8 @@ function readParams() {
   const view = q.get('view');
   const valid = ['seoul', 'gyeonggi', 'all'].includes(view);
   if (valid) state.view = view;
+  const lvl = q.get('lvl');
+  if (LVL_TAB_VALUES.includes(lvl)) state.lvl = lvl;
   const name = q.get('school');
   if (name) {
     const hit = schools.find((s) => s.name === name);
@@ -140,8 +150,13 @@ function readParams() {
 }
 
 function applyView() {
-  root.querySelectorAll('.re-tab').forEach((b) => {
+  root.querySelectorAll('.re-view-tabs .re-tab').forEach((b) => {
     const on = b.dataset.view === state.view;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-selected', String(on));
+  });
+  root.querySelectorAll('.re-lvl-tabs .re-tab').forEach((b) => {
+    const on = b.dataset.lvl === state.lvl;
     b.classList.toggle('is-on', on);
     b.setAttribute('aria-selected', String(on));
   });
@@ -221,11 +236,21 @@ function bindTableInteractions() {
 }
 
 function bind() {
-  root.querySelectorAll('.re-tab').forEach((btn) => {
+  root.querySelectorAll('.re-view-tabs .re-tab').forEach((btn) => {
     btn.addEventListener('click', () => {
       state.view = btn.dataset.view;
       // 탭은 지역 선택이다 — 이전에 고른 학교가 새 지역에 없을 수도 있으니
       // 탭을 누르면 항상 그 지역의 전체 목록으로 돌아간다.
+      state.school = null;
+      applyView();
+      writeParams();
+    });
+  });
+  root.querySelectorAll('.re-lvl-tabs .re-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.lvl = btn.dataset.lvl;
+      // 학교급 탭도 지역 탭과 같은 이유로 선택을 초기화한다 — 고른 학교가
+      // 새 필터에서 걸러질 수 있다.
       state.school = null;
       applyView();
       writeParams();

@@ -1,5 +1,9 @@
 /* 학군 지도 전용. 색은 dashboard.css 의 --re-* 와 palette.js 를 따른다. */
 
+/* 지역 탭(re-view-tabs)과 학교급 탭(re-lvl-tabs)을 한 줄에 묶는다. dashboard.css 의
+   .re-controls 가 이미 flex-wrap 이라, 이 안에서도 좁은 화면에서 자연히 줄바꿈된다. */
+.re-tab-groups { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
 .re-school-layer .re-dot {
   stroke: #fff;
   stroke-width: 1.5;

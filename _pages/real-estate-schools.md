@@ -8,7 +8,7 @@ toc: false
 header:
   image: /assets/images/real-estate-schools/header.svg
   teaser: /assets/images/real-estate-schools/header.svg
-description: "서울·경기 사립초 위치를 지도에 올리고, 학교를 누르면 그 학교가 속한 법정동의 아파트 실거래 시세를 보여줍니다. 국토교통부 실거래가와 학교 위치 공공데이터를 겹쳐 봅니다."
+description: "서울·경기 사립초·사립중 위치를 지도에 올리고, 학교를 누르면 그 학교가 속한 법정동의 아파트 실거래 시세를 보여줍니다. 국토교통부 실거래가와 학교 위치 공공데이터를 겹쳐 봅니다."
 ---
 
 <link rel="stylesheet" href="{{ '/assets/realestate/dashboard.css' | relative_url }}">
@@ -16,13 +16,21 @@ description: "서울·경기 사립초 위치를 지도에 올리고, 학교를 
 
 <div class="re-app is-schools" data-base="{{ '/assets/realestate' | relative_url }}">
   <div class="re-controls">
-    <div class="re-tabs" role="tablist" aria-label="지역 선택">
-      <button class="re-tab is-on" data-view="seoul" role="tab" aria-selected="true">서울</button>
-      <button class="re-tab" data-view="gyeonggi" role="tab" aria-selected="false">경기</button>
-      <button class="re-tab" data-view="all" role="tab" aria-selected="false">전체</button>
+    <div class="re-tab-groups">
+      <div class="re-tabs re-view-tabs" role="tablist" aria-label="지역 선택">
+        <button class="re-tab is-on" data-view="seoul" role="tab" aria-selected="true">서울</button>
+        <button class="re-tab" data-view="gyeonggi" role="tab" aria-selected="false">경기</button>
+        <button class="re-tab" data-view="all" role="tab" aria-selected="false">전체</button>
+      </div>
+      <div class="re-tabs re-lvl-tabs" role="tablist" aria-label="학교급 선택">
+        <button class="re-tab is-on" data-lvl="all" role="tab" aria-selected="true">전체</button>
+        <button class="re-tab" data-lvl="초" role="tab" aria-selected="false">사립초</button>
+        <button class="re-tab" data-lvl="중" role="tab" aria-selected="false">사립중</button>
+      </div>
     </div>
     <div class="re-legend-dots">
       <span><i class="is-초"></i>사립초</span>
+      <span><i class="is-중"></i>사립중</span>
     </div>
   </div>
 
@@ -44,7 +52,9 @@ description: "서울·경기 사립초 위치를 지도에 올리고, 학교를 
   <div class="re-table-wrap"><table class="re-table"></table></div>
   <p class="re-caveat">
     같은 법정동 기준입니다. 실제 배정 학교는 통학구역에 따라 다릅니다.
-    사립초는 배정이 아니라 지원으로 가는 학교라 '근처'의 의미가 또 다릅니다.
+    사립초·사립중은 배정이 아니라 지원으로 가는 학교라 '근처'의 의미가 또 다릅니다.
+    중학교는 사립중만 다룹니다 — 특목고·자사고 진학 비율 기반 필터를 넣고 싶었지만
+    해당 데이터가 공개되어 있지 않아 넣지 못했습니다.
   </p>
   <p class="re-footnote"></p>
 </div>

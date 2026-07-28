@@ -37,12 +37,13 @@ description: "수도권 부동산을 데이터로 보는 도구들을 모았습�
     <span class="rh-badge">쓸 수 있음</span>
     <h2 class="rh-title">학군 지도</h2>
     <p class="rh-desc">
-      서울·경기 <strong>사립초 41곳</strong>을 지도에 올렸습니다.
+      서울·경기 <strong>사립초 41곳 · 사립중 197곳</strong>을 지도에 올렸습니다.
       학교를 누르면 그 학교가 속한 법정동의 아파트 실거래 시세가 나옵니다.
     </p>
     <ul class="rh-points">
       <li>학교 위치와 그 동네 평당가를 한 화면에서</li>
-      <li>진학 상위권 중학교는 준비 중</li>
+      <li>학교급(사립초/사립중)으로 걸러보기</li>
+      <li>진학 실적 기반 필터는 데이터가 공개되지 않아 없습니다</li>
     </ul>
     <span class="rh-go">열어보기 →</span>
   </a>

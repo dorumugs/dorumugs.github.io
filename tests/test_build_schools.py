@@ -126,16 +126,33 @@ class TestParseAddr(unittest.TestCase):
                          ("경기도 여주시", "가남읍 태평리"))
 
 
-class TestSelectPrivateElementary(unittest.TestCase):
-    def test_keeps_only_private_elementary(self) -> None:
+class TestSelectPrivateSchools(unittest.TestCase):
+    def test_keeps_private_elementary(self) -> None:
         rows = [
             _school(school_id="A"),
             _school(school_id="B", found_type="공립"),
-            _school(school_id="C", level="중학교", found_type="사립"),
             _school(school_id="D", found_type="국립"),
         ]
-        got = build_schools.select_private_elementary(rows)
+        got = build_schools.select_private_schools(rows)
         self.assertEqual([r["school_id"] for r in got], ["A"])
+
+    def test_keeps_private_middle_school(self) -> None:
+        rows = [_school(school_id="C", level="중학교", found_type="사립")]
+        got = build_schools.select_private_schools(rows)
+        self.assertEqual([r["school_id"] for r in got], ["C"])
+
+    def test_drops_public_middle_school(self) -> None:
+        rows = [_school(school_id="E", level="중학교", found_type="공립")]
+        self.assertEqual(build_schools.select_private_schools(rows), [])
+
+    def test_both_levels_kept_together(self) -> None:
+        rows = [
+            _school(school_id="A"),
+            _school(school_id="C", level="중학교", found_type="사립"),
+            _school(school_id="B", found_type="공립"),
+        ]
+        got = build_schools.select_private_schools(rows)
+        self.assertEqual([r["school_id"] for r in got], ["A", "C"])
 
 
 class TestBuild(unittest.TestCase):
@@ -161,6 +178,19 @@ class TestBuild(unittest.TestCase):
     def test_unresolvable_address_dropped(self) -> None:
         out = self._run([_school(addr="부산광역시 해운대구 우동 1")])
         self.assertEqual(out["schools"], [])
+
+    def test_middle_school_gets_lvl_jung(self) -> None:
+        s = self._run([_school(level="중학교", school_name="한영중학교")])["schools"][0]
+        self.assertEqual(s["lvl"], "중")
+        self.assertEqual(s["found"], "사립")
+
+    def test_both_levels_appear_in_one_build(self) -> None:
+        rows = [
+            _school(school_id="A"),
+            _school(school_id="C", level="중학교", school_name="한영중학교"),
+        ]
+        out = self._run(rows)["schools"]
+        self.assertEqual(sorted(s["lvl"] for s in out), ["중", "초"])
 
     def test_sorted_by_sgg_then_name(self) -> None:
         """sgg 코드 오름차순이 1차 키다. 종로구(11110)가 강남구(11680)보다
@@ -208,12 +238,23 @@ class TestAgainstRealOutput(unittest.TestCase):
             self.assertLessEqual(s["y"], 1201.0, s["name"])
 
     @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
-    def test_only_private_elementary(self) -> None:
+    def test_only_private_schools(self) -> None:
         data = json.loads(self.OUT.read_text(encoding="utf-8"))
         self.assertTrue(data["schools"])
         for s in data["schools"]:
-            self.assertEqual(s["lvl"], "초")
+            self.assertIn(s["lvl"], ("초", "중"))
             self.assertEqual(s["found"], "사립")
+
+    @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
+    def test_both_levels_present_with_known_counts(self) -> None:
+        """검증된 원본 건수: 사립 초 41 / 중 197 (서울 109 / 경기 88)."""
+        data = json.loads(self.OUT.read_text(encoding="utf-8"))
+        counts: dict[str, int] = {}
+        for s in data["schools"]:
+            counts[s["lvl"]] = counts.get(s["lvl"], 0) + 1
+        self.assertEqual(counts.get("초"), 41)
+        self.assertEqual(counts.get("중"), 197)
+        self.assertEqual(len(data["schools"]), 238)
 
     @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
     def test_within_size_budget(self) -> None:

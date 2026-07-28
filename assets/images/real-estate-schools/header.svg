@@ -22,8 +22,8 @@
     <text x="215" y="288" font-size="24" font-weight="800" fill="#86b6ef">사립초</text>
     <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">서울·경기 41곳</text>
     <rect x="475" y="236" width="250" height="118" rx="16" fill="#2b1c14" stroke="#eb6834" stroke-width="3"/>
-    <text x="600" y="288" font-size="24" font-weight="800" fill="#f0a882">중학교</text>
-    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">진학 상위권 (준비 중)</text>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#f0a882">사립중</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">서울·경기 197곳</text>
     <rect x="860" y="236" width="250" height="118" rx="16" fill="#16202e" stroke="#6da7ec" stroke-width="3"/>
     <text x="985" y="288" font-size="24" font-weight="800" fill="#b7d3f6">그 동네 시세</text>
     <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">같은 법정동 실거래</text>

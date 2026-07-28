@@ -2,7 +2,11 @@
 
     python3 scripts/build_schools.py
 
-1단계는 사립초만 다룬다. 중학교는 학교알리미 진학 데이터가 붙는 2단계다.
+사립 초등학교·중학교를 함께 다룬다. 진학 실적(특목고·자사고 비율) 기반으로
+중학교를 상위권만 거르는 안은 그 데이터가 학교알리미 OpenAPI 로도, 공개용데이터
+목록에도, 학교별 공시 화면에도 없어 접었다 — 대신 사립초와 같은 논리를 그대로
+써서 사립 중학교 전체를 낸다: 배정이 아니라 지원으로 가는 학교라 '근처'가
+실제로 의미를 가진다.
 좌표 변환은 build_geo.py 가 내보낸 projection.json 을 그대로 쓴다 —
 파라미터를 각자 계산하면 지도와 점이 조용히 어긋난다.
 """
@@ -31,7 +35,7 @@ OUT_FILE = ROOT / "assets" / "realestate" / "schools.json"
 MAX_BYTES = 100 * 1024
 JOIN_FAIL_LIMIT = 0.10
 
-# 학교급 표기를 화면용 한 글자로 줄인다. 2단계에서 '중학교' 가 추가된다.
+# 학교급 표기를 화면용 한 글자로 줄인다.
 LEVEL_SHORT = {"초등학교": "초", "중학교": "중"}
 
 
@@ -81,10 +85,15 @@ def to_svg_xy(lat: float, lon: float, params: dict) -> tuple[float, float]:
     return x, y
 
 
-def select_private_elementary(rows: list[dict]) -> list[dict]:
-    """1단계 대상: 사립 초등학교만. 국립은 요구사항이 '사립초' 라 넣지 않는다."""
+def select_private_schools(rows: list[dict]) -> list[dict]:
+    """대상: 사립 초등학교·중학교. 국립은 요구사항이 '사립' 이라 넣지 않는다.
+
+    고등학교는 애초에 수집 대상이 아니다(schools_api.LEVELS). 공립·국립
+    중학교도 여기서 걸러진다 — 진학 실적 기반 순위를 매길 데이터가 없어서
+    '지원으로 가는 학교'라는, 사립초에 이미 쓰던 논리를 그대로 재사용한다.
+    """
     return [r for r in rows
-            if r.get("level") == "초등학교" and r.get("found_type") == "사립"]
+            if r.get("level") in LEVEL_SHORT and r.get("found_type") == "사립"]
 
 
 def build(rows: list[dict], params: dict, generated: str) -> dict:
@@ -142,8 +151,8 @@ def main() -> int:
 
     params = json.loads(PROJECTION_FILE.read_text(encoding="utf-8"))
     rows = rtms.csv_to_rows(rtms.gunzip_text(SCHOOL_FILE.read_bytes()))
-    picked = select_private_elementary(rows)
-    print(f"원본 {len(rows):,}건 중 사립초 {len(picked):,}건")
+    picked = select_private_schools(rows)
+    print(f"원본 {len(rows):,}건 중 사립 초·중 {len(picked):,}건")
 
     payload = build(picked, params, args.generated)
     failed = payload.pop("join_failed")
