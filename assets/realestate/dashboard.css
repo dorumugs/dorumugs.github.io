@@ -192,6 +192,25 @@ table.re-table td.is-num, table.re-table th.is-num {
 }
 table.re-table td.is-dim { color: var(--re-ink2); }
 
+/* 랭킹 표의 20년 추이 스파크라인. 바로 위 `.re-chart svg { width: 100% }` 는
+   구 상세의 큰 추이 차트를 위한 규칙이라, 표 안의 작은 svg 까지 셀 전체로
+   부풀린다. 더 구체적인 선택자로 폭을 되찾아 온다. */
+table.re-table th.is-spark, table.re-table td.is-spark {
+  width: 1%; padding-left: 10px; text-align: right; white-space: nowrap;
+}
+.re-chart table.re-table svg.re-spark {
+  width: 96px; height: 22px; display: inline-block; vertical-align: middle;
+}
+.re-spark-none { color: var(--re-muted); }
+/* 랜딩 표는 .re-table-wrap 밖(.re-chart 안)에 있어 가로 스크롤이 없다. 좁은
+   화면에서는 넘치는 대신 스파크라인·여백을 먼저 줄여 5열을 그대로 담는다. */
+@media (max-width: 720px) {
+  .re-chart table.re-table svg.re-spark { width: 48px; }
+  table.re-table.is-landing { font-size: 12px; }
+  table.re-table.is-landing th, table.re-table.is-landing td { padding: 6px 4px; }
+  table.re-table th.is-spark, table.re-table td.is-spark { padding-left: 6px; }
+}
+
 .re-footnote { font-size: 11.5px; color: var(--re-muted); margin-top: 12px; }
 
 @media (max-width: 720px) {

@@ -1,6 +1,8 @@
 import { setBase, loadSummary, loadSgg } from './data.js';
 import { initMap } from './map.js';
-import { divergingColor, sequentialColor, DIVERGING, SEQUENTIAL } from './palette.js';
+import {
+  divergingColor, sequentialColor, DIVERGING, SEQUENTIAL, INK2, LINE,
+} from './palette.js';
 
 const root = document.querySelector('.re-app');
 setBase(root.dataset.base);
@@ -131,15 +133,70 @@ function repaint() {
     drawLegend(min, max, 'sequential', spec.unit);
   }
   map.paint(values);
-  if (!state.sgg) renderLanding(raw, spec);
+  if (!state.sgg) renderLanding(raw, spec, index);
   writeParams();
+}
+
+// 랭킹 표 한 칸에 들어가는 20년치 추이선. 축·눈금 없이 모양만 보여 주는
+// 스파크라인이라, 세로 스케일은 "행마다 각자" 최소~최대로 정규화한다 — 구
+// 사이 평당가가 58배까지 벌어져 공통 스케일을 쓰면 강남 말고는 전부 납작한
+// 직선이 된다. 절대 수준 비교는 옆의 중위 평당가 열이 맡는다.
+const SPARK_W = 100;
+const SPARK_H = 24;
+const SPARK_PAD = 2.5;
+
+function sparkline(code, index) {
+  const series = summary.series[state.filter][code];
+  const med = series && series.med;
+  const pts = [];
+  let min = Infinity;
+  let max = -Infinity;
+  if (med) {
+    for (let i = 0; i < med.length; i += 1) {
+      const v = med[i];
+      if (v == null) continue;
+      pts.push([i, v]);
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+  }
+  // 화성시 4개 구처럼 필터 조합에 따라 전 기간이 비는 곳이 있다. 선을 못 그리면
+  // 빈칸 대신 '—' 를 놓아 "그릴 게 없다"는 것이 읽히게 한다.
+  if (pts.length < 2) return '<span class="re-spark-none" aria-label="자료 없음">—</span>';
+  const span = max - min || 1;
+  const lastX = med.length - 1 || 1;
+  // 가로도 세로와 같이 SPARK_PAD 만큼 안쪽으로 들여 그린다. 기준월이 마지막
+  // 달일 때 점(r=2)이 viewBox 밖으로 나가 반쪽만 보이기 때문이다.
+  const x = (i) => SPARK_PAD + (i / lastX) * (SPARK_W - SPARK_PAD * 2);
+  const y = (v) => SPARK_PAD + (1 - (v - min) / span) * (SPARK_H - SPARK_PAD * 2);
+  // 중간에 빈 달(300세대+ 필터에서 6%)은 선을 끊지 않고 잇는다. 톱니처럼 끊어
+  // 놓으면 실제로 값이 떨어진 것처럼 읽힌다.
+  const d = pts.map(([i, v]) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const at = med[index];
+  const dot = at == null ? ''
+    : `<circle cx="${x(index).toFixed(1)}" cy="${y(at).toFixed(1)}" r="2" fill="${LINE}"/>`;
+  const first = pts[0];
+  const last = pts[pts.length - 1];
+  const ymOf = (i) => summary.months[i];
+  const label = `${summary.sgg[code].name} 평당가 추이. `
+    + `${ymOf(first[0])} ${first[1].toLocaleString()}만원에서 `
+    + `${ymOf(last[0])} ${last[1].toLocaleString()}만원까지, `
+    + `최저 ${min.toLocaleString()} 최고 ${max.toLocaleString()}만원.`;
+  return `<svg class="re-spark" viewBox="0 0 ${SPARK_W} ${SPARK_H}" `
+    + `preserveAspectRatio="none" role="img" aria-label="${esc(label)}">`
+    + `<polyline points="${d}" fill="none" stroke="${INK2}" stroke-width="1" `
+    + `vector-effect="non-scaling-stroke"/>${dot}</svg>`;
 }
 
 // 구 선택 전 첫 화면. 새로 지역 전체 중위값을 만들지 않고, 이미 지도에 칠한
 // 값을 그대로 표로 늘어놓는다 — 지도 툴팁과 값·서식이 완전히 같다. 행마다
 // data-code 를 심어 두 방향 호버(행 → 지도, 지도 → 행)와 클릭 선택이 코드로
 // 바로 이어지게 한다(학군 페이지의 re-list-row 와 같은 얼개).
-function renderLanding(raw, spec) {
+function renderLanding(raw, spec, index) {
+  // 지표를 '중위 평당가'로 고르면 지표 열과 중위값 열이 같은 값이 된다. 그때만
+  // 한 열로 합친다 — 똑같은 숫자를 두 번 늘어놓는 게 더 혼란스럽다.
+  const dupLevel = state.metric === 'level';
+  const levelSpec = METRICS.level;
   const rows = [...raw.entries()]
     .sort((a, b) => {
       const av = Number.isFinite(a[1]) ? a[1] : -Infinity;
@@ -148,16 +205,24 @@ function renderLanding(raw, spec) {
     })
     .map(([code, v], i) => {
       const name = summary.sgg[code].name;
+      // 중위값은 지도·툴팁과 같은 metricValue() 로 뽑는다. 여기서 series.med 를
+      // 직접 읽으면 나중에 계산이 바뀔 때 두 곳이 조용히 어긋난다.
+      const level = dupLevel ? null : metricValue(code, 'level', index);
       return `<tr class="re-list-row" data-code="${esc(code)}" tabindex="0" `
         + `role="button" aria-label="${esc(name)} 상세 보기">`
         + `<td class="is-num is-dim">${i + 1}</td>`
         + `<td>${esc(name)}</td>`
-        + `<td class="is-num">${formatMetric(v, spec)}</td></tr>`;
+        + (dupLevel ? '' : `<td class="is-num">${formatMetric(level, levelSpec)}</td>`)
+        + `<td class="is-num">${formatMetric(v, spec)}</td>`
+        + `<td class="is-spark">${sparkline(code, index)}</td></tr>`;
     })
     .join('');
+  const since = (summary.months[0] || '').slice(0, 4);
   root.querySelector('.re-chart').innerHTML = rows
-    ? `<table class="re-table"><thead><tr><th></th><th>시군구</th>`
-      + `<th class="is-num">${spec.label}</th></tr></thead><tbody>${rows}</tbody></table>`
+    ? `<table class="re-table is-landing"><thead><tr><th></th><th>시군구</th>`
+      + (dupLevel ? '' : `<th class="is-num">${levelSpec.label}</th>`)
+      + `<th class="is-num">${spec.label}</th>`
+      + `<th class="is-spark">추이 ${since}~</th></tr></thead><tbody>${rows}</tbody></table>`
     : '<p class="re-error">표시할 데이터가 없습니다.</p>';
 }
 
