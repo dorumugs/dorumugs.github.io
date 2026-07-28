@@ -71,3 +71,30 @@
 /* .re-panel-head / .re-back-btn / tr.re-list-row 호버 규칙은 실거래 대시보드도
    똑같이 쓰므로 dashboard.css 로 옮겼다(중복 방지). 여기서는 학군 전용 규칙만
    남긴다. */
+
+/* 특목고·자사고 진학률(시·도 단위) — 지도/목록과 분리된 독립 섹션이다.
+   .re-section-title 은 dashboard.css 에 이미 있는 규칙을 그대로 물려쓴다. */
+.re-progression { margin-top: 22px; }
+.re-prog-note {
+  font-size: 12.5px; color: var(--re-ink2); line-height: 1.6; margin: 0 0 10px;
+}
+.re-prog-chart svg { width: 100%; height: auto; display: block; }
+
+/* 범례는 SVG 끝점 라벨과 같은 정보를 한 번 더, 색맹·저시력 사용자도 읽을 수
+   있게 텍스트로 준다(색만이 유일한 채널이 되지 않도록). 스와치(<i>) 색은
+   charts.js 가 palette.js CATEGORICAL 값을 그대로 inline style 로 찍어 준다
+   — 여기서 새 색을 정의하지 않는다. */
+.re-prog-legend {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px;
+  font-size: 12px; color: var(--re-ink2);
+}
+.re-prog-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.re-prog-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+/* 졸업자 수(분모) 축소를 상호작용 없이 보여주는 캡션. 표처럼 보이지 않게
+   진학률 범례와 같은 톤(muted)으로 둔다 — 이 페이지의 주인공은 여전히
+   위쪽 지도·시세다. */
+.re-prog-cohort {
+  font-size: 12px; color: var(--re-muted); margin: 10px 0 0;
+  display: flex; gap: 14px; flex-wrap: wrap;
+}

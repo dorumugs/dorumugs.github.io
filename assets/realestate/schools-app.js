@@ -1,7 +1,8 @@
 import { setBase, loadSgg } from './data.js';
 import { initMap } from './map.js';
 import { initSchoolLayer } from './schoolmap.js';
-import { NO_DATA } from './palette.js';
+import { NO_DATA, CATEGORICAL } from './palette.js';
+import { multiLineChart, legendHtml } from './charts.js';
 
 const root = document.querySelector('.re-app');
 setBase(root.dataset.base);
@@ -121,6 +122,45 @@ async function selectSchool(school) {
     if (mySeq !== selectSeq) return;
     table.innerHTML = '<tbody><tr><td>시세를 불러오지 못했습니다.</td></tr></tbody>';
   }
+}
+
+// 서울·경기 진학률 추이(re-progression). 지도/목록/state 와 무관하게 한 번만
+// 그린다 — 학교급·지역 탭을 바꿔도 이 시·도 단위 자료는 바뀌지 않는다.
+// 색은 palette.js CATEGORICAL 슬롯 1(파랑)·2(주황)를 그대로 쓴다.
+const PROG_REGIONS = [
+  { key: '서울', color: CATEGORICAL[0] },
+  { key: '경기', color: CATEGORICAL[1] },
+];
+
+function renderProgression(data) {
+  const chartEl = document.querySelector('.re-progression .re-prog-chart');
+  const legendEl = document.querySelector('.re-progression .re-prog-legend');
+  const cohortEl = document.querySelector('.re-progression .re-prog-cohort');
+  if (!chartEl) return;
+  if (!data) {
+    chartEl.innerHTML = '<p class="re-error">진학률 자료를 불러오지 못했습니다.</p>';
+    return;
+  }
+
+  const rateSeries = PROG_REGIONS.map(({ key, color }) => ({
+    label: key, color, values: data.regions[key].rate,
+  }));
+  chartEl.innerHTML = multiLineChart(data.years, rateSeries, { unit: '%', decimals: 1 });
+  chartEl.setAttribute('aria-label', '서울·경기 특목고·자사고 진학률 추이');
+  legendEl.innerHTML = legendHtml(rateSeries);
+
+  // 진학률만 보면 분모(졸업자 수)가 줄어드는 건 안 보인다 — 같은 15%도 10만
+  // 명 중 15%와 5만 명 중 15%는 다른 이야기다. 시작 연도·끝 연도의 졸업자
+  // 수를 나란히 적어 코호트가 줄어드는 걸 상호작용 없이도 보이게 한다.
+  const firstYear = data.years[0];
+  const lastYear = data.years[data.years.length - 1];
+  cohortEl.innerHTML = PROG_REGIONS.map(({ key }) => {
+    const den = data.regions[key].den;
+    const first = den[0].toLocaleString();
+    const last = den[den.length - 1].toLocaleString();
+    return `<span>${esc(key)} 졸업자 ${esc(firstYear)}년 ${first}명 → `
+      + `${esc(lastYear)}년 ${last}명</span>`;
+  }).join(' · ');
 }
 
 function writeParams() {
@@ -285,6 +325,17 @@ async function start() {
   bind();
   applyView();
   if (state.school) await selectSchool(state.school);
+
+  // 진학률 추이는 지도·목록과 독립된 정적 자료라, 실패해도(fetch 만 막히고)
+  // 화면의 나머지 기능(지도·시세 조회)은 그대로 동작해야 한다 — 별도로 묶어
+  // 잡는다.
+  try {
+    const res = await fetch(`${BASE}/progression.json`, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    renderProgression(await res.json());
+  } catch (err) {
+    renderProgression(null);
+  }
 }
 
 start();

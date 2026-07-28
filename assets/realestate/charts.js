@@ -87,6 +87,89 @@ export function lineChart(months, values, { partialFrom } = {}) {
   return parts.join('');
 }
 
+// 여러 계열(연도별 선 N개)을 한 SVG 에 그린다. lineChart() 와 같은 관례를 따르되
+// (그리드·눈금·2px 선·끝점 라벨) 계열이 둘 이상이라 legend 가 필요하다는 점만
+// 다르다 — legend 는 SVG 밖에 별도 HTML(legendHtml)로 그린다. 학군 페이지의
+// 서울/경기 진학률·졸업자수 추이(schools-app.js)가 쓴다.
+export function multiLineChart(categories, series, { unit = '', decimals = 1, height = H } = {}) {
+  const finiteAll = series.flatMap((s) => s.values.filter((v) => v != null));
+  if (!finiteAll.length) {
+    return `<svg viewBox="0 0 ${W} ${height}"><text x="${W / 2}" y="${height / 2}" `
+      + `text-anchor="middle" font-size="12" fill="${MUTED}">자료 없음</text></svg>`;
+  }
+  const max = Math.max(...finiteAll) * 1.15;
+  const n = categories.length;
+  const iw = W - PAD_L - PAD_R, ih = height - PAD_T - PAD_B;
+  const X = (i) => PAD_L + (n > 1 ? (i / (n - 1)) * iw : iw / 2);
+  const Y = (v) => PAD_T + (1 - v / max) * ih;
+  const fmt = (v) => `${decimals > 0 ? v.toFixed(decimals) : Math.round(v).toLocaleString()}${unit}`;
+
+  const label = esc(series.map((s) => s.label).join('·'));
+  const parts = [`<svg viewBox="0 0 ${W} ${height}" font-family="system-ui,-apple-system,sans-serif" `
+    + `role="img" aria-label="${label} 추이">`];
+
+  for (const t of niceTicks(max)) {
+    parts.push(`<line x1="${PAD_L}" y1="${Y(t).toFixed(1)}" x2="${W - PAD_R}" `
+      + `y2="${Y(t).toFixed(1)}" stroke="${GRID}" stroke-width="1"/>`);
+    parts.push(`<text x="${PAD_L - 6}" y="${(Y(t) + 3.5).toFixed(1)}" text-anchor="end" `
+      + `font-size="9" fill="${MUTED}">${decimals > 0 ? t.toFixed(decimals) : Math.round(t).toLocaleString()}</text>`);
+  }
+  if (unit) {
+    parts.push(`<text x="${PAD_L - 6}" y="${(PAD_T - 3).toFixed(1)}" text-anchor="end" `
+      + `font-size="8.5" fill="${MUTED}">${esc(unit)}</text>`);
+  }
+
+  // x축 라벨은 다 찍으면 15개 연도가 390px 폭에서 겹친다. 5년 단위 + 처음·끝만 찍는다.
+  const shown = new Set([0, n - 1]);
+  categories.forEach((c, i) => { if (Number(c) % 5 === 0) shown.add(i); });
+  shown.forEach((i) => {
+    parts.push(`<text x="${X(i).toFixed(1)}" y="${height - 7}" text-anchor="middle" `
+      + `font-size="9" fill="${MUTED}">${esc(categories[i])}</text>`);
+  });
+
+  parts.push(`<line x1="${PAD_L}" y1="${Y(0).toFixed(1)}" x2="${W - PAD_R}" `
+    + `y2="${Y(0).toFixed(1)}" stroke="${AXIS}" stroke-width="1"/>`);
+
+  series.forEach((s) => {
+    let run = [];
+    const flush = () => {
+      if (run.length > 1) {
+        parts.push(`<polyline points="${run.join(' ')}" fill="none" stroke="${s.color}" `
+          + `stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`);
+      }
+      run = [];
+    };
+    s.values.forEach((v, i) => {
+      if (v == null) { flush(); return; }
+      run.push(`${X(i).toFixed(1)},${Y(v).toFixed(1)}`);
+    });
+    flush();
+
+    let lastIdx = -1;
+    for (let i = n - 1; i >= 0; i -= 1) if (s.values[i] != null) { lastIdx = i; break; }
+    if (lastIdx >= 0) {
+      const lx = X(lastIdx), ly = Y(s.values[lastIdx]);
+      parts.push(`<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4" fill="${s.color}" `
+        + `stroke="${SURFACE}" stroke-width="2"/>`);
+      // 끝점 라벨은 계열명 + 값을 같이 적는다 — 범례 없이 색만 보고 구분하지
+      // 않아도 되게(색맹·흑백 인쇄에서도 어느 선인지 읽힌다).
+      parts.push(`<text x="${(lx - 7).toFixed(1)}" y="${(ly - 9).toFixed(1)}" text-anchor="end" `
+        + `font-size="10.5" font-weight="600" fill="${s.color}">`
+        + `${esc(s.label)} ${fmt(s.values[lastIdx])}</text>`);
+    }
+  });
+
+  parts.push('</svg>');
+  return parts.join('');
+}
+
+// multiLineChart 의 SVG 끝점 라벨과 별개로, 범례 자체는 HTML 로 그린다(스와치
+// 뒤에 계열명을 붙인 <span> 목록). CSS 는 .re-prog-legend(schools.css)에 있다.
+export function legendHtml(series) {
+  return series.map((s) => `<span><i style="background:${s.color}" aria-hidden="true"></i>`
+    + `${esc(s.label)}</span>`).join('');
+}
+
 function kpi(label, value, unit, delta, direction) {
   const cls = direction > 0 ? 'is-up' : direction < 0 ? 'is-down' : '';
   return `<div class="re-kpi"><div class="re-kpi-label">${label}</div>`
