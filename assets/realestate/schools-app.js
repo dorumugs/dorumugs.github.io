@@ -38,6 +38,27 @@ function esc(s) {
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// 학교별 특목고·자사고 진학률(progression_school.json). 서울·경기 중학교
+// 1,050곳이 들어 있다 — 지도에 없는 공립중까지 담은 이유는 "비슷한 진학률
+// 학교"를 고를 모집단이 필요해서다.
+let progSchools = null;      // { years, thin, schools: [...] }
+let progIndex = new Map();   // `${sgg}|${정규화한 이름}` → 학교
+
+// 교명 표기가 두 자료에서 갈릴 때가 있다(가운뎃점·괄호 등). 한글·숫자만 남겨
+// 맞춘다 — 예: '이화여자대학교사범대학부속이화·금란중학교' 의 가운뎃점.
+function normName(name) {
+  return String(name).replace(/[^가-힣0-9]/g, '');
+}
+
+function progOf(school) {
+  if (!progIndex.size) return null;
+  return progIndex.get(`${school.sgg}|${normName(school.name)}`) || null;
+}
+
+// 진학률을 쓸 수 있는 학교급. 초등학교는 애초에 진학 개념이 다르고, 특목고는
+// 중학교 졸업생 진로의 '결과' 쪽이라 이 지표를 붙이면 뜻이 뒤집힌다.
+const PROG_LEVELS = new Set(['중', '국제중']);
+
 function visibleSchools() {
   const prefix = VIEW_PREFIX[state.view] ?? '';
   return schools.filter((s) => s.sgg.startsWith(prefix)
@@ -64,6 +85,17 @@ function paintBase() {
   map.paint(values);
 }
 
+// 목록 한 칸에 넣을 최신연도 진학률. 졸업생이 적은 학교는 한 명이 몇 %p 씩
+// 움직이므로 값 옆에 표시를 달아 그대로 비교하지 않게 한다.
+function progCell(school) {
+  if (!PROG_LEVELS.has(school.lvl)) return '<span class="re-dim">—</span>';
+  const p = progOf(school);
+  const last = p && p.r[p.r.length - 1];
+  if (last == null) return '<span class="re-dim">자료 없음</span>';
+  const thin = (p.g || 0) < progSchools.thin;
+  return `${last.toFixed(1)}%${thin ? '<span class="re-thin" title="졸업생이 적어 값이 크게 흔들립니다">*</span>' : ''}`;
+}
+
 // 선택된 학교가 없을 때(첫 진입, 탭 전환, "목록으로") 지금 뷰의 학교를 전부
 // 표로 뿌린다. 시군구 → 학교명 순으로 정렬해 순서가 매번 안정적이게 한다.
 function renderList() {
@@ -83,14 +115,72 @@ function renderList() {
   // 풀어 쓰면 좁은 화면에서 칸이 두 줄로 접혀 표가 들쭉날쭉해진다. 열
   // 이름(학교급)이 이미 맥락을 준다.
   const table = root.querySelector('.re-table');
-  const head = '<thead><tr><th>학교명</th><th>학교급</th><th>시군구</th><th>법정동</th></tr></thead>';
+  // 진학률 열은 중학교가 하나라도 보일 때만 붙인다. 사립초·특목고만 보고 있을
+  // 때 값이 전부 '—' 인 빈 열이 자리를 차지하면 좁은 화면에서 손해다.
+  const showProg = progSchools && list.some((s) => PROG_LEVELS.has(s.lvl));
+  const progYear = showProg ? progSchools.years[progSchools.years.length - 1] : '';
+  const head = '<thead><tr><th>학교명</th><th>학교급</th><th>시군구</th><th>법정동</th>'
+    + (showProg ? `<th class="is-num">특목·자사고<br>진학률 ${progYear}</th>` : '')
+    + '</tr></thead>';
   const body = list.map((s, i) => `<tr class="re-list-row" data-idx="${i}" tabindex="0" `
     + `role="button" aria-label="${esc(s.name)} 시세 보기">`
     + `<td>${esc(s.name)}</td><td>${esc(s.lvl)}</td>`
-    + `<td>${esc(sggLabel(s))}</td><td>${esc(s.dong)}</td></tr>`).join('');
+    + `<td>${esc(sggLabel(s))}</td><td>${esc(s.dong)}</td>`
+    + (showProg ? `<td class="is-num">${progCell(s)}</td>` : '')
+    + '</tr>').join('');
+  const cols = showProg ? 5 : 4;
   table.innerHTML = list.length
     ? `${head}<tbody>${body}</tbody>`
-    : `${head}<tbody><tr><td colspan="4">이 조건에는 표시할 학교가 없습니다.</td></tr></tbody>`;
+    : `${head}<tbody><tr><td colspan="${cols}">이 조건에는 표시할 학교가 없습니다.</td></tr></tbody>`;
+}
+
+// 고른 중학교를 "최신연도 진학률이 가장 가까운" 학교 3곳과 함께 그린다.
+// 순위를 매기는 화면이 아니라, 비슷한 수준의 학교들이 3년 동안 어떻게 움직였는지
+// 보는 화면이다 — 그래서 상위권이 아니라 '가까운 값'을 고른다.
+const PEER_COUNT = 3;
+
+function renderPeerChart(school) {
+  const wrap = root.querySelector('.re-peer-prog');
+  if (!wrap) return;
+  const heading = root.querySelector('.re-peer-prog-heading');
+  const chartEl = wrap.querySelector('.re-peer-chart');
+  const legendEl = wrap.querySelector('.re-peer-legend');
+  const noteEl = wrap.querySelector('.re-peer-note');
+  const me = PROG_LEVELS.has(school.lvl) ? progOf(school) : null;
+  const last = me && me.r[me.r.length - 1];
+  if (last == null) {
+    wrap.hidden = true;
+    if (heading) heading.hidden = true;
+    return;
+  }
+  wrap.hidden = false;
+  if (heading) heading.hidden = false;
+
+  // 비교 대상은 지도에 없는 공립중까지 포함한 전체다. 사립중끼리만 비교하면
+  // 표본이 194곳뿐이라 "비슷한 값"이 실제로는 꽤 멀어진다.
+  const peers = progSchools.schools
+    .filter((p) => p !== me && p.r[p.r.length - 1] != null)
+    .map((p) => ({ p, d: Math.abs(p.r[p.r.length - 1] - last) }))
+    .sort((a, b) => a.d - b.d || a.p.name.localeCompare(b.p.name, 'ko'))
+    .slice(0, PEER_COUNT)
+    .map((x) => x.p);
+
+  const series = [me, ...peers].map((p, i) => ({
+    label: p === me ? `${p.name} (선택)` : p.name,
+    color: CATEGORICAL[i % CATEGORICAL.length],
+    values: p.r,
+  }));
+  // 값이 비슷한 학교만 모아 그리므로 끝점 라벨이 서로 포개진다. 이름은
+  // 아래 HTML 범례가 맡고 차트에서는 끈다.
+  chartEl.innerHTML = multiLineChart(progSchools.years, series,
+    { unit: '%', decimals: 1, endLabels: false });
+  chartEl.setAttribute('aria-label',
+    `${school.name}과 진학률이 비슷한 학교 ${peers.length}곳의 특목고·자사고 진학률 추이`);
+  legendEl.innerHTML = legendHtml(series);
+  const thin = [me, ...peers].filter((p) => (p.g || 0) < progSchools.thin).length;
+  noteEl.textContent = '특목고·자사고 진학률이 가장 가까운 학교를 고른 것이라 순위가 아닙니다. '
+    + `비교 대상은 서울·경기 중학교 ${progSchools.schools.length.toLocaleString()}곳입니다.`
+    + (thin ? ` 이 중 ${thin}곳은 졸업생이 ${progSchools.thin}명 미만이라 값이 크게 흔들립니다.` : '');
 }
 
 async function selectSchool(school) {
@@ -104,6 +194,7 @@ async function selectSchool(school) {
   root.querySelector('.re-school-meta').textContent = parts.join(' · ');
   root.querySelector('.re-rank-heading').hidden = false;
   root.querySelector('.re-back-btn').hidden = false;
+  renderPeerChart(school);
   writeParams();
 
   // selectSchool 은 제목을 동기로 세팅한 뒤 loadSgg 를 기다린다. 구를 빠르게
@@ -327,6 +418,18 @@ async function start() {
   } catch (err) {
     root.querySelector('.re-panel-title').textContent = '학교 자료를 불러오지 못했습니다';
     return;
+  }
+
+  // 학교별 진학률은 목록 열과 비교 차트에만 쓰인다. 못 받아도 지도·시세는
+  // 그대로 동작해야 하므로 실패를 삼키고 진행한다(열이 안 붙을 뿐이다).
+  try {
+    const res = await fetch(`${BASE}/progression_school.json`, { cache: 'no-cache' });
+    if (res.ok) {
+      progSchools = await res.json();
+      progIndex = new Map(progSchools.schools.map((p) => [`${p.sgg}|${normName(p.name)}`, p]));
+    }
+  } catch (err) {
+    progSchools = null;
   }
 
   readParams();

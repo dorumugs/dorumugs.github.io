@@ -81,6 +81,23 @@
 
 .re-school-meta { font-size: 13px; color: var(--re-ink2); margin: 0 0 12px; }
 
+/* 진학률이 비슷한 학교 비교. 시·도 단위 차트(re-progression)와 같은 얼개를
+   쓰되, 이쪽은 고른 학교에 딸린 것이라 패널 안에 둔다. */
+.re-peer-prog { margin-bottom: 14px; }
+.re-peer-chart svg { width: 100%; height: auto; display: block; }
+.re-peer-legend {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;
+  font-size: 11.5px; color: var(--re-ink2);
+}
+.re-peer-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.re-peer-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.re-peer-note { font-size: 11.5px; color: var(--re-muted); line-height: 1.6; margin: 8px 0 0; }
+
+/* 목록의 진학률 칸. 값이 없는 학교급(초·특목고)과 졸업생이 적어 흔들리는 값을
+   본문과 다른 톤으로 구분한다 — 숫자만 보고 곧이곧대로 비교하지 않도록. */
+.re-dim { color: var(--re-muted); }
+.re-thin { color: var(--re-down); margin-left: 1px; }
+
 /* .re-panel-head / .re-back-btn / tr.re-list-row 호버 규칙은 실거래 대시보드도
    똑같이 쓰므로 dashboard.css 로 옮겼다(중복 방지). 여기서는 학군 전용 규칙만
    남긴다. */

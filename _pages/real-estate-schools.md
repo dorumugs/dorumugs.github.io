@@ -49,6 +49,12 @@ description: "서울·경기 사립초·사립중·국제중·특목고(과학�
         <button type="button" class="re-back-btn" hidden>← 목록으로</button>
       </div>
       <p class="re-school-meta"></p>
+      <h3 class="re-section-title re-peer-prog-heading" hidden>진학률이 비슷한 학교 · 특목고·자사고</h3>
+      <div class="re-peer-prog" hidden>
+        <div class="re-peer-chart" role="img" aria-label="진학률이 비슷한 학교 비교"></div>
+        <div class="re-peer-legend" aria-hidden="true"></div>
+        <p class="re-peer-note"></p>
+      </div>
       <h3 class="re-section-title re-rank-heading" hidden>같은 법정동 아파트</h3>
     </div>
   </div>
