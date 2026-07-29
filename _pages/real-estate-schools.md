@@ -55,11 +55,12 @@ description: "서울·경기 사립초·사립중·국제중·특목고(과학�
         <div class="re-peer-legend" aria-hidden="true"></div>
         <p class="re-peer-note"></p>
       </div>
-      <h3 class="re-section-title re-rank-heading" hidden>같은 법정동 아파트</h3>
+      <h3 class="re-section-title re-rank-heading" hidden>학교별 법정동 아파트 · 비교군 포함</h3>
     </div>
   </div>
 
   <div class="re-table-wrap"><table class="re-table"></table></div>
+  <p class="re-rank-note"></p>
   <p class="re-caveat">
     같은 법정동 기준입니다. 실제 배정 학교는 통학구역에 따라 다릅니다.
     사립초·사립중·국제중은 배정이 아니라 지원으로 가는 학교라 '근처'의 의미가 또 다릅니다.

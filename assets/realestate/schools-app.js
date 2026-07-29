@@ -138,6 +138,24 @@ function renderList() {
 // 순위를 매기는 화면이 아니라, 비슷한 수준의 학교들이 3년 동안 어떻게 움직였는지
 // 보는 화면이다 — 그래서 상위권이 아니라 '가까운 값'을 고른다.
 const PEER_COUNT = 3;
+// 학교 하나가 표를 다 차지하지 않도록 학교별 단지 수를 자른다. 4개 학교 ×
+// 6개면 24행 — 모바일에서 스크롤 한 번에 훑을 수 있는 정도다.
+const PER_SCHOOL_ROWS = 6;
+
+// 최신연도 진학률이 가장 가까운 학교들. 차트와 아래 아파트 표가 같은 목록을
+// 써야 "위 차트의 그 학교들" 이 표에 그대로 나온다.
+function peersOf(school) {
+  const me = PROG_LEVELS.has(school.lvl) ? progOf(school) : null;
+  const last = me && me.r[me.r.length - 1];
+  if (last == null) return { me: null, peers: [] };
+  const peers = progSchools.schools
+    .filter((p) => p !== me && p.r[p.r.length - 1] != null)
+    .map((p) => ({ p, d: Math.abs(p.r[p.r.length - 1] - last) }))
+    .sort((a, b) => a.d - b.d || a.p.name.localeCompare(b.p.name, 'ko'))
+    .slice(0, PEER_COUNT)
+    .map((x) => x.p);
+  return { me, peers };
+}
 
 function renderPeerChart(school) {
   const wrap = root.querySelector('.re-peer-prog');
@@ -146,24 +164,16 @@ function renderPeerChart(school) {
   const chartEl = wrap.querySelector('.re-peer-chart');
   const legendEl = wrap.querySelector('.re-peer-legend');
   const noteEl = wrap.querySelector('.re-peer-note');
-  const me = PROG_LEVELS.has(school.lvl) ? progOf(school) : null;
-  const last = me && me.r[me.r.length - 1];
-  if (last == null) {
+  // 비교 대상은 지도에 없는 공립중까지 포함한 전체다. 사립중끼리만 비교하면
+  // 표본이 194곳뿐이라 "비슷한 값"이 실제로는 꽤 멀어진다.
+  const { me, peers } = peersOf(school);
+  if (!me) {
     wrap.hidden = true;
     if (heading) heading.hidden = true;
     return;
   }
   wrap.hidden = false;
   if (heading) heading.hidden = false;
-
-  // 비교 대상은 지도에 없는 공립중까지 포함한 전체다. 사립중끼리만 비교하면
-  // 표본이 194곳뿐이라 "비슷한 값"이 실제로는 꽤 멀어진다.
-  const peers = progSchools.schools
-    .filter((p) => p !== me && p.r[p.r.length - 1] != null)
-    .map((p) => ({ p, d: Math.abs(p.r[p.r.length - 1] - last) }))
-    .sort((a, b) => a.d - b.d || a.p.name.localeCompare(b.p.name, 'ko'))
-    .slice(0, PEER_COUNT)
-    .map((x) => x.p);
 
   const series = [me, ...peers].map((p, i) => ({
     label: p === me ? `${p.name} (선택)` : p.name,
@@ -203,25 +213,60 @@ async function selectSchool(school) {
   // 자신이 최신 요청이 아니면 결과를 버린다.
   const mySeq = ++selectSeq;
   const table = root.querySelector('.re-table');
+  const noteEl = root.querySelector('.re-rank-note');
   try {
-    const detail = await loadSgg(school.sgg);
+    // 고른 학교와 비교군을 한 표에 담는다 — 진학률이 비슷한 동네끼리 시세가
+    // 어떻게 다른지가 이 화면의 요점이다. 학교마다 시군구 JSON 이 다를 수
+    // 있어 한꺼번에 받아온다(중복 코드는 loadSgg 캐시가 걸러 준다).
+    const { peers } = peersOf(school);
+    const targets = [{ name: school.name, sgg: school.sgg, dong: school.dong, self: true }]
+      .concat(peers.filter((p) => p.dong)
+        .map((p) => ({ name: p.name, sgg: p.sgg, dong: p.dong, self: false })));
+    const details = await Promise.all(targets.map((t) => loadSgg(t.sgg).catch(() => null)));
     if (mySeq !== selectSeq) return;
-    const rows = detail.complexes
-      .filter((c) => c.dong === school.dong && c.n >= 5)
-      .slice(0, 30);
-    const head = '<thead><tr><th>단지</th><th class="is-num">평당가(만원)</th>'
-      + '<th class="is-num">세대</th><th class="is-num">거래</th></tr></thead>';
-    const body = rows.map((c) => `<tr><td>${esc(c.name)}</td>`
+
+    const rows = [];
+    let window = null;
+    targets.forEach((t, i) => {
+      const detail = details[i];
+      if (!detail) return;
+      if (!window && Array.isArray(detail.window) && detail.window.length === 2) {
+        window = detail.window;
+      }
+      detail.complexes
+        .filter((c) => c.dong === t.dong && c.n >= 5)
+        .slice(0, PER_SCHOOL_ROWS)
+        .forEach((c, j) => rows.push({ ...c, school: t, first: j === 0 }));
+    });
+
+    const head = '<thead><tr><th>중학교</th><th>법정동</th><th>단지</th>'
+      + '<th class="is-num">평당가(만원)</th><th class="is-num">세대</th>'
+      + '<th class="is-num">거래</th></tr></thead>';
+    // 같은 학교의 두 번째 행부터는 학교명·법정동을 비워 둔다 — 같은 값을
+    // 반복해 적으면 어디서 학교가 바뀌는지 오히려 안 보인다.
+    const body = rows.map((c) => `<tr${c.first ? ' class="is-group"' : ''}>`
+      + `<td>${c.first ? `${esc(c.school.name)}${c.school.self ? '<span class="re-self">선택</span>' : ''}` : ''}</td>`
+      + `<td>${c.first ? esc(c.school.dong) : ''}</td>`
+      + `<td>${esc(c.name)}</td>`
       + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`
       + `<td class="is-num is-dim">${c.hh != null ? c.hh.toLocaleString() : '—'}</td>`
       + `<td class="is-num is-dim">${c.n.toLocaleString()}</td></tr>`).join('');
     table.innerHTML = rows.length
       ? `${head}<tbody>${body}</tbody>`
-      : `${head}<tbody><tr><td colspan="4">${esc(school.dong)}에 최근 12개월 거래 `
+      : `${head}<tbody><tr><td colspan="6">${esc(school.dong)}에 거래 `
         + '5건 이상 단지가 없습니다.</td></tr></tbody>';
+
+    if (noteEl) {
+      // 기간과 기준을 표에 붙여 둔다 — 숫자만 있으면 "언제 거래인지, 평당가가
+      // 어느 시점인지" 알 수 없다는 지적이 실제로 있었다.
+      const period = window ? `${window[0]} ~ ${window[1]}` : '최근 12개월';
+      noteEl.textContent = `${period} 신고된 거래 기준입니다. 평당가는 그 기간 거래의 중위값,`
+        + ` 거래는 건수입니다. 거래 5건 미만 단지는 뺐고 학교마다 최대 ${PER_SCHOOL_ROWS}개까지 보여줍니다.`;
+    }
   } catch (err) {
     if (mySeq !== selectSeq) return;
     table.innerHTML = '<tbody><tr><td>시세를 불러오지 못했습니다.</td></tr></tbody>';
+    if (noteEl) noteEl.textContent = '';
   }
 }
 

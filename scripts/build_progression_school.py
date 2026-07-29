@@ -26,10 +26,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import build_schools  # noqa: E402
+import regions  # noqa: E402
+import rtms  # noqa: E402
 import schoolinfo_api as api  # noqa: E402
 from build_dashboard import write_json  # noqa: E402
 
 SRC = ROOT / "data" / "progression_school.csv.gz"
+SCHOOL_FILE = ROOT / "data" / "schools.csv.gz"
 OUT = ROOT / "assets" / "realestate" / "progression_school.json"
 
 MAX_BYTES = 120 * 1024
@@ -44,7 +48,37 @@ def load(path: Path) -> list[dict]:
         return list(csv.DictReader(f))
 
 
-def build(rows: list[dict], generated: str) -> dict:
+def norm_name(name: str) -> str:
+    """교명 표기가 두 자료에서 갈릴 때가 있다(가운뎃점·괄호). 한글·숫자만 남긴다."""
+    return "".join(ch for ch in name if ch.isdigit() or "가" <= ch <= "힣")
+
+
+def locate() -> dict[str, tuple[str, str]]:
+    """{정규화한 중학교 이름: (시군구 5자리, 법정동명)}.
+
+    비교군 학교의 아파트 시세를 보여주려면 그 학교의 법정동이 필요하다.
+    학교알리미 목록에는 도로명주소뿐이라 법정동을 만들 수 없어, 이미 받아 둔
+    위치 표준데이터(data/schools.csv.gz)의 지번주소에서 뽑는다 — 사립만 남기기
+    전 원본이라 공립 중학교까지 다 들어 있다.
+    """
+    name_to_code = dict(build_schools._sgg_by_name())  # noqa: SLF001
+    out: dict[str, tuple[str, str]] = {}
+    rows = rtms.csv_to_rows(rtms.gunzip_text(SCHOOL_FILE.read_bytes()))
+    for row in rows:
+        if row.get("level") != "중학교":
+            continue
+        parsed = build_schools.parse_addr(row["addr"])
+        if parsed is None:
+            continue
+        sgg_name, umd = parsed
+        sgg = name_to_code.get(sgg_name)
+        if sgg is None or regions.dong_code(sgg, umd) is None:
+            continue
+        out[norm_name(row["school_name"])] = (sgg, umd.split(" ")[-1])
+    return out
+
+
+def build(rows: list[dict], generated: str, places: dict | None = None) -> dict:
     """{학교: 연도별 진학률} 로 접는다. 같은 학교가 두 번 나오면 한 번만 담는다.
 
     학교알리미 시군구 목록은 '수원시' 와 '수원시 장안구' 를 모두 포함해, 같은
@@ -75,18 +109,25 @@ def build(rows: list[dict], generated: str) -> dict:
         entry["rates"][row["year"]] = round(rate, 1)
         entry["grad"][row["year"]] = data["grad"]
 
+    places = places or {}
     out = []
     last = years[-1]
     for entry in by_school.values():
         if not entry["rates"]:
             continue
-        out.append({
+        item = {
             "name": entry["name"],
             "sgg": entry["sgg_cd"],
             # 연도 순서는 years 와 같다. 없는 해는 null.
             "r": [entry["rates"].get(y) for y in years],
             "g": entry["grad"].get(last),
-        })
+        }
+        # 위치 데이터에서 법정동을 찾으면 시군구도 그쪽 값으로 맞춘다 — 아파트
+        # 시세는 시군구별 JSON 에서 읽으므로 두 값이 같은 출처라야 안 어긋난다.
+        located = places.get(norm_name(entry["name"]))
+        if located:
+            item["sgg"], item["dong"] = located
+        out.append(item)
     out.sort(key=lambda s: (s["sgg"], s["name"]))
     thin = sum(1 for s in out if (s["g"] or 0) < THIN_GRADUATES)
     return {"generated": generated, "years": years, "thin": THIN_GRADUATES,
@@ -104,10 +145,13 @@ def main() -> int:
         return 1
 
     rows = load(SRC)
-    payload = build(rows, args.generated)
+    places = locate() if SCHOOL_FILE.exists() else {}
+    payload = build(rows, args.generated, places)
     thin = payload.pop("thin_count")
+    located = sum(1 for s in payload["schools"] if "dong" in s)
     print(f"원본 {len(rows):,}행 → 학교 {len(payload['schools']):,}곳 "
           f"({', '.join(payload['years'])}) / 졸업생 {THIN_GRADUATES}명 미만 {thin}곳")
+    print(f"법정동 확인 {located:,}곳 / 미확인 {len(payload['schools']) - located:,}곳")
 
     changed = write_json(OUT, payload)
     size = OUT.stat().st_size
