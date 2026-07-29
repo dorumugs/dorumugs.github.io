@@ -154,6 +154,38 @@ class TestSelectPrivateSchools(unittest.TestCase):
         got = build_schools.select_private_schools(rows)
         self.assertEqual([r["school_id"] for r in got], ["A", "C"])
 
+    def test_keeps_public_high_school(self) -> None:
+        """특목고는 설립구분을 보지 않는다 — 서울과학고·경기과학고가 공립이다.
+
+        수집 단계(collect_schools.apply_courses)가 이미 대상 계열 특목고만
+        남겨 두었으므로, 여기 들어온 고등학교는 전부 대상이다.
+        """
+        rows = [_school(school_id="H", level="고등학교", found_type="공립",
+                        school_name="서울과학고등학교", course="과학계열")]
+        got = build_schools.select_private_schools(rows)
+        self.assertEqual([r["school_id"] for r in got], ["H"])
+
+
+class TestLevelLabel(unittest.TestCase):
+    def test_private_levels_stay_short(self) -> None:
+        self.assertEqual(build_schools.level_label(_school()), "초")
+        self.assertEqual(
+            build_schools.level_label(_school(level="중학교", school_name="경신중학교")), "중")
+
+    def test_international_middle_school_split_out(self) -> None:
+        row = _school(level="중학교", school_name="대원국제중학교")
+        self.assertEqual(build_schools.level_label(row), "국제중")
+
+    def test_high_school_is_special_purpose(self) -> None:
+        row = _school(level="고등학교", school_name="한성과학고등학교")
+        self.assertEqual(build_schools.level_label(row), "특목고")
+
+    def test_elementary_named_international_is_not_split(self) -> None:
+        """'국제중학교' 로 끝나는 중학교만 뗀다 — 이름에 '국제'가 들어간 초등학교까지
+        국제중으로 바뀌면 안 된다."""
+        row = _school(school_name="서울국제초등학교")
+        self.assertEqual(build_schools.level_label(row), "초")
+
 
 class TestBuild(unittest.TestCase):
     def _run(self, rows: list[dict]) -> dict:
@@ -238,23 +270,59 @@ class TestAgainstRealOutput(unittest.TestCase):
             self.assertLessEqual(s["y"], 1201.0, s["name"])
 
     @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
-    def test_only_private_schools(self) -> None:
+    def test_only_expected_levels(self) -> None:
+        """초·중·국제중은 사립만. 특목고는 설립구분을 보지 않는다.
+
+        서울과학고·경기과학고처럼 공립인 특목고가 있어, 특목고까지 사립으로
+        묶으면 정작 대상이 빠진다.
+        """
         data = json.loads(self.OUT.read_text(encoding="utf-8"))
         self.assertTrue(data["schools"])
         for s in data["schools"]:
-            self.assertIn(s["lvl"], ("초", "중"))
-            self.assertEqual(s["found"], "사립")
+            self.assertIn(s["lvl"], ("초", "중", "국제중", "특목고"))
+            if s["lvl"] != "특목고":
+                self.assertEqual(s["found"], "사립", s["name"])
 
     @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
-    def test_both_levels_present_with_known_counts(self) -> None:
-        """검증된 원본 건수: 사립 초 41 / 중 197 (서울 109 / 경기 88)."""
+    def test_levels_present_with_known_counts(self) -> None:
+        """검증된 건수: 사립초 41 / 사립중 194 / 국제중 3 / 특목고 23.
+
+        국제중 3곳(대원·영훈·청심)은 사립중 197곳에서 떼어낸 것이라 중학교
+        총합은 그대로다. 특목고 23곳은 과학 5 · 외국어 14 · 국제 4 다.
+        """
         data = json.loads(self.OUT.read_text(encoding="utf-8"))
         counts: dict[str, int] = {}
         for s in data["schools"]:
             counts[s["lvl"]] = counts.get(s["lvl"], 0) + 1
         self.assertEqual(counts.get("초"), 41)
-        self.assertEqual(counts.get("중"), 197)
-        self.assertEqual(len(data["schools"]), 238)
+        self.assertEqual(counts.get("중"), 194)
+        self.assertEqual(counts.get("국제중"), 3)
+        self.assertEqual(counts.get("중", 0) + counts.get("국제중", 0), 197)
+        self.assertEqual(counts.get("특목고"), 23)
+        self.assertEqual(len(data["schools"]), 261)
+
+    @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
+    def test_international_middle_schools_named_as_such(self) -> None:
+        """국제중 판정 근거는 이름뿐이다 — 그 근거가 실제로 지켜지는지 본다."""
+        data = json.loads(self.OUT.read_text(encoding="utf-8"))
+        intl = [s["name"] for s in data["schools"] if s["lvl"] == "국제중"]
+        self.assertEqual(sorted(intl), ["대원국제중학교", "영훈국제중학교", "청심국제중학교"])
+        for s in data["schools"]:
+            if s["name"].endswith("국제중학교"):
+                self.assertEqual(s["lvl"], "국제중", s["name"])
+
+    @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
+    def test_special_high_schools_carry_course(self) -> None:
+        """특목고에만 계열이 붙는다. 계열이 빠지면 화면에서 성격을 구분할 수 없다."""
+        data = json.loads(self.OUT.read_text(encoding="utf-8"))
+        courses: dict[str, int] = {}
+        for s in data["schools"]:
+            if s["lvl"] == "특목고":
+                self.assertIn("course", s, s["name"])
+                courses[s["course"]] = courses.get(s["course"], 0) + 1
+            else:
+                self.assertNotIn("course", s, s["name"])
+        self.assertEqual(courses, {"과학계열": 5, "외국어계열": 14, "국제계열": 4})
 
     @unittest.skipUnless(OUT.exists(), "schools.json 없음 — 먼저 빌드하세요")
     def test_within_size_budget(self) -> None:

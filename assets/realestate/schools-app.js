@@ -18,13 +18,20 @@ let currentList = []; // 지금 목록 표에 그려진 학교들. 행 클릭/�
 const VIEW_PREFIX = { seoul: '11', gyeonggi: '41', all: '' };
 const VIEW_LABEL = { seoul: '서울', gyeonggi: '경기', all: '전체' };
 
-// 학교급(lvl) 을 화면 문구로 늘려 쓴다. school.found 는 항상 '사립' 이라
-// '${school.found} 초등학교' 처럼 하드코딩하면 뜻이 맞지 않는다.
-const LEVEL_LABEL = { 초: '초등학교', 중: '중학교' };
+// 학교급(lvl) 을 화면 문구로 늘려 쓴다. school.found 는 사립·공립이 섞여
+// 있으므로('서울과학고' 는 공립) '${school.found} 초등학교' 처럼 하드코딩하면
+// 뜻이 맞지 않는다.
+const LEVEL_LABEL = { 초: '초등학교', 중: '중학교', 국제중: '국제중학교', 특목고: '특수목적고' };
 
-// 학교급 필터 탭·목록 제목에 쓰는 표기. 'all' 은 두 급을 같이 본다는 뜻이다.
-const LVL_TAB_VALUES = ['all', '초', '중'];
-const LVL_LIST_LABEL = { all: '사립초·사립중', 초: '사립초', 중: '사립중' };
+// 학교급 필터 탭·목록 제목에 쓰는 표기. 'all' 은 네 급을 같이 본다는 뜻이다.
+const LVL_TAB_VALUES = ['all', '초', '중', '국제중', '특목고'];
+const LVL_LIST_LABEL = {
+  all: '사립초·사립중·국제중·특목고',
+  초: '사립초',
+  중: '사립중',
+  국제중: '국제중',
+  특목고: '특목고',
+};
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => (
@@ -72,8 +79,9 @@ function renderList() {
   root.querySelector('.re-rank-heading').hidden = true;
   root.querySelector('.re-back-btn').hidden = true;
 
-  // 학교급 칸은 한 글자(초/중)만 쓴다 — '사립초'처럼 풀어 쓰면 좁은 화면에서
-  // 칸이 두 줄로 접혀 표가 들쭉날쭉해진다. 열 이름(학교급)이 이미 맥락을 준다.
+  // 학교급 칸은 lvl 값을 그대로 쓴다(초/중/국제중/특목고). '사립초'처럼 더
+  // 풀어 쓰면 좁은 화면에서 칸이 두 줄로 접혀 표가 들쭉날쭉해진다. 열
+  // 이름(학교급)이 이미 맥락을 준다.
   const table = root.querySelector('.re-table');
   const head = '<thead><tr><th>학교명</th><th>학교급</th><th>시군구</th><th>법정동</th></tr></thead>';
   const body = list.map((s, i) => `<tr class="re-list-row" data-idx="${i}" tabindex="0" `
@@ -90,8 +98,10 @@ async function selectSchool(school) {
   layer.setSelected(school.name);
   root.querySelector('.re-panel-title').textContent = school.name;
   const levelLabel = LEVEL_LABEL[school.lvl] || school.lvl;
-  root.querySelector('.re-school-meta').textContent =
-    `${levelLabel} · ${school.addr}`;
+  // 특목고만 계열(과학/외국어/국제)이 있다. 같은 '특수목적고' 라도 어느 계열인지가
+  // 학교 성격을 가르므로 주소 앞에 끼워 넣는다.
+  const parts = [levelLabel, school.course, school.addr].filter(Boolean);
+  root.querySelector('.re-school-meta').textContent = parts.join(' · ');
   root.querySelector('.re-rank-heading').hidden = false;
   root.querySelector('.re-back-btn').hidden = false;
   writeParams();

@@ -28,11 +28,15 @@
   stroke-width: 2.5;
 }
 
-/* 학교급 색은 palette.js 의 CATEGORICAL(범주형 슬롯 1·2)과 같은 값이다.
-   초=CATEGORICAL[0](파랑), 중=CATEGORICAL[1](주황). CSS 는 그 모듈을 import 할
-   수 없어 여기 값을 그대로 옮겨 적었다 — palette.js 쪽을 바꾸면 여기도 바꿀 것. */
+/* 학교급 색은 palette.js 의 CATEGORICAL(범주형 슬롯 1~4)과 같은 값이다.
+   초=[0](파랑), 중=[1](주황), 특목고=[2](초록), 국제중=[3](노랑). CSS 는 그
+   모듈을 import 할 수 없어 여기 값을 그대로 옮겨 적었다 — palette.js 쪽을
+   바꾸면 여기도 바꿀 것. 노랑은 흰 배경에서 가장 약해 점이 3개뿐인 국제중에
+   주고, 23곳인 특목고에는 더 잘 보이는 초록을 준다. */
 .re-school-layer .re-dot.is-초 { fill: #2a78d6; }
 .re-school-layer .re-dot.is-중 { fill: #eb6834; }
+.re-school-layer .re-dot.is-특목고 { fill: #1baf7a; }
+.re-school-layer .re-dot.is-국제중 { fill: #eda100; }
 
 .re-school-layer .re-dot:focus-visible {
   r: 7;
@@ -55,6 +59,8 @@
 .re-legend-dots i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
 .re-legend-dots .is-초 { background: #2a78d6; }
 .re-legend-dots .is-중 { background: #eb6834; }
+.re-legend-dots .is-특목고 { background: #1baf7a; }
+.re-legend-dots .is-국제중 { background: #eda100; }
 
 .re-caveat {
   font-size: 12px;

@@ -8,7 +8,7 @@ toc: false
 header:
   image: /assets/images/real-estate-schools/header.svg
   teaser: /assets/images/real-estate-schools/header.svg
-description: "서울·경기 사립초·사립중 위치를 지도에 올리고, 학교를 누르면 그 학교가 속한 법정동의 아파트 실거래 시세를 보여줍니다. 국토교통부 실거래가와 학교 위치 공공데이터를 겹쳐 봅니다."
+description: "서울·경기 사립초·사립중·국제중·특목고(과학고·외고·국제고) 위치를 지도에 올리고, 학교를 누르면 그 학교가 속한 법정동의 아파트 실거래 시세를 보여줍니다. 국토교통부 실거래가와 학교 위치 공공데이터를 겹쳐 봅니다."
 ---
 
 <link rel="stylesheet" href="{{ '/assets/realestate/dashboard.css' | relative_url }}?v={{ site.time | date: '%s' }}">
@@ -26,11 +26,15 @@ description: "서울·경기 사립초·사립중 위치를 지도에 올리고,
         <button class="re-tab is-on" data-lvl="all" role="tab" aria-selected="true">전체</button>
         <button class="re-tab" data-lvl="초" role="tab" aria-selected="false">사립초</button>
         <button class="re-tab" data-lvl="중" role="tab" aria-selected="false">사립중</button>
+        <button class="re-tab" data-lvl="국제중" role="tab" aria-selected="false">국제중</button>
+        <button class="re-tab" data-lvl="특목고" role="tab" aria-selected="false">특목고</button>
       </div>
     </div>
     <div class="re-legend-dots">
       <span><i class="is-초"></i>사립초</span>
       <span><i class="is-중"></i>사립중</span>
+      <span><i class="is-국제중"></i>국제중</span>
+      <span><i class="is-특목고"></i>특목고</span>
     </div>
   </div>
 
@@ -52,8 +56,10 @@ description: "서울·경기 사립초·사립중 위치를 지도에 올리고,
   <div class="re-table-wrap"><table class="re-table"></table></div>
   <p class="re-caveat">
     같은 법정동 기준입니다. 실제 배정 학교는 통학구역에 따라 다릅니다.
-    사립초·사립중은 배정이 아니라 지원으로 가는 학교라 '근처'의 의미가 또 다릅니다.
-    중학교는 사립중만 다룹니다 — 특목고·자사고 진학 비율 기반 필터를 넣고 싶었지만
+    사립초·사립중·국제중은 배정이 아니라 지원으로 가는 학교라 '근처'의 의미가 또 다릅니다.
+    특목고(과학고·외고·국제고)는 시·도 단위로 모집해 통학 거리와의 관계가 이들보다 훨씬
+    약합니다 — 순위나 배정과는 무관한, 위치 참고용 레이어로 보세요.
+    중학교는 사립중·국제중만 다룹니다 — 특목고·자사고 진학 비율 기반 필터를 넣고 싶었지만
     해당 데이터가 공개되어 있지 않아 넣지 못했습니다. 대신 시·도 단위 참고 자료를
     아래에 붙였습니다.
   </p>

@@ -16,13 +16,19 @@ import urllib.request
 
 ENDPOINT = "https://api.data.go.kr/openapi/tn_pubr_public_elesch_mskul_lc_api"
 
-# 이 도구가 다루는 학교급. 고등학교는 배정·광역모집이라 '근처'가 성립하지 않아 뺀다.
-LEVELS = ("초등학교", "중학교")
+# 이 도구가 다루는 학교급. 일반 고등학교는 배정이라 '근처'가 성립하지 않지만,
+# 특목고(과학고·외고·국제고)는 지원해서 가는 학교라 위치가 의미를 가진다.
+# 여기서는 고등학교를 일단 다 통과시키고, 어느 고등학교가 특목고인지는
+# collect_schools.py 가 NEIS 분류(neis_api.py)와 조인해 가른다 — 위치
+# 표준데이터에는 고등학교 종류를 구분할 필드가 아예 없다.
+LEVELS = ("초등학교", "중학교", "고등학교")
 REGIONS = ("서울특별시", "경기도")
 
 COLUMNS = [
     "school_id", "school_name", "level", "found_type",
     "addr", "road_addr", "sido_office", "lat", "lon",
+    # 특목고 계열(과학계열/외국어계열/국제계열). 초·중은 빈 문자열이다.
+    "course",
 ]
 
 
@@ -49,7 +55,10 @@ def parse_response(payload: dict) -> tuple[list[dict], int]:
 def normalize(item: dict) -> dict | None:
     """원본 항목을 CSV 한 행으로. 범위 밖이면 None.
 
-    버리는 것: 서울·경기 밖, 고등학교, 분교, 운영 중이 아닌 학교, 좌표 결측.
+    버리는 것: 서울·경기 밖, 초·중·고 아닌 학교, 분교, 운영 중이 아닌 학교,
+    좌표 결측. 고등학교를 특목고만 남기는 일은 여기서 하지 않는다 — 그 판정은
+    NEIS 응답이 있어야 하고, 이 함수는 항목 하나만 보고 결정하는 순수 함수로
+    둔다(collect_schools.py 가 조인 뒤에 거른다).
     """
     addr = (item.get("lnmadr") or "").strip()
     if not addr.startswith(REGIONS):
@@ -74,6 +83,7 @@ def normalize(item: dict) -> dict | None:
         "sido_office": (item.get("cddcNm") or "").strip(),
         "lat": lat,
         "lon": lon,
+        "course": "",
     }
 
 

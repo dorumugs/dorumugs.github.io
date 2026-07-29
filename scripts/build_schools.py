@@ -2,7 +2,8 @@
 
     python3 scripts/build_schools.py
 
-사립 초등학교·중학교를 함께 다룬다. 진학 실적(특목고·자사고 비율) 기반으로
+사립 초등학교·중학교와 특목고(과학·외국어·국제 계열)를 함께 다루고, 중학교
+안에서 국제중을 따로 뗀다. 진학 실적(특목고·자사고 비율) 기반으로
 중학교를 상위권만 거르는 안은 그 데이터가 학교알리미 OpenAPI 로도, 공개용데이터
 목록에도, 학교별 공시 화면에도 없어 접었다 — 대신 사립초와 같은 논리를 그대로
 써서 사립 중학교 전체를 낸다: 배정이 아니라 지원으로 가는 학교라 '근처'가
@@ -35,8 +36,15 @@ OUT_FILE = ROOT / "assets" / "realestate" / "schools.json"
 MAX_BYTES = 100 * 1024
 JOIN_FAIL_LIMIT = 0.10
 
-# 학교급 표기를 화면용 한 글자로 줄인다.
-LEVEL_SHORT = {"초등학교": "초", "중학교": "중"}
+# 학교급 표기를 화면용으로 줄인다. 고등학교는 collect_schools.py 가 이미
+# 특목고(과학·외국어·국제 계열)만 남겨 두었으므로 그대로 '특목고' 가 된다.
+LEVEL_SHORT = {"초등학교": "초", "중학교": "중", "고등학교": "특목고"}
+
+# 국제중은 중학교 안에서 따로 뗀다. 전국 국제중은 공식 명칭이 '○○국제중학교'
+# 라 이름 판정이 확실하다(서울·경기는 대원·영훈·청심 3곳). NEIS 에는 중학교
+# 종류를 구분하는 필드가 없어 이름 말고는 근거가 없다.
+INTL_MIDDLE_SUFFIX = "국제중학교"
+INTL_MIDDLE_LABEL = "국제중"
 
 
 @lru_cache(maxsize=1)
@@ -86,14 +94,28 @@ def to_svg_xy(lat: float, lon: float, params: dict) -> tuple[float, float]:
 
 
 def select_private_schools(rows: list[dict]) -> list[dict]:
-    """대상: 사립 초등학교·중학교. 국립은 요구사항이 '사립' 이라 넣지 않는다.
+    """대상: 사립 초·중과 특목고.
 
-    고등학교는 애초에 수집 대상이 아니다(schools_api.LEVELS). 공립·국립
-    중학교도 여기서 걸러진다 — 진학 실적 기반 순위를 매길 데이터가 없어서
-    '지원으로 가는 학교'라는, 사립초에 이미 쓰던 논리를 그대로 재사용한다.
+    사립 초·중만 넣는 이유는 그대로다 — 진학 실적 기반 순위를 매길 데이터가
+    없어서 '지원으로 가는 학교'라는 논리를 쓴다. 공립·국립 중학교는 배정이라
+    여기서 걸러진다.
+
+    고등학교는 예외로 설립구분을 보지 않는다. collect_schools.py 가 NEIS
+    분류로 특목고(과학·외국어·국제 계열)만 남겨 두었고, 그 학교들은 공립이든
+    사립이든 모두 지원해서 가기 때문이다 — 서울과학고·경기과학고처럼 공립인
+    곳을 설립구분으로 거르면 정작 대상이 빠진다.
     """
     return [r for r in rows
-            if r.get("level") in LEVEL_SHORT and r.get("found_type") == "사립"]
+            if (r.get("level") == "고등학교"
+                or (r.get("level") in LEVEL_SHORT and r.get("found_type") == "사립"))]
+
+
+def level_label(row: dict) -> str:
+    """화면에 쓸 학교급. 국제중은 중학교에서 따로 뗀다."""
+    level = LEVEL_SHORT[row["level"]]
+    if level == "중" and row["school_name"].endswith(INTL_MIDDLE_SUFFIX):
+        return INTL_MIDDLE_LABEL
+    return level
 
 
 def build(rows: list[dict], params: dict, generated: str) -> dict:
@@ -120,9 +142,9 @@ def build(rows: list[dict], params: dict, generated: str) -> dict:
             failed.append(row["school_name"])
             continue
         x, y = to_svg_xy(lat, lon, params)
-        out.append({
+        school = {
             "name": row["school_name"],
-            "lvl": LEVEL_SHORT[row["level"]],
+            "lvl": level_label(row),
             "found": row["found_type"],
             "sgg": sgg,
             "dong": umd.split(" ")[-1],
@@ -130,7 +152,12 @@ def build(rows: list[dict], params: dict, generated: str) -> dict:
             "addr": row["addr"],
             "x": round(x, 1),
             "y": round(y, 1),
-        })
+        }
+        # 계열은 특목고에만 있다. 초·중까지 빈 문자열로 채우면 JSON 이 그만큼
+        # 커지는데 예산(100KB)이 빠듯하다.
+        if row.get("course"):
+            school["course"] = row["course"]
+        out.append(school)
 
     # 완전 전순서. 동점이 흔들리면 재빌드마다 바이트가 달라진다.
     out.sort(key=lambda s: (s["sgg"], s["name"], s["dong_cd"]))
@@ -152,7 +179,8 @@ def main() -> int:
     params = json.loads(PROJECTION_FILE.read_text(encoding="utf-8"))
     rows = rtms.csv_to_rows(rtms.gunzip_text(SCHOOL_FILE.read_bytes()))
     picked = select_private_schools(rows)
-    print(f"원본 {len(rows):,}건 중 사립 초·중 {len(picked):,}건")
+    print(f"원본 {len(rows):,}건 중 대상 {len(picked):,}건 "
+          f"(특목고 {sum(1 for r in picked if r['level'] == '고등학교')}곳 포함)")
 
     payload = build(picked, params, args.generated)
     failed = payload.pop("join_failed")

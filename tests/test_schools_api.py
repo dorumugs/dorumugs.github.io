@@ -82,9 +82,22 @@ class TestNormalize(unittest.TestCase):
         self.assertIsNone(schools_api.normalize(_item(latitude="")))
         self.assertIsNone(schools_api.normalize(_item(longitude=None)))
 
-    def test_drops_high_school(self) -> None:
-        """고등학교는 이 도구의 범위 밖이라 수집 단계에서 버린다."""
-        self.assertIsNone(schools_api.normalize(_item(schoolSe="고등학교")))
+    def test_keeps_high_school_for_later_join(self) -> None:
+        """고등학교는 여기서 버리지 않는다 — 특목고 판정은 NEIS 조인 뒤에 한다.
+
+        위치 표준데이터에는 고등학교 종류를 구분할 필드가 없어서, 항목 하나만
+        보는 이 순수 함수로는 특목고를 가려낼 수 없다. 거르는 일은
+        collect_schools.apply_courses 가 맡는다.
+        """
+        row = schools_api.normalize(_item(schoolSe="고등학교"))
+        self.assertIsNotNone(row)
+        self.assertEqual(row["level"], "고등학교")
+        self.assertEqual(row["course"], "")
+
+    def test_drops_other_school_levels(self) -> None:
+        """유치원·특수학교 등 초·중·고가 아닌 학교급은 버린다."""
+        self.assertIsNone(schools_api.normalize(_item(schoolSe="유치원")))
+        self.assertIsNone(schools_api.normalize(_item(schoolSe="특수학교")))
 
     def test_drops_closed_school(self) -> None:
         self.assertIsNone(schools_api.normalize(_item(operSttus="폐교")))
