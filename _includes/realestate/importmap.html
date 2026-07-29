@@ -1,0 +1,30 @@
+{%- comment -%}
+진입 스크립트(app.js / schools-app.js)에는 ?v= 로 빌드 시각을 붙여 캐시를
+무효화하지만, 그 안에서 상대경로로 import 하는 모듈(map.js, charts.js,
+palette.js, schoolmap.js, data.js)에는 붙지 않는다. 그래서 배포 직후에도
+브라우저가 옛 모듈을 최대 10분(GitHub Pages max-age=600) 그대로 쓴다 —
+실제로 점 크기 수정이 반영 안 된 것처럼 보이는 일이 있었다.
+
+임포트 맵으로 그 모듈들의 해석 결과 URL 을 버전이 붙은 URL 로 갈아끼운다.
+목록을 손으로 적지 않고 site.static_files 에서 뽑기 때문에, 모듈을 새로
+추가해도 여기를 고칠 필요가 없다.
+
+진입 스크립트는 <script src> 로 직접 불러 임포트 맵의 대상이 아니다 —
+그쪽은 페이지에서 ?v= 를 붙여 준다.
+{%- endcomment -%}
+{%- assign v = site.time | date: '%s' -%}
+{%- assign mods = site.static_files | where: 'extname', '.js' -%}
+<script type="importmap">
+{
+  "imports": {
+    {%- assign first = true -%}
+    {%- for m in mods -%}
+      {%- if m.path contains '/assets/realestate/' -%}
+        {%- unless first %},{% endunless -%}
+        {%- assign first = false -%}
+    "{{ m.path | relative_url }}": "{{ m.path | relative_url }}?v={{ v }}"
+      {%- endif -%}
+    {%- endfor %}
+  }
+}
+</script>

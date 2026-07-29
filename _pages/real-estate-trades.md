@@ -71,4 +71,5 @@ description: "국토교통부 실거래가 435만 건으로 만든 서울·경�
   <p class="re-footnote"></p>
 </div>
 
+{% include realestate/importmap.html %}
 <script type="module" src="{{ '/assets/realestate/app.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

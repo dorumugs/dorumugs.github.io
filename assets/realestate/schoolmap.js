@@ -7,6 +7,15 @@ const NS = 'http://www.w3.org/2000/svg';
 // 약 21px)에 맞춰 잡았다.
 const HIT_RADIUS_PX = 12;
 
+// 점의 "보이는" 반지름. r 속성은 SVG 사용자 단위라 뷰가 축소될수록 화면에서
+// 작아진다 — 실측으로 지름이 3.5px(390px 전체 뷰) ~ 20.7px(1280px 서울 뷰)까지
+// 6배 출렁였다. 히트 반경과 같은 방식으로 화면 픽셀 기준으로 잡되, 그대로
+// 고정하면 서울 뷰처럼 점이 빽빽한 곳에서 서로 뭉쳐 덩어리가 되므로 상·하한만
+// 건다: 기본 크기(사용자 단위 5)를 쓰되 화면에서 이 범위를 벗어나면 잘라낸다.
+const DOT_BASE_UNITS = 5;
+const DOT_MIN_PX = 4.5;  // 지름 9px — 모바일 축소 뷰에서 점이 사라지지 않는 하한
+const DOT_MAX_PX = 8;    // 지름 16px — 확대 뷰에서 점끼리 뭉치지 않는 상한
+
 export function initSchoolLayer(root, { onSelect, onHover = () => {} }) {
   const svg = root.querySelector('svg.re-map');
   const tip = root.querySelector('.re-tip');
@@ -35,6 +44,27 @@ export function initSchoolLayer(root, { onSelect, onHover = () => {} }) {
     const scale = ctm ? Math.abs(ctm.a) : 0;
     return scale > 0 ? HIT_RADIUS_PX / scale : HIT_RADIUS_PX;
   }
+
+  // 지금 축소율에서 화면 반지름이 [DOT_MIN_PX, DOT_MAX_PX] 안에 들도록 사용자
+  // 단위 반지름을 정해 CSS 변수로 내려보낸다. 개별 점의 r 속성을 직접 고치지
+  // 않는 이유는 호버·선택 상태의 크기가 schools.css 에 있기 때문이다 — 한 변수만
+  // 바꾸면 세 상태가 같은 비율로 함께 커진다.
+  function applyDotRadius() {
+    const ctm = svg.getScreenCTM();
+    const scale = ctm ? Math.abs(ctm.a) : 0;
+    let units = DOT_BASE_UNITS;
+    if (scale > 0) {
+      const px = DOT_BASE_UNITS * scale;
+      if (px < DOT_MIN_PX) units = DOT_MIN_PX / scale;
+      else if (px > DOT_MAX_PX) units = DOT_MAX_PX / scale;
+    }
+    layer.style.setProperty('--re-dot-r', `${units.toFixed(2)}px`);
+  }
+
+  // 뷰 전환(setView 로 viewBox 가 바뀜)과 창 크기 변경 둘 다 축소율을 바꾼다.
+  // 뷰 전환 뒤에는 schools-app.js 가 render() 를 다시 부르므로 거기서 처리되고,
+  // 창 크기 변경은 여기서 직접 받는다.
+  window.addEventListener('resize', applyDotRadius, { passive: true });
 
   function nearestDot(evt) {
     if (!current.length) return null;
@@ -112,7 +142,8 @@ export function initSchoolLayer(root, { onSelect, onHover = () => {} }) {
         const dot = document.createElementNS(NS, 'circle');
         dot.setAttribute('cx', school.x);
         dot.setAttribute('cy', school.y);
-        dot.setAttribute('r', '5');
+        // 속성값은 CSS 의 r(= --re-dot-r) 이 없을 때만 쓰이는 대비값이다.
+        dot.setAttribute('r', String(DOT_BASE_UNITS));
         dot.setAttribute('class', `re-dot is-${school.lvl}`);
         // 마우스/터치 클릭은 svg 의 nearestDot() 딜레이트가 처리한다(이 점
         // 자체의 지오메트리는 뷰에 따라 여전히 작다). 키보드 탭 순서·포커스만
@@ -135,6 +166,7 @@ export function initSchoolLayer(root, { onSelect, onHover = () => {} }) {
         layer.appendChild(dot);
         current.push(item);
       }
+      applyDotRadius();
     },
     setSelected(name) {
       if (selected) selected.classList.remove('is-selected');

@@ -80,4 +80,5 @@ description: "서울·경기 사립초·사립중·국제중·특목고(과학�
   <p class="re-footnote"></p>
 </div>
 
+{% include realestate/importmap.html %}
 <script type="module" src="{{ '/assets/realestate/schools-app.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

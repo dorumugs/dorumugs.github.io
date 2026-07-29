@@ -4,7 +4,12 @@
    .re-controls 가 이미 flex-wrap 이라, 이 안에서도 좁은 화면에서 자연히 줄바꿈된다. */
 .re-tab-groups { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
+/* 반지름은 schoolmap.js 가 --re-dot-r 로 내려준다. 뷰 축소율에 따라 화면에서
+   보이는 크기가 3.5px~20.7px 로 출렁이던 것을, 화면 픽셀 기준 상·하한 안에
+   들도록 매 렌더·리사이즈마다 다시 계산한 값이다. 호버·선택 크기는 그 값의
+   배수로 두어 세 상태가 항상 같은 비율을 유지한다. */
 .re-school-layer .re-dot {
+  r: var(--re-dot-r, 5px);
   stroke: #fff;
   stroke-width: 1.5;
   transition: r 100ms linear;
@@ -12,8 +17,10 @@
   outline: none;
 }
 
-/* 점의 실제 지오메트리(r=5, viewBox 스케일에 따라 화면 픽셀이 줄어든다)는
-   클릭/호버 판정에 안 쓴다. schoolmap.js 가 svg 전체에서 클릭·마우스이동을
+/* 점의 실제 지오메트리는 클릭/호버 판정에 안 쓴다 — 보이는 크기(--re-dot-r)와
+   누를 수 있는 크기(HIT_RADIUS_PX=12)는 따로 관리한다. 축소 뷰에서는 점을
+   하한까지 키워도 화면 지름이 9px 이라 히트 반경 24px 보다 작다.
+   schoolmap.js 가 svg 전체에서 클릭·마우스이동을
    한 번만 받아 커서에서 가장 가까운 점을 골라 이 is-hover/is-selected 클래스를
    붙인다 — 화면 기준 히트 반경이 viewBox 스케일과 무관하게 일정하다(서울 뷰
    ↔ 전체 뷰 전환 시에도). 점마다 각자 큰 히트 영역을 그리는 방식은 겹친 점의
@@ -23,7 +30,7 @@
    is-hover(가리킴, 표 행 마우스오버/포커스와 연동)와 is-selected(클릭해 고른
    학교)는 크기·링 색·굵기를 모두 다르게 둬 두 상태가 같아 보이지 않게 한다. */
 .re-school-layer .re-dot.is-hover {
-  r: 7;
+  r: calc(var(--re-dot-r, 5px) * 1.4);
   stroke: var(--re-ink2);
   stroke-width: 2.5;
 }
@@ -39,13 +46,13 @@
 .re-school-layer .re-dot.is-국제중 { fill: #eda100; }
 
 .re-school-layer .re-dot:focus-visible {
-  r: 7;
+  r: calc(var(--re-dot-r, 5px) * 1.4);
   stroke: var(--re-ink2);
   stroke-width: 2.5;
 }
 
 .re-school-layer .re-dot.is-selected {
-  r: 8;
+  r: calc(var(--re-dot-r, 5px) * 1.6);
   stroke: var(--re-ink);
   stroke-width: 3;
 }
