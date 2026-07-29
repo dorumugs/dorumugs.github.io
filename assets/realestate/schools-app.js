@@ -203,15 +203,20 @@ function renderPeerChart(school) {
   if (heading) heading.hidden = false;
   toggleProvinceChart(false);
 
+  const last = (p) => {
+    for (let i = p.r.length - 1; i >= 0; i -= 1) if (p.r[i] != null) return p.r[i];
+    return null;
+  };
   const series = [me, ...peers].map((p, i) => ({
-    label: p === me ? `${p.name} (선택)` : p.name,
+    // 범례에도 최신 값을 적는다 — 선 끝 숫자와 이름을 눈으로 잇기 쉬워진다.
+    label: `${p.name}${p === me ? ' (선택)' : ''} ${last(p).toFixed(1)}%`,
     color: CATEGORICAL[i % CATEGORICAL.length],
     values: p.r,
   }));
-  // 값이 비슷한 학교만 모아 그리므로 끝점 라벨이 서로 포개진다. 이름은
-  // 아래 HTML 범례가 맡고 차트에서는 끈다.
+  // 값이 비슷한 학교만 모아 그리므로 계열명까지 적으면 라벨이 포개진다. 선
+  // 끝에는 숫자만 찍고(겹치면 차트가 세로로 밀어낸다) 이름은 아래 범례가 맡는다.
   chartEl.innerHTML = multiLineChart(progSchools.years, series,
-    { unit: '%', decimals: 1, endLabels: false });
+    { unit: '%', decimals: 1, endLabels: 'value' });
   chartEl.setAttribute('aria-label',
     `${school.name}과 진학률이 비슷한 학교 ${peers.length}곳의 특목고·자사고 진학률 추이`);
   legendEl.innerHTML = legendHtml(series);

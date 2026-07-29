@@ -92,7 +92,7 @@ export function lineChart(months, values, { partialFrom } = {}) {
 // 다르다 — legend 는 SVG 밖에 별도 HTML(legendHtml)로 그린다. 학군 페이지의
 // 서울/경기 진학률·졸업자수 추이(schools-app.js)가 쓴다.
 export function multiLineChart(categories, series,
-  { unit = '', decimals = 1, height = H, endLabels = true } = {}) {
+  { unit = '', decimals = 1, height = H, endLabels = 'full' } = {}) {
   const finiteAll = series.flatMap((s) => s.values.filter((v) => v != null));
   if (!finiteAll.length) {
     return `<svg viewBox="0 0 ${W} ${height}"><text x="${W / 2}" y="${height / 2}" `
@@ -131,6 +131,8 @@ export function multiLineChart(categories, series,
   parts.push(`<line x1="${PAD_L}" y1="${Y(0).toFixed(1)}" x2="${W - PAD_R}" `
     + `y2="${Y(0).toFixed(1)}" stroke="${AXIS}" stroke-width="1"/>`);
 
+  const endLabelBoxes = [];
+
   series.forEach((s) => {
     let run = [];
     const flush = () => {
@@ -152,18 +154,44 @@ export function multiLineChart(categories, series,
       const lx = X(lastIdx), ly = Y(s.values[lastIdx]);
       parts.push(`<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4" fill="${s.color}" `
         + `stroke="${SURFACE}" stroke-width="2"/>`);
-      // 끝점 라벨은 계열명 + 값을 같이 적는다 — 범례 없이 색만 보고 구분하지
-      // 않아도 되게(색맹·흑백 인쇄에서도 어느 선인지 읽힌다).
+      // 끝점 라벨은 계열명 + 값을 같이 적는 게 기본이다 — 범례 없이 색만 보고
+      // 구분하지 않아도 되게(색맹·흑백 인쇄에서도 어느 선인지 읽힌다). 계열이
+      // 비슷한 값으로 모이는 차트에서는 'value' 로 숫자만 적는다.
       //
-      // 다만 계열이 서로 비슷한 값으로 모이는 차트(진학률이 비슷한 학교 비교)
-      // 에서는 라벨 4개가 같은 자리에 포개져 아무것도 못 읽는다. 그때는
-      // endLabels:false 로 끄고 HTML 범례에 이름을 맡긴다.
-      if (endLabels) {
-        parts.push(`<text x="${(lx - 7).toFixed(1)}" y="${(ly - 9).toFixed(1)}" text-anchor="end" `
-          + `font-size="10.5" font-weight="600" fill="${s.color}">`
-          + `${esc(s.label)} ${fmt(s.values[lastIdx])}</text>`);
+      // 여기서 바로 그리지 않고 모아 두는 이유는, 다 모은 뒤 세로로 밀어 겹침을
+      // 없애야 하기 때문이다.
+      if (endLabels !== 'none' && endLabels !== false) {
+        endLabelBoxes.push({
+          x: lx - 7,
+          y: ly - 9,
+          color: s.color,
+          text: endLabels === 'value'
+            ? fmt(s.values[lastIdx])
+            : `${esc(s.label)} ${fmt(s.values[lastIdx])}`,
+        });
       }
     }
+  });
+
+  // 값이 가까운 계열끼리는 끝점이 몇 px 안에 몰린다. 위에서부터 최소 간격을
+  // 강제해 밀어내고, 아래로 밀려 차트를 벗어나면 전체를 위로 당겨 되돌린다.
+  //
+  // 간격은 글자 높이보다 커야 한다. font-size 10.5 인 이 라벨의 실제 렌더
+  // 높이를 재 보면 14.5(뷰박스 단위)라, 11.5 로 뒀을 때 네 개 중 세 쌍이
+  // 그대로 겹쳤다. 글자 높이 + 약간의 여백으로 잡는다.
+  const GAP = 16;
+  endLabelBoxes.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < endLabelBoxes.length; i += 1) {
+    if (endLabelBoxes[i].y - endLabelBoxes[i - 1].y < GAP) {
+      endLabelBoxes[i].y = endLabelBoxes[i - 1].y + GAP;
+    }
+  }
+  const last = endLabelBoxes[endLabelBoxes.length - 1];
+  const overflow = last ? last.y - (height - PAD_B - 2) : 0;
+  if (overflow > 0) endLabelBoxes.forEach((b) => { b.y -= overflow; });
+  endLabelBoxes.forEach((b) => {
+    parts.push(`<text x="${b.x.toFixed(1)}" y="${Math.max(b.y, PAD_T + 8).toFixed(1)}" `
+      + `text-anchor="end" font-size="10.5" font-weight="600" fill="${b.color}">${b.text}</text>`);
   });
 
   parts.push('</svg>');
