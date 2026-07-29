@@ -76,6 +76,22 @@ function sggLabel(school) {
   return head.replace(/^(서울특별시|경기도)\s*/, '');
 }
 
+// 시군구 코드 → 이름. 지도 SVG 의 path 에 data-name 이 이미 박혀 있어(map.svg)
+// summary.json(389KB)을 따로 받지 않고 DOM 에서 읽는다. 비교군은 서로 다른
+// 구에 있을 수 있어(중곡동=광진구, 반포동=서초구) 법정동만으로는 어디인지
+// 알 수 없다.
+let sggNames = null;
+
+function sggNameOf(code) {
+  if (!sggNames) {
+    sggNames = new Map();
+    root.querySelectorAll('svg.re-map path[data-sgg]').forEach((p) => {
+      if (p.dataset.name) sggNames.set(p.dataset.sgg, p.dataset.name);
+    });
+  }
+  return sggNames.get(code) || '';
+}
+
 function paintBase() {
   // 구는 배경이다. 전부 같은 옅은 색으로 깔아 점이 묻히지 않게 한다.
   const values = new Map();
@@ -110,6 +126,10 @@ function renderList() {
     '학교를 누르면(또는 지도에서 점을 누르면) 같은 법정동 아파트 시세를 볼 수 있습니다.';
   root.querySelector('.re-rank-heading').hidden = true;
   root.querySelector('.re-back-btn').hidden = true;
+  // 첫 화면에서는 우측 패널이 비어 있으므로 시·도 진학률 차트를 거기에 둔다.
+  // 학교를 고르면 같은 자리를 "비슷한 학교" 비교 차트가 대신한다 — 둘을 같이
+  // 띄우면 같은 지표의 차트가 두 개라 무엇을 보는지 흐려진다.
+  toggleProvinceChart(true);
 
   // 학교급 칸은 lvl 값을 그대로 쓴다(초/중/국제중/특목고). '사립초'처럼 더
   // 풀어 쓰면 좁은 화면에서 칸이 두 줄로 접혀 표가 들쭉날쭉해진다. 열
@@ -157,6 +177,11 @@ function peersOf(school) {
   return { me, peers };
 }
 
+function toggleProvinceChart(show) {
+  const el = root.querySelector('.re-progression');
+  if (el) el.hidden = !show;
+}
+
 function renderPeerChart(school) {
   const wrap = root.querySelector('.re-peer-prog');
   if (!wrap) return;
@@ -170,10 +195,13 @@ function renderPeerChart(school) {
   if (!me) {
     wrap.hidden = true;
     if (heading) heading.hidden = true;
+    // 진학률이 없는 학교급(사립초·특목고)을 골랐을 때는 시·도 차트를 그대로 둔다.
+    toggleProvinceChart(true);
     return;
   }
   wrap.hidden = false;
   if (heading) heading.hidden = false;
+  toggleProvinceChart(false);
 
   const series = [me, ...peers].map((p, i) => ({
     label: p === me ? `${p.name} (선택)` : p.name,
@@ -191,6 +219,12 @@ function renderPeerChart(school) {
   noteEl.textContent = '특목고·자사고 진학률이 가장 가까운 학교를 고른 것이라 순위가 아닙니다. '
     + `비교 대상은 서울·경기 중학교 ${progSchools.schools.length.toLocaleString()}곳입니다.`
     + (thin ? ` 이 중 ${thin}곳은 졸업생이 ${progSchools.thin}명 미만이라 값이 크게 흔들립니다.` : '');
+}
+
+// 표의 지역 칸. 비교군이 다른 구에 있을 수 있으므로 시군구를 함께 적는다.
+function placeLabel(target) {
+  const sgg = sggNameOf(target.sgg);
+  return sgg ? `${sgg} ${target.dong}` : target.dong;
 }
 
 async function selectSchool(school) {
@@ -239,14 +273,14 @@ async function selectSchool(school) {
         .forEach((c, j) => rows.push({ ...c, school: t, first: j === 0 }));
     });
 
-    const head = '<thead><tr><th>중학교</th><th>법정동</th><th>단지</th>'
+    const head = '<thead><tr><th>중학교</th><th>시군구·법정동</th><th>단지</th>'
       + '<th class="is-num">평당가(만원)</th><th class="is-num">세대</th>'
       + '<th class="is-num">거래</th></tr></thead>';
     // 같은 학교의 두 번째 행부터는 학교명·법정동을 비워 둔다 — 같은 값을
     // 반복해 적으면 어디서 학교가 바뀌는지 오히려 안 보인다.
     const body = rows.map((c) => `<tr${c.first ? ' class="is-group"' : ''}>`
       + `<td>${c.first ? `${esc(c.school.name)}${c.school.self ? '<span class="re-self">선택</span>' : ''}` : ''}</td>`
-      + `<td>${c.first ? esc(c.school.dong) : ''}</td>`
+      + `<td>${c.first ? esc(placeLabel(c.school)) : ''}</td>`
       + `<td>${esc(c.name)}</td>`
       + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`
       + `<td class="is-num is-dim">${c.hh != null ? c.hh.toLocaleString() : '—'}</td>`

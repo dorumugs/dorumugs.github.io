@@ -53,16 +53,20 @@ def norm_name(name: str) -> str:
     return "".join(ch for ch in name if ch.isdigit() or "가" <= ch <= "힣")
 
 
-def locate() -> dict[str, tuple[str, str]]:
-    """{정규화한 중학교 이름: (시군구 5자리, 법정동명)}.
+def locate() -> dict[str, list[tuple[str, str]]]:
+    """{정규화한 중학교 이름: [(시군구 5자리, 법정동명), ...]}.
 
     비교군 학교의 아파트 시세를 보여주려면 그 학교의 법정동이 필요하다.
     학교알리미 목록에는 도로명주소뿐이라 법정동을 만들 수 없어, 이미 받아 둔
     위치 표준데이터(data/schools.csv.gz)의 지번주소에서 뽑는다 — 사립만 남기기
     전 원본이라 공립 중학교까지 다 들어 있다.
+
+    값을 목록으로 두는 이유는 이름이 같은 중학교가 43쌍 있어서다(서울 대광중과
+    경기 대광중 등). 하나만 담으면 나중 것이 앞의 것을 덮어써, 서울 학교에
+    경기 법정동이 붙고 조인이 통째로 어긋난다 — 실제로 그렇게 깨졌었다.
     """
     name_to_code = dict(build_schools._sgg_by_name())  # noqa: SLF001
-    out: dict[str, tuple[str, str]] = {}
+    out: dict[str, list[tuple[str, str]]] = {}
     rows = rtms.csv_to_rows(rtms.gunzip_text(SCHOOL_FILE.read_bytes()))
     for row in rows:
         if row.get("level") != "중학교":
@@ -74,8 +78,22 @@ def locate() -> dict[str, tuple[str, str]]:
         sgg = name_to_code.get(sgg_name)
         if sgg is None or regions.dong_code(sgg, umd) is None:
             continue
-        out[norm_name(row["school_name"])] = (sgg, umd.split(" ")[-1])
+        out.setdefault(norm_name(row["school_name"]), []).append((sgg, umd.split(" ")[-1]))
     return out
+
+
+def pick_place(candidates: list[tuple[str, str]], sgg_hint: str) -> tuple[str, str] | None:
+    """이름이 같은 학교가 여럿이면 시군구로 가른다. 못 가르면 붙이지 않는다.
+
+    엉뚱한 동네를 붙이는 것보다 법정동 없이 두는 편이 낫다 — 비교군 표에 다른
+    지역 아파트가 조용히 섞이기 때문이다.
+    """
+    if not candidates:
+        return None
+    if len(candidates) == 1:
+        return candidates[0]
+    exact = [c for c in candidates if c[0] == sgg_hint]
+    return exact[0] if len(exact) == 1 else None
 
 
 def build(rows: list[dict], generated: str, places: dict | None = None) -> dict:
@@ -124,7 +142,7 @@ def build(rows: list[dict], generated: str, places: dict | None = None) -> dict:
         }
         # 위치 데이터에서 법정동을 찾으면 시군구도 그쪽 값으로 맞춘다 — 아파트
         # 시세는 시군구별 JSON 에서 읽으므로 두 값이 같은 출처라야 안 어긋난다.
-        located = places.get(norm_name(entry["name"]))
+        located = pick_place(places.get(norm_name(entry["name"]), []), entry["sgg_cd"])
         if located:
             item["sgg"], item["dong"] = located
         out.append(item)

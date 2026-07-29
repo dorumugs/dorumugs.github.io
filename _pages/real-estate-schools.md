@@ -55,6 +55,17 @@ description: "서울·경기 사립초·사립중·국제중·특목고(과학�
         <div class="re-peer-legend" aria-hidden="true"></div>
         <p class="re-peer-note"></p>
       </div>
+      <div class="re-progression">
+        <h3 class="re-section-title">특목고·자사고 진학률 · 시·도 단위</h3>
+        <p class="re-prog-note">
+          서울·경기 전체 중학교 졸업생 기준입니다. 특목고(과학고·외고/국제고)·자사고
+          진학자를 졸업자 수로 나눈 비율로, 학교를 고르면 그 학교와 진학률이 비슷한
+          학교들의 추이로 바뀝니다.
+        </p>
+        <div class="re-prog-chart" role="img" aria-label="진학률 추이 불러오는 중"></div>
+        <div class="re-prog-legend" aria-hidden="true"></div>
+        <p class="re-prog-cohort"></p>
+      </div>
       <h3 class="re-section-title re-rank-heading" hidden>학교별 법정동 아파트 · 비교군 포함</h3>
     </div>
   </div>
@@ -70,19 +81,6 @@ description: "서울·경기 사립초·사립중·국제중·특목고(과학�
     해당 데이터가 공개되어 있지 않아 넣지 못했습니다. 대신 시·도 단위 참고 자료를
     아래에 붙였습니다.
   </p>
-
-  <div class="re-progression">
-    <h2 class="re-section-title">특목고·자사고 진학률(시·도 단위)</h2>
-    <p class="re-prog-note">
-      학교별 특목고·자사고 진학 실적은 어떤 공개 경로로도 구할 수 없어(위 지도 목록의
-      학교별 순위나 필터로는 쓰이지 않습니다), 서울·경기 전체 중학교 졸업생을 놓고 낸
-      시·도 단위 집계만 보여드립니다. 특목고(과학고·외고/국제고)·자사고 진학자를
-      졸업자 수로 나눈 비율입니다.
-    </p>
-    <div class="re-prog-chart" role="img" aria-label="진학률 추이 불러오는 중"></div>
-    <div class="re-prog-legend" aria-hidden="true"></div>
-    <p class="re-prog-cohort"></p>
-  </div>
 
   <p class="re-footnote"></p>
 </div>
