@@ -51,6 +51,22 @@ function normName(name) {
   return String(name).replace(/[^가-힣0-9]/g, '');
 }
 
+// 긴 학교명을 좁은 화면에서 어디서 접을지 정해 준다. 그냥 두면 '단국대학교사
+// 범대학부속중학교' 처럼 글자 중간이 잘려 읽기 어렵다. 뜻이 끊기지 않는
+// 자리에 <wbr>(줄바꿈 기회)만 넣어, 넓은 화면에서는 한 줄로 두고 좁을 때만
+// 그 자리에서 접히게 한다.
+//
+//   단국대학교|사범대학부속중학교      '대학교' 뒤
+//   이화여자|외국어고등학교            '대학교' 가 없는 '이화여자…' 는 그 뒤
+//
+// 15곳이 '대학교' 를, 3곳이 '이화여자' 를 달고 있다.
+function schoolNameHtml(name) {
+  const safe = esc(name);
+  if (safe.includes('대학교')) return safe.replace('대학교', '대학교<wbr>');
+  if (safe.startsWith('이화여자')) return safe.replace('이화여자', '이화여자<wbr>');
+  return safe;
+}
+
 function progOf(school) {
   if (!progIndex.size) return null;
   return progIndex.get(`${school.sgg}|${normName(school.name)}`) || null;
@@ -171,7 +187,7 @@ function renderList() {
     + '</tr></thead>';
   const body = list.map((s, i) => `<tr class="re-list-row" data-idx="${i}" tabindex="0" `
     + `role="button" aria-label="${esc(s.name)} 시세 보기">`
-    + `<td>${esc(s.name)}</td><td>${esc(s.lvl)}</td><td>${esc(s.found)}</td>`
+    + `<td>${schoolNameHtml(s.name)}</td><td>${esc(s.lvl)}</td><td>${esc(s.found)}</td>`
     + `<td>${esc(sggLabel(s))}</td><td>${esc(s.dong)}</td>`
     + (showProg ? `<td class="is-num">${progCell(s)}</td>` : '')
     + '</tr>').join('');
@@ -328,7 +344,7 @@ async function selectSchool(school) {
     // 묶음 표라 같은 학교의 둘째 행부터는 칸을 비워 두는데, 그러면 그 열로
     // 정렬할 때 빈 값이 섞인다. 보이지 않는 값은 data-sort 로 넘겨 준다.
     const body = rows.map((c) => `<tr${c.first ? ' class="is-group"' : ''}>`
-      + `<td data-sort="${esc(c.school.name)}">${c.first ? `${esc(c.school.name)}${c.school.self ? '<span class="re-self">선택</span>' : ''}` : ''}</td>`
+      + `<td data-sort="${esc(c.school.name)}">${c.first ? `${schoolNameHtml(c.school.name)}${c.school.self ? '<span class="re-self">선택</span>' : ''}` : ''}</td>`
       + `<td data-sort="${esc(placeLabel(c.school))}">${c.first ? esc(placeLabel(c.school)) : ''}</td>`
       + `<td>${esc(c.name)}</td>`
       + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`

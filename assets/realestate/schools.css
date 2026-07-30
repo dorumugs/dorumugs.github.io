@@ -138,3 +138,28 @@ table.re-table tr.is-group td { border-top: 1px solid var(--re-border); }
   vertical-align: middle; white-space: nowrap;
 }
 .re-rank-note { font-size: 11.5px; color: var(--re-muted); line-height: 1.6; margin: 8px 0 0; }
+
+/* 학군 표의 칸은 글자 중간이 아니라 단어 경계에서만 접는다. 상속된
+   overflow-wrap:anywhere 를 같이 되돌려야 keep-all 이 먹는다 — anywhere 는
+   "필요하면 어디서든 끊어라" 라 word-break 보다 세게 작동해서, 그러지 않으면
+   '사 / 립', '강남 / 구' 처럼 두 글자짜리 값까지 쪼개진다. */
+.re-app.is-schools table.re-table th,
+.re-app.is-schools table.re-table td {
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+/* 학교명은 <wbr> 로 정해 둔 자리(대학교 뒤 등)에서 접힌다. 폭을 안 묶으면
+   '단국대학교사범대학부속중학교' 14자가 한 줄을 차지하며 열을 175px 까지
+   벌려, 좁은 화면에서 나머지 열을 다 눌러버린다. 상한을 둬 두 줄로 접히게 한다.
+   짧은 이름은 상한에 닿지 않으니 그대로 한 줄이다. */
+@media (max-width: 720px) {
+  .re-app.is-schools table.re-table td:first-child,
+  .re-app.is-schools table.re-table th:first-child {
+    max-width: 120px;
+  }
+  /* 위 상한만으로는 표가 화면보다 11px 넓어 가로로 밀린다. 실거래 랭킹 표와
+     같은 폭으로 여백을 줄여 안에 들어오게 한다. */
+  .re-app.is-schools table.re-table th,
+  .re-app.is-schools table.re-table td { padding: 6px 4px; }
+}
