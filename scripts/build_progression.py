@@ -2,10 +2,14 @@
 
     python3 scripts/build_progression.py
 
-시도교육청 단위 집계만 낼 수 있다 — 학교별로는 못 낸다. 이 파일에는 학교명도
-주소도 없고 식별자(개방ID)를 우리 위치 데이터(data/schools.csv.gz)의
-school_id 로 이을 방법이 없다. 자세한 내용과 시도한 조인 다섯 가지는
-data/edss/README.md 참고.
+이 원본으로는 시도교육청 단위 집계만 낼 수 있다 — 학교명도 주소도 없고
+식별자(개방ID)를 우리 위치 데이터(data/schools.csv.gz)와 이을 방법이 없다.
+자세한 내용과 시도한 조인은 data/edss/README.md 참고.
+
+학교별 진학률은 다른 원본(학교알리미 웹 공시)에서 따로 받는다 —
+collect_progression_school.py → build_progression_school.py. 그쪽은 최근 3년치만
+공시되므로, 2011년부터의 장기 추이는 이 파일로만 만들 수 있다. 두 결과를 나란히
+놓을 수 있도록 진학률 정의(특목고 + 자사고 ÷ 졸업자)를 양쪽에서 맞춰 두었다.
 
 출력은 assets/realestate/progression.json. 원본은 건드리지 않는다.
 """
