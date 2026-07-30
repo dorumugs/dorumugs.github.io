@@ -156,12 +156,18 @@ table.re-table tr.is-group td { border-top: 1px solid var(--re-border); }
 @media (max-width: 720px) {
   .re-app.is-schools table.re-table td:first-child,
   .re-app.is-schools table.re-table th:first-child {
-    /* '사범대학부속' 뒤에도 줄바꿈 기회가 있으므로 상한을 더 좁혀도 글자
-       중간이 잘리지 않는다. 좁힌 만큼 다른 열이 여유를 얻는다. */
-    max-width: 96px;
+    /* 줄바꿈 기회(대학교·외국어·사범대학부속 뒤)가 넉넉해 상한을 좁혀도 글자
+       중간이 잘리지 않는다. 좁힌 만큼을 열 사이 여백으로 돌린다.
+       진학률 머리글에서 연도를 뺀 만큼(연도는 목록 설명으로 옮겼다) 여기에
+       더 줘서, 7자 이름('영훈국제중학교')은 한 줄로 들어온다. */
+    /* width 는 자동 배분에서 '선호 폭' 으로 쓰인다. max-width 만 주면 표가
+       358px 안에서 나눠 갖느라 89px 에 머물러, '영훈국제중학교'(7자) 가 3px
+       모자라 접혔다. */
+    width: 94px;
+    max-width: 102px;
   }
-  /* 위 상한만으로는 표가 화면보다 11px 넓어 가로로 밀린다. 실거래 랭킹 표와
-     같은 폭으로 여백을 줄여 안에 들어오게 한다. */
+  /* 열이 서로 붙어 보이지 않게 좌우 여백을 준다. 학교명 상한을 96 → 78 로
+     좁혀 확보한 폭을 여기에 쓴다 — 표는 여전히 화면 안에 들어온다. */
   .re-app.is-schools table.re-table th,
-  .re-app.is-schools table.re-table td { padding: 6px 4px; }
+  .re-app.is-schools table.re-table td { padding: 8px 7px; }
 }

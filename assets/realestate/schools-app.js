@@ -66,10 +66,16 @@ function normName(name) {
 function schoolNameHtml(name) {
   let out = esc(name);
   if (out.includes('대학교')) out = out.replace('대학교', '대학교<wbr>');
-  else if (out.startsWith('이화여자')) out = out.replace('이화여자', '이화여자<wbr>');
+  // '이화여자' 는 '대학교' 와 배타적이지 않다. '이화여자대학교…' 는 둘 다 걸어야
+  // 첫 조각이 '이화여자'(4자) 가 된다 — 안 그러면 '이화여자대학교' 7자가
+  // 통째로 남아 열 상한을 넘는다.
+  if (out.startsWith('이화여자')) out = out.replace('이화여자', '이화여자<wbr>');
   if (out.includes('사범대학부속')) out = out.replace('사범대학부속', '사범대학부속<wbr>');
   if (out.includes('외국어')) out = out.replace('외국어', '외국어<wbr>');
-  return out;
+  // 마지막 안전판: 학교 종류 앞에서도 접을 수 있게 한다. '영훈국제중학교'
+  // 처럼 앞의 규칙에 하나도 안 걸리는 7자 이름은 이게 없으면 열 상한을 넘어
+  // 옆 칸으로 삐져나온다(keep-all 이라 스스로 접지 못한다).
+  return out.replace(/(초등학교|중학교|고등학교)$/, '<wbr>$1');
 }
 
 function progOf(school) {
@@ -167,8 +173,12 @@ function renderList() {
 
   root.querySelector('.re-panel-title').textContent =
     `${VIEW_LABEL[state.view]} ${LVL_LIST_LABEL[state.lvl]} ${list.length}곳`;
+  const progYearNote = progSchools && list.some((s) => PROG_LEVELS.has(s.lvl))
+    ? ` 진학률은 ${progSchools.years[progSchools.years.length - 1]}년 공시 기준입니다.`
+    : '';
   root.querySelector('.re-school-meta').textContent =
-    '학교를 누르면(또는 지도에서 점을 누르면) 같은 법정동 아파트 시세를 볼 수 있습니다.';
+    '학교를 누르면(또는 지도에서 점을 누르면) 같은 법정동 아파트 시세를 볼 수 있습니다.'
+    + progYearNote;
   root.querySelector('.re-rank-heading').hidden = true;
   root.querySelector('.re-back-btn').hidden = true;
   // 첫 화면에서는 우측 패널이 비어 있으므로 시·도 진학률 차트를 거기에 둔다.
@@ -183,12 +193,11 @@ function renderList() {
   // 진학률 열은 중학교가 하나라도 보일 때만 붙인다. 사립초·특목고만 보고 있을
   // 때 값이 전부 '—' 인 빈 열이 자리를 차지하면 좁은 화면에서 손해다.
   const showProg = progSchools && list.some((s) => PROG_LEVELS.has(s.lvl));
-  const progYear = showProg ? progSchools.years[progSchools.years.length - 1] : '';
   // '전체' 탭에서는 초·중·국제중·특목고가 섞여 나온다. 학교급만으로는 사립인지
   // 공립인지 알 수 없어(특목고에는 서울과학고 같은 공립이 있다) 설립 구분을
   // 따로 보여준다.
   const head = '<thead><tr><th>학교명</th><th>학교급</th><th>설립</th><th>시군구</th><th>법정동</th>'
-    + (showProg ? `<th class="is-num">특목·자사고<br>진학률 ${progYear}</th>` : '')
+    + (showProg ? '<th class="is-num">특목·자사고<br>진학률</th>' : '')
     + '</tr></thead>';
   const body = list.map((s, i) => `<tr class="re-list-row" data-idx="${i}" tabindex="0" `
     + `role="button" aria-label="${esc(s.name)} 시세 보기">`
