@@ -255,3 +255,34 @@ table.re-table th.is-sortable::after {
 }
 table.re-table th.is-asc::after { content: '\2191'; opacity: 1; color: var(--re-line); }
 table.re-table th.is-desc::after { content: '\2193'; opacity: 1; color: var(--re-line); }
+
+/* 좁은 화면에서는 표 머리글을 여러 줄로 접는다. '중위 평당가'·'12개월 변화율'
+   같은 이름이 한 줄을 고집하면 열 폭이 그 글자 수에 묶여 표가 화면을 넘어간다
+   (390px 에서 컨테이너 358 대 표 424). keep-all 로 단어 중간이 아니라
+   띄어쓰기에서만 접어 '중위 / 평당가' 처럼 읽히게 한다.
+
+   이 블록은 파일 맨 끝에 있어야 한다 — 위쪽의 th·th.is-sortable 규칙이
+   white-space:nowrap 을 갖고 있어서, 앞에 두면 나중 규칙에 그대로 덮인다.
+   값 칸(is-num)의 nowrap 은 건드리지 않는다: 숫자가 접히면 더 읽기 어렵다. */
+@media (max-width: 720px) {
+  table.re-table th,
+  table.re-table th.is-num,
+  table.re-table th.is-spark,
+  table.re-table th.is-sortable {
+    white-space: normal;
+    word-break: keep-all;
+    line-height: 1.25;
+    vertical-align: bottom;
+  }
+
+  /* 머리글이 접히면서 열이 좁아지자 이번엔 값이 '송파 / 구' 처럼 글자 중간에서
+     끊겼다. 랭킹 표의 값은 시군구 이름뿐이라 통째로 유지해도 폭이 크게 늘지
+     않는다. 단지명이 긴 다른 표(구 상세·학군)에는 걸지 않는다. */
+  /* overflow-wrap 이 anywhere 로 상속돼 있어 keep-all 만으로는 안 먹는다 —
+     anywhere 는 "필요하면 어디서든 끊어라" 라서 word-break 보다 세게 작동한다.
+     둘을 같이 되돌려야 '송파구' 가 통째로 남는다. */
+  table.re-table.is-landing td {
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+}
