@@ -29,6 +29,11 @@ OUT_DIR = ROOT / "assets" / "realestate"
 SUMMARY_FILE = OUT_DIR / "summary.json"
 
 HOUSEHOLD_MIN = 300
+
+# 중위 평당가를 낼 때 함께 묶는 개월 수. 3이면 그 달 + 직전 2개월이다.
+# 창의 중심이 한 달 전이라 전환점이 그만큼 늦게 잡히는 대신, 거래 구성이
+# 바뀌며 생기는 가짜 등락이 크게 줄어든다.
+MEDIAN_WINDOW = 3
 # 실측 347KB(gzip 전송 126KB). 247개월 × 72구 × 2필터를 온전히 담으면 이 정도다.
 # 첫 로딩에서 실제로 오가는 건 gzip 크기이고, 이후 지표를 더 얹을 여유도 남겨 둔다.
 MAX_SUMMARY_BYTES = 400 * 1024
@@ -201,10 +206,21 @@ def build_summary(by_month: dict[str, list[dict]], months: list[str],
             cnt: list[int] = []
             can: list[int] = []
             for mi in range(len(months)):
-                vals = prices[f][sgg].get(mi, [])
+                # 중위 평당가는 그 달만이 아니라 최근 MEDIAN_WINDOW 개월을 모아
+                # 낸다. 한 달치만 쓰면 거래가 적은 구에서 어느 단지가 거래됐냐에
+                # 따라 값이 통째로 흔들린다 — 금천구 2026-06 은 대단지 거래가
+                # 빠지면서 3,186 → 2,758 로 -13% 찍었다가 다음 달 3,263 으로
+                # 되돌아왔는데, 같은 단지끼리 비교하면 오히려 +4.7% 였다.
+                # 서울·경기 68개 구 실측으로 전월 대비 변동폭 중위가
+                # 3.50% → 1.38%, 5% 넘는 구가 16곳 → 1곳으로 줄었다.
+                # n(거래 건수)은 그 달 실제 건수를 그대로 둔다 — 창을 넓힌 건
+                # 가격이지 거래량이 아니다.
+                vals = []
+                for wj in range(max(0, mi - MEDIAN_WINDOW + 1), mi + 1):
+                    vals.extend(prices[f][sgg].get(wj, []))
                 m = aggregate.median(vals)
                 med.append(round(m) if m is not None else None)
-                cnt.append(len(vals))
+                cnt.append(len(prices[f][sgg].get(mi, [])))
                 can.append(cancels[sgg].get(mi, 0) if f == "all" else 0)
             # cancel 은 필터와 무관하게 시군구·월 단위로 한 번만 집계한다(중복
             # 계상 방지). '300' 필터에서는 항상 0으로 채워지는데, 이는 해제

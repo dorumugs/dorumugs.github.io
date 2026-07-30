@@ -72,6 +72,36 @@ class TestBuildSummary(unittest.TestCase):
         self.assertEqual(s["n"][0], 1)        # 유효 거래만 센다
         self.assertEqual(s["cancel"][0], 1)
 
+    def test_median_pools_three_months(self) -> None:
+        """중위값은 그 달 + 직전 2개월을 모아 낸다(MEDIAN_WINDOW).
+
+        한 달치만 쓰면 거래가 적은 구에서 어느 단지가 거래됐냐에 따라 값이
+        통째로 흔들린다 — 금천구 2026-06 이 -13% 찍었다 다음 달 되돌아온 게
+        그 경우였다.
+        """
+        out = self._run({
+            "2026-04": [_trade(price="100000")],
+            "2026-05": [_trade(price="100000")],
+            "2026-06": [_trade(price="400000")],
+        })
+        med = out["series"]["all"]["11680"]["med"]
+        # 3개월을 모으면 [3935, 3935, 15741] 의 중위 = 3935.
+        # 그 달만 쓰면 15741 이 그대로 나왔을 것이다.
+        self.assertEqual(med[2], 3935)
+
+    def test_trade_count_stays_monthly(self) -> None:
+        """창을 넓힌 건 가격이지 거래량이 아니다. n 은 그 달 실제 건수다."""
+        out = self._run({
+            "2026-05": [_trade(), _trade()],
+            "2026-06": [_trade()],
+        })
+        self.assertEqual(out["series"]["all"]["11680"]["n"], [2, 1])
+
+    def test_window_does_not_reach_before_first_month(self) -> None:
+        """첫 달은 앞이 없으니 그 달 것만 쓴다."""
+        out = self._run({"2026-06": [_trade(price="100000")]})
+        self.assertEqual(out["series"]["all"]["11680"]["med"][0], 3935)
+
     def test_household_filter_splits_series(self) -> None:
         rows = [_trade(), _trade(apt="없는단지", jibun="9999-9999", price="50000")]
         out = self._run({"2026-06": rows})
