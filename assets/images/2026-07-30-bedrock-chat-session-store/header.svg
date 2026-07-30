@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="DynamoDB 세션 스토어에 대화 메시지를 블록 원문 그대로 쌓고 다시 재조립해 Bedrock 으로 보내는 구조 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#12203a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="104" font-size="41" font-weight="800" fill="#f8fafc">대화 저장소 — <tspan fill="#38bdf8">DynamoDB 세션 스토어</tspan></text>
+  <text class="ko" x="82" y="148" font-size="22" font-weight="500" fill="#94a3b8">텍스트만 뽑아 저장하면 다음 턴에 400 이 납니다. 블록 원문을 그대로 쌓아요.</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="70"  y="230" width="216" height="110" rx="16" fill="#10233a" stroke="#38bdf8" stroke-width="3"/>
+    <text x="178" y="272" font-size="20" font-weight="800" fill="#7dd3fc">사용자 턴</text>
+    <text x="178" y="304" font-size="15" font-weight="500" fill="#cbd5e1">text 블록</text>
+
+    <line x1="296" y1="285" x2="338" y2="285" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="348" y="230" width="264" height="110" rx="16" fill="#1b1a33" stroke="#818cf8" stroke-width="3"/>
+    <text x="480" y="266" font-size="20" font-weight="800" fill="#a5b4fc">append (원문 그대로)</text>
+    <text x="480" y="298" font-size="15" font-weight="500" fill="#cbd5e1">PK=SESSION#id · SK=MSG#seq</text>
+    <text x="480" y="322" font-size="14" font-weight="500" fill="#64748b">tool_use · thinking 포함</text>
+
+    <line x1="622" y1="285" x2="664" y2="285" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="674" y="230" width="216" height="110" rx="16" fill="#231a30" stroke="#c084fc" stroke-width="3"/>
+    <text x="782" y="272" font-size="20" font-weight="800" fill="#d8b4fe">재조립</text>
+    <text x="782" y="304" font-size="15" font-weight="500" fill="#cbd5e1">seq 정렬 · 짝 검증</text>
+
+    <line x1="900" y1="285" x2="942" y2="285" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="952" y="230" width="178" height="110" rx="16" fill="#0f2a22" stroke="#22c55e" stroke-width="3"/>
+    <text x="1041" y="272" font-size="20" font-weight="800" fill="#86efac">Bedrock</text>
+    <text x="1041" y="304" font-size="15" font-weight="500" fill="#cbd5e1">messages 전체</text>
+  </g>
+
+  <text class="ko" x="80" y="392" font-size="16" font-weight="500" fill="#475569">tool_use ↔ tool_result 는 언제나 한 쌍 · 400KB 넘는 결과는 S3 로 밀어내기</text>
+</svg>

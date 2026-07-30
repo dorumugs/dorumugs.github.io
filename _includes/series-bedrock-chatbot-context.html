@@ -1,0 +1,10 @@
+{%- assign c = include.current -%}
+<div class="notice--info">
+  <p><strong>🧠 AWS Bedrock 챗봇 — 대화 맥락 유지 설계 4부작</strong> — Bedrock 으로 챗봇을 만들면 가장 먼저 부딪히는 벽이 <em>“모델이 대화를 하나도 기억하지 못한다”</em> 예요. API 가 스테이트리스라서 맥락은 전부 우리가 들고 다녀야 하죠. 이 시리즈는 그 맥락을 <strong>어디에 쌓고(저장), 어떻게 싸게 다시 보내고(캐싱), 넘칠 때 어떻게 줄이는지(압축)</strong> 를 순서대로 설계합니다. 전체 그림과 Bedrock 특유의 제약을 먼저 잡고(1편), DynamoDB 세션 스토어와 메시지 스키마를 짜고(2편), 프롬프트 캐싱으로 재전송 비용을 걷어내고(3편), 컨텍스트 한계에서 압축·요약·장기기억으로 버티는 것(4편)까지 이어집니다. 전체 4편.</p>
+  <ol>
+    <li>{% if c == "1" %}<strong>대화 맥락은 어떻게 유지하나 — 전체 설계도</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_챗봇_맥락유지_전체설계/">대화 맥락은 어떻게 유지하나 — 전체 설계도</a>{% endif %}</li>
+    <li>{% if c == "2" %}<strong>대화 저장소 — DynamoDB 세션 스토어와 메시지 스키마</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_챗봇_대화저장소_DynamoDB_세션스토어/">대화 저장소 — DynamoDB 세션 스토어와 메시지 스키마</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>프롬프트 캐싱 — 같은 히스토리를 매번 보내면서 돈 아끼기</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_챗봇_프롬프트캐싱_비용절감/">프롬프트 캐싱 — 같은 히스토리를 매번 보내면서 돈 아끼기</a>{% endif %}</li>
+    <li>{% if c == "4" %}<strong>컨텍스트가 꽉 찰 때 — 압축·정리·요약과 장기 기억</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_챗봇_컨텍스트한계_압축_장기기억/">컨텍스트가 꽉 찰 때 — 압축·정리·요약과 장기 기억</a>{% endif %}</li>
+  </ol>
+</div>
