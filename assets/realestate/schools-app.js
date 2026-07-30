@@ -115,10 +115,33 @@ function progCell(school) {
 
 // 선택된 학교가 없을 때(첫 진입, 탭 전환, "목록으로") 지금 뷰의 학교를 전부
 // 표로 뿌린다. 시군구 → 학교명 순으로 정렬해 순서가 매번 안정적이게 한다.
+// 목록의 기본 정렬 값. 진학률이 있으면 그 값(높은 순), 없으면 null.
+function progRate(school) {
+  if (!progSchools || !PROG_LEVELS.has(school.lvl)) return null;
+  const p = progOf(school);
+  if (!p) return null;
+  for (let i = p.r.length - 1; i >= 0; i -= 1) if (p.r[i] != null) return p.r[i];
+  return null;
+}
+
 function renderList() {
-  const list = visibleSchools()
-    .slice()
-    .sort((a, b) => sggLabel(a).localeCompare(sggLabel(b), 'ko') || a.name.localeCompare(b.name, 'ko'));
+  const byPlace = (a, b) => sggLabel(a).localeCompare(sggLabel(b), 'ko')
+    || a.name.localeCompare(b.name, 'ko');
+  const all = visibleSchools().slice();
+  // 진학률이 보이는 목록은 높은 순으로 시작한다 — 이 표를 보는 이유가
+  // 대체로 그것이기 때문이다. 값이 없는 학교(사립초·특목고·미공시)는 방향과
+  // 무관하게 뒤로 보내고, 그 안에서는 시군구·이름 순을 유지한다.
+  const sortable = progSchools && all.some((s) => progRate(s) != null);
+  const list = sortable
+    ? all.sort((a, b) => {
+      const ra = progRate(a);
+      const rb = progRate(b);
+      if (ra == null && rb == null) return byPlace(a, b);
+      if (ra == null) return 1;
+      if (rb == null) return -1;
+      return rb - ra || byPlace(a, b);
+    })
+    : all.sort(byPlace);
   currentList = list;
 
   root.querySelector('.re-panel-title').textContent =
@@ -157,6 +180,15 @@ function renderList() {
     ? `${head}<tbody>${body}</tbody>`
     : `${head}<tbody><tr><td colspan="${cols}">이 조건에는 표시할 학교가 없습니다.</td></tr></tbody>`;
   makeSortable(table);
+  // 지금 정렬 상태를 머리글에도 표시한다 — 화살표가 없으면 사용자는 이 표가
+  // 이름 순인지 값 순인지 알 수 없다. 다시 누르면 오름차순으로 뒤집힌다.
+  if (sortable && showProg) {
+    const th = table.querySelectorAll('thead th')[5];
+    if (th) {
+      th.setAttribute('aria-sort', 'descending');
+      th.classList.add('is-desc');
+    }
+  }
 }
 
 // 고른 중학교를 "최신연도 진학률이 가장 가까운" 학교 3곳과 함께 그린다.
