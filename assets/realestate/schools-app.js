@@ -56,15 +56,17 @@ function normName(name) {
 // 자리에 <wbr>(줄바꿈 기회)만 넣어, 넓은 화면에서는 한 줄로 두고 좁을 때만
 // 그 자리에서 접히게 한다.
 //
-//   단국대학교|사범대학부속중학교      '대학교' 뒤
+//   단국대학교|사범대학부속|중학교     '대학교' 와 '사범대학부속' 뒤
 //   이화여자|외국어고등학교            '대학교' 가 없는 '이화여자…' 는 그 뒤
 //
-// 15곳이 '대학교' 를, 3곳이 '이화여자' 를 달고 있다.
+// 15곳이 '대학교' 를, 12곳이 '사범대학부속' 을, 3곳이 '이화여자' 를 달고 있다.
+// 기회를 여러 곳에 두면 열 폭에 따라 두 줄이든 세 줄이든 알아서 맞춘다.
 function schoolNameHtml(name) {
-  const safe = esc(name);
-  if (safe.includes('대학교')) return safe.replace('대학교', '대학교<wbr>');
-  if (safe.startsWith('이화여자')) return safe.replace('이화여자', '이화여자<wbr>');
-  return safe;
+  let out = esc(name);
+  if (out.includes('대학교')) out = out.replace('대학교', '대학교<wbr>');
+  else if (out.startsWith('이화여자')) out = out.replace('이화여자', '이화여자<wbr>');
+  if (out.includes('사범대학부속')) out = out.replace('사범대학부속', '사범대학부속<wbr>');
+  return out;
 }
 
 function progOf(school) {

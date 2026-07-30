@@ -156,7 +156,9 @@ table.re-table tr.is-group td { border-top: 1px solid var(--re-border); }
 @media (max-width: 720px) {
   .re-app.is-schools table.re-table td:first-child,
   .re-app.is-schools table.re-table th:first-child {
-    max-width: 120px;
+    /* '사범대학부속' 뒤에도 줄바꿈 기회가 있으므로 상한을 더 좁혀도 글자
+       중간이 잘리지 않는다. 좁힌 만큼 다른 열이 여유를 얻는다. */
+    max-width: 96px;
   }
   /* 위 상한만으로는 표가 화면보다 11px 넓어 가로로 밀린다. 실거래 랭킹 표와
      같은 폭으로 여백을 줄여 안에 들어오게 한다. */
