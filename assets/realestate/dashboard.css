@@ -76,7 +76,11 @@
   box-shadow: 0 4px 14px rgba(61, 65, 68, 0.14);
 }
 
+/* 그리드 칸은 기본값이 min-width:auto 라 안의 표가 넓어지면 칸 자체가 늘어난다
+   — 그러면 .re-chart 의 overflow-x:auto 가 발동하지 못하고 .re-app 의
+   overflow-x:hidden 에 잘린다. 칸을 0까지 줄어들 수 있게 해야 안에서 스크롤된다. */
 .re-body { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 20px; align-items: start; }
+.re-body > * { min-width: 0; }
 .re-map-wrap { position: relative; }
 svg.re-map { width: 100%; height: auto; display: block; }
 svg.re-map path {
@@ -159,6 +163,11 @@ table.re-table tr.re-list-row:focus-visible {
   border: 1px solid var(--re-line); border-radius: 999px; padding: 1px 7px; margin-right: 6px;
 }
 
+/* 랜딩 랭킹 표는 .re-table-wrap 밖(.re-chart 안)에 있다. 열이 늘어 좁은
+   화면에서 컨테이너보다 넓어지면 .re-app 의 overflow-x:hidden 에 그대로
+   잘려 나가므로(실제로 추이 열이 잘렸다) 여기서 가로 스크롤을 준다.
+   구 상세의 추이 차트 SVG 는 width:100% 라 넘칠 일이 없다. */
+.re-chart { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .re-chart svg { width: 100%; height: auto; display: block; }
 .re-error { font-size: 12.5px; color: var(--re-ink2); margin: 0; }
 

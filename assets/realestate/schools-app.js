@@ -212,11 +212,16 @@ function renderPeerChart(school) {
     for (let i = p.r.length - 1; i >= 0; i -= 1) if (p.r[i] != null) return p.r[i];
     return null;
   };
+  // 비율만으로는 몇 명인지 알 수 없다 — 졸업생 40명인 학교의 10%와 300명인
+  // 학교의 10%는 다른 이야기다. 선 끝과 범례 모두에 진학자 수를 함께 적는다.
+  const count = (p) => (p.n != null ? `${p.n.toLocaleString()}명` : '');
   const series = [me, ...peers].map((p, i) => ({
     // 범례에도 최신 값을 적는다 — 선 끝 숫자와 이름을 눈으로 잇기 쉬워진다.
-    label: `${p.name}${p === me ? ' (선택)' : ''} ${last(p).toFixed(1)}%`,
+    label: `${p.name}${p === me ? ' (선택)' : ''} ${last(p).toFixed(1)}%`
+      + (count(p) ? ` · ${count(p)}` : ''),
     color: CATEGORICAL[i % CATEGORICAL.length],
     values: p.r,
+    endNote: count(p),
   }));
   // 값이 비슷한 학교만 모아 그리므로 계열명까지 적으면 라벨이 포개진다. 선
   // 끝에는 숫자만 찍고(겹치면 차트가 세로로 밀어낸다) 이름은 아래 범례가 맡는다.

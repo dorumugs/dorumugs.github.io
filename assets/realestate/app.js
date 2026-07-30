@@ -97,6 +97,10 @@ function metricValue(code, metric, index) {
   return (now / before - 1) * 100;
 }
 
+// 퍼센트로 읽는 파생 값(고점 대비)을 formatMetric 에 태우기 위한 최소 스펙.
+// METRICS 에 넣지 않는 이유는 지도 색을 칠하는 지표가 아니기 때문이다.
+const RATIO_SPEC = { kind: 'diverging' };
+
 // 지도 툴팁과 랜딩 랭킹표가 같은 문구를 쓰게 한 곳에 모은다.
 function formatMetric(v, spec) {
   if (!Number.isFinite(v)) return '자료 없음';
@@ -232,10 +236,17 @@ function renderLanding(raw, spec, index) {
       const name = summary.sgg[code].name;
       // 중위값은 지도·툴팁과 같은 metricValue() 로 뽑는다. 여기서 series.med 를
       // 직접 읽으면 나중에 계산이 바뀔 때 두 곳이 조용히 어긋난다.
-      const level = dupLevel ? null : metricValue(code, 'level', index);
+      const level = metricValue(code, 'level', index);
       const pk = peakOf(code);
-      const levelCell = `<td class="is-num">${formatMetric(level, levelSpec)}</td>`;
+      // 고점 대비 = 기준월 중위 평당가가 전 구간 고점에서 몇 % 떨어져 있나.
+      // 옆의 '중위 고점' 열과 같은 전 구간 기준이다 — 지표 셀렉트의 '전고점
+      // 대비'는 기준월까지만 보는 값이라 과거 월을 고르면 서로 달라진다.
+      const fromPeak = (Number.isFinite(level) && pk && pk.value > 0)
+        ? (level / pk.value - 1) * 100
+        : null;
+      const levelCell = `<td class="is-num">${formatMetric(dupLevel ? null : level, levelSpec)}</td>`;
       const peakCell = `<td class="is-num is-peak">${formatMetric(pk && pk.value, levelSpec)}</td>`;
+      const fromPeakCell = `<td class="is-num is-dim">${formatMetric(fromPeak, RATIO_SPEC)}</td>`;
       const metricCell = `<td class="is-num">${formatMetric(v, spec)}</td>`;
       // 열 순서는 언제나 "지금 값 → 고점 → 지표". 지표가 중위 평당가일 때는
       // 지표 열이 곧 지금 값이므로 그 열을 앞에 두고 고점을 뒤에 붙인다 —
@@ -244,7 +255,9 @@ function renderLanding(raw, spec, index) {
         + `role="button" aria-label="${esc(name)} 상세 보기">`
         + `<td class="is-num is-dim">${i + 1}</td>`
         + `<td>${esc(name)}</td>`
-        + (dupLevel ? metricCell + peakCell : levelCell + peakCell + metricCell)
+        + (dupLevel
+          ? metricCell + peakCell + fromPeakCell
+          : levelCell + peakCell + fromPeakCell + metricCell)
         + `<td class="is-spark">${sparkline(code, index)}</td></tr>`;
     })
     .join('');
@@ -252,10 +265,13 @@ function renderLanding(raw, spec, index) {
   // 헤더도 본문과 같은 순서 규칙을 따른다(지금 값 → 고점 → 지표).
   const levelTh = `<th class="is-num">${levelSpec.label}</th>`;
   const peakTh = '<th class="is-num is-peak">중위 고점</th>';
+  const fromPeakTh = '<th class="is-num">고점 대비</th>';
   const metricTh = `<th class="is-num">${spec.label}</th>`;
   root.querySelector('.re-chart').innerHTML = rows
     ? `<table class="re-table is-landing"><thead><tr><th></th><th>시군구</th>`
-      + (dupLevel ? metricTh + peakTh : levelTh + peakTh + metricTh)
+      + (dupLevel
+        ? metricTh + peakTh + fromPeakTh
+        : levelTh + peakTh + fromPeakTh + metricTh)
       + `<th class="is-spark no-sort">추이 ${since}~</th></tr></thead><tbody>${rows}</tbody></table>`
     : '<p class="re-error">표시할 데이터가 없습니다.</p>';
   // 순위 열(0번)은 정렬 뒤 다시 매긴다 — 지금 순서를 뜻하는 칸이기 때문이다.

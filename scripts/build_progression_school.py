@@ -116,6 +116,7 @@ def build(rows: list[dict], generated: str, places: dict | None = None) -> dict:
             "sgg_cd": row["sgg_code"][:5],
             "rates": {},
             "grad": {},
+            "adv": {},
         })
         if len(row["sgg"]) > len(entry["sgg"]):
             entry["sgg"] = row["sgg"]
@@ -126,6 +127,9 @@ def build(rows: list[dict], generated: str, places: dict | None = None) -> dict:
             continue
         entry["rates"][row["year"]] = round(rate, 1)
         entry["grad"][row["year"]] = data["grad"]
+        # 비율만으로는 몇 명인지 알 수 없다. 화면에서 "11.0% · 24명" 처럼
+        # 함께 보여주려고 분자(특목고 소계 + 자율고 소계)를 같이 담는다.
+        entry["adv"][row["year"]] = data["special_sum"] + data["auto_sum"]
 
     places = places or {}
     out = []
@@ -139,6 +143,7 @@ def build(rows: list[dict], generated: str, places: dict | None = None) -> dict:
             # 연도 순서는 years 와 같다. 없는 해는 null.
             "r": [entry["rates"].get(y) for y in years],
             "g": entry["grad"].get(last),
+            "n": entry["adv"].get(last),
         }
         # 위치 데이터에서 법정동을 찾으면 시군구도 그쪽 값으로 맞춘다 — 아파트
         # 시세는 시군구별 JSON 에서 읽으므로 두 값이 같은 출처라야 안 어긋난다.
