@@ -3,6 +3,7 @@ import { initMap } from './map.js';
 import { initSchoolLayer } from './schoolmap.js';
 import { NO_DATA, CATEGORICAL } from './palette.js';
 import { multiLineChart, legendHtml } from './charts.js';
+import { makeSortable } from './sorttable.js';
 
 const root = document.querySelector('.re-app');
 setBase(root.dataset.base);
@@ -139,19 +140,23 @@ function renderList() {
   // 때 값이 전부 '—' 인 빈 열이 자리를 차지하면 좁은 화면에서 손해다.
   const showProg = progSchools && list.some((s) => PROG_LEVELS.has(s.lvl));
   const progYear = showProg ? progSchools.years[progSchools.years.length - 1] : '';
-  const head = '<thead><tr><th>학교명</th><th>학교급</th><th>시군구</th><th>법정동</th>'
+  // '전체' 탭에서는 초·중·국제중·특목고가 섞여 나온다. 학교급만으로는 사립인지
+  // 공립인지 알 수 없어(특목고에는 서울과학고 같은 공립이 있다) 설립 구분을
+  // 따로 보여준다.
+  const head = '<thead><tr><th>학교명</th><th>학교급</th><th>설립</th><th>시군구</th><th>법정동</th>'
     + (showProg ? `<th class="is-num">특목·자사고<br>진학률 ${progYear}</th>` : '')
     + '</tr></thead>';
   const body = list.map((s, i) => `<tr class="re-list-row" data-idx="${i}" tabindex="0" `
     + `role="button" aria-label="${esc(s.name)} 시세 보기">`
-    + `<td>${esc(s.name)}</td><td>${esc(s.lvl)}</td>`
+    + `<td>${esc(s.name)}</td><td>${esc(s.lvl)}</td><td>${esc(s.found)}</td>`
     + `<td>${esc(sggLabel(s))}</td><td>${esc(s.dong)}</td>`
     + (showProg ? `<td class="is-num">${progCell(s)}</td>` : '')
     + '</tr>').join('');
-  const cols = showProg ? 5 : 4;
+  const cols = showProg ? 6 : 5;
   table.innerHTML = list.length
     ? `${head}<tbody>${body}</tbody>`
     : `${head}<tbody><tr><td colspan="${cols}">이 조건에는 표시할 학교가 없습니다.</td></tr></tbody>`;
+  makeSortable(table);
 }
 
 // 고른 중학교를 "최신연도 진학률이 가장 가까운" 학교 3곳과 함께 그린다.
@@ -283,9 +288,11 @@ async function selectSchool(school) {
       + '<th class="is-num">거래</th></tr></thead>';
     // 같은 학교의 두 번째 행부터는 학교명·법정동을 비워 둔다 — 같은 값을
     // 반복해 적으면 어디서 학교가 바뀌는지 오히려 안 보인다.
+    // 묶음 표라 같은 학교의 둘째 행부터는 칸을 비워 두는데, 그러면 그 열로
+    // 정렬할 때 빈 값이 섞인다. 보이지 않는 값은 data-sort 로 넘겨 준다.
     const body = rows.map((c) => `<tr${c.first ? ' class="is-group"' : ''}>`
-      + `<td>${c.first ? `${esc(c.school.name)}${c.school.self ? '<span class="re-self">선택</span>' : ''}` : ''}</td>`
-      + `<td>${c.first ? esc(placeLabel(c.school)) : ''}</td>`
+      + `<td data-sort="${esc(c.school.name)}">${c.first ? `${esc(c.school.name)}${c.school.self ? '<span class="re-self">선택</span>' : ''}` : ''}</td>`
+      + `<td data-sort="${esc(placeLabel(c.school))}">${c.first ? esc(placeLabel(c.school)) : ''}</td>`
       + `<td>${esc(c.name)}</td>`
       + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`
       + `<td class="is-num is-dim">${c.hh != null ? c.hh.toLocaleString() : '—'}</td>`
@@ -294,6 +301,7 @@ async function selectSchool(school) {
       ? `${head}<tbody>${body}</tbody>`
       : `${head}<tbody><tr><td colspan="6">${esc(school.dong)}에 거래 `
         + '5건 이상 단지가 없습니다.</td></tr></tbody>';
+    makeSortable(table);
 
     if (noteEl) {
       // 기간과 기준을 표에 붙여 둔다 — 숫자만 있으면 "언제 거래인지, 평당가가
@@ -327,12 +335,24 @@ function renderProgression(data) {
     return;
   }
 
+  // 비율 옆에 그해 진학자 수를 함께 적는다 — 11.9% 가 몇 명인지가 안 보이면
+  // 서울(6만 명 졸업)과 경기(12만 명 졸업)를 같은 자로 읽게 된다.
+  const lastNum = (key) => {
+    const num = data.regions[key].num;
+    for (let i = num.length - 1; i >= 0; i -= 1) {
+      if (num[i] != null) return `${num[i].toLocaleString()}명`;
+    }
+    return '';
+  };
   const rateSeries = PROG_REGIONS.map(({ key, color }) => ({
-    label: key, color, values: data.regions[key].rate,
+    label: key, color, values: data.regions[key].rate, endNote: lastNum(key),
   }));
   chartEl.innerHTML = multiLineChart(data.years, rateSeries, { unit: '%', decimals: 1 });
   chartEl.setAttribute('aria-label', '서울·경기 특목고·자사고 진학률 추이');
-  legendEl.innerHTML = legendHtml(rateSeries);
+  legendEl.innerHTML = legendHtml(rateSeries.map((r) => ({
+    ...r,
+    label: `${r.label} ${r.values[r.values.length - 1].toFixed(1)}% · ${r.endNote}`,
+  })));
 
   // 진학률만 보면 분모(졸업자 수)가 줄어드는 건 안 보인다 — 같은 15%도 10만
   // 명 중 15%와 5만 명 중 15%는 다른 이야기다. 시작 연도·끝 연도의 졸업자

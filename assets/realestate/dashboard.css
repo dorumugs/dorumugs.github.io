@@ -224,3 +224,25 @@ table.re-table th.is-peak::before {
   .re-kpis { grid-template-columns: 1fr; }
   .re-controls { align-items: flex-start; }
 }
+
+/* 정렬 가능한 표 머리글(sorttable.js). 누를 수 있다는 것과 지금 어느 열로
+   어느 방향으로 정렬돼 있는지를 화살표로 알린다 — aria-sort 를 함께 쓰므로
+   스크린리더에도 같은 정보가 간다. */
+table.re-table th.is-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+table.re-table th.is-sortable:hover { color: var(--re-line); }
+table.re-table th.is-sortable:focus-visible {
+  outline: 2px solid var(--re-line);
+  outline-offset: -2px;
+}
+table.re-table th.is-sortable::after {
+  content: '\2195';
+  font-size: 9px;
+  margin-left: 3px;
+  opacity: 0.35;
+}
+table.re-table th.is-asc::after { content: '\2191'; opacity: 1; color: var(--re-line); }
+table.re-table th.is-desc::after { content: '\2193'; opacity: 1; color: var(--re-line); }

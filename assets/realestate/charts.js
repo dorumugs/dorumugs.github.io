@@ -1,4 +1,5 @@
 import { LINE, GRID, AXIS, MUTED, INK, SURFACE, CATEGORICAL } from './palette.js';
+import { makeSortable } from './sorttable.js';
 
 const W = 520, H = 190, PAD_L = 46, PAD_R = 10, PAD_T = 12, PAD_B = 24;
 
@@ -165,9 +166,12 @@ export function multiLineChart(categories, series,
           x: lx - 7,
           y: ly - 9,
           color: s.color,
-          text: endLabels === 'value'
+          // endNote 는 비율 옆에 실제 건수를 같이 보여줄 때 쓴다 — 비율만으로는
+          // 분자가 몇 명인지 알 수 없다.
+          text: (endLabels === 'value'
             ? fmt(s.values[lastIdx])
-            : `${esc(s.label)} ${fmt(s.values[lastIdx])}`,
+            : `${esc(s.label)} ${fmt(s.values[lastIdx])}`)
+            + (s.endNote ? ` ${esc(s.endNote)}` : ''),
         });
       }
     }
@@ -360,7 +364,7 @@ function renderTable(root, detail, state) {
   const rows = detail.complexes
     .filter((c) => c.n >= 5 && (!min300 || (c.hh != null && c.hh >= 300)))
     .slice(0, 30);
-  const head = '<thead><tr><th></th><th>단지</th><th>법정동</th>'
+  const head = '<thead><tr><th class="no-sort"></th><th>단지</th><th>법정동</th>'
     + '<th class="is-num">평당가(만원)</th><th class="is-num">세대</th>'
     + '<th class="is-num">거래</th></tr></thead>';
   const body = rows.map((c, i) => `<tr><td class="is-num is-dim">${i + 1}</td>`
@@ -368,7 +372,9 @@ function renderTable(root, detail, state) {
     + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`
     + `<td class="is-num is-dim">${c.hh != null ? c.hh.toLocaleString() : '—'}</td>`
     + `<td class="is-num is-dim">${c.n.toLocaleString()}</td></tr>`).join('');
-  root.querySelector('.re-table').innerHTML = rows.length
+  const table = root.querySelector('.re-table');
+  table.innerHTML = rows.length
     ? `${head}<tbody>${body}</tbody>`
     : `${head}<tbody><tr><td colspan="6">최근 12개월 거래 5건 이상 단지가 없습니다.</td></tr></tbody>`;
+  makeSortable(table, { rankColumn: 0 });
 }

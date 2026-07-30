@@ -3,6 +3,7 @@ import { initMap } from './map.js';
 import {
   divergingColor, sequentialColor, DIVERGING, SEQUENTIAL, INK2, LINE, DOWN,
 } from './palette.js';
+import { makeSortable } from './sorttable.js';
 
 const root = document.querySelector('.re-app');
 setBase(root.dataset.base);
@@ -255,8 +256,10 @@ function renderLanding(raw, spec, index) {
   root.querySelector('.re-chart').innerHTML = rows
     ? `<table class="re-table is-landing"><thead><tr><th></th><th>시군구</th>`
       + (dupLevel ? metricTh + peakTh : levelTh + peakTh + metricTh)
-      + `<th class="is-spark">추이 ${since}~</th></tr></thead><tbody>${rows}</tbody></table>`
+      + `<th class="is-spark no-sort">추이 ${since}~</th></tr></thead><tbody>${rows}</tbody></table>`
     : '<p class="re-error">표시할 데이터가 없습니다.</p>';
+  // 순위 열(0번)은 정렬 뒤 다시 매긴다 — 지금 순서를 뜻하는 칸이기 때문이다.
+  makeSortable(root.querySelector('.re-chart .re-table'), { rankColumn: 0 });
 }
 
 // 지도 구를 가리켰을 때(map.js 의 onHover) 랭킹 표의 해당 행을 표시한다 —
