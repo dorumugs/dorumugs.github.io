@@ -556,9 +556,13 @@ async function start() {
       '<p class="re-error">잠시 후 새로고침해 주세요.</p>';
     return;
   }
-  // 마지막 달은 신고가 덜 들어와 항상 미완성이다. 직전 완료 월을 기본으로 둔다.
+  // 기본 기준월은 가장 최근 달이다. 신고 지연으로 아직 다 채워지지 않았지만
+  // (기준월 선택에 '(집계 중)' 으로 표시된다) 최신 상황을 보려고 들어오는
+  // 화면이라 직전 달을 기본으로 두면 한 달 늦은 값을 보게 된다.
+  // 중위값이 최근 3개월을 모아 낸 값이라, 마지막 달이라도 앞의 두 달이 함께
+  // 들어가 예전만큼 얇지 않다.
   const last = summary.months.length - 1;
-  state.ym = summary.months[Math.max(0, last - 1)];
+  state.ym = summary.months[last];
   readParams();
 
   map = initMap(root, { onSelect: selectSgg, onHover: highlightRankRow });
