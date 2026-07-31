@@ -1,0 +1,262 @@
+{
+ "displayFieldName": "PRESENT_SN",
+ "fieldAliases": {
+  "OBJECTID": "OBJECTID",
+  "PRESENT_SN": "PRESENT_SN",
+  "LCLAS_CL": "LCLAS_CL",
+  "MLSFC_CL": "MLSFC_CL",
+  "SCLAS_CL": "SCLAS_CL",
+  "ATRB_SE": "ATRB_SE",
+  "WTNNC_SN": "WTNNC_SN",
+  "NTFC_SN": "NTFC_SN",
+  "DGM_NM": "DGM_NM",
+  "DGM_AR": "DGM_AR",
+  "DGM_LT": "DGM_LT",
+  "SIGNGU_SE": "SIGNGU_SE",
+  "DRAWING_NO": "DRAWING_NO",
+  "CREATE_DAT": "CREATE_DAT",
+  "PROPEL_CD": "PROPEL_CD",
+  "GRP": "GRP",
+  "SHAPE.AREA": "SHAPE.AREA",
+  "SHAPE.LEN": "SHAPE.LEN"
+ },
+ "fields": [
+  {
+   "name": "OBJECTID",
+   "type": "esriFieldTypeOID",
+   "alias": "OBJECTID"
+  },
+  {
+   "name": "PRESENT_SN",
+   "type": "esriFieldTypeString",
+   "alias": "PRESENT_SN",
+   "length": 50
+  },
+  {
+   "name": "LCLAS_CL",
+   "type": "esriFieldTypeString",
+   "alias": "LCLAS_CL",
+   "length": 6
+  },
+  {
+   "name": "MLSFC_CL",
+   "type": "esriFieldTypeString",
+   "alias": "MLSFC_CL",
+   "length": 6
+  },
+  {
+   "name": "SCLAS_CL",
+   "type": "esriFieldTypeString",
+   "alias": "SCLAS_CL",
+   "length": 12
+  },
+  {
+   "name": "ATRB_SE",
+   "type": "esriFieldTypeString",
+   "alias": "ATRB_SE",
+   "length": 6
+  },
+  {
+   "name": "WTNNC_SN",
+   "type": "esriFieldTypeString",
+   "alias": "WTNNC_SN",
+   "length": 20
+  },
+  {
+   "name": "NTFC_SN",
+   "type": "esriFieldTypeString",
+   "alias": "NTFC_SN",
+   "length": 20
+  },
+  {
+   "name": "DGM_NM",
+   "type": "esriFieldTypeString",
+   "alias": "DGM_NM",
+   "length": 200
+  },
+  {
+   "name": "DGM_AR",
+   "type": "esriFieldTypeDouble",
+   "alias": "DGM_AR"
+  },
+  {
+   "name": "DGM_LT",
+   "type": "esriFieldTypeDouble",
+   "alias": "DGM_LT"
+  },
+  {
+   "name": "SIGNGU_SE",
+   "type": "esriFieldTypeString",
+   "alias": "SIGNGU_SE",
+   "length": 5
+  },
+  {
+   "name": "DRAWING_NO",
+   "type": "esriFieldTypeString",
+   "alias": "DRAWING_NO",
+   "length": 254
+  },
+  {
+   "name": "CREATE_DAT",
+   "type": "esriFieldTypeDate",
+   "alias": "CREATE_DAT",
+   "length": 8
+  },
+  {
+   "name": "PROPEL_CD",
+   "type": "esriFieldTypeString",
+   "alias": "PROPEL_CD",
+   "length": 7
+  },
+  {
+   "name": "GRP",
+   "type": "esriFieldTypeString",
+   "alias": "GRP",
+   "length": 100
+  },
+  {
+   "name": "SHAPE.AREA",
+   "type": "esriFieldTypeDouble",
+   "alias": "SHAPE.AREA"
+  },
+  {
+   "name": "SHAPE.LEN",
+   "type": "esriFieldTypeDouble",
+   "alias": "SHAPE.LEN"
+  }
+ ],
+ "features": [
+  {
+   "attributes": {
+    "OBJECTID": 121164,
+    "PRESENT_SN": "11140UQ120PS202607060001",
+    "LCLAS_CL": "BZ100",
+    "MLSFC_CL": null,
+    "SCLAS_CL": "BZ103",
+    "ATRB_SE": "BZ103",
+    "WTNNC_SN": null,
+    "NTFC_SN": null,
+    "DGM_NM": "신당10",
+    "DGM_AR": 47795.1,
+    "DGM_LT": 0.0,
+    "SIGNGU_SE": "11140",
+    "DRAWING_NO": null,
+    "CREATE_DAT": 1783358701000,
+    "PROPEL_CD": "PP0206",
+    "GRP": null,
+    "SHAPE.AREA": 63893.31030447,
+    "SHAPE.LEN": 1432.461017027
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 121189,
+    "PRESENT_SN": "11200UQ120PS202607220001",
+    "LCLAS_CL": "BZ100",
+    "MLSFC_CL": null,
+    "SCLAS_CL": "BZ103",
+    "ATRB_SE": "BZ103",
+    "WTNNC_SN": null,
+    "NTFC_SN": null,
+    "DGM_NM": "사근동 293번지 일대 주택정비형 재개발사업",
+    "DGM_AR": 30300.0,
+    "DGM_LT": 0.0,
+    "SIGNGU_SE": "11200",
+    "DRAWING_NO": null,
+    "CREATE_DAT": 1784732544000,
+    "PROPEL_CD": "PP0203",
+    "GRP": null,
+    "SHAPE.AREA": 30301.633376265,
+    "SHAPE.LEN": 966.1414158532261
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 121190,
+    "PRESENT_SN": "11620UQ120PS202607220001",
+    "LCLAS_CL": "BZ100",
+    "MLSFC_CL": null,
+    "SCLAS_CL": "BZ103",
+    "ATRB_SE": "BZ103",
+    "WTNNC_SN": null,
+    "NTFC_SN": null,
+    "DGM_NM": "봉천14",
+    "DGM_AR": 74264.5,
+    "DGM_LT": 0.0,
+    "SIGNGU_SE": "11620",
+    "DRAWING_NO": null,
+    "CREATE_DAT": 1784739381000,
+    "PROPEL_CD": "PP0208",
+    "GRP": null,
+    "SHAPE.AREA": 73535.486631245,
+    "SHAPE.LEN": 1284.42295531603
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 121139,
+    "PRESENT_SN": "11380UQ120PS202605210003",
+    "LCLAS_CL": "BZ100",
+    "MLSFC_CL": null,
+    "SCLAS_CL": "BZ103",
+    "ATRB_SE": "BZ103",
+    "WTNNC_SN": null,
+    "NTFC_SN": null,
+    "DGM_NM": "신사동237번지일대",
+    "DGM_AR": 55210.0,
+    "DGM_LT": 0.0,
+    "SIGNGU_SE": "11380",
+    "DRAWING_NO": null,
+    "CREATE_DAT": 1784642057000,
+    "PROPEL_CD": "PP0206",
+    "GRP": "GRP203",
+    "SHAPE.AREA": 54712.777394885,
+    "SHAPE.LEN": 1246.01343127118
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 118266,
+    "PRESENT_SN": "11000UQ120PS202503310007",
+    "LCLAS_CL": "BZ100",
+    "MLSFC_CL": null,
+    "SCLAS_CL": "BZ103",
+    "ATRB_SE": "BZ103",
+    "WTNNC_SN": null,
+    "NTFC_SN": null,
+    "DGM_NM": "마천2",
+    "DGM_AR": 0.0,
+    "DGM_LT": 1562.94541588,
+    "SIGNGU_SE": "11710",
+    "DRAWING_NO": null,
+    "CREATE_DAT": 1767139200000,
+    "PROPEL_CD": "PP0204",
+    "GRP": "GRP150",
+    "SHAPE.AREA": 102778.67957862,
+    "SHAPE.LEN": 1562.94541587958
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 118267,
+    "PRESENT_SN": "11000UQ120PS202407232865",
+    "LCLAS_CL": "BZ100",
+    "MLSFC_CL": null,
+    "SCLAS_CL": "BZ103",
+    "ATRB_SE": "BZ103",
+    "WTNNC_SN": null,
+    "NTFC_SN": null,
+    "DGM_NM": "신영1",
+    "DGM_AR": 15589.3,
+    "DGM_LT": 596.74125725,
+    "SIGNGU_SE": "11110",
+    "DRAWING_NO": null,
+    "CREATE_DAT": 1767139200000,
+    "PROPEL_CD": "PP0209",
+    "GRP": null,
+    "SHAPE.AREA": 15589.269463925,
+    "SHAPE.LEN": 596.74125725445
+   }
+  }
+ ]
+}

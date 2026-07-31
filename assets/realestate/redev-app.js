@@ -1,0 +1,323 @@
+// 재개발·재건축 대시보드. 지도(시군구) + 표 세 가지 보기.
+//
+// 세 보기가 데이터 척추를 공유한다:
+//   노후 단지   대지지분·용도지역·연차 (redev/<sgg>.json 의 complexes)
+//   진행 단계   정비사업장과 구역     (redev/<sgg>.json 의 projects/zones)
+//   프리미엄    이벤트 스터디 결과    (redev.json 의 premium, 전역 1회)
+
+import { initMap } from './map.js';
+import { makeSortable } from './sorttable.js';
+import { SEQUENTIAL, NO_DATA, rampColor, UP, DOWN, MUTED } from './palette.js';
+
+const root = document.querySelector('.re-app.is-redev');
+const base = (root.dataset.base || '/assets/realestate').replace(/\/$/, '');
+
+const els = {
+  title: root.querySelector('.re-panel-title'),
+  meta: root.querySelector('.re-panel-meta'),
+  legend: root.querySelector('.re-legend'),
+  tableWrap: root.querySelector('.re-body ~ .re-table-wrap'),
+  table: root.querySelector('.re-body ~ .re-table-wrap .re-table'),
+  note: root.querySelector('.re-note'),
+  premium: root.querySelector('.re-premium'),
+  premiumCards: root.querySelector('.re-premium-cards'),
+  premiumTable: root.querySelector('.re-premium-table'),
+  footnote: root.querySelector('.re-footnote'),
+};
+
+const state = { mode: 'complexes', view: 'seoul', sgg: null, summary: null };
+const sggCache = new Map();
+
+async function getJson(url) {
+  const res = await fetch(url, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`${url} → HTTP ${res.status}`);
+  return res.json();
+}
+
+function loadSgg(code) {
+  if (!sggCache.has(code)) {
+    sggCache.set(code, getJson(`${base}/redev/${code}.json`).catch((err) => {
+      sggCache.delete(code);
+      throw err;
+    }));
+  }
+  return sggCache.get(code);
+}
+
+// --------------------------------------------------------------------------
+// 표시 헬퍼
+// --------------------------------------------------------------------------
+
+const DASH = '—';
+const fmt = (v, digits = 0) =>
+  v === null || v === undefined ? DASH : v.toLocaleString('ko-KR', { maximumFractionDigits: digits });
+
+function pyeongPrice(v) {
+  return v === null || v === undefined ? DASH : `${Math.round(v).toLocaleString('ko-KR')}만`;
+}
+
+// 진행단계를 사업 순서대로 묶는다. 색은 진행도를 나타내는 순차 램프를 쓴다.
+const STAGE_ORDER = [
+  '정비계획 수립', '정비구역지정', '안전진단', '추진위구성', '추진위원회승인',
+  '조합창립총회', '조합규약작성', '조합원 모집신고', '조합설립인가', '사업시행자지정',
+  '사업시행인가', '관리처분인가', '철거', '철거 및 착공', '착공', '분양',
+  '준공인가', '이전고시', '조합해산', '청산 및 조합해산', '조합청산',
+];
+
+function stageRank(stage) {
+  const i = STAGE_ORDER.indexOf(stage);
+  return i < 0 ? null : i / (STAGE_ORDER.length - 1);
+}
+
+function stageColor(stage) {
+  const t = stageRank(stage);
+  return t === null ? NO_DATA : rampColor(SEQUENTIAL, t);
+}
+
+// --------------------------------------------------------------------------
+// 지도
+// --------------------------------------------------------------------------
+
+const map = initMap(root, {
+  onSelect: (code) => {
+    state.sgg = code;
+    map.setSelected(code);
+    renderPanel();
+  },
+});
+
+function paintMap() {
+  const values = new Map();
+  const per = state.summary?.sgg || {};
+  const key = state.mode === 'projects' ? 'projects' : 'complexes';
+  const codes = map.codesIn(state.view);
+  const counts = codes.map((c) => per[c]?.[key] || 0);
+  const max = Math.max(1, ...counts);
+  for (const code of codes) {
+    const n = per[code]?.[key] || 0;
+    if (!n) continue;
+    values.set(code, {
+      color: rampColor(SEQUENTIAL, n / max),
+      label: `${n}${key === 'projects' ? '개 사업장' : '개 단지'}`,
+    });
+  }
+  map.paint(values);
+}
+
+// --------------------------------------------------------------------------
+// 표
+// --------------------------------------------------------------------------
+
+function renderTable(head, rows, { rankColumn = null } = {}) {
+  els.table.innerHTML =
+    `<thead><tr>${head.map((h) => `<th${h.cls ? ` class="${h.cls}"` : ''}>${h.label}</th>`).join('')}</tr></thead>` +
+    `<tbody>${rows.join('')}</tbody>`;
+  makeSortable(els.table, { rankColumn });
+}
+
+function renderComplexes(detail) {
+  const rows = detail.complexes;
+  const head = [
+    { label: '단지' }, { label: '동' }, { label: '준공' }, { label: '연차' },
+    { label: '세대' }, { label: '대지지분' }, { label: '추정 용적률' },
+    { label: '용도지역' }, { label: '상한' }, { label: '최근 평당가' }, { label: '정비사업' },
+  ];
+  // 추정 용적률이 100% 아래면 등록 필지가 단지보다 넓어 대지지분이 부풀었을 수 있다.
+  // 값을 지우는 대신 표시로 남겨 독자가 스스로 걸러낼 수 있게 한다.
+  const html = rows.map((r) => `<tr>
+    <td class="re-name">${r.name}</td>
+    <td>${r.dong || DASH}</td>
+    <td>${r.year || DASH}</td>
+    <td>${r.age}년</td>
+    <td>${fmt(r.hh)}</td>
+    <td>${r.share === null ? DASH : `${r.share.toFixed(1)}평`}</td>
+    <td${r.far_est && r.far_est < 100 ? ' class="is-doubt" title="등록 필지가 단지 땅보다 넓을 수 있습니다"' : ''}>${
+      r.far_est ? `${r.far_est}%` : DASH}</td>
+    <td>${r.zone || DASH}</td>
+    <td>${r.far ? `${r.far}%` : DASH}</td>
+    <td>${pyeongPrice(r.pp)}</td>
+    <td>${r.stage ? `<span class="re-chip" style="--c:${stageColor(r.stage)}">${r.stage}</span>` : DASH}</td>
+  </tr>`);
+  renderTable(head, html);
+
+  const withLand = rows.filter((r) => r.share !== null).length;
+  els.note.textContent = withLand
+    ? `${rows.length}곳 중 ${withLand}곳에 대지지분이 있습니다. 오래된 순으로 정렬했습니다 — ` +
+      '머리글을 눌러 대지지분 순으로 바꿀 수 있습니다.'
+    : `${rows.length}곳. 이 지역은 대지지분 자료가 없어 연차·세대수·실거래가만 나옵니다.`;
+}
+
+function renderProjects(detail) {
+  const rows = detail.projects;
+  const head = [
+    { label: '사업장' }, { label: '구분' }, { label: '위치' }, { label: '단계' },
+    { label: '조합설립' }, { label: '사업시행' }, { label: '관리처분' },
+  ];
+  const html = rows.map((p) => `<tr${p.suspended ? ' class="is-suspended"' : ''}>
+    <td class="re-name">${p.name}</td>
+    <td>${p.se}</td>
+    <td>${p.addr || DASH}</td>
+    <td>${p.stage ? `<span class="re-chip" style="--c:${stageColor(p.stage)}">${p.stage}</span>` : DASH}</td>
+    <td>${p.milestones?.['조합설립인가'] || DASH}</td>
+    <td>${p.milestones?.['사업시행인가'] || DASH}</td>
+    <td>${p.milestones?.['관리처분인가'] || DASH}</td>
+  </tr>`);
+  renderTable(head, html);
+
+  const suspended = rows.filter((p) => p.suspended).length;
+  els.note.textContent =
+    `사업장 ${rows.length}곳` +
+    (suspended ? ` · 이 중 ${suspended}곳은 조합 카페가 닫혀 추진경과를 받지 못했습니다.` : '.') +
+    ' 인가일은 최초 인가 기준입니다 (변경인가는 제외).';
+}
+
+function renderLegend() {
+  if (state.mode !== 'projects') {
+    els.legend.innerHTML = '';
+    return;
+  }
+  const picks = ['추진위원회승인', '조합설립인가', '사업시행인가', '관리처분인가', '착공', '준공인가'];
+  els.legend.innerHTML = picks
+    .map((s) => `<span class="re-legend-item"><i style="background:${stageColor(s)}"></i>${s}</span>`)
+    .join('');
+}
+
+// --------------------------------------------------------------------------
+// 프리미엄
+// --------------------------------------------------------------------------
+
+function renderPremium() {
+  const premium = state.summary?.premium;
+  if (!premium) return;
+
+  els.premiumCards.innerHTML = premium.stages
+    .map((s) => {
+      if (s.median_excess === undefined) {
+        return `<div class="re-card is-empty">
+          <h3>${s.stage}</h3>
+          <p class="re-card-value">${DASH}</p>
+          <p class="re-card-sub">표본 ${s.n}건 · ${premium.min_sample}건 미만이라 감췄습니다</p>
+        </div>`;
+      }
+      const color = s.median_excess > 0 ? UP : s.median_excess < 0 ? DOWN : MUTED;
+      const sign = s.median_excess > 0 ? '+' : '';
+      return `<div class="re-card">
+        <h3>${s.stage}</h3>
+        <p class="re-card-value" style="color:${color}">${sign}${s.median_excess.toFixed(1)}<small>%p</small></p>
+        <p class="re-card-sub">
+          사업장 ${s.n}곳 중 ${s.positive}곳이 초과 상승<br>
+          사분위 ${s.q1 > 0 ? '+' : ''}${s.q1.toFixed(1)} ~ ${s.q3 > 0 ? '+' : ''}${s.q3.toFixed(1)}%p
+        </p>
+      </div>`;
+    })
+    .join('');
+
+  const cases = premium.stages
+    .flatMap((s) => (s.cases || []).map((c) => ({ ...c, stage: s.stage })))
+    .sort((a, b) => b.excess - a.excess)
+    .slice(0, 30);
+
+  els.premiumTable.innerHTML =
+    `<thead><tr><th>사업장</th><th>자치구</th><th>단계</th><th>인가일</th>
+      <th>단지 변화</th><th>자치구 변화</th><th>초과분</th><th>거래</th></tr></thead>` +
+    `<tbody>${cases
+      .map((c) => `<tr>
+        <td class="re-name">${c.name}</td>
+        <td>${c.sgg}</td>
+        <td><span class="re-chip" style="--c:${stageColor(c.stage)}">${c.stage}</span></td>
+        <td>${c.date}</td>
+        <td>${c.own > 0 ? '+' : ''}${c.own.toFixed(1)}%</td>
+        <td>${c.control > 0 ? '+' : ''}${c.control.toFixed(1)}%</td>
+        <td style="color:${c.excess > 0 ? UP : DOWN}"><b>${c.excess > 0 ? '+' : ''}${c.excess.toFixed(1)}%p</b></td>
+        <td>${c.trades}</td>
+      </tr>`)
+      .join('')}</tbody>`;
+  makeSortable(els.premiumTable);
+}
+
+// --------------------------------------------------------------------------
+// 화면 전환
+// --------------------------------------------------------------------------
+
+async function renderPanel() {
+  if (state.mode === 'premium') return;
+  if (!state.sgg) {
+    els.title.textContent = '구를 선택하세요';
+    els.meta.textContent = '지도에서 자치구를 누르면 그 구의 목록이 나옵니다.';
+    els.table.innerHTML = '';
+    els.note.textContent = '';
+    return;
+  }
+  const per = state.summary.sgg[state.sgg];
+  const name = document.querySelector(`path[data-sgg="${state.sgg}"]`)?.dataset.name || state.sgg;
+  els.title.textContent = name;
+  els.meta.textContent = per
+    ? `노후 단지 ${per.complexes}곳 · 정비사업장 ${per.projects}곳`
+    : '자료 없음';
+
+  try {
+    const detail = await loadSgg(state.sgg);
+    if (state.mode === 'complexes') renderComplexes(detail);
+    else renderProjects(detail);
+  } catch (err) {
+    els.table.innerHTML = '';
+    els.note.textContent = `자료를 불러오지 못했습니다: ${err.message}`;
+  }
+}
+
+function applyMode() {
+  const premiumMode = state.mode === 'premium';
+  els.premium.hidden = !premiumMode;
+  root.querySelector('.re-body').hidden = premiumMode;
+  els.tableWrap.hidden = premiumMode;
+  els.note.hidden = premiumMode;
+  root.querySelector('.re-view-tabs').hidden = premiumMode;
+  renderLegend();
+  if (premiumMode) renderPremium();
+  else renderPanel();
+}
+
+function bindTabs(selector, key, after) {
+  root.querySelectorAll(`${selector} .re-tab`).forEach((tab) => {
+    tab.addEventListener('click', () => {
+      root.querySelectorAll(`${selector} .re-tab`).forEach((t) => {
+        t.classList.remove('is-on');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-on');
+      tab.setAttribute('aria-selected', 'true');
+      state[key] = tab.dataset[key];
+      after();
+    });
+  });
+}
+
+bindTabs('.re-mode-tabs', 'mode', applyMode);
+bindTabs('.re-view-tabs', 'view', () => {
+  map.setView(state.view);
+  // 다른 시도로 넘어가면 이전 선택은 지도에 보이지 않는다. 선택을 비운다.
+  state.sgg = null;
+  map.setSelected(null);
+  paintMap();
+  renderPanel();
+});
+
+(async function start() {
+  try {
+    state.summary = await getJson(`${base}/redev.json`);
+  } catch (err) {
+    els.meta.textContent = `집계를 불러오지 못했습니다: ${err.message}`;
+    return;
+  }
+  map.setView(state.view);
+  paintMap();
+  applyMode();
+
+  const c = state.summary.counts;
+  els.footnote.textContent =
+    `${state.summary.latest_month} 기준 · 정비사업장 ${c.projects.toLocaleString('ko-KR')}곳` +
+    `(추진경과 확보 ${c.projects_with_events.toLocaleString('ko-KR')}곳) · 정비구역 ${c.zones.toLocaleString('ko-KR')}곳 · ` +
+    `준공 ${state.summary.min_age}년 이상 아파트 ${c.complexes.toLocaleString('ko-KR')}곳` +
+    `(대지지분 ${c.with_land.toLocaleString('ko-KR')}곳). ` +
+    `출처: 서울시 정비사업 정보몽땅 · 서울시 도시계획포털(UPIS) · 국토교통부 실거래가.`;
+})();

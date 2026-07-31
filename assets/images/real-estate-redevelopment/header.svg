@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="재개발·재건축 데이터 배너">
+  <!-- #2a78d6/#eb6834 는 assets/realestate/palette.js 의 CATEGORICAL(범주형 슬롯 1·2)과
+       같은 값이다. 이 SVG 는 정적 배너라 palette.js 를 import 할 수 없어 값을 그대로
+       옮겨 적었다 — palette.js 쪽을 바꾸면 여기도 바꿀 것 (schools/header.svg 와 같은 방식). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2a78d6"/>
+      <stop offset="1" stop-color="#eb6834"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">재개발 <tspan fill="#86b6ef">재건축</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">대지지분부터 인가 통과 뒤 실거래까지, 숫자로만</text>
+
+  <!-- 단계 진행 띠. 화면의 진행단계 색(순차 램프)과 같은 뜻을 갖는다. -->
+  <g class="ko" text-anchor="middle">
+    <line x1="150" y1="252" x2="1050" y2="252" stroke="#2f3b4f" stroke-width="4"/>
+    <circle cx="150" cy="252" r="13" fill="#1b3a5c"/>
+    <circle cx="450" cy="252" r="13" fill="#2a78d6"/>
+    <circle cx="750" cy="252" r="13" fill="#6da7ec"/>
+    <circle cx="1050" cy="252" r="13" fill="#eb6834"/>
+    <text x="150" y="296" font-size="17" font-weight="700" fill="#8fa3bd">구역지정</text>
+    <text x="450" y="296" font-size="17" font-weight="700" fill="#86b6ef">조합설립</text>
+    <text x="750" y="296" font-size="17" font-weight="700" fill="#b7d3f6">사업시행</text>
+    <text x="1050" y="296" font-size="17" font-weight="700" fill="#f0a882">관리처분</text>
+  </g>
+
+  <g class="ko" text-anchor="middle">
+    <text x="300" y="360" font-size="15" font-weight="500" fill="#64748b">서울 정비사업장</text>
+    <text x="300" y="386" font-size="21" font-weight="800" fill="#cbd5e1">1,102곳</text>
+    <text x="600" y="360" font-size="15" font-weight="500" fill="#64748b">단계 이벤트</text>
+    <text x="600" y="386" font-size="21" font-weight="800" fill="#cbd5e1">28,055건</text>
+    <text x="900" y="360" font-size="15" font-weight="500" fill="#64748b">아파트 실거래</text>
+    <text x="900" y="386" font-size="21" font-weight="800" fill="#cbd5e1">435만 건</text>
+  </g>
+</svg>

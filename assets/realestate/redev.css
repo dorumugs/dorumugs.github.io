@@ -1,0 +1,149 @@
+/* 재개발·재건축 대시보드 전용. 공통 레이아웃은 dashboard.css 가 담당한다. */
+
+.re-app.is-redev .re-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  align-items: center;
+}
+
+/* 단계 칩 — 색은 진행도에 따라 인라인 --c 로 들어온다. */
+.re-chip {
+  display: inline-block;
+  padding: 0.1em 0.5em;
+  border-radius: 999px;
+  background: var(--c, #e3e5e7);
+  color: #fff;
+  font-size: 0.78em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.re-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: #646769;
+}
+
+.re-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.re-legend-item i {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* 추정 용적률이 100% 아래인 칸. 대지면적이 단지보다 넓게 잡혔을 수 있다는 표시. */
+.re-app.is-redev td.is-doubt {
+  color: #d03b3b;
+}
+
+.re-app.is-redev td.is-doubt::after {
+  content: '?';
+  font-size: 0.75em;
+  vertical-align: super;
+  margin-left: 0.1em;
+}
+
+/* 조합 카페가 닫힌 사업장은 추진경과가 없다. 흐리게 둔다. */
+.re-app.is-redev tr.is-suspended {
+  color: #9aa0a6;
+}
+
+.re-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: #646769;
+}
+
+/* 단계별 프리미엄 */
+.re-premium-lead {
+  font-size: 0.9rem;
+  color: #4a4e51;
+  max-width: 46rem;
+}
+
+.re-premium-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0 1.6rem;
+}
+
+.re-card {
+  border: 1px solid #e3e5e7;
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  background: #fff;
+}
+
+.re-card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #3d4144;
+}
+
+.re-card-value {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.re-card-value small {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: 0.1em;
+}
+
+.re-card-sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #7a8288;
+}
+
+.re-card.is-empty .re-card-value {
+  color: #c9ced1;
+}
+
+/* 단지·사업장 이름은 길다. 모바일에서 줄바꿈을 허용해 표가 옆으로 새지 않게 한다. */
+.re-app.is-redev .re-name {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  min-width: 7rem;
+}
+
+.re-app.is-redev .re-table th,
+.re-app.is-redev .re-table td {
+  white-space: nowrap;
+}
+
+.re-app.is-redev .re-table th {
+  white-space: normal;
+  word-break: keep-all;
+}
+
+@media (max-width: 640px) {
+  .re-app.is-redev .re-table {
+    font-size: 0.78rem;
+  }
+
+  .re-app.is-redev .re-name {
+    min-width: 6rem;
+  }
+
+  .re-card-value {
+    font-size: 1.6rem;
+  }
+}

@@ -1,0 +1,352 @@
+
+
+
+
+
+
+<style type="text/css">
+.table01 th span.sort_down_on {display:inline-block;padding-right:13px;background:url('/cafe/images/admin/bg_col_down_on.png') no-repeat right 3px; }
+.table01 th span.sort_down_over {display:inline-block;padding-right:13px;background:url('/cafe/images/admin/bg_col_down_over.png') no-repeat right 3px;}
+.table01 th span.sort_down_off {display:inline-block;padding-right:13px;background:url('/cafe/images/admin/bg_col_down_off.png') no-repeat right 3px; }
+.table01 th span.sort_up_on {display:inline-block; padding-right:13px;background:url('/cafe/images/admin/bg_col_up_on.png') no-repeat right 3px; }
+.table01 th span.sort_up_over {display:inline-block;padding-right:13px;background:url('/cafe/images/admin/bg_col_up_over.png') no-repeat right 3px; }
+.table01 th span.sort_up_off{display:inline-block;padding-right:13px;background:url('/cafe/images/admin/bg_col_up_off.png') no-repeat right 3px; }
+
+
+.side_align {width:780px;padding-bottom:5px;}
+.side_align .sort {float:right;}
+</style>
+
+<script type="text/javascript" src="/cmmn/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/cmmn/js/jquery/jquery.form.js"></script>
+<script type="text/javascript" src="/cleanup/js/common.js"></script>
+<script type="text/javascript" >
+var oldJquery = $.noConflict(true);
+</script>
+               
+<div id="bsnsSttusList" class="tbl">
+	<div class="board-list-top">
+		<p class="board-list-top-total">
+			
+				
+				
+					추진주체구성전 : <span class="point-color01">119</span> /
+					추진위원회 : <span class="point-color01">205</span> /
+					조합 : <span class="point-color01">721</span> /
+					조합청산 : <span class="point-color01">57</span>
+				
+			
+		</p>
+		<div class="board-list-top-align usebtn board-btnBox">
+			<select id="sel_orderValue" title="정렬기준 선택" class="sel01">
+				<option value=""  >--선택--</option>
+				<option value="BSNS_SE_NM asc" >사업구분 오름차순</option>
+				<option value="BSNS_SE_NM desc" >사업구분 내림차순</option>
+				<option value="ASSC_NM asc" >사업장명 오름차순</option>
+				<option value="ASSC_NM desc" >사업장명 내림차순</option>
+				<option value="BSNS_PROGRS_STTUS_CODE asc" >진행단계 오름차순</option>
+				<option value="BSNS_PROGRS_STTUS_CODE desc" >진행단계 내림차순</option>
+				<option value="OTHBC_DTA_CO asc" >정보공개건수 오름차순</option>
+				<option value="OTHBC_DTA_CO desc" >정보공개건수 내림차순</option>
+				<option value="dutyRate asc" >공개적시성 오름차순</option>
+				<option value="dutyRate desc" >공개적시성 내림차순</option>
+				<option value="dutyFullRate asc" >자료충실도 오름차순</option>
+				<option value="dutyFullRate desc" >자료충실도 내림차순</option>
+				
+			</select>
+			
+			<a href="#n" onclick="sort2();return false;" class="btn md gray bd_align_btn mt0 mb0"><span>정렬</span></a>
+			<a href="#a" class="btn_excel" onclick="excelDown();return false;"><span>엑셀다운로드</span></a>
+		</div>
+	</div>
+	
+	<div class="board-list-box">
+	    <div class="rspvn-box-wrap">
+	        <div class="rspvn-box">						        
+				<table class="board-list-tbl tc">
+					<caption>사업장 목록 게시판</caption>
+					<colgroup>
+						<col style="width:5%" />
+						<col style="width:8%" />
+						<col style="width:10%" />
+						<col style="width:23%" />
+						<col style="width:9%" />
+						<col style="width:12%" />
+						<col style="width:9%" />
+						<col style="width:9%" />
+						<col style="width:9%" />
+						<col style="width:8%" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">번호</th>
+							<th scope="col">자치구</th>
+							<th scope="col">사업구분</th>
+							<th scope="col">사업장명</th>
+							<th scope="col">대표지번</th>
+							<th scope="col">진행단계</th>
+							<th scope="col">공개자료수<br/>(최근자료)</th>
+							<th scope="col">공개적시성<br/>(전체자료)</th>
+							<th scope="col">자료충실도</th>
+							<th scope="col" class="last">이동</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+					
+					
+					<tr>
+						<td>1102</td>
+						<td>마포구</td>
+						<td>재개발(도시정비형)</td>
+						<td class="wordBreakAll">마포로3구역제3지구 도시환경정비사업조합</td>
+						<td>아현동 613-10</td>
+						<td>착공</td>
+						<td>1033건</td>
+						
+						<td>100.0%</td>
+						<td>100.0%</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('mapo33');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+								<a href="javascript:mapOpenPopup('11000AGZ201308079074');" title="새 창 열림" class="tb-btn bll w60 mt5" ><span>지도</span></a>
+								
+													
+								
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1101</td>
+						<td>마포구</td>
+						<td>재개발(주택정비형)</td>
+						<td class="wordBreakAll">아현3구역 주택재개발정비사업 조합(뉴타운)</td>
+						<td>아현동 635</td>
+						<td>조합해산</td>
+						<td>255건</td>
+						
+						<td>0.0%</td>
+						<td>57.57%</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('WMrak31u');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+								<a href="javascript:mapOpenPopup('11000AGZ201112058077');" title="새 창 열림" class="tb-btn bll w60 mt5" ><span>지도</span></a>
+								
+													
+								
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1100</td>
+						<td>마포구</td>
+						<td>재개발(주택정비형)</td>
+						<td class="wordBreakAll">염리5구역 주택재개발 조합설립추진위원회(뉴타운)</td>
+						<td>염리동 105</td>
+						<td>추진위원회승인</td>
+						<td>181건</td>
+						
+						<td>-</td>
+						<td>-</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('pcU7QaMA');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+													
+								<p class="mt5">일시중단</p>
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1099</td>
+						<td>마포구</td>
+						<td>재개발(주택정비형)</td>
+						<td class="wordBreakAll">염리제3구역주택재개발정비사업조합(뉴타운)</td>
+						<td>염리동 507</td>
+						<td>조합해산</td>
+						<td>965건</td>
+						
+						<td>33.33%</td>
+						<td>99.78%</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('Lcu8f9Vh');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+								<a href="javascript:mapOpenPopup('11000AGZ201708238635');" title="새 창 열림" class="tb-btn bll w60 mt5" ><span>지도</span></a>
+								
+													
+								
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1098</td>
+						<td>양천구</td>
+						<td>재건축</td>
+						<td class="wordBreakAll">신월4동431번지일대 주택재건축정비사업조합</td>
+						<td>신월동 432-6</td>
+						<td>이전고시</td>
+						<td>1199건</td>
+						
+						<td>-</td>
+						<td>-</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('zdSAERvl');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+								<a href="javascript:mapOpenPopup('11000AGZ200712079721');" title="새 창 열림" class="tb-btn bll w60 mt5" ><span>지도</span></a>
+								
+													
+								<p class="mt5">일시중단</p>
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1097</td>
+						<td>강서구</td>
+						<td>재건축</td>
+						<td class="wordBreakAll">유풍연립주택재건축정비사업조합설립추진위원회</td>
+						<td>화곡동 1040-24</td>
+						<td>추진위원회승인</td>
+						<td>3건</td>
+						
+						<td>-</td>
+						<td>-</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('XQq5uTwf');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+													
+								<p class="mt5">일시중단</p>
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1096</td>
+						<td>강서구</td>
+						<td>재건축</td>
+						<td class="wordBreakAll">태원연립주택재건축정비사업조합</td>
+						<td>등촌동 651</td>
+						<td>이전고시</td>
+						<td>23건</td>
+						
+						<td>-</td>
+						<td>-</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('Y2lf3ybg');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+													
+								<p class="mt5">일시중단</p>
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1095</td>
+						<td>강서구</td>
+						<td>재건축</td>
+						<td class="wordBreakAll">긴등마을주택재건축정비사업조합</td>
+						<td>마곡동 725-1</td>
+						<td>준공인가</td>
+						<td>1251건</td>
+						
+						<td>100.0%</td>
+						<td>100.0%</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('F9613aZn');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+								<a href="javascript:mapOpenPopup('11500AGZ202301200003');" title="새 창 열림" class="tb-btn bll w60 mt5" ><span>지도</span></a>
+								
+													
+								
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1094</td>
+						<td>구로구</td>
+						<td>재건축</td>
+						<td class="wordBreakAll">개봉5구역 주택재건축정비사업조합</td>
+						<td>개봉동 68-64</td>
+						<td>이전고시</td>
+						<td>1315건</td>
+						
+						<td>50.0%</td>
+						<td>100.0%</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('gaebong5');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+								<a href="javascript:mapOpenPopup('11530AGZ202102040001');" title="새 창 열림" class="tb-btn bll w60 mt5" ><span>지도</span></a>
+								
+													
+								
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td>1093</td>
+						<td>영등포구</td>
+						<td>재개발(도시정비형)</td>
+						<td class="wordBreakAll">영등포1-2재정비촉진구역 도시환경정비사업 조합</td>
+						<td>영등포동7가 76-5</td>
+						<td>사업시행인가</td>
+						<td>769건</td>
+						
+						<td>17.65%</td>
+						<td>100.0%</td>
+						<td class="last" style="color:#ff5704;">
+							
+							
+								<a href="javascript:cafeOpenPopup('GAUELxBy');" title="새 창 열림" class="tb-btn bll w60" ><span>사업장</span></a>
+								
+													
+								
+							
+						</td>
+					</tr>
+					
+					
+					</tbody>
+				</table>
+				
+				
+					<div class="board-paging">
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					<ul><li class="arr_p"><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=1&amp;pageSize=10" class="arr_left01" title="첫 페이지로 이동합니다."><img src="/mngr/images/btn/arr_page01.png" alt="처음 페이지 목차" /></a></li><li class="arr_p"><a href="#n" onclick="return false;" class="arr_left02" title="이동할 이전 페이지 없음" ><img src="/mngr/images/btn/arr_page03.png" alt="이전 페이지 목차" /></a></li><li><a style="font-weight:bold;" title="현재 선택된 페이지" href="#n" class="on">1</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=2&amp;pageSize=10" title="2번 페이지로 이동합니다.">2</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=3&amp;pageSize=10" title="3번 페이지로 이동합니다.">3</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=4&amp;pageSize=10" title="4번 페이지로 이동합니다.">4</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=5&amp;pageSize=10" title="5번 페이지로 이동합니다.">5</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=6&amp;pageSize=10" title="6번 페이지로 이동합니다.">6</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=7&amp;pageSize=10" title="7번 페이지로 이동합니다.">7</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=8&amp;pageSize=10" title="8번 페이지로 이동합니다.">8</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=9&amp;pageSize=10" title="9번 페이지로 이동합니다.">9</a></li> <li><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=10&amp;pageSize=10" class="last_paging" title="10번 페이지로 이동합니다.">10</a></li> <li class="arr_p"><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=11&amp;pageSize=10" class="arr_right01" title="11번 페이지로 이동합니다."><img src="/mngr/images/btn/arr_page04.png" alt="다음 페이지 목차" /></a></li> <li class="arr_p"><a href="/cleanup/bsnssttus/lscrMainIndx.do?bsnsSeCodeList=100&amp;bsnsSeCodeList=101&amp;bsnsSeCodeList=102&amp;bsnsSeCodeList=103&amp;bsnsSeCodeList=104&amp;bsnsSeCodeList=105&amp;bsnsSeCodeList=106&amp;bsnsSeCodeList=107&amp;bsnsEfctMthdList=1&amp;bsnsEfctMthdList=2&amp;bsnsEfctMthdList=3&amp;sigunguCd=11000&amp;legaldongCode=&amp;bsnsProgrsSttusCode=&amp;asscNm=&amp;orderValue=&amp;cpage=111&amp;pageSize=10" class="arr_right02" title="마지막 페이지로 이동합니다."><img src="/mngr/images/btn/arr_page02.png" alt="마지막 페이지 목차" /></a></li></ul>
+					</div>
+					<input type="hidden" id="tmpNm" value="" />
+				
+			</div>
+		</div>
+	</div>
+</div>

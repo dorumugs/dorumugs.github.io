@@ -1,0 +1,56 @@
+ html += '<a href="javascript:" onclick="' + classFnNm + 'Othbc.lscrOpen(\'311\'); foldnav_scroll();" title="조합해산" target="contentFrame"><span>조합해산</span></a>';
+                                    
+                                    
+                                    html += '</li>';
+                                
+                            
+                        
+                    html += '</ul>';
+                html += '</div>';
+            html += '</li>';
+        
+        
+        
+        
+    
+
+    html += '</ul>';
+
+    if(type == 'head'){
+        $('#subFoldBox').html(html);
+    }else{
+    	$('#contentFrame').contents().find('#divListTab').html(html);
+    }
+    
+}
+
+//]]>
+</script>
+
+<form id="openform" target="contentFrame" method="post" action="./">
+	<input type="hidden" name="cafeId" value="440100003003n67"  />
+	<input type="hidden" name="bsnsPk" value="11440-100003003"  />
+	<input type="hidden" name="othbcIemSn" id="othbcIemSn" />
+</form>
+
+
+	<!-- footer:S -->
+	
+
+
+<footer id="footer">	
+	<div class="inwrap">
+		<div class="foot-top">
+			<div class="footer-linkBox">
+				<ul class="footer-link">
+					<li>
+                           <a href="/cleanup/view/useStplat.do">
+                               <span>이용약관</span>
+                           </a>
+                       </li>
+
+                       <li>
+                           <!-- <a href="https://www.seoul.go.kr/helper/privacy.do?type=www" class="point link" target="_blank"> -->
+                           <a href="/cleanup/view/personInfo.do" class="point link" target="_blank">                            
+                               <span>개인정보처리방침</span>
+       

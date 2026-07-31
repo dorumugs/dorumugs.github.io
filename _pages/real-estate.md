@@ -48,6 +48,22 @@ description: "수도권 부동산을 데이터로 보는 도구들을 모았습�
     <span class="rh-go">열어보기 →</span>
   </a>
 
+  <a class="rh-card is-live" href="{{ '/real-estate/redevelopment/' | relative_url }}">
+    <span class="rh-badge">쓸 수 있음</span>
+    <h2 class="rh-title">재개발·재건축</h2>
+    <p class="rh-desc">
+      서울 정비사업장 <strong>1,102곳</strong>의 진행단계와 인가 일자를 모았습니다.
+      노후 아파트의 <strong>대지지분</strong>을 세워 두고, 인가 통과가 실거래가를
+      실제로 얼마나 움직였는지 435만 건으로 따집니다.
+    </p>
+    <ul class="rh-points">
+      <li>대지지분 · 용도지역 · 용적률 상한 · 준공연차로 정렬</li>
+      <li>조합설립 → 사업시행 → 관리처분 인가일과 동의율</li>
+      <li>인가 전후 12개월 초과수익 (같은 구 평균을 뺀 값)</li>
+    </ul>
+    <span class="rh-go">열어보기 →</span>
+  </a>
+
   <div class="rh-card is-planned">
     <span class="rh-badge">구상 중</span>
     <h2 class="rh-title">입지 분석</h2>
