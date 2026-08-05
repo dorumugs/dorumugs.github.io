@@ -1,0 +1,198 @@
+{
+ "done": {
+  "가평군": {
+   "fetched": "2026-08-05",
+   "law_id": "2019668",
+   "promulgated": "20260420",
+   "zones": 16
+  },
+  "고양시": {
+   "fetched": "2026-08-05",
+   "law_id": "2029738",
+   "promulgated": "20251114",
+   "zones": 16
+  },
+  "과천시": {
+   "fetched": "2026-08-05",
+   "law_id": "2031927",
+   "promulgated": "20251010",
+   "zones": 15
+  },
+  "광명시": {
+   "fetched": "2026-08-05",
+   "law_id": "2158052",
+   "promulgated": "20251219",
+   "zones": 16
+  },
+  "광주시": {
+   "fetched": "2026-08-05",
+   "law_id": "2144225",
+   "promulgated": "20260415",
+   "zones": 16
+  },
+  "구리시": {
+   "fetched": "2026-08-05",
+   "law_id": "2038092",
+   "promulgated": "20251202",
+   "zones": 15
+  },
+  "군포시": {
+   "fetched": "2026-08-05",
+   "law_id": "2149243",
+   "promulgated": "20251010",
+   "zones": 16
+  },
+  "김포시": {
+   "fetched": "2026-08-05",
+   "law_id": "2041966",
+   "promulgated": "20250512",
+   "zones": 16
+  },
+  "남양주시": {
+   "fetched": "2026-08-05",
+   "law_id": "2043327",
+   "promulgated": "20251229",
+   "zones": 16
+  },
+  "동두천시": {
+   "fetched": "2026-08-05",
+   "law_id": "2053712",
+   "promulgated": "20260506",
+   "zones": 16
+  },
+  "부천시": {
+   "fetched": "2026-08-05",
+   "law_id": "2068941",
+   "promulgated": "20260706",
+   "zones": 16
+  },
+  "서울특별시": {
+   "fetched": "2026-08-05",
+   "law_id": "2000719",
+   "promulgated": "20260713",
+   "zones": 16
+  },
+  "성남시": {
+   "fetched": "2026-08-05",
+   "law_id": "2146953",
+   "promulgated": "20260224",
+   "zones": 16
+  },
+  "수원시": {
+   "fetched": "2026-08-05",
+   "law_id": "2083129",
+   "promulgated": "20251231",
+   "zones": 16
+  },
+  "시흥시": {
+   "fetched": "2026-08-05",
+   "law_id": "2145057",
+   "promulgated": "20260402",
+   "zones": 13
+  },
+  "안산시": {
+   "fetched": "2026-08-05",
+   "law_id": "2086830",
+   "promulgated": "20250919",
+   "zones": 16
+  },
+  "안성시": {
+   "fetched": "2026-08-05",
+   "law_id": "2146164",
+   "promulgated": "20260410",
+   "zones": 16
+  },
+  "안양시": {
+   "fetched": "2026-08-05",
+   "law_id": "2087598",
+   "promulgated": "20260331",
+   "zones": 12
+  },
+  "양주시": {
+   "fetched": "2026-08-05",
+   "law_id": "2146093",
+   "promulgated": "20251124",
+   "zones": 16
+  },
+  "양평군": {
+   "fetched": "2026-08-05",
+   "law_id": "2089992",
+   "promulgated": "20241226",
+   "zones": 16
+  },
+  "여주시": {
+   "fetched": "2026-08-05",
+   "law_id": "2092004",
+   "promulgated": "20251222",
+   "zones": 16
+  },
+  "연천군": {
+   "fetched": "2026-08-05",
+   "law_id": "2092511",
+   "promulgated": "20260416",
+   "zones": 16
+  },
+  "오산시": {
+   "fetched": "2026-08-05",
+   "law_id": "2097518",
+   "promulgated": "20260506",
+   "zones": 16
+  },
+  "용인시": {
+   "fetched": "2026-08-05",
+   "law_id": "2152625",
+   "promulgated": "20251231",
+   "zones": 16
+  },
+  "의왕시": {
+   "fetched": "2026-08-05",
+   "law_id": "2105386",
+   "promulgated": "20241230",
+   "zones": 16
+  },
+  "의정부시": {
+   "fetched": "2026-08-05",
+   "law_id": "2149163",
+   "promulgated": "20250925",
+   "zones": 16
+  },
+  "이천시": {
+   "fetched": "2026-08-05",
+   "law_id": "2106238",
+   "promulgated": "20260227",
+   "zones": 16
+  },
+  "파주시": {
+   "fetched": "2026-08-05",
+   "law_id": "2156810",
+   "promulgated": "20250320",
+   "zones": 16
+  },
+  "평택시": {
+   "fetched": "2026-08-05",
+   "law_id": "2132705",
+   "promulgated": "20260415",
+   "zones": 16
+  },
+  "포천시": {
+   "fetched": "2026-08-05",
+   "law_id": "2143128",
+   "promulgated": "20260410",
+   "zones": 16
+  },
+  "하남시": {
+   "fetched": "2026-08-05",
+   "law_id": "2134069",
+   "promulgated": "20250811",
+   "zones": 15
+  },
+  "화성시": {
+   "fetched": "2026-08-05",
+   "law_id": "2153623",
+   "promulgated": "20260310",
+   "zones": 16
+  }
+ },
+ "failed": {},
+ "version": 1
+}

@@ -8,6 +8,7 @@
   data/parcels/parcels.csv.gz     필지 대지면적·공시지가·용도지역 (서울, UPIS 지적도)
   data/vworld/parcels.csv.gz      필지 대지면적·공시지가·용도지역 (경기, 브이월드)
   data/bldrgst/bldrgst.csv.gz     건축물대장 총괄표제부 (전국, 세대수·연면적·대지면적)
+  data/ordinance/far_limits.csv.gz 시·군 도시계획조례 용적률 상한 (서울·경기 32곳)
   data/complexes.csv.gz           단지 마스터 (PNU·세대수·사용승인일)
   data/trades/                    실거래 435만 건
 
@@ -34,6 +35,7 @@ import aggregate  # noqa: E402
 import bldrgst_api  # noqa: E402
 import build_dashboard  # noqa: E402  단지명 정규화를 한 곳에서만 정의하기 위해 빌려 쓴다
 import cleanup_api  # noqa: E402
+import ordinance_api  # noqa: E402
 import regions  # noqa: E402
 import rtms  # noqa: E402
 
@@ -241,6 +243,31 @@ def load_complexes() -> list[dict]:
 def load_bldrgst() -> dict[str, dict]:
     """PNU → 건축물대장 총괄표제부. 단지 하나가 한 줄이다."""
     return {r["pnu"]: r for r in _read_gz(DATA / "bldrgst" / "bldrgst.csv.gz") if r.get("pnu")}
+
+
+def load_far_limits() -> dict[tuple[str, str], dict]:
+    """(시군구코드, 용도지역) → 조례 용적률 상한.
+
+    상한은 광역이 아니라 시·군 조례가 정한다. 서울 25개 구는 특별시 조례 하나를
+    함께 쓰고, 경기는 31개 시·군이 제각각이다 — 가평 3종 300%, 성남 280%,
+    고양 250% 로 갈린다.
+
+    정비사업 단서가 붙은 용도지역은 그 값을 쓴다. 이 화면이 재건축·재개발을
+    보는 곳이라 '정비사업으로 건설하는 아파트는 300퍼센트' 쪽이 맞는 값이다.
+    """
+    by_city: dict[str, dict[str, int]] = defaultdict(dict)
+    for row in _read_gz(DATA / "ordinance" / "far_limits.csv.gz"):
+        value = ordinance_api.effective_far(row)
+        if value:
+            by_city[row["city"]][row["zone"]] = value
+
+    out: dict[tuple[str, str], dict] = {}
+    for code, full in regions.sgg_codes():
+        parts = full.split()
+        city = "서울특별시" if parts[0] == "서울특별시" else (parts[1] if len(parts) > 1 else "")
+        for zone, value in by_city.get(city, {}).items():
+            out[(code, zone)] = {"far": value, "city": city}
+    return out
 
 
 def load_vworld() -> dict[str, dict]:
@@ -490,6 +517,7 @@ def main() -> int:
     zones = _read_gz(DATA / "zones" / "zones.csv.gz")
     parcels = load_parcels()
     vworld = load_vworld()
+    far_limits = load_far_limits()
     bldrgst = load_bldrgst()
     complexes = load_complexes()
     if not projects or not complexes:
@@ -620,15 +648,11 @@ def main() -> int:
             if not jiga_src.get("jiga_won_sqm"):
                 jiga_src = alt
 
-        # 용적률 상한은 서울시 도시계획조례 값이라 서울에만 붙인다.
-        # 경기는 시·군마다 조례가 달라(성남 3종 280%, 수원 3종 250% 등) 같은
-        # 표를 쓰면 틀린다. 종 구분은 보여주되 상한은 비워 둔다.
-        far_limit = None
-        if group["sgg_cd"].startswith("11"):
-            try:
-                far_limit = int(main.get("far_limit") or 0) or None
-            except ValueError:
-                far_limit = None
+        # 용적률 상한은 그 지자체 도시계획조례에서 온다 (서울·경기 32곳 실측).
+        # 예전에는 서울 조례 값을 상수로 박아 뒀는데, 경기는 시·군마다 달라
+        # 그대로 쓰면 3종에서 30~50%p 를 과소평가한다.
+        limit = far_limits.get((group["sgg_cd"], zone)) if zone else None
+        far_limit = limit["far"] if limit else None
 
         # 거래는 조각 전체를 합쳐 본다. 한 단지가 여러 지번에 걸쳐 신고된다.
         merged: dict[str, list[float]] = defaultdict(list)
@@ -782,7 +806,7 @@ def main() -> int:
                 "잡혔을 수 있다."
             ),
             "stages": "서울만. 정비사업 진행 데이터는 서울시 정보몽땅이 유일한 상시 출처",
-            "far_limit": "서울시 도시계획조례 기준이라 서울만 채운다. 경기는 시·군별 조례가 달라 비운다",
+            "far_limit": "각 지자체 도시계획조례 실측. 정비사업 단서가 있으면 그 값(예: 성남 3종 280→정비 300)",
         },
         "sgg": {
             sgg: {
