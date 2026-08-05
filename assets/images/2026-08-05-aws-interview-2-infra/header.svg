@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="VPC 안에서 가용영역 두 곳에 퍼블릭 서브넷과 프라이빗 서브넷을 나눠 배치한 이중화 구조 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#231a0d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#fbbf24"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="98" font-size="41" font-weight="800" fill="#f8fafc">인프라 · 아키텍트 — <tspan fill="#fbbf24">VPC 부터 비용까지</tspan></text>
+  <text class="ko" x="82" y="140" font-size="22" font-weight="500" fill="#94a3b8">건물 두 곳에 나눠 뒀나요, 그리고 그걸 실제로 꺼보셨나요?</text>
+
+  <g class="ko">
+    <rect x="70" y="176" width="700" height="182" rx="18" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="8 6"/>
+    <text x="88" y="202" font-size="16" font-weight="700" fill="#fcd34d">VPC — 우리가 빌린 사설 네트워크</text>
+
+    <rect x="94" y="218" width="316" height="122" rx="12" fill="#1a1508" stroke="#a16207" stroke-width="2"/>
+    <text x="110" y="242" font-size="15" font-weight="700" fill="#fde68a">가용영역 A</text>
+    <rect x="110" y="254" width="130" height="34" rx="8" fill="#3f2d0a"/>
+    <text x="175" y="277" font-size="14" font-weight="600" fill="#fcd34d" text-anchor="middle">퍼블릭 서브넷</text>
+    <rect x="252" y="254" width="142" height="34" rx="8" fill="#1e293b"/>
+    <text x="323" y="277" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle">프라이빗 서브넷</text>
+    <text x="110" y="316" font-size="13" font-weight="500" fill="#78716c">ALB · NAT</text>
+    <text x="252" y="316" font-size="13" font-weight="500" fill="#78716c">앱 · DB (여기 두세요)</text>
+
+    <rect x="430" y="218" width="316" height="122" rx="12" fill="#1a1508" stroke="#a16207" stroke-width="2"/>
+    <text x="446" y="242" font-size="15" font-weight="700" fill="#fde68a">가용영역 B</text>
+    <rect x="446" y="254" width="130" height="34" rx="8" fill="#3f2d0a"/>
+    <text x="511" y="277" font-size="14" font-weight="600" fill="#fcd34d" text-anchor="middle">퍼블릭 서브넷</text>
+    <rect x="588" y="254" width="142" height="34" rx="8" fill="#1e293b"/>
+    <text x="659" y="277" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle">프라이빗 서브넷</text>
+    <text x="446" y="316" font-size="13" font-weight="500" fill="#78716c">ALB · NAT</text>
+    <text x="588" y="316" font-size="13" font-weight="500" fill="#78716c">앱 · DB 대기본</text>
+  </g>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="812" y="176" width="318" height="56" rx="12" fill="#2a2010" stroke="#f59e0b" stroke-width="2"/>
+    <text x="971" y="211" font-size="17" font-weight="700" fill="#fcd34d">RTO · RPO 를 숫자로 말하는가</text>
+
+    <rect x="812" y="240" width="318" height="56" rx="12" fill="#2a2010" stroke="#f59e0b" stroke-width="2"/>
+    <text x="971" y="275" font-size="17" font-weight="700" fill="#fcd34d">청구서 3대 항목을 아는가</text>
+
+    <rect x="812" y="304" width="318" height="54" rx="12" fill="#2a2010" stroke="#f59e0b" stroke-width="2"/>
+    <text x="971" y="338" font-size="17" font-weight="700" fill="#fcd34d">포기한 것을 말하는가</text>
+  </g>
+
+  <text class="ko" x="80" y="394" font-size="16" font-weight="500" fill="#57534e">비용이 새는 3대 구멍 — NAT 게이트웨이 처리료 · 데이터 전송료 · 잊힌 리소스</text>
+</svg>

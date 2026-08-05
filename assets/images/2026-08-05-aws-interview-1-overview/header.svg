@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="AWS 전문가 면접의 네 갈래 포지션 — 인프라 아키텍트, DevOps 플랫폼, 보안 거버넌스, 데이터 AI 플랫폼 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#1a1630"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="0.34" stop-color="#38bdf8"/>
+      <stop offset="0.67" stop-color="#f43f5e"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="104" font-size="41" font-weight="800" fill="#f8fafc">AWS 전문가 면접 <tspan fill="#f59e0b">면접관의 지도</tspan></text>
+  <text class="ko" x="82" y="148" font-size="22" font-weight="500" fill="#94a3b8">서비스 이름을 외울 필요는 없어요. 어느 갈래 사람인지부터 가릅니다.</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="70"  y="222" width="248" height="124" rx="16" fill="#2a2010" stroke="#f59e0b" stroke-width="3"/>
+    <text x="194" y="264" font-size="20" font-weight="800" fill="#fcd34d">인프라 · 아키텍트</text>
+    <text x="194" y="296" font-size="15" font-weight="500" fill="#cbd5e1">어떻게 설계했나</text>
+    <text x="194" y="322" font-size="14" font-weight="500" fill="#64748b">VPC · 이중화 · 비용</text>
+
+    <rect x="348" y="222" width="248" height="124" rx="16" fill="#10233a" stroke="#38bdf8" stroke-width="3"/>
+    <text x="472" y="264" font-size="20" font-weight="800" fill="#7dd3fc">DevOps · 플랫폼</text>
+    <text x="472" y="296" font-size="15" font-weight="500" fill="#cbd5e1">어떻게 굴렸나</text>
+    <text x="472" y="322" font-size="14" font-weight="500" fill="#64748b">IaC · CI/CD · EKS</text>
+
+    <rect x="626" y="222" width="248" height="124" rx="16" fill="#2c1420" stroke="#f43f5e" stroke-width="3"/>
+    <text x="750" y="264" font-size="20" font-weight="800" fill="#fda4af">보안 · 거버넌스</text>
+    <text x="750" y="296" font-size="15" font-weight="500" fill="#cbd5e1">어떻게 지켰나</text>
+    <text x="750" y="322" font-size="14" font-weight="500" fill="#64748b">IAM · 키 · 규제</text>
+
+    <rect x="904" y="222" width="226" height="124" rx="16" fill="#0f2a22" stroke="#22c55e" stroke-width="3"/>
+    <text x="1017" y="264" font-size="20" font-weight="800" fill="#86efac">데이터 · AI</text>
+    <text x="1017" y="296" font-size="15" font-weight="500" fill="#cbd5e1">어떻게 흘렸나</text>
+    <text x="1017" y="322" font-size="14" font-weight="500" fill="#64748b">S3 · Glue · Bedrock</text>
+  </g>
+
+  <text class="ko" x="80" y="392" font-size="16" font-weight="500" fill="#475569">채점 축 3개 — 규모를 숫자로 말하는가 · 장애를 겪었는가 · 포기한 것을 말하는가</text>
+</svg>

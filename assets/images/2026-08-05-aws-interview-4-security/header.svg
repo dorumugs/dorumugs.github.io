@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="AWS 보안 거버넌스의 네 개 층 — 권한, 암호화와 키, 감사 로그와 탐지, 금융권 규제 대응 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#140b12"/>
+      <stop offset="1" stop-color="#1d0f1a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f43f5e"/>
+      <stop offset="1" stop-color="#fb7185"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="98" font-size="41" font-weight="800" fill="#f8fafc">보안 · 거버넌스 — <tspan fill="#fb7185">IAM 부터 규제까지</tspan></text>
+  <text class="ko" x="82" y="140" font-size="22" font-weight="500" fill="#94a3b8">권한을 준 이야기 말고, 권한을 회수한 이야기를 들으세요.</text>
+
+  <g class="ko">
+    <rect x="70" y="188" width="264" height="120" rx="16" fill="#2c1420" stroke="#f43f5e" stroke-width="3"/>
+    <text x="92" y="224" font-size="20" font-weight="800" fill="#fda4af">1. 권한</text>
+    <text x="92" y="254" font-size="15" font-weight="500" fill="#cbd5e1">누가 무엇을 할 수 있나</text>
+    <text x="92" y="282" font-size="14" font-weight="500" fill="#78716c">IAM 역할 · 최소권한 · SCP</text>
+
+    <rect x="352" y="188" width="264" height="120" rx="16" fill="#2a1a2c" stroke="#c084fc" stroke-width="3"/>
+    <text x="374" y="224" font-size="20" font-weight="800" fill="#d8b4fe">2. 키와 비밀</text>
+    <text x="374" y="254" font-size="15" font-weight="500" fill="#cbd5e1">무엇으로 잠갔나</text>
+    <text x="374" y="282" font-size="14" font-weight="500" fill="#78716c">KMS · Secrets Manager</text>
+
+    <rect x="634" y="188" width="264" height="120" rx="16" fill="#132436" stroke="#38bdf8" stroke-width="3"/>
+    <text x="656" y="224" font-size="20" font-weight="800" fill="#7dd3fc">3. 흔적</text>
+    <text x="656" y="254" font-size="15" font-weight="500" fill="#cbd5e1">무슨 일이 있었나</text>
+    <text x="656" y="282" font-size="14" font-weight="500" fill="#78716c">CloudTrail · Config · 탐지</text>
+
+    <rect x="916" y="188" width="214" height="120" rx="16" fill="#2a2010" stroke="#f59e0b" stroke-width="3"/>
+    <text x="938" y="224" font-size="20" font-weight="800" fill="#fcd34d">4. 규제</text>
+    <text x="938" y="254" font-size="15" font-weight="500" fill="#cbd5e1">누구에게 증명하나</text>
+    <text x="938" y="282" font-size="14" font-weight="500" fill="#78716c">망분리 · 안전성 평가</text>
+  </g>
+
+  <text class="ko" x="80" y="360" font-size="17" font-weight="600" fill="#fda4af">가장 흔한 사고 — 하드코딩된 자격증명 · S3 퍼블릭 노출 · 지워지지 않은 퇴사자 권한</text>
+  <text class="ko" x="80" y="392" font-size="16" font-weight="500" fill="#57534e">로그를 남기는 것과 로그를 보는 것은 다른 일이에요</text>
+</svg>
