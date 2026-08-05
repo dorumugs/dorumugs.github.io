@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="코드에서 IaC, CI/CD, EKS 클러스터, 관측성으로 이어지는 DevOps 파이프라인 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#0d2233"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="98" font-size="41" font-weight="800" fill="#f8fafc">DevOps · 플랫폼 — <tspan fill="#38bdf8">굴리는 사람 보는 법</tspan></text>
+  <text class="ko" x="82" y="140" font-size="22" font-weight="500" fill="#94a3b8">만든 이야기 말고, 새벽에 울린 이야기를 들으세요.</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="70" y="196" width="196" height="106" rx="14" fill="#0f2733" stroke="#22d3ee" stroke-width="3"/>
+    <text x="168" y="236" font-size="19" font-weight="800" fill="#67e8f9">코드로 관리</text>
+    <text x="168" y="266" font-size="14" font-weight="500" fill="#cbd5e1">Terraform · CDK</text>
+    <text x="168" y="288" font-size="13" font-weight="500" fill="#64748b">상태 파일 · 드리프트</text>
+
+    <rect x="296" y="196" width="196" height="106" rx="14" fill="#0f2733" stroke="#38bdf8" stroke-width="3"/>
+    <text x="394" y="236" font-size="19" font-weight="800" fill="#7dd3fc">자동 배포</text>
+    <text x="394" y="266" font-size="14" font-weight="500" fill="#cbd5e1">CodeBuild · Actions</text>
+    <text x="394" y="288" font-size="13" font-weight="500" fill="#64748b">블루/그린 · 카나리</text>
+
+    <rect x="522" y="196" width="196" height="106" rx="14" fill="#141f38" stroke="#818cf8" stroke-width="3"/>
+    <text x="620" y="236" font-size="19" font-weight="800" fill="#a5b4fc">클러스터 운영</text>
+    <text x="620" y="266" font-size="14" font-weight="500" fill="#cbd5e1">EKS · 오토스케일</text>
+    <text x="620" y="288" font-size="13" font-weight="500" fill="#64748b">버전 업그레이드</text>
+
+    <rect x="748" y="196" width="196" height="106" rx="14" fill="#1e1a33" stroke="#a78bfa" stroke-width="3"/>
+    <text x="846" y="236" font-size="19" font-weight="800" fill="#c4b5fd">관측성</text>
+    <text x="846" y="266" font-size="14" font-weight="500" fill="#cbd5e1">로그 · 지표 · 추적</text>
+    <text x="846" y="288" font-size="13" font-weight="500" fill="#64748b">알람 피로 주의</text>
+
+    <rect x="974" y="196" width="156" height="106" rx="14" fill="#2c1420" stroke="#f43f5e" stroke-width="3"/>
+    <text x="1052" y="236" font-size="19" font-weight="800" fill="#fda4af">온콜</text>
+    <text x="1052" y="266" font-size="14" font-weight="500" fill="#cbd5e1">런북 · 회고</text>
+    <text x="1052" y="288" font-size="13" font-weight="500" fill="#64748b">비난 없이</text>
+  </g>
+
+  <g stroke="#334155" stroke-width="3">
+    <line x1="270" y1="249" x2="290" y2="249"/>
+    <line x1="496" y1="249" x2="516" y2="249"/>
+    <line x1="722" y1="249" x2="742" y2="249"/>
+    <line x1="948" y1="249" x2="968" y2="249"/>
+  </g>
+
+  <text class="ko" x="80" y="362" font-size="17" font-weight="600" fill="#7dd3fc">핵심 질문 — “콘솔에서 급하게 고친 적 있나요? 그다음 어떻게 하셨어요?”</text>
+  <text class="ko" x="80" y="392" font-size="16" font-weight="500" fill="#475569">자동화 수준 · 롤백 경로 · 알람 개수 · 포스트모템 문화</text>
+</svg>
