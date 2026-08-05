@@ -1,3 +1,80 @@
+# KayserDocs
+
+개인 기술 블로그 <https://dorumugs.github.io> 의 소스입니다.
+Jekyll + [minimal-mistakes](https://mmistakes.github.io/minimal-mistakes/) 테마 포크이고,
+글 외에 **수도권 부동산 데이터 파이프라인과 대시보드**가 함께 들어 있습니다.
+
+GitHub Pages 가 `gh-pages` 브랜치를 그대로 서빙합니다 (`main` 없음).
+
+## 부동산 도구
+
+| 페이지 | 내용 |
+|---|---|
+| [`/real-estate/trades/`](https://dorumugs.github.io/real-estate/trades/) | 실거래 대시보드 — 서울·경기 72개 시군구, 국토교통부 실거래 435만 건(2006~) |
+| [`/real-estate/schools/`](https://dorumugs.github.io/real-estate/schools/) | 학군 지도 — 사립초·사립중·국제중·특목고 위치와 그 동네 시세 |
+| [`/real-estate/redevelopment/`](https://dorumugs.github.io/real-estate/redevelopment/) | 재개발·재건축 — 대지지분·용적률·진행단계·인가 전후 가격 |
+
+### 데이터 출처
+
+공공 API 만 씁니다. 정적 사이트라 백엔드가 없고, 수집·집계를 미리 돌려
+JSON 으로 구워 둡니다.
+
+| 출처 | 얻는 것 | 인증 |
+|---|---|---|
+| 국토교통부 실거래가 | 아파트·연립다세대 매매 | data.go.kr |
+| 국토교통부 건축HUB 건축물대장 | 세대수·연면적·대지면적 | data.go.kr (서비스별 활용신청) |
+| 서울시 정비사업 정보몽땅 | 정비사업장 1,102곳, 추진경과 28,055건 | 불필요 |
+| 서울시 도시계획포털(UPIS) | 정비구역 경계, 서울 지적도·용도지역 | 불필요 |
+| 브이월드 | 전국 지적도·용도지역(종 구분) | vworld.kr |
+| 법제처 국가법령정보 | 시·군 조례 용적률 상한 32곳 | `OC` 파라미터 |
+| NEIS·학교알리미 | 학교 위치·진학률 | 각 기관 |
+
+### 구조
+
+```
+scripts/
+  <name>_api.py        순수 함수 (응답 파싱·계산). I/O 없음, 테스트 대상
+  collect_<name>.py    수집. 예산(--max-calls)과 상태 재개
+  build_<name>.py      집계 → assets/realestate/*.json
+  daily.sh             크론 진입점 (실거래)
+  redev_daily.sh       크론 진입점 (재개발·재건축)
+  schools_monthly.sh   크론 진입점 (학군)
+data/                  수집 원본 (gzip CSV)
+assets/realestate/     대시보드 소스(JS/CSS)와 집계 JSON
+_dev/specs/            설계 문서
+tests/                 표준 unittest. tests/fixtures/ 에 실제 응답 고정
+```
+
+표준 라이브러리만 씁니다 (`urllib`·`csv`·`gzip`·`xml.etree`). pandas 나
+requests 계열 의존성이 없어 어디서든 그대로 돌아갑니다.
+
+### 자동 갱신
+
+```
+30 4 * * *   daily.sh            매일   실거래 + 대시보드 집계
+10 6 * * *   redev_daily.sh      매일   연립다세대 실거래 + 집계
+                                 월요일 정비사업 추진경과
+                                 5일    건축물대장·브이월드·조례·정비구역
+40 4 3 * *   schools_monthly.sh  매월   학교 위치·진학률
+```
+
+셋 다 `flock` 으로 직렬화합니다 — 같은 저장소에 `git push` 하는 크론이
+셋이라 겹치면 rebase 가 꼬입니다.
+
+### 직접 돌려보기
+
+```shell
+python3 -m unittest discover -s tests      # 테스트
+./scripts/redev_daily.sh                   # 수집·집계 (커밋 안 함)
+```
+
+인증키는 저장소에 두지 않습니다. `.env`(gitignore) 또는 환경변수를 씁니다.
+자세한 규칙은 [CLAUDE.md](CLAUDE.md) 를 보세요.
+
+---
+
+아래는 포크한 테마의 원본 README 입니다.
+
 # [Minimal Mistakes Jekyll theme](https://mmistakes.github.io/minimal-mistakes/)
 
 [![LICENSE](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/mmistakes/minimal-mistakes/master/LICENSE)

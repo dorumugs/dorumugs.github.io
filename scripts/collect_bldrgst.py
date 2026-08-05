@@ -9,7 +9,8 @@
 상태: data/state/bldrgst_state.json
 
 인증키는 collect_trades.py 와 같은 것을 쓴다 (DATA_GO_KR_API_KEY).
-건축물대장은 실거래가와 별도로 활용신청이 필요하다 — 403 이 오면 그쪽이다.
+다만 활용신청은 실거래가와 별도다 (2026-08-05 승인). 403 이 오면 신청이
+풀렸는지부터 확인한다 — 키가 틀린 게 아니라 그 서비스만 막힌 것이다.
 """
 
 from __future__ import annotations
