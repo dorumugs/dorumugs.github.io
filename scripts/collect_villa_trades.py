@@ -181,7 +181,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--max-calls", type=int, default=8000, help="이번 실행 최대 호출 수")
     parser.add_argument("--sleep", type=float, default=0.05, help="페이지 간 대기 초")
-    parser.add_argument("--workers", type=int, default=6, help="동시 요청 수")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=3,
+        help="동시 요청 수 (기본 3). 6 으로 올리면 800콜 언저리에서 429 를 맞는다.",
+    )
+    parser.add_argument(
+        "--refresh",
+        type=int,
+        default=0,
+        help="매번 다시 받을 최근 개월 수. 실거래는 신고가 늦어 지난 달이 나중에 채워진다.",
+    )
     args = parser.parse_args()
 
     key = collect_trades.load_api_key()
@@ -199,12 +210,24 @@ def main() -> int:
 
     total_cells = len(sggs) * len(months)
     done_cells = sum(1 for s in sggs for m in months if cell(s, m) in state["done"])
-    print(f"서울 {len(sggs)}개 구 × {len(months)}개월 = {total_cells}칸 · 완료 {done_cells} · 예산 {args.max_calls}콜")
+    # 최근 N 개월은 이미 받았어도 다시 받는다. 계약 신고에 최대 30일이 걸려
+    # 지난 달 파일이 나중에 채워지기 때문이다 (collect_trades 의 --refresh 와 같은 이유).
+    refresh_months = set(months[-args.refresh:]) if args.refresh else set()
+    print(
+        f"서울 {len(sggs)}개 구 × {len(months)}개월 = {total_cells}칸 · 완료 {done_cells} · "
+        f"예산 {args.max_calls}콜" + (f" · 최근 {args.refresh}개월 갱신" if refresh_months else "")
+    )
 
-    for ym in months:
+    # 갱신 대상을 먼저 처리한다. 예산이 모자라도 최신 달은 확보한다.
+    ordered = sorted(refresh_months, reverse=True) + [m for m in months if m not in refresh_months]
+
+    for ym in ordered:
         if budget.left <= 0 or limited:
             break
-        pending = [s for s in sggs if cell(s, ym) not in state["done"]]
+        if ym in refresh_months:
+            pending = list(sggs)
+        else:
+            pending = [s for s in sggs if cell(s, ym) not in state["done"]]
         if not pending:
             continue
 

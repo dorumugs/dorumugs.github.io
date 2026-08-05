@@ -2,7 +2,10 @@
 # 매일 실거래가를 이어서 수집한다. cron 에서 부르는 진입점.
 #
 #   crontab -e
-#   30 4 * * * /home/dorumugs/Projects/dorumugs.github.io/scripts/daily.sh >> /home/dorumugs/.cache/realestate-collect.log 2>&1
+#   30 4 * * * /usr/bin/flock -w 7200 /home/dorumugs/.cache/realestate.lock env MAX_CALLS=9000 AUTO_COMMIT=1 AUTO_PUSH=1 /home/dorumugs/Projects/dorumugs.github.io/scripts/daily.sh >> /home/dorumugs/.cache/realestate-collect.log 2>&1
+#
+# flock: 이 저장소에 크론이 셋 붙어 있고 셋 다 git commit/pull --rebase/push 를
+# 한다. 겹쳐 돌면 rebase 가 꼬여 한쪽 커밋이 유실될 수 있어 같은 잠금으로 직렬화한다.
 #
 # 환경변수
 #   MAX_CALLS   이번 실행 최대 API 호출 수 (기본 900)

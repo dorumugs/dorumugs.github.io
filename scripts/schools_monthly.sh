@@ -2,7 +2,7 @@
 # 학군 지도 원본을 월 1회 새로 받는다. cron 에서 부르는 진입점.
 #
 #   crontab -e
-#   40 4 3 * * /home/dorumugs/Projects/dorumugs.github.io/scripts/schools_monthly.sh >> /home/dorumugs/.cache/realestate-schools.log 2>&1
+#   40 4 3 * * /usr/bin/flock -w 7200 /home/dorumugs/.cache/realestate.lock env AUTO_COMMIT=1 AUTO_PUSH=1 /home/dorumugs/Projects/dorumugs.github.io/scripts/schools_monthly.sh >> /home/dorumugs/.cache/realestate-schools.log 2>&1
 #
 # 왜 매일이 아니라 월 1회인가
 #   - 학교 위치·특목고 지정: 학교는 자주 안 바뀐다
