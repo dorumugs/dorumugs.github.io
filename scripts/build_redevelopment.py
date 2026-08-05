@@ -5,7 +5,8 @@
   data/projects/projects.csv.gz   정보몽땅 사업장 목록 (서울)
   data/projects/events.csv.gz     사업장별 단계 이벤트 (일자·동의율)
   data/zones/zones.csv.gz         UPIS 정비구역 (경계 대표점·면적·추진단계코드)
-  data/parcels/parcels.csv.gz     필지 대지면적·공시지가·용도지역 (서울, 지적도)
+  data/parcels/parcels.csv.gz     필지 대지면적·공시지가·용도지역 (서울, UPIS 지적도)
+  data/vworld/parcels.csv.gz      필지 대지면적·공시지가·용도지역 (경기, 브이월드)
   data/bldrgst/bldrgst.csv.gz     건축물대장 총괄표제부 (전국, 세대수·연면적·대지면적)
   data/complexes.csv.gz           단지 마스터 (PNU·세대수·사용승인일)
   data/trades/                    실거래 435만 건
@@ -240,6 +241,11 @@ def load_complexes() -> list[dict]:
 def load_bldrgst() -> dict[str, dict]:
     """PNU → 건축물대장 총괄표제부. 단지 하나가 한 줄이다."""
     return {r["pnu"]: r for r in _read_gz(DATA / "bldrgst" / "bldrgst.csv.gz") if r.get("pnu")}
+
+
+def load_vworld() -> dict[str, dict]:
+    """PNU → 브이월드 필지(면적·공시지가·용도지역). 주로 경기다."""
+    return {r["pnu"]: r for r in _read_gz(DATA / "vworld" / "parcels.csv.gz") if r.get("pnu")}
 
 
 def load_parcels() -> dict[str, dict]:
@@ -483,6 +489,7 @@ def main() -> int:
     events = _read_gz(DATA / "projects" / "events.csv.gz")
     zones = _read_gz(DATA / "zones" / "zones.csv.gz")
     parcels = load_parcels()
+    vworld = load_vworld()
     bldrgst = load_bldrgst()
     complexes = load_complexes()
     if not projects or not complexes:
@@ -551,13 +558,16 @@ def main() -> int:
             if piece > 0:
                 sources.add("대장")
             else:
-                parcel = parcels.get(pnu) or {}
-                try:
-                    piece = float(parcel.get("area_sqm") or 0)
-                except ValueError:
-                    piece = 0.0
-                if piece > 0:
-                    sources.add("지적도")
+                # 지적도 두 벌을 차례로 본다. UPIS 는 서울만, 브이월드는 전국이다.
+                # 은마로 교차검증했을 때 두 값의 차이가 0.06% 라 섞어 써도 된다.
+                for source, table in (("지적도", parcels), ("브이월드", vworld)):
+                    try:
+                        piece = float((table.get(pnu) or {}).get("area_sqm") or 0)
+                    except ValueError:
+                        piece = 0.0
+                    if piece > 0:
+                        sources.add(source)
+                        break
             if piece <= 0:
                 area = 0.0
                 break
@@ -587,22 +597,38 @@ def main() -> int:
         if area > 0 and share is None:
             dropped_share += 1
 
-        # 용도지역·용적률 상한·공시지가는 지적도에만 있다 (서울 한정).
+        # 용도지역·공시지가는 지적도에서 온다. UPIS(서울)를 먼저 보고 없으면 브이월드.
         # 조각이 여럿이면 가장 넓은 필지 것을 대표로 쓴다.
-        main = None
-        for m in (parcels.get(pnu) for pnu in group["pnus"]):
-            if not m:
-                continue
+        def _widest(table):
+            best = None
+            for m in (table.get(pnu) for pnu in group["pnus"]):
+                if not m:
+                    continue
+                try:
+                    if best is None or float(m.get("area_sqm") or 0) > float(best.get("area_sqm") or 0):
+                        best = m
+                except ValueError:
+                    continue
+            return best
+
+        main = _widest(parcels) or {}
+        zone = main.get("landuse_nm") or ""
+        jiga_src = main
+        if not zone:
+            alt = _widest(vworld) or {}
+            zone = alt.get("landuse_nm") or ""
+            if not jiga_src.get("jiga_won_sqm"):
+                jiga_src = alt
+
+        # 용적률 상한은 서울시 도시계획조례 값이라 서울에만 붙인다.
+        # 경기는 시·군마다 조례가 달라(성남 3종 280%, 수원 3종 250% 등) 같은
+        # 표를 쓰면 틀린다. 종 구분은 보여주되 상한은 비워 둔다.
+        far_limit = None
+        if group["sgg_cd"].startswith("11"):
             try:
-                if main is None or float(m.get("area_sqm") or 0) > float(main.get("area_sqm") or 0):
-                    main = m
+                far_limit = int(main.get("far_limit") or 0) or None
             except ValueError:
-                continue
-        main = main or {}
-        try:
-            far_limit = int(main.get("far_limit") or 0) or None
-        except ValueError:
-            far_limit = None
+                far_limit = None
 
         # 거래는 조각 전체를 합쳐 본다. 한 단지가 여러 지번에 걸쳐 신고된다.
         merged: dict[str, list[float]] = defaultdict(list)
@@ -629,9 +655,9 @@ def main() -> int:
                 # 검증에 실패한 값은 그 자체가 신뢰할 수 없다는 뜻이다.
                 "far_est": round(far_actual) if share and far_actual else None,
                 "far_src": far_src if share else None,
-                "zone": main.get("landuse_nm") or None,
+                "zone": zone or None,
                 "far": far_limit,
-                "jiga": int(float(main.get("jiga_won_sqm") or 0)) or None,
+                "jiga": int(float(jiga_src.get("jiga_won_sqm") or 0)) or None,
                 "pp": round(median_pp) if median_pp else None,
                 "n": n_trades,
                 "stage": stage,
@@ -744,7 +770,7 @@ def main() -> int:
             "land_dropped": dropped_share,
         },
         "coverage": {
-            "land_share": "건축물대장 대지면적을 먼저 쓰고 빈 곳은 서울 지적도로 메운다",
+            "land_share": "건축물대장 → UPIS 지적도(서울) → 브이월드 지적도(전국) 순으로 메운다",
             "land_dropped": (
                 f"역산 용적률이 {IMPLIED_FAR_MIN:.0f}~{IMPLIED_FAR_MAX:.0f}% 밖이라 "
                 f"대지지분을 감춘 단지 {dropped_share}곳"
@@ -756,6 +782,7 @@ def main() -> int:
                 "잡혔을 수 있다."
             ),
             "stages": "서울만. 정비사업 진행 데이터는 서울시 정보몽땅이 유일한 상시 출처",
+            "far_limit": "서울시 도시계획조례 기준이라 서울만 채운다. 경기는 시·군별 조례가 달라 비운다",
         },
         "sgg": {
             sgg: {
