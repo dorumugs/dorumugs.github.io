@@ -119,31 +119,43 @@ function renderComplexes(detail) {
   const rows = detail.complexes;
   const head = [
     { label: '단지' }, { label: '동' }, { label: '준공' }, { label: '연차' },
-    { label: '세대' }, { label: '대지지분' }, { label: '추정 용적률' },
+    { label: '세대' }, { label: '대지지분' }, { label: '용적률' },
     { label: '용도지역' }, { label: '상한' }, { label: '최근 평당가' }, { label: '정비사업' },
   ];
-  // 추정 용적률이 100% 아래면 등록 필지가 단지보다 넓어 대지지분이 부풀었을 수 있다.
-  // 값을 지우는 대신 표시로 남겨 독자가 스스로 걸러낼 수 있게 한다.
-  const html = rows.map((r) => `<tr>
+  // 용적률은 대부분 건축물대장 실측이다. 연면적이 없어 실거래로 역산한 칸만
+  // ~ 를 붙여 구분하고, 100% 아래인 칸은 대지면적이 단지보다 넓을 수 있다는
+  // 신호라 물음표를 달아 독자가 스스로 걸러낼 수 있게 한다.
+  const html = rows.map((r) => {
+    const est = r.far_src === '추정';
+    const doubt = r.far_est && r.far_est < 100;
+    const cls = doubt ? ' class="is-doubt"' : est ? ' class="is-est"' : '';
+    const title = doubt
+      ? ' title="대지면적이 단지 땅보다 넓게 잡혔을 수 있습니다"'
+      : est
+        ? ' title="건축물대장에 연면적이 없어 실거래 전용면적으로 역산한 값입니다"'
+        : ' title="건축물대장 용적률 산정 연면적 기준"';
+    return `<tr>
     <td class="re-name">${r.name}</td>
     <td>${r.dong || DASH}</td>
     <td>${r.year || DASH}</td>
     <td>${r.age}년</td>
     <td>${fmt(r.hh)}</td>
     <td>${r.share === null ? DASH : `${r.share.toFixed(1)}평`}</td>
-    <td${r.far_est && r.far_est < 100 ? ' class="is-doubt" title="등록 필지가 단지 땅보다 넓을 수 있습니다"' : ''}>${
-      r.far_est ? `${r.far_est}%` : DASH}</td>
+    <td${cls}${title}>${r.far_est ? `${r.far_est}%${est ? '~' : ''}` : DASH}</td>
     <td>${r.zone || DASH}</td>
     <td>${r.far ? `${r.far}%` : DASH}</td>
     <td>${pyeongPrice(r.pp)}</td>
     <td>${r.stage ? `<span class="re-chip" style="--c:${stageColor(r.stage)}">${r.stage}</span>` : DASH}</td>
-  </tr>`);
+  </tr>`;
+  });
   renderTable(head, html);
 
   const withLand = rows.filter((r) => r.share !== null).length;
+  const measured = rows.filter((r) => r.far_src === '대장').length;
   els.note.textContent = withLand
-    ? `${rows.length}곳 중 ${withLand}곳에 대지지분이 있습니다. 오래된 순으로 정렬했습니다 — ` +
-      '머리글을 눌러 대지지분 순으로 바꿀 수 있습니다.'
+    ? `${rows.length}곳 중 ${withLand}곳에 대지지분이 있고, 용적률 ${measured}곳은 건축물대장 실측입니다` +
+      ' (나머지 ~ 표시는 실거래 역산). 오래된 순으로 정렬했습니다 —' +
+      ' 머리글을 눌러 대지지분 순으로 바꿀 수 있습니다.'
     : `${rows.length}곳. 이 지역은 대지지분 자료가 없어 연차·세대수·실거래가만 나옵니다.`;
 }
 

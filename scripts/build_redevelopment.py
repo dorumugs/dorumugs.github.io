@@ -5,7 +5,8 @@
   data/projects/projects.csv.gz   정보몽땅 사업장 목록 (서울)
   data/projects/events.csv.gz     사업장별 단계 이벤트 (일자·동의율)
   data/zones/zones.csv.gz         UPIS 정비구역 (경계 대표점·면적·추진단계코드)
-  data/parcels/parcels.csv.gz     필지 대지면적·공시지가·용도지역 (서울)
+  data/parcels/parcels.csv.gz     필지 대지면적·공시지가·용도지역 (서울, 지적도)
+  data/bldrgst/bldrgst.csv.gz     건축물대장 총괄표제부 (전국, 세대수·연면적·대지면적)
   data/complexes.csv.gz           단지 마스터 (PNU·세대수·사용승인일)
   data/trades/                    실거래 435만 건
 
@@ -29,6 +30,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import aggregate  # noqa: E402
+import bldrgst_api  # noqa: E402
 import build_dashboard  # noqa: E402  단지명 정규화를 한 곳에서만 정의하기 위해 빌려 쓴다
 import cleanup_api  # noqa: E402
 import regions  # noqa: E402
@@ -89,9 +91,9 @@ IMPLIED_FAR_MAX = 400.0
 def implied_far(households: int, median_area_sqm: float | None, land_sqm: float) -> float | None:
     """실거래 전용면적으로 되짚은 용적률(%).
 
-    건축물대장 API 가 막혀 실제 연면적을 못 받는다. 대신 그 단지에서 실제로
+    건축물대장에 연면적이 없는 단지에만 쓰는 대비책이다. 그 단지에서 실제로
     거래된 전용면적의 중위값에 세대수를 곱하고 전용률로 나눠 연면적을 어림한다.
-    어림값이므로 '추정' 이라고 밝혀서만 쓴다.
+    어림값이므로 far_src='추정' 으로 구분해 내보낸다.
     """
     if not households or not median_area_sqm or land_sqm <= 0:
         return None
@@ -104,10 +106,10 @@ def land_share_pyeong(
 ) -> float | None:
     """대지지분(평) = 대지면적 ÷ 세대수. 재건축 사업성의 1순위 지표다.
 
-    역산 용적률이 말이 안 되면 대지면적과 세대수가 같은 대상을 가리키지 않는
-    것이므로 값을 내지 않는다. 틀린 숫자를 보여주는 것보다 낫다.
-    거래가 없어 역산을 못 하면(far is None) 검증을 건너뛰지 않고 감춘다 —
-    검증 못 한 값을 검증된 값과 같은 열에 섞을 수는 없다.
+    용적률(대장 실측이면 그것, 없으면 실거래 역산)이 말이 안 되면 대지면적과
+    세대수가 같은 대상을 가리키지 않는 것이므로 값을 내지 않는다. 틀린 숫자를
+    보여주는 것보다 낫다. 용적률을 아예 못 구하면(far is None) 검증을 건너뛰지
+    않고 감춘다 — 검증 못 한 값을 검증된 값과 같은 열에 섞을 수는 없다.
     """
     if area_sqm <= 0 or households <= 0:
         return None
@@ -229,6 +231,11 @@ def load_complexes() -> list[dict]:
         if len(name) < len(entry["name"]):
             entry["name"] = name
     return list(groups.values())
+
+
+def load_bldrgst() -> dict[str, dict]:
+    """PNU → 건축물대장 총괄표제부. 단지 하나가 한 줄이다."""
+    return {r["pnu"]: r for r in _read_gz(DATA / "bldrgst" / "bldrgst.csv.gz") if r.get("pnu")}
 
 
 def load_parcels() -> dict[str, dict]:
@@ -416,6 +423,7 @@ def main() -> int:
     events = _read_gz(DATA / "projects" / "events.csv.gz")
     zones = _read_gz(DATA / "zones" / "zones.csv.gz")
     parcels = load_parcels()
+    bldrgst = load_bldrgst()
     complexes = load_complexes()
     if not projects or not complexes:
         print("입력 데이터가 부족합니다. collect_*.py 를 먼저 돌리세요.", file=sys.stderr)
@@ -470,25 +478,59 @@ def main() -> int:
         # 8세대짜리가 대지지분 상위를 채우면 표를 읽는 데 방해만 된다.
         if group["households"] < MIN_HOUSEHOLDS:
             continue
-        members = [parcels.get(pnu) for pnu in group["pnus"]]
-        # 조각 하나라도 필지를 못 찾으면 면적을 합산할 수 없다. 일부만 더하면
-        # 분자가 모자란 채 세대수 전체로 나눠 대지지분이 실제보다 작게 나온다.
+        # 대지면적은 건축물대장을 먼저 보고, 비어 있으면(20% 남짓) 지적도로 메운다.
+        # 대장은 전국을 덮지만 platArea 가 0 인 단지가 많고, 지적도는 값이
+        # 촘촘하지만 서울뿐이다. 둘을 겹쳐야 서울·경기가 다 채워진다.
+        # 조각 하나라도 못 채우면 합산을 포기한다 — 분자만 모자란 채 세대수
+        # 전체로 나누면 대지지분이 실제보다 작게 나온다.
         area = 0.0
-        if all(members):
-            try:
-                area = sum(float(m.get("area_sqm") or 0) for m in members)
-            except ValueError:
+        sources: set[str] = set()
+        for pnu in group["pnus"]:
+            ledger = bldrgst.get(pnu) or {}
+            piece = bldrgst_api._num(ledger.get("plat_area"))
+            if piece > 0:
+                sources.add("대장")
+            else:
+                parcel = parcels.get(pnu) or {}
+                try:
+                    piece = float(parcel.get("area_sqm") or 0)
+                except ValueError:
+                    piece = 0.0
+                if piece > 0:
+                    sources.add("지적도")
+            if piece <= 0:
                 area = 0.0
-        areas = [a for pnu in group["pnus"] for a in areas_by_pnu.get(pnu, [])]
-        median_area = statistics.median(areas) if areas else None
-        far_est = implied_far(group["households"], median_area, area)
-        share = land_share_pyeong(area, group["households"], far_est)
+                break
+            area += piece
+
+        # 세대수·연면적은 대장이 정확하다. 대장이 비는 단지만 마스터 세대수를 쓴다.
+        ledger_hh = sum(
+            int(bldrgst_api._num((bldrgst.get(pnu) or {}).get("hhld_cnt")))
+            for pnu in group["pnus"]
+        )
+        households = ledger_hh or group["households"]
+        gfa = sum(
+            bldrgst_api.floor_area(bldrgst.get(pnu) or {}) or 0.0 for pnu in group["pnus"]
+        )
+
+        # 실측 용적률. 연면적을 못 구한 단지만 실거래 전용면적으로 역산한다.
+        far_actual = gfa / area * 100 if (gfa > 0 and area > 0) else None
+        if far_actual is None:
+            areas = [a for pnu in group["pnus"] for a in areas_by_pnu.get(pnu, [])]
+            median_area = statistics.median(areas) if areas else None
+            far_actual = implied_far(households, median_area, area)
+            far_src = "추정" if far_actual else None
+        else:
+            far_src = "대장"
+
+        share = land_share_pyeong(area, households, far_actual)
         if area > 0 and share is None:
             dropped_share += 1
 
-        # 용도지역·용적률 상한·공시지가는 가장 넓은 조각 것을 대표로 쓴다.
+        # 용도지역·용적률 상한·공시지가는 지적도에만 있다 (서울 한정).
+        # 조각이 여럿이면 가장 넓은 필지 것을 대표로 쓴다.
         main = None
-        for m in members:
+        for m in (parcels.get(pnu) for pnu in group["pnus"]):
             if not m:
                 continue
             try:
@@ -518,13 +560,15 @@ def main() -> int:
                 "dong": group["dong"],
                 "year": group["build_year"],
                 "age": this_year - group["build_year"],
-                "hh": group["households"],
+                "hh": households,
                 "parts": len(group["pnus"]),
                 "land": round(area) if share else None,
+                "land_src": "·".join(sorted(sources)) if share and sources else None,
                 "share": round(share, 1) if share else None,
-                # 추정 용적률은 대지지분이 검증을 통과한 단지에만 붙인다.
+                # 용적률은 대지지분이 검증을 통과한 단지에만 붙인다.
                 # 검증에 실패한 값은 그 자체가 신뢰할 수 없다는 뜻이다.
-                "far_est": round(far_est) if share and far_est else None,
+                "far_est": round(far_actual) if share and far_actual else None,
+                "far_src": far_src if share else None,
                 "zone": main.get("landuse_nm") or None,
                 "far": far_limit,
                 "jiga": int(float(main.get("jiga_won_sqm") or 0)) or None,
@@ -602,15 +646,16 @@ def main() -> int:
             "land_dropped": dropped_share,
         },
         "coverage": {
-            "land_share": "서울만. 경기는 건축물대장 API 활용신청 승인 후 가능",
+            "land_share": "건축물대장 대지면적을 먼저 쓰고 빈 곳은 서울 지적도로 메운다",
             "land_dropped": (
                 f"역산 용적률이 {IMPLIED_FAR_MIN:.0f}~{IMPLIED_FAR_MAX:.0f}% 밖이라 "
                 f"대지지분을 감춘 단지 {dropped_share}곳"
             ),
             "far_est": (
-                "실거래 전용면적 중위값 × 세대수 ÷ 전용률"
-                f"{EXCLUSIVE_RATIO:.2f} 로 어림한 값. 추정 용적률이 100% 아래면 "
-                "등록 필지가 단지 땅보다 넓어 대지지분이 실제보다 크게 잡혔을 수 있다."
+                "건축물대장 용적률 산정 연면적 ÷ 대지면적. 대장 연면적이 없는 단지만 "
+                f"실거래 전용면적 중위값 × 세대수 ÷ 전용률 {EXCLUSIVE_RATIO:.2f} 로 어림한다 "
+                "(far_src 로 구분). 용적률이 100% 아래면 대지면적이 단지 땅보다 넓게 "
+                "잡혔을 수 있다."
             ),
             "stages": "서울만. 정비사업 진행 데이터는 서울시 정보몽땅이 유일한 상시 출처",
         },
