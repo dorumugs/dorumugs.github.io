@@ -198,11 +198,8 @@ function renderLegend() {
 // 프리미엄
 // --------------------------------------------------------------------------
 
-function renderPremium() {
-  const premium = state.summary?.premium;
-  if (!premium) return;
-
-  els.premiumCards.innerHTML = premium.stages
+function stageCards(premium) {
+  return premium.stages
     .map((s) => {
       if (s.median_excess === undefined) {
         return `<div class="re-card is-empty">
@@ -223,18 +220,38 @@ function renderPremium() {
       </div>`;
     })
     .join('');
+}
 
-  const cases = premium.stages
-    .flatMap((s) => (s.cases || []).map((c) => ({ ...c, stage: s.stage })))
+function renderPremium() {
+  const blocks = [state.summary?.premium, state.summary?.premium_redev].filter(Boolean);
+  if (!blocks.length) return;
+
+  // 재건축과 재개발은 매칭 단위가 달라(단지 vs 법정동) 한 표에 섞으면 안 된다.
+  // 블록을 나누고 각각의 매칭 방식을 그 자리에 적는다.
+  els.premiumCards.innerHTML = blocks
+    .map(
+      (b) => `<section class="re-premium-block">
+        <h3 class="re-block-title">${b.label} <small>사업장 ${b.matched}곳</small></h3>
+        <p class="re-block-scope">${b.scope}</p>
+        <div class="re-cards">${stageCards(b)}</div>
+      </section>`,
+    )
+    .join('');
+
+  const cases = blocks
+    .flatMap((b) =>
+      b.stages.flatMap((s) => (s.cases || []).map((c) => ({ ...c, stage: s.stage, kind: b.label }))),
+    )
     .sort((a, b) => b.excess - a.excess)
     .slice(0, 30);
 
   els.premiumTable.innerHTML =
-    `<thead><tr><th>사업장</th><th>자치구</th><th>단계</th><th>인가일</th>
-      <th>단지 변화</th><th>자치구 변화</th><th>초과분</th><th>거래</th></tr></thead>` +
+    `<thead><tr><th>사업장</th><th>구분</th><th>자치구</th><th>단계</th><th>인가일</th>
+      <th>대상 변화</th><th>자치구 변화</th><th>초과분</th><th>거래</th></tr></thead>` +
     `<tbody>${cases
       .map((c) => `<tr>
         <td class="re-name">${c.name}</td>
+        <td>${c.kind}</td>
         <td>${c.sgg}</td>
         <td><span class="re-chip" style="--c:${stageColor(c.stage)}">${c.stage}</span></td>
         <td>${c.date}</td>

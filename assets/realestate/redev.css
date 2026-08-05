@@ -77,9 +77,6 @@
 }
 
 .re-premium-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: 0.8rem;
   margin: 1rem 0 1.6rem;
 }
 
@@ -151,4 +148,37 @@
   .re-card-value {
     font-size: 1.6rem;
   }
+}
+
+/* 프리미엄: 재건축·재개발 블록 분리. 매칭 단위가 달라 한 표에 섞으면 안 된다. */
+.re-premium-block {
+  margin-bottom: 1.8rem;
+}
+
+.re-block-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #3d4144;
+}
+
+.re-block-title small {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #7a8288;
+  margin-left: 0.4rem;
+}
+
+.re-block-scope {
+  margin: 0 0 0.7rem;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #7a8288;
+  max-width: 44rem;
+}
+
+.re-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.8rem;
 }

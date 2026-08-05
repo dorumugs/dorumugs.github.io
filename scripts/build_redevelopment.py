@@ -59,9 +59,13 @@ MIN_EVENT_SAMPLE = 10
 # 사업장 하나가 한 창에서 이 건수 미만이면 그 사업장은 표본에서 뺀다.
 MIN_TRADES_PER_SIDE = 3
 
-# 이벤트 스터디 대상 사업구분. 재개발은 구역 안이 빌라·단독이라
-# 아파트 실거래(우리가 가진 데이터)에 잡히지 않는다. 재건축만 본다.
-EVENT_BSNS_SE = {"재건축", "소규모재건축"}
+# 이벤트 스터디 대상 사업구분.
+#
+# 재건축은 구역이 곧 아파트 단지라 대표지번 → PNU 로 아파트 실거래에 정확히 붙는다.
+# 재개발은 구역 안이 다세대·연립이라 아파트 실거래에 잡히지 않는다. 연립다세대
+# 실거래(data/villa_trades)를 따로 받아 붙이되, 매칭 단위가 다르다 — 아래 주석 참고.
+REBUILD_BSNS_SE = {"재건축", "소규모재건축"}
+REDEVELOP_BSNS_SE = {"재개발(주택정비형)", "재개발(도시정비형)", "소규모재개발"}
 
 
 # --------------------------------------------------------------------------
@@ -307,6 +311,53 @@ def scan_trades(months: list[str], target_pnus: set[str]) -> tuple[dict, dict]:
     return by_pnu_month, by_sgg_month, areas_by_pnu
 
 
+def villa_month_labels() -> list[str]:
+    return sorted(
+        p.name.removesuffix(".csv.gz") for p in (DATA / "villa_trades").glob("*/*.csv.gz")
+    )
+
+
+def scan_villa_trades(months: list[str]) -> tuple[dict, dict]:
+    """연립·다세대 실거래를 (법정동, 월) 과 (시군구, 월) 로 접는다.
+
+    재개발 구역은 대표지번 하나로 대표되지만 실제 구역 안에는 수백 개 지번이
+    있다. 대표지번에서 일어난 거래만 세면 표본이 한 자릿수라 사건 전후를
+    비교할 수 없다. 그래서 **법정동을 구역의 대리 지표로 쓴다.**
+
+    법정동은 구역보다 넓다 — 구역 밖 거래가 섞이고, 한 법정동에 사업장이
+    여럿이면 서로 오염된다. 그만큼 효과가 희석되는 방향이라 초과수익을
+    과대평가하지는 않는다. 화면에 매칭 단위를 밝힌다.
+    """
+    by_dong: dict[tuple[str, str], dict[str, list[float]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    by_sgg: dict[str, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
+
+    for ym in months:
+        path = DATA / "villa_trades" / ym[:4] / f"{ym}.csv.gz"
+        if not path.exists():
+            continue
+        for row in rtms.csv_to_rows(rtms.gunzip_text(path.read_bytes())):
+            if (row.get("cdeal_type") or "").strip() == "O":
+                continue
+            try:
+                price = int(row["price_10k"])
+                area = float(row["area_sqm"])
+            except (ValueError, KeyError):
+                continue
+            pp = aggregate.pyeong_price(price, area)
+            if pp is None:
+                continue
+            sgg = row.get("sgg_cd") or ""
+            dong = (row.get("umd_nm") or "").strip()
+            if not sgg:
+                continue
+            by_sgg[sgg][ym].append(pp)
+            if dong:
+                by_dong[(sgg, dong)][ym].append(pp)
+    return by_dong, by_sgg
+
+
 def window_median(series: dict[str, list[float]], start: str, end: str) -> tuple[float | None, int]:
     """[start, end] 개월 구간의 평당가 중위값과 거래 건수."""
     values: list[float] = []
@@ -326,32 +377,39 @@ def window_median(series: dict[str, list[float]], start: str, end: str) -> tuple
 def build_premium(
     projects: list[dict],
     events_by_project: dict[str, list[dict]],
-    pnu_by_project: dict[str, str],
-    by_pnu_month: dict,
-    by_sgg_month: dict,
+    resolve_series,
     latest: str,
+    *,
+    kinds: set[str],
+    label: str,
+    scope: str,
 ) -> dict:
-    """관문 단계 통과 전후의 평당가 초과수익을 집계한다."""
+    """관문 단계 통과 전후의 평당가 초과수익을 집계한다.
+
+    resolve_series(project) 는 (대상 시계열, 대조군 시계열) 을 돌려주거나,
+    붙일 데이터가 없으면 None 을 돌려준다. 재건축은 단지 PNU 로, 재개발은
+    법정동으로 붙어 단위가 달라서 바깥에서 주입받는다.
+    """
     per_stage: dict[str, list[dict]] = defaultdict(list)
     skipped = Counter()
+    matched = 0
 
     for project in projects:
-        if project.get("bsns_se") not in EVENT_BSNS_SE:
-            skipped["재건축 아님"] += 1
+        if project.get("bsns_se") not in kinds:
             continue
-        cafe = project.get("cafe_url", "")
-        pnu = pnu_by_project.get(cafe)
-        if not pnu or pnu not in by_pnu_month:
+        pair = resolve_series(project)
+        if pair is None:
             skipped["실거래 매칭 실패"] += 1
             continue
+        series, control = pair
 
-        milestones = cleanup_api.milestone_dates(events_by_project.get(cafe, []))
+        milestones = cleanup_api.milestone_dates(
+            events_by_project.get(project.get("cafe_url", ""), [])
+        )
         if not milestones:
             skipped["관문 일자 없음"] += 1
             continue
-
-        series = by_pnu_month[pnu]
-        control = by_sgg_month.get(project.get("sgg_cd") or pnu[:5], {})
+        matched += 1
 
         for stage, day in milestones.items():
             t0 = day[:7]
@@ -401,9 +459,11 @@ def build_premium(
         stages.append(entry)
 
     return {
+        "label": label,
         "window_months": EVENT_WINDOW,
         "min_sample": MIN_EVENT_SAMPLE,
-        "scope": "재건축·소규모재건축만. 재개발 구역은 빌라·단독이라 아파트 실거래에 잡히지 않는다.",
+        "scope": scope,
+        "matched": matched,
         "stages": stages,
         "skipped": dict(skipped),
     }
@@ -609,8 +669,46 @@ def main() -> int:
             }
         )
 
+    # 재건축: 대표지번 → PNU → 그 단지의 아파트 실거래. 대조군은 같은 자치구 아파트 전체.
+    def rebuild_series(project):
+        pnu = pnu_by_project.get(project.get("cafe_url", ""))
+        if not pnu or pnu not in by_pnu_month:
+            return None
+        return by_pnu_month[pnu], by_sgg_month.get(project.get("sgg_cd") or pnu[:5], {})
+
+    # 재개발: 그 사업장이 속한 법정동의 연립·다세대 실거래.
+    # 대조군은 같은 자치구 연립·다세대 전체 (그 동을 포함한다 — 한 동이
+    # 자치구에서 차지하는 비중이 작아 대조군을 크게 흔들지 않는다).
+    villa_months = villa_month_labels()
+    villa_by_dong, villa_by_sgg = ({}, {})
+    if villa_months:
+        print(f"연립·다세대 실거래 {len(villa_months)}개월 스캔")
+        villa_by_dong, villa_by_sgg = scan_villa_trades(villa_months)
+        print(f"  법정동 {len(villa_by_dong)}곳 매칭")
+
+    def redevelop_series(project):
+        sgg = project.get("sgg_cd") or ""
+        dong = (project.get("umd_nm") or "").strip()
+        series = villa_by_dong.get((sgg, dong))
+        if not series:
+            return None
+        return series, villa_by_sgg.get(sgg, {})
+
     premium = build_premium(
-        projects, events_by_project, pnu_by_project, by_pnu_month, by_sgg_month, latest
+        projects, events_by_project, rebuild_series, latest,
+        kinds=REBUILD_BSNS_SE,
+        label="재건축",
+        scope="대표지번으로 그 아파트 단지를 특정해 붙였다. 대조군은 같은 자치구 아파트 전체.",
+    )
+    premium_redev = build_premium(
+        projects, events_by_project, redevelop_series, latest,
+        kinds=REDEVELOP_BSNS_SE,
+        label="재개발",
+        scope=(
+            "구역 안이 다세대·연립이라 연립다세대 실거래로 본다. 구역 경계를 알 수 없어 "
+            "사업장이 속한 법정동 전체를 구역의 대리 지표로 썼다 — 구역 밖 거래가 섞여 "
+            "효과가 희석되는 방향이다. 대조군은 같은 자치구 연립다세대 전체."
+        ),
     )
 
     changed = 0
@@ -669,22 +767,28 @@ def main() -> int:
         },
         "propel_labels": propel_labels,
         "premium": premium,
+        "premium_redev": premium_redev,
     }
     if write_json(OUT_SUMMARY, summary):
         changed += 1
 
     print(f"\n자치구 {len(by_sgg_rows)}개 · 노후단지 {summary['counts']['complexes']}곳 "
           f"(대지지분 있음 {summary['counts']['with_land']}곳) · 파일 {changed}개 갱신")
-    print("단계별 프리미엄:")
-    for entry in premium["stages"]:
+    for block in (premium, premium_redev):
+        print(f"단계별 프리미엄 — {block['label']} (사업장 {block['matched']}곳 매칭):")
+        _print_stages(block)
+    return 0
+
+
+def _print_stages(block: dict) -> None:
+    for entry in block["stages"]:
         if "median_excess" in entry:
             print(f"  {entry['stage']:10s} n={entry['n']:3d}  중위 초과 {entry['median_excess']:+.1f}%p "
                   f"(사분위 {entry['q1']:+.1f} ~ {entry['q3']:+.1f}, 양수 {entry['positive']}건)")
         else:
             print(f"  {entry['stage']:10s} n={entry['n']:3d}  표본 부족")
-    if premium["skipped"]:
-        print("  제외:", premium["skipped"])
-    return 0
+    if block["skipped"]:
+        print("  제외:", block["skipped"])
 
 
 if __name__ == "__main__":
