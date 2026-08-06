@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="컨텍스트에서 규칙 파일, 계획, 실행, 병렬 작업으로 이어지는 AI 코딩 도구 운용 흐름 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#0d2233"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="98" font-size="41" font-weight="800" fill="#f8fafc">도구 운용 — <tspan fill="#22d3ee">굴리는 방식을 보세요</tspan></text>
+  <text class="ko" x="82" y="140" font-size="22" font-weight="500" fill="#94a3b8">프롬프트를 잘 쓰는 게 아니라, 맥락을 관리하는 게 실력이에요.</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="70" y="196" width="196" height="106" rx="14" fill="#0f2733" stroke="#22d3ee" stroke-width="3"/>
+    <text x="168" y="236" font-size="19" font-weight="800" fill="#67e8f9">컨텍스트</text>
+    <text x="168" y="266" font-size="14" font-weight="500" fill="#cbd5e1">뭘 넣고 뭘 빼나</text>
+    <text x="168" y="288" font-size="13" font-weight="500" fill="#64748b">오염 · 압축 · 재시작</text>
+
+    <rect x="296" y="196" width="196" height="106" rx="14" fill="#0f2733" stroke="#38bdf8" stroke-width="3"/>
+    <text x="394" y="236" font-size="19" font-weight="800" fill="#7dd3fc">규칙 파일</text>
+    <text x="394" y="266" font-size="14" font-weight="500" fill="#cbd5e1">팀 자산인가</text>
+    <text x="394" y="288" font-size="13" font-weight="500" fill="#64748b">개인 메모인가</text>
+
+    <rect x="522" y="196" width="196" height="106" rx="14" fill="#141f38" stroke="#818cf8" stroke-width="3"/>
+    <text x="620" y="236" font-size="19" font-weight="800" fill="#a5b4fc">계획 · 분할</text>
+    <text x="620" y="266" font-size="14" font-weight="500" fill="#cbd5e1">한 번에 다 vs 쪼개기</text>
+    <text x="620" y="288" font-size="13" font-weight="500" fill="#64748b">멈추는 지점</text>
+
+    <rect x="748" y="196" width="196" height="106" rx="14" fill="#1e1a33" stroke="#a78bfa" stroke-width="3"/>
+    <text x="846" y="236" font-size="19" font-weight="800" fill="#c4b5fd">도구 확장</text>
+    <text x="846" y="266" font-size="14" font-weight="500" fill="#cbd5e1">MCP · 서브에이전트</text>
+    <text x="846" y="288" font-size="13" font-weight="500" fill="#64748b">붙였다 뗀 이력</text>
+
+    <rect x="974" y="196" width="156" height="106" rx="14" fill="#0f2a1c" stroke="#22c55e" stroke-width="3"/>
+    <text x="1052" y="236" font-size="19" font-weight="800" fill="#86efac">병렬</text>
+    <text x="1052" y="266" font-size="14" font-weight="500" fill="#cbd5e1">worktree</text>
+    <text x="1052" y="288" font-size="13" font-weight="500" fill="#64748b">충돌 감당</text>
+  </g>
+
+  <g stroke="#334155" stroke-width="3">
+    <line x1="270" y1="249" x2="290" y2="249"/>
+    <line x1="496" y1="249" x2="516" y2="249"/>
+    <line x1="722" y1="249" x2="742" y2="249"/>
+    <line x1="948" y1="249" x2="968" y2="249"/>
+  </g>
+
+  <text class="ko" x="80" y="362" font-size="17" font-weight="600" fill="#7dd3fc">핵심 질문 — “결과가 이상해지기 시작하면 그때 뭘 하세요?”</text>
+  <text class="ko" x="80" y="392" font-size="16" font-weight="500" fill="#475569">맥락 관리 · 작업 분할 · 규칙 파일 운영 · 도구를 뗀 판단</text>
+</svg>
