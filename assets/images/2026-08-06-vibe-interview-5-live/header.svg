@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="60분 면접을 오프닝, 페어 코딩, PR 리뷰, 디버깅, 채점으로 쪼갠 진행 시나리오 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#141a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="0.5" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="98" font-size="41" font-weight="800" fill="#f8fafc">실기와 진행표 <tspan fill="#a5b4fc">— 60분 설계</tspan></text>
+  <text class="ko" x="82" y="140" font-size="22" font-weight="500" fill="#94a3b8">AI 를 막지 말고, 쓰는 걸 옆에서 보세요.</text>
+
+  <g class="ko">
+    <rect x="70" y="200" width="1060" height="52" rx="12" fill="#131c33" stroke="#334155" stroke-width="2"/>
+    <rect x="74" y="204" width="180" height="44" rx="9" fill="#1e1a33"/>
+    <rect x="258" y="204" width="330" height="44" rx="9" fill="#10233a"/>
+    <rect x="592" y="204" width="250" height="44" rx="9" fill="#0f2733"/>
+    <rect x="846" y="204" width="140" height="44" rx="9" fill="#0f2a1c"/>
+    <rect x="990" y="204" width="136" height="44" rx="9" fill="#2a2010"/>
+
+    <text x="164" y="232" font-size="16" font-weight="700" fill="#c4b5fd" text-anchor="middle">오프닝 10′</text>
+    <text x="423" y="232" font-size="16" font-weight="700" fill="#7dd3fc" text-anchor="middle">페어 코딩 20′</text>
+    <text x="717" y="232" font-size="16" font-weight="700" fill="#67e8f9" text-anchor="middle">PR 리뷰 15′</text>
+    <text x="916" y="232" font-size="16" font-weight="700" fill="#86efac" text-anchor="middle">사고 10′</text>
+    <text x="1058" y="232" font-size="16" font-weight="700" fill="#fcd34d" text-anchor="middle">역질문 5′</text>
+  </g>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="70"  y="290" width="248" height="66" rx="14" fill="#101828" stroke="#818cf8" stroke-width="2"/>
+    <text x="194" y="318" font-size="17" font-weight="800" fill="#a5b4fc">채점 5축</text>
+    <text x="194" y="342" font-size="14" font-weight="500" fill="#64748b">설명 · 검증 · 분할 · 경계 · 협업</text>
+
+    <rect x="348" y="290" width="248" height="66" rx="14" fill="#101828" stroke="#22d3ee" stroke-width="2"/>
+    <text x="472" y="318" font-size="17" font-weight="800" fill="#67e8f9">레벨별 기대치</text>
+    <text x="472" y="342" font-size="14" font-weight="500" fill="#64748b">주니어 → 리드</text>
+
+    <rect x="626" y="290" width="248" height="66" rx="14" fill="#101828" stroke="#f43f5e" stroke-width="2"/>
+    <text x="750" y="318" font-size="17" font-weight="800" fill="#fda4af">거부권 항목</text>
+    <text x="750" y="342" font-size="14" font-weight="500" fill="#64748b">점수와 무관하게 탈락</text>
+
+    <rect x="904" y="290" width="226" height="66" rx="14" fill="#101828" stroke="#22c55e" stroke-width="2"/>
+    <text x="1017" y="318" font-size="17" font-weight="800" fill="#86efac">역질문 체크</text>
+    <text x="1017" y="342" font-size="14" font-weight="500" fill="#64748b">면접은 양방향</text>
+  </g>
+</svg>

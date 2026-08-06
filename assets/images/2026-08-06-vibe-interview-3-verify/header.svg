@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="타입 검사에서 테스트, 코드 리뷰, 스테이징, 관측으로 이어지는 AI 코드 검증 사다리 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#101f1a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f43f5e"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="98" font-size="41" font-weight="800" fill="#f8fafc">검증 — <tspan fill="#4ade80">뭘 근거로 믿는가</tspan></text>
+  <text class="ko" x="82" y="140" font-size="22" font-weight="500" fill="#94a3b8">AI 코드는 틀릴 때도 아주 그럴듯하게 생겼어요.</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="70" y="196" width="196" height="106" rx="14" fill="#2c1420" stroke="#f43f5e" stroke-width="3"/>
+    <text x="168" y="236" font-size="19" font-weight="800" fill="#fda4af">돌아가면 끝</text>
+    <text x="168" y="266" font-size="14" font-weight="500" fill="#cbd5e1">눈으로 한 번</text>
+    <text x="168" y="288" font-size="13" font-weight="500" fill="#64748b">가장 위험한 층</text>
+
+    <rect x="296" y="196" width="196" height="106" rx="14" fill="#2a2010" stroke="#f59e0b" stroke-width="3"/>
+    <text x="394" y="236" font-size="19" font-weight="800" fill="#fcd34d">타입 · 린트</text>
+    <text x="394" y="266" font-size="14" font-weight="500" fill="#cbd5e1">자동 · 즉시</text>
+    <text x="394" y="288" font-size="13" font-weight="500" fill="#64748b">싸고 얕음</text>
+
+    <rect x="522" y="196" width="196" height="106" rx="14" fill="#10233a" stroke="#38bdf8" stroke-width="3"/>
+    <text x="620" y="236" font-size="19" font-weight="800" fill="#7dd3fc">테스트</text>
+    <text x="620" y="266" font-size="14" font-weight="500" fill="#cbd5e1">누가 정의했나</text>
+    <text x="620" y="288" font-size="13" font-weight="500" fill="#64748b">토톨로지 주의</text>
+
+    <rect x="748" y="196" width="196" height="106" rx="14" fill="#141f38" stroke="#818cf8" stroke-width="3"/>
+    <text x="846" y="236" font-size="19" font-weight="800" fill="#a5b4fc">사람 리뷰</text>
+    <text x="846" y="266" font-size="14" font-weight="500" fill="#cbd5e1">의도 대조</text>
+    <text x="846" y="288" font-size="13" font-weight="500" fill="#64748b">여기가 병목</text>
+
+    <rect x="974" y="196" width="156" height="106" rx="14" fill="#0f2a1c" stroke="#22c55e" stroke-width="3"/>
+    <text x="1052" y="236" font-size="19" font-weight="800" fill="#86efac">운영 관측</text>
+    <text x="1052" y="266" font-size="14" font-weight="500" fill="#cbd5e1">지표 · 알람</text>
+    <text x="1052" y="288" font-size="13" font-weight="500" fill="#64748b">최후 그물</text>
+  </g>
+
+  <g stroke="#334155" stroke-width="3">
+    <line x1="270" y1="249" x2="290" y2="249"/>
+    <line x1="496" y1="249" x2="516" y2="249"/>
+    <line x1="722" y1="249" x2="742" y2="249"/>
+    <line x1="948" y1="249" x2="968" y2="249"/>
+  </g>
+
+  <text class="ko" x="80" y="362" font-size="17" font-weight="600" fill="#4ade80">핵심 질문 — “그게 잘못됐다는 걸 어떻게 아셨어요?”</text>
+  <text class="ko" x="80" y="392" font-size="16" font-weight="500" fill="#475569">검증 수단의 개수 · 테스트를 누가 정의했나 · 못 고쳤을 때의 행동</text>
+</svg>
