@@ -125,6 +125,9 @@ export function initMap(root, { onSelect, onHover = () => {}, interactive = true
       selected = code ? byCode.get(code) : null;
       if (selected) selected.classList.add('is-selected');
     },
+    nameOf(code) {
+      return byCode.get(code)?.dataset.name || code;
+    },
     codesIn(view) {
       const prefix = VIEW_PREFIX[view] ?? '';
       return paths.map((p) => p.dataset.sgg).filter((c) => c.startsWith(prefix));

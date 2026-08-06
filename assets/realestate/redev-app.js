@@ -56,16 +56,25 @@ function pyeongPrice(v) {
   return v === null || v === undefined ? DASH : `${Math.round(v).toLocaleString('ko-KR')}만`;
 }
 
+// '38.5평'·'3,200만'·'+44.2%p' 처럼 단위가 붙은 칸은 sorttable 이 숫자로 못 읽어
+// 글자 순으로 정렬한다 ('10.0평' 이 '9.0평' 앞으로 온다). 원 숫자를 data-sort 로
+// 같이 실어 보낸다. 값이 없으면 속성을 아예 달지 않아 보이는 '—' 가 뒤로 간다.
+const sortKey = (v) => (v === null || v === undefined ? '' : ` data-sort="${v}"`);
+
 // 진행단계를 사업 순서대로 묶는다. 색은 진행도를 나타내는 순차 램프를 쓴다.
 const STAGE_ORDER = [
-  '정비계획 수립', '정비구역지정', '안전진단', '추진위구성', '추진위원회승인',
+  '정비계획 수립', '도시계획심의', '정비구역지정', '안전진단', '추진위구성', '추진위원회승인',
   '조합창립총회', '조합규약작성', '조합원 모집신고', '조합설립인가', '사업시행자지정',
-  '사업시행인가', '관리처분인가', '철거', '철거 및 착공', '착공', '분양',
+  '지구단위계획수립/건축심의/교통심의', '사업시행인가', '사업계획승인',
+  '관리처분인가', '철거', '철거 및 착공', '착공', '분양',
   '준공인가', '이전고시', '조합해산', '청산 및 조합해산', '조합청산',
 ];
 
 function stageRank(stage) {
-  const i = STAGE_ORDER.indexOf(stage);
+  let i = STAGE_ORDER.indexOf(stage);
+  // 정보몽땅 단계명은 원문 그대로 온다. '안전진단(1차)'처럼 회차가 붙은 이름은
+  // 괄호를 떼고 한 번 더 찾는다 — 못 찾으면 회색 칩이 되어 진행도가 사라진다.
+  if (i < 0) i = STAGE_ORDER.indexOf(stage.replace(/\s*\([^)]*\)\s*$/, ''));
   return i < 0 ? null : i / (STAGE_ORDER.length - 1);
 }
 
@@ -98,7 +107,8 @@ function paintMap() {
     if (!n) continue;
     values.set(code, {
       color: rampColor(SEQUENTIAL, n / max),
-      label: `${n}${key === 'projects' ? '개 사업장' : '개 단지'}`,
+      // 툴팁은 라벨이 있으면 구 이름을 대신 쓰지 않는다(map.js). 이름을 직접 넣는다.
+      label: `${map.nameOf(code)} ${n}${key === 'projects' ? '개 사업장' : '개 단지'}`,
     });
   }
   map.paint(values);
@@ -138,13 +148,13 @@ function renderComplexes(detail) {
     <td class="re-name">${r.name}</td>
     <td>${r.dong || DASH}</td>
     <td>${r.year || DASH}</td>
-    <td>${r.age}년</td>
+    <td${sortKey(r.age)}>${r.age}년</td>
     <td>${fmt(r.hh)}</td>
-    <td>${r.share === null ? DASH : `${r.share.toFixed(1)}평`}</td>
-    <td${cls}${title}>${r.far_est ? `${r.far_est}%${est ? '~' : ''}` : DASH}</td>
+    <td${sortKey(r.share)}>${r.share === null ? DASH : `${r.share.toFixed(1)}평`}</td>
+    <td${cls}${title}${sortKey(r.far_est)}>${r.far_est ? `${r.far_est}%${est ? '~' : ''}` : DASH}</td>
     <td>${r.zone || DASH}</td>
     <td>${r.far ? `${r.far}%` : DASH}</td>
-    <td>${pyeongPrice(r.pp)}</td>
+    <td${sortKey(r.pp)}>${pyeongPrice(r.pp)}</td>
     <td>${r.stage ? `<span class="re-chip" style="--c:${stageColor(r.stage)}">${r.stage}</span>` : DASH}</td>
   </tr>`;
   });
@@ -176,6 +186,11 @@ function renderProjects(detail) {
   </tr>`);
   renderTable(head, html);
 
+  if (!rows.length) {
+    els.note.textContent =
+      '이 지역은 정비사업 진행 단계 자료가 없습니다 — 서울시 정보몽땅이 유일한 상시 출처라 서울만 있습니다.';
+    return;
+  }
   const suspended = rows.filter((p) => p.suspended).length;
   els.note.textContent =
     `사업장 ${rows.length}곳` +
@@ -184,14 +199,26 @@ function renderProjects(detail) {
 }
 
 function renderLegend() {
-  if (state.mode !== 'projects') {
+  if (state.mode === 'premium') {
     els.legend.innerHTML = '';
     return;
   }
-  const picks = ['추진위원회승인', '조합설립인가', '사업시행인가', '관리처분인가', '착공', '준공인가'];
-  els.legend.innerHTML = picks
-    .map((s) => `<span class="re-legend-item"><i style="background:${stageColor(s)}"></i>${s}</span>`)
-    .join('');
+  // 지도는 개수로, 표의 칩은 진행 단계로 칠한다. 둘이 같은 순차 램프를 쓰기 때문에
+  // 무엇의 색인지 적지 않으면 지도 색을 단계 색으로 읽게 된다.
+  const unit = state.mode === 'projects' ? '사업장 수' : '단지 수';
+  const parts = [
+    `<span class="re-legend-item"><b>지도 ${unit}</b>` +
+      `<i style="background:${rampColor(SEQUENTIAL, 0.12)}"></i>적음` +
+      `<i style="background:${rampColor(SEQUENTIAL, 1)}"></i>많음</span>`,
+  ];
+  if (state.mode === 'projects') {
+    const picks = ['추진위원회승인', '조합설립인가', '사업시행인가', '관리처분인가', '착공', '준공인가'];
+    parts.push(
+      `<span class="re-legend-item"><b>표 진행 단계</b></span>`,
+      ...picks.map((s) => `<span class="re-legend-item"><i style="background:${stageColor(s)}"></i>${s}</span>`),
+    );
+  }
+  els.legend.innerHTML = parts.join('');
 }
 
 // --------------------------------------------------------------------------
@@ -255,9 +282,9 @@ function renderPremium() {
         <td>${c.sgg}</td>
         <td><span class="re-chip" style="--c:${stageColor(c.stage)}">${c.stage}</span></td>
         <td>${c.date}</td>
-        <td>${c.own > 0 ? '+' : ''}${c.own.toFixed(1)}%</td>
-        <td>${c.control > 0 ? '+' : ''}${c.control.toFixed(1)}%</td>
-        <td style="color:${c.excess > 0 ? UP : DOWN}"><b>${c.excess > 0 ? '+' : ''}${c.excess.toFixed(1)}%p</b></td>
+        <td${sortKey(c.own)}>${c.own > 0 ? '+' : ''}${c.own.toFixed(1)}%</td>
+        <td${sortKey(c.control)}>${c.control > 0 ? '+' : ''}${c.control.toFixed(1)}%</td>
+        <td${sortKey(c.excess)} style="color:${c.excess > 0 ? UP : DOWN}"><b>${c.excess > 0 ? '+' : ''}${c.excess.toFixed(1)}%p</b></td>
         <td>${c.trades}</td>
       </tr>`)
       .join('')}</tbody>`;
@@ -271,14 +298,19 @@ function renderPremium() {
 async function renderPanel() {
   if (state.mode === 'premium') return;
   if (!state.sgg) {
-    els.title.textContent = '구를 선택하세요';
-    els.meta.textContent = '지도에서 자치구를 누르면 그 구의 목록이 나옵니다.';
+    els.title.textContent = state.mode === 'projects' && state.view === 'gyeonggi'
+      ? '경기는 진행 단계 자료가 없습니다'
+      : '구를 선택하세요';
+    // 정보몽땅이 서울만 상시 갱신한다. 경기 지도가 통째로 회색인 이유를 여기서 밝힌다.
+    els.meta.textContent = state.mode === 'projects' && state.view === 'gyeonggi'
+      ? '정비사업 진행 단계는 서울시 정보몽땅이 유일한 상시 출처라 서울만 있습니다. 경기는 노후 단지 보기를 쓰세요.'
+      : '지도에서 자치구를 누르면 그 구의 목록이 나옵니다.';
     els.table.innerHTML = '';
     els.note.textContent = '';
     return;
   }
   const per = state.summary.sgg[state.sgg];
-  const name = document.querySelector(`path[data-sgg="${state.sgg}"]`)?.dataset.name || state.sgg;
+  const name = map.nameOf(state.sgg);
   els.title.textContent = name;
   els.meta.textContent = per
     ? `노후 단지 ${per.complexes}곳 · 정비사업장 ${per.projects}곳`
@@ -302,8 +334,14 @@ function applyMode() {
   els.note.hidden = premiumMode;
   root.querySelector('.re-view-tabs').hidden = premiumMode;
   renderLegend();
-  if (premiumMode) renderPremium();
-  else renderPanel();
+  if (premiumMode) {
+    renderPremium();
+    return;
+  }
+  // 노후 단지 ↔ 진행 단계는 지도가 세는 대상이 달라진다(paintMap 이 state.mode 를 본다).
+  // 다시 칠하지 않으면 처음 칠한 단지 수 색이 그대로 남는다.
+  paintMap();
+  renderPanel();
 }
 
 function bindTabs(selector, key, after) {
@@ -339,8 +377,7 @@ bindTabs('.re-view-tabs', 'view', () => {
     return;
   }
   map.setView(state.view);
-  paintMap();
-  applyMode();
+  applyMode(); // paintMap 을 겸한다
 
   const c = state.summary.counts;
   els.footnote.textContent =
