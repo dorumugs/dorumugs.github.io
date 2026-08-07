@@ -1,0 +1,1 @@
+{"generated": "2026-08-07", "base_date": "2026-08-07", "card_count": 300, "per_cell": 25, "seed": 20260807, "formula": "I_t = 100 × Σ_c w_c · (1/n_c) Σ_{i∈c} P_{i,t}/P_{i,0}   (c = 시대 4 × 가격대 3 = 12칸, w_c = 1/12 균등)", "missing": 0, "days": 1, "sets_included": 141, "sets_excluded": 77, "carry_forward_days": 7}
