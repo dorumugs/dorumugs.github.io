@@ -123,6 +123,18 @@ KREAM 이 간헐적으로 500 을 낸다. 그때는 KREAM 자기 화면도
 
 그래서 **탭으로 가른다.** 두 탭 위에 경고 문구를 항상 띄운다.
 
+### 탭을 숨길 때 `hidden` 만 믿지 말 것
+
+테마 `main.css` 에 HTML5 리셋 `article, aside, …, section { display: block }` 이
+있다. 이게 브라우저 기본 `[hidden] { display: none }` 을 **이긴다.** 그대로 두면
+`hidden` 속성은 걸려 있는데 화면에는 두 탭이 세로로 겹쳐 나온다.
+
+`pokemon.css` 에 `.pk-app [hidden] { display: none }` 을 넣어 되돌린다.
+
+검증도 같이 고쳐야 한다. `element.hidden` 은 **속성만** 보므로 이 상황에서
+통과해 버린다. `getComputedStyle(el).display === 'none'` 을 봐야 한다. 실제로
+속성만 보는 검사로 33개를 통과시키고 배포했다가 스크린샷에서 잡았다.
+
 ## 4. 화면
 
 `/dashboard/pokemon/` 에 탭 둘. 기본은 글로벌.
@@ -202,7 +214,7 @@ python3 -m unittest discover -s tests
 KREAM 은 공식 API 가 아니라 화면이 바뀌면 조용히 깨지므로 실제 응답 표본을
 박아 둔다.
 
-화면은 헤드리스로 몰아 33개 항목을 확인했다. 390px·1280px 양쪽에서
+화면은 헤드리스로 몰아 37개 항목을 확인했다. 390px·1280px 양쪽에서
 
 - 가로 오버플로 없음 (`scrollWidth` 실측 + 넘치는 개별 요소 탐색)
 - 탭 전환 · 국내 데이터 지연 로딩 · 차트 31점 렌더

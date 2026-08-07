@@ -3,6 +3,11 @@
 
 .pk-app { max-width: 100%; overflow-x: hidden; }
 
+/* 테마 main.css 의 HTML5 리셋(`section {display:block}`)이 브라우저 기본
+   `[hidden] {display:none}` 을 이긴다. 그대로 두면 탭이 안 숨겨지고 두 화면이
+   세로로 겹쳐 나온다. 선택자를 더 구체적으로 써서 되돌린다. */
+.pk-app [hidden] { display: none; }
+
 /* 탭. 두 시장은 기준이 달라 한 화면에 섞지 않는다. */
 .pk-tabs { display: flex; gap: 6px; margin: 1em 0 0.7em; flex-wrap: wrap; }
 .pk-tabs button {
