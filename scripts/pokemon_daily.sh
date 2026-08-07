@@ -13,8 +13,10 @@
 #                   약 70분. 세트마다 저장해 중간에 죽어도 다음 실행이 이어받는다.
 #   2. 대체 사진    TCGdex·TCGplayer 둘 다 사진이 없는 카드를 pokemontcg.io 로
 #                   메운다. 새로 생긴 구멍만 확인하므로 평소엔 요청이 없다.
-#   3. 국내 시세    KREAM 시세표. 헤드리스 Chrome 으로 페이지를 열어 받는다.
-#   4. 집계         화면용 JSON 두 벌.
+#   3. 등급 시세    PokemonPriceTracker 의 eBay 감정 낙찰가(PSA 10/9). 무료
+#                   등급이 하루 50장이라 비싼 카드부터 돌며 며칠에 걸쳐 채운다.
+#   4. 국내 시세    KREAM 시세표. 헤드리스 Chrome 으로 페이지를 열어 받는다.
+#   5. 집계         화면용 JSON 두 벌.
 #
 # 한글 이름(PokeAPI)은 거의 바뀌지 않아 파일이 없을 때만 받는다.
 #
@@ -28,6 +30,9 @@
 #   AUTO_PUSH        1 이면 커밋 후 push. AUTO_COMMIT=1 일 때만 의미 있음
 #   MAX_CALLS        1회 예산. 기본 30000 (전 카드가 다 들어간다)
 #   SKIP_KREAM       1 이면 국내 시세 수집을 건너뛴다 (Chrome 이 없는 환경)
+#
+# 인증키가 하나 필요하다 — 등급 시세용 POKEMONPRICETRACKER_API_KEY.
+# `.env` 에 두고, 없으면 그 단계만 조용히 건너뛴다.
 
 set -euo pipefail
 
@@ -60,6 +65,14 @@ fi
 if ! python3 -u scripts/collect_card_art.py; then
   FAILED=1
   echo "대체 사진 수집 실패 — pokemontcg.io 응답을 확인하세요." >&2
+fi
+
+# 감정 등급(PSA) 시세. 무료 등급이 하루 50장이라 비싼 카드부터 나눠 받는다.
+# 키가 없거나 크레딧이 떨어져도 전체 실행을 죽이지 않는다 — 어제 값이 남는다.
+if [ -z "${POKEMONPRICETRACKER_API_KEY:-}" ] && ! grep -q '^POKEMONPRICETRACKER_API_KEY=' .env 2>/dev/null; then
+  echo "POKEMONPRICETRACKER_API_KEY 가 없어 등급 시세를 건너뜁니다."
+elif ! python3 -u scripts/collect_graded.py; then
+  echo "등급 시세 수집이 끝까지 못 갔습니다. 모인 만큼만 씁니다." >&2
 fi
 
 # 국내 원화 시세. KREAM 이 자주 흔들려서 실패를 다르게 다룬다.

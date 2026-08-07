@@ -14,10 +14,11 @@
 
   var state = {
     prefix: '', tcgPrefix: '', ptcgPrefix: '', sets: [], series: [],
-    rarities: [], dates: [], rows: [], setInfo: {}, art: {}, meta: null,
-    filtered: [], shown: PAGE
+    rarities: [], dates: [], rows: [], setInfo: {}, art: {}, graded: {},
+    meta: null, filtered: [], shown: PAGE
   };
   var C = {};
+  var G = {};
 
   function fetchJson(name) {
     return fetch(BASE + '/' + name + '.json', { cache: 'no-cache' }).then(function (r) {
@@ -109,6 +110,15 @@
       out.sort(function (a, b) { return a[C.name_en].localeCompare(b[C.name_en]); });
     } else if (sort === 'obs-desc') {
       out.sort(function (a, b) { return (b[C.obs_max] || 0) - (a[C.obs_max] || 0); });
+    } else if (sort === 'psa-desc') {
+      /* 등급 시세가 없는 카드는 뒤로 민다. 0 으로 쳐서 섞으면 순위가 거짓말이 된다. */
+      out.sort(function (a, b) {
+        var ag = state.graded[cardIdOf(a)], bg = state.graded[cardIdOf(b)];
+        var av = ag ? ag[G.psa10] : null, bv = bg ? bg[G.psa10] : null;
+        if (av === null || av === undefined) { return 1; }
+        if (bv === null || bv === undefined) { return -1; }
+        return bv - av;
+      });
     } else {
       out.sort(function (a, b) { return (b[C.price] || 0) - (a[C.price] || 0); });
     }
@@ -126,6 +136,32 @@
       '<span class="pk-val">' + esc(value) +
         (when ? '<i class="pk-when">' + esc(when) + '</i>' : '') +
       '</span></div>';
+  }
+
+  /* 등급 시세 줄. 값만 크게 띄우면 안 된다 — 이 시장은 표본이 얇아서
+     베이스셋 리자몽 PSA 10 조차 최근 1년에 1건 팔렸다. 그래서 건수와 마지막
+     거래일을 값 옆에 같이 적는다. 없으면 아무것도 그리지 않는다. */
+  function gradedHtml(cardId) {
+    var g = state.graded[cardId];
+    if (!g) { return ''; }
+
+    function line(label, price, count, day) {
+      if (price === null || price === undefined) { return ''; }
+      var note = (count ? count + '건' : '거래 없음') + (day ? ' · ' + day : '');
+      return '<div class="pk-row"><span class="pk-lbl">' + esc(label) +
+        '</span><span class="pk-val">' + esc(money(price)) +
+        '<i class="pk-when">' + esc(note) + '</i></span></div>';
+    }
+
+    var premium = g[G.premium]
+      ? '<span class="pk-prem">raw 대비 ' + esc(g[G.premium]) + '배</span>'
+      : '';
+
+    return '<div class="pk-graded">' +
+      '<p class="pk-gtitle">감정 등급 <small>eBay 낙찰가</small>' + premium + '</p>' +
+      line('PSA 10', g[G.psa10], g[G.psa10_n], g[G.psa10_date]) +
+      line('PSA 9', g[G.psa9], g[G.psa9_n], g[G.psa9_date]) +
+      '</div>';
   }
 
   function cardHtml(r) {
@@ -160,6 +196,7 @@
                  r[C.obs_max] !== null && r[C.obs_max] !== undefined ? when : '') +
           subRow('EUR 평균', money(r[C.cm_avg], '€')) +
         '</div>' +
+        gradedHtml(cardIdOf(r)) +
       '</div>' +
     '</article>';
   }
@@ -213,7 +250,7 @@
   }
 
   Promise.all([fetchJson('cards'), fetchJson('sets'), fetchJson('meta'),
-               fetchJson('art')])
+               fetchJson('art'), fetchJson('graded')])
     .then(function (res) {
       var payload = res[0];
       payload.columns.forEach(function (name, i) { C[name] = i; });
@@ -228,6 +265,8 @@
       state.setInfo = res[1];
       state.meta = res[2];
       state.art = res[3];
+      res[4].columns.forEach(function (name, i) { G[name] = i; });
+      state.graded = res[4].cards;
 
       fillFilters();
       bind();
@@ -236,7 +275,8 @@
       document.getElementById('pk-meta').textContent =
         '카드 ' + state.meta.card_count.toLocaleString('ko-KR') + '장 · 세트 ' +
         state.meta.set_count + '개 · 한글 이름이 붙은 카드 ' +
-        state.meta.with_korean_name.toLocaleString('ko-KR') + '장 · 마지막 갱신 ' +
+        state.meta.with_korean_name.toLocaleString('ko-KR') + '장 · 감정 등급 시세가 붙은 카드 ' +
+        (state.meta.graded_count || 0).toLocaleString('ko-KR') + '장 · 마지막 갱신 ' +
         state.meta.generated + '.';
     })
     .catch(function (err) {

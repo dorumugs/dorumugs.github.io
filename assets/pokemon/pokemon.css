@@ -87,6 +87,21 @@
 }
 .pk-when { display: block; color: #aaa; font-style: normal; font-size: 0.9em; }
 
+/* 감정 등급 블록. raw 시세와 눈으로 구분되어야 한다 — 몇 배씩 벌어지는
+   숫자라 같은 줄에 섞이면 오해한다. */
+.pk-graded {
+  margin: 9px -11px -12px; padding: 8px 11px 10px;
+  border-top: 1px solid #eee; background: #fbf9f4; font-size: 0.7em;
+}
+.pk-gtitle {
+  margin: 0 0 4px; font-size: 1em; font-weight: 700; color: #7a5b00;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px;
+}
+.pk-gtitle small { font-weight: 400; color: #a08a55; font-size: 0.9em; }
+.pk-prem {
+  margin-left: auto; font-weight: 700; color: #c0392b; white-space: nowrap;
+}
+
 .pk-empty { grid-column: 1 / -1; color: #777; font-size: 0.9em; padding: 1.5em 0; }
 
 .pk-more { text-align: center; margin: 1.2em 0 1.6em; }
@@ -161,4 +176,5 @@
   .krw-check { flex: 1 1 100%; }
   .krw-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .krw-axis { font-size: 13px; }
+  .pk-graded { margin: 8px -9px -10px; padding: 7px 9px 9px; }
 }

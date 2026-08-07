@@ -24,10 +24,16 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import collect_card_art  # noqa: E402
+import collect_graded  # noqa: E402
 import collect_pokemon  # noqa: E402
 import pokeapi  # noqa: E402
+import ppt_api  # noqa: E402
 import ptcg_api  # noqa: E402
 import tcgdex_api  # noqa: E402
+
+# graded.json 의 배열 순서. app.js 가 같은 순서로 읽는다.
+GRADED_COLUMNS = ["psa10", "psa10_n", "psa10_date", "psa10_conf",
+                  "psa9", "psa9_n", "psa9_date", "psa9_conf", "premium"]
 
 OUT_DIR = ROOT / "assets" / "pokemon"
 
@@ -76,6 +82,26 @@ def build_art(cards: list[dict], payload: dict, art: dict) -> dict:
     local_at = VIEW_COLUMNS.index("local_id")
     live = {f"{payload['sets'][r[set_at]]}-{r[local_at]}" for r in payload["rows"]}
     return {cid: path for cid, path in sorted(art.items()) if cid in live}
+
+
+def build_graded(cards: list[dict], graded_rows: list[dict]) -> dict:
+    """등급 시세 표. PSA 값이 하나라도 있는 카드만 싣는다.
+
+    raw 대비 배수(premium)를 여기서 미리 계산한다 — 화면이 raw 가격을 다시
+    찾아 나눌 필요가 없고, 무엇보다 '등급이 무엇을 사는지'가 이 숫자다."""
+    raw_by_id = {c["card_id"]: c.get("tp_market") for c in cards}
+    out = {}
+    for row in graded_rows:
+        if not ppt_api.has_any_grade(row):
+            continue
+        out[row["card_id"]] = [
+            row.get("psa10"), row.get("psa10_n"),
+            row.get("psa10_date") or "", row.get("psa10_conf") or "",
+            row.get("psa9"), row.get("psa9_n"),
+            row.get("psa9_date") or "", row.get("psa9_conf") or "",
+            ppt_api.premium(row, raw_by_id.get(row["card_id"])),
+        ]
+    return dict(sorted(out.items()))
 
 
 def build_payload(cards: list[dict], set_meta: dict, species: dict) -> dict:
@@ -165,6 +191,8 @@ def main() -> int:
     sets = build_sets(set_meta, payload)
     art = build_art(cards, payload,
                     collect_pokemon._read_json(collect_card_art.ART_FILE, {}))
+    graded = build_graded(cards, collect_graded.csv_to_rows(
+        collect_pokemon._read_gz(collect_graded.GRADED_FILE)))
 
     ko_at = VIEW_COLUMNS.index("name_ko")
     with_ko = sum(1 for r in payload["rows"] if r[ko_at])
@@ -186,6 +214,9 @@ def main() -> int:
         json.dumps(sets, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (OUT_DIR / "art.json").write_text(
         json.dumps(art, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    (OUT_DIR / "graded.json").write_text(
+        json.dumps({"columns": GRADED_COLUMNS, "cards": graded},
+                   ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (OUT_DIR / "meta.json").write_text(json.dumps({
         "generated": args.generated,
         "card_count": len(payload["rows"]),
@@ -195,12 +226,14 @@ def main() -> int:
         "sets_excluded": sum(1 for m in set_meta.values() if not m.get("included")),
         "art_filled": len(art),
         "no_art": no_art,
+        "graded_count": len(graded),
     }, ensure_ascii=False), encoding="utf-8")
 
     raw = (OUT_DIR / "cards.json").stat().st_size
     packed = len(gzip.compress((OUT_DIR / "cards.json").read_bytes(), 9))
     print(f"카드 {len(payload['rows']):,}장 · 세트 {len(sets)}개 · 한글명 {with_ko:,}장")
     print(f"대체 사진 {len(art):,}장 · 사진이 아예 없는 카드 {no_art:,}장")
+    print(f"등급 시세가 붙은 카드 {len(graded):,}장")
     print(f"cards.json 원본 {raw/1024:.0f}KB · gzip {packed/1024:.0f}KB")
     return 0
 

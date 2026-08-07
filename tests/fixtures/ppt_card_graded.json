@@ -1,0 +1,148 @@
+{
+ "data": [
+  {
+   "id": "696f680f67063f37df823b8f",
+   "tcgPlayerId": "42382",
+   "setName": "Base Set",
+   "name": "Charizard",
+   "cardNumber": "004/102",
+   "rarity": "Holo Rare",
+   "prices": {
+    "market": 818.65,
+    "low": 191.48,
+    "sellers": 91,
+    "listings": 155,
+    "recentSales": 0,
+    "primaryPrinting": "Holofoil",
+    "lastUpdated": "2026-08-06T11:50:20.056Z",
+    "variants": {
+     "Holofoil": {
+      "Near Mint Holofoil": {
+       "price": 818.65,
+       "listings": null,
+       "priceString": "$818.65",
+       "lastUpdated": "2026-08-06T11:50:20.056Z"
+      }
+     }
+    }
+   },
+   "ebay": {
+    "updatedAt": "2026-08-05T11:27:38.244Z",
+    "salesByGrade": {
+     "psa10": {
+      "count": 1,
+      "totalValue": 17500,
+      "averagePrice": 17500,
+      "medianPrice": 17500,
+      "minPrice": 17500,
+      "maxPrice": 17500,
+      "marketPrice7Day": null,
+      "marketPriceMedian7Day": null,
+      "dailyVolume7Day": null,
+      "marketTrend": null,
+      "lastMarketUpdate": "2026-08-05T08:16:21.470Z",
+      "lastSaleDate": "2025-10-30T00:00:00.000Z",
+      "smartMarketPrice": {
+       "price": 14875,
+       "confidence": "low",
+       "method": "all_filtered_weighted",
+       "daysUsed": 279
+      }
+     },
+     "psa9": {
+      "count": 20,
+      "totalValue": 43965.26,
+      "averagePrice": 2586.1917647058826,
+      "medianPrice": 2500,
+      "minPrice": 1500,
+      "maxPrice": 4000,
+      "marketPrice7Day": 1500,
+      "marketPriceMedian7Day": 1500,
+      "dailyVolume7Day": 0.14285714285714285,
+      "marketTrend": "down",
+      "lastMarketUpdate": "2026-08-05T08:16:21.470Z",
+      "lastSaleDate": "2026-07-30T00:00:00.000Z",
+      "smartMarketPrice": {
+       "price": 1500,
+       "confidence": "low",
+       "method": "90day_filtered_weighted",
+       "daysUsed": 90
+      }
+     },
+     "psa8": {
+      "count": 35,
+      "totalValue": 33474.18,
+      "averagePrice": 984.5347058823529,
+      "medianPrice": 926.725,
+      "minPrice": 610,
+      "maxPrice": 1400,
+      "marketPrice7Day": null,
+      "marketPriceMedian7Day": null,
+      "dailyVolume7Day": null,
+      "marketTrend": "up",
+      "lastMarketUpdate": "2026-08-05T08:16:21.470Z",
+      "lastSaleDate": "2026-07-19T00:00:00.000Z",
+      "smartMarketPrice": {
+       "price": 680,
+       "confidence": "low",
+       "method": "30day_filtered_weighted",
+       "daysUsed": 30
+      }
+     },
+     "ungraded": {
+      "count": 123,
+      "totalValue": 52960.24,
+      "averagePrice": 477.1192792792793,
+      "medianPrice": 420,
+      "minPrice": 160,
+      "maxPrice": 1150,
+      "marketPrice7Day": 419.66333333333336,
+      "marketPriceMedian7Day": 449.99,
+      "dailyVolume7Day": 0.42857142857142855,
+      "marketTrend": "down",
+      "lastMarketUpdate": "2026-08-05T08:16:21.470Z",
+      "lastSaleDate": "2026-08-04T00:00:00.000Z",
+      "smartMarketPrice": {
+       "price": 335.5,
+       "confidence": "medium",
+       "method": "7day_filtered_weighted",
+       "daysUsed": 7
+      }
+     },
+     "cgc10": {
+      "count": 1,
+      "totalValue": 5500,
+      "averagePrice": 5500,
+      "medianPrice": 5500,
+      "minPrice": 5500,
+      "maxPrice": 5500,
+      "marketPrice7Day": null,
+      "marketPriceMedian7Day": null,
+      "dailyVolume7Day": null,
+      "marketTrend": null,
+      "lastMarketUpdate": "2026-08-05T08:16:21.470Z",
+      "lastSaleDate": "2026-01-02T00:00:00.000Z",
+      "smartMarketPrice": {
+       "price": 5500,
+       "confidence": "low",
+       "method": "all_filtered_weighted",
+       "daysUsed": 215
+      }
+     }
+    }
+   }
+  }
+ ],
+ "metadata": {
+  "total": 1,
+  "apiCallsConsumed": {
+   "total": 2,
+   "breakdown": {
+    "cards": 1,
+    "history": 0,
+    "ebay": 1
+   },
+   "costPerCard": 2
+  }
+ }
+}

@@ -36,6 +36,7 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
       <option value="price-asc">싼 순</option>
       <option value="name">이름순</option>
       <option value="obs-desc">관측 최고가 순</option>
+      <option value="psa-desc">PSA 10 비싼 순</option>
     </select>
   </div>
 
@@ -71,6 +72,11 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
           <td>Cardmarket 평균 낙찰가</td>
           <td>유럽 시장이라 미국과 다르게 움직입니다.</td>
         </tr>
+        <tr>
+          <td><strong>PSA 10 · PSA 9</strong></td>
+          <td>eBay 에서 <strong>실제로 팔린</strong> 감정 카드 가격</td>
+          <td>옆의 <strong>건수와 마지막 거래일</strong>을 꼭 같이 보세요. 1건이면 그건 시세가 아니라 사례 하나입니다.</td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -83,13 +89,18 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
     <li><strong>트레이너·에너지 카드는 한글 이름이 없습니다.</strong> 도감번호가 없기 때문입니다.</li>
     <li><strong>가격이 안 잡히는 카드는 빠져 있습니다.</strong> 프로모·트레이너킷은 유통 경로가 불규칙해 시세 자체가 잡히지 않습니다.</li>
     <li><strong>사진이 없는 카드가 39장 있습니다.</strong> 세 출처를 다 뒤져도 없는 것들입니다 (My First Battle, Poké Card Creator Pack).</li>
+    <li><strong>감정 등급 시세는 비싼 카드에만 붙습니다.</strong> raw 시세가 $100 이 넘는 카드부터 순서대로 모읍니다. 그 아래는 감정료가 카드값을 넘어서 감정 자체를 안 합니다.</li>
+    <li><strong>등급 시장은 거래가 아주 얇습니다.</strong> 베이스셋 리자몽 PSA 10 조차 최근 1년에 <strong>1건</strong> 팔렸습니다. 건수가 한 자리면 "시세"라고 부르기 어렵습니다.</li>
+    <li><strong>raw 와 PSA 10 은 몇 배씩 벌어집니다.</strong> 지금 모인 카드 기준 중앙값이 <strong>8.6배</strong>, 최대 40배가 넘습니다. 그 차이가 곧 감정료·대기시간·등급이 안 나올 위험의 값입니다.</li>
   </ul>
 
   <p class="pk-source">
     출처: <a href="https://tcgdex.dev/" rel="noopener">TCGdex</a> (카드·시세·이미지) ·
     <a href="https://pokeapi.co/" rel="noopener">PokéAPI</a> (한글 이름) ·
     TCGplayer 와 <a href="https://pokemontcg.io/" rel="noopener">pokemontcg.io</a>
-    (TCGdex 에 이미지가 없는 카드의 사진).
+    (TCGdex 에 이미지가 없는 카드의 사진) ·
+    <a href="https://www.pokemonpricetracker.com/" rel="noopener">PokemonPriceTracker</a>
+    (eBay 감정 등급 낙찰가).
     시세 참고용이며 투자 권유가 아닙니다.
   </p>
 
