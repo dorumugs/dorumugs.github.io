@@ -1,7 +1,7 @@
 ---
 layout: single
 title: "서울·경기 학군 지도"
-permalink: /real-estate/schools/
+permalink: /dashboard/real-estate/schools/
 classes: wide
 author_profile: false
 toc: false

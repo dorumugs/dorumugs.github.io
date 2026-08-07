@@ -1,7 +1,7 @@
 ---
 layout: single
 title: "재개발·재건축 데이터"
-permalink: /real-estate/redevelopment/
+permalink: /dashboard/real-estate/redevelopment/
 classes: wide
 author_profile: false
 toc: false

@@ -1,24 +1,26 @@
 ---
 layout: single
-title: "부동산 도구 모음"
-permalink: /real-estate/
+title: "대시보드"
+permalink: /dashboard/
 classes: wide
 author_profile: false
 toc: false
 header:
   image: /assets/images/real-estate-hub/header.svg
   teaser: /assets/images/real-estate-hub/header.svg
-description: "수도권 부동산을 데이터로 보는 도구들을 모았습니다. 국토교통부 실거래가 435만 건으로 만든 시군구 지도 대시보드부터, 학군·입지까지 하나씩 늘려갑니다."
+description: "데이터로 보는 도구들을 모았습니다. 국토교통부 실거래가 435만 건으로 만든 부동산 대시보드부터, 구성과 산식을 전부 공개한 포켓몬 카드 가격지수까지."
 ---
 
 <link rel="stylesheet" href="{{ '/assets/realestate/hub.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 
-수도권에서 집을 고를 때 실제로 보게 되는 것들을 하나씩 도구로 만들고 있습니다.
-글로 한 번 정리한 주제를 눌러볼 수 있는 화면으로 옮기는 식입니다.
+글로 한 번 정리한 주제를 눌러볼 수 있는 화면으로 옮기고 있습니다.
+지금은 수도권 부동산과 포켓몬 카드 시장을 다룹니다.
+
+## 부동산
 
 <div class="rh-grid">
 
-  <a class="rh-card is-live" href="{{ '/real-estate/trades/' | relative_url }}">
+  <a class="rh-card is-live" href="{{ '/dashboard/real-estate/trades/' | relative_url }}">
     <span class="rh-badge">쓸 수 있음</span>
     <h2 class="rh-title">실거래 대시보드</h2>
     <p class="rh-desc">
@@ -33,7 +35,7 @@ description: "수도권 부동산을 데이터로 보는 도구들을 모았습�
     <span class="rh-go">열어보기 →</span>
   </a>
 
-  <a class="rh-card is-live" href="{{ '/real-estate/schools/' | relative_url }}">
+  <a class="rh-card is-live" href="{{ '/dashboard/real-estate/schools/' | relative_url }}">
     <span class="rh-badge">쓸 수 있음</span>
     <h2 class="rh-title">학군 지도</h2>
     <p class="rh-desc">
@@ -48,7 +50,7 @@ description: "수도권 부동산을 데이터로 보는 도구들을 모았습�
     <span class="rh-go">열어보기 →</span>
   </a>
 
-  <a class="rh-card is-live" href="{{ '/real-estate/redevelopment/' | relative_url }}">
+  <a class="rh-card is-live" href="{{ '/dashboard/real-estate/redevelopment/' | relative_url }}">
     <span class="rh-badge">쓸 수 있음</span>
     <h2 class="rh-title">재개발·재건축</h2>
     <p class="rh-desc">
@@ -74,6 +76,11 @@ description: "수도권 부동산을 데이터로 보는 도구들을 모았습�
     <span class="rh-go is-muted">글 먼저 읽기 ↓</span>
   </div>
 
+</div>
+
+## 수집품
+
+<div class="rh-grid">
 </div>
 
 ## 바탕이 된 글

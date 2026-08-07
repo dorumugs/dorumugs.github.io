@@ -1,7 +1,7 @@
 ---
 layout: single
 title: "서울·경기 아파트 실거래 대시보드"
-permalink: /real-estate/trades/
+permalink: /dashboard/real-estate/trades/
 classes: wide
 author_profile: false
 toc: false
