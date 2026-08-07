@@ -48,11 +48,11 @@
     return null;
   }
 
-  /* n 일 전 값. 관측이 그만큼 쌓이지 않았으면 가장 오래된 값을 쓴다. */
+  /* n 일 전 값. 관측이 그만큼 쌓이지 않았으면 null — 없는 걸 0% 라고 하면
+     거짓말이 된다. 화면에는 '—' 로 나온다. */
   function valueDaysAgo(series, days) {
-    if (!series.length) { return null; }
     var i = series.length - 1 - days;
-    return series[i < 0 ? 0 : i];
+    return i < 0 ? null : series[i];
   }
 
   function renderStats() {
@@ -139,13 +139,20 @@
     }
 
     lines.forEach(function (l) {
-      var d = '', started = false;
+      var d = '', points = 0, lastX = 0, lastY = 0;
       l.values.forEach(function (v, i) {
         if (v === null || v === undefined) { return; }
-        d += (started ? ' L' : 'M') + x(i + offset).toFixed(1) + ' ' + y(v).toFixed(1);
-        started = true;
+        lastX = x(i + offset); lastY = y(v);
+        d += (points ? ' L' : 'M') + lastX.toFixed(1) + ' ' + lastY.toFixed(1);
+        points++;
       });
-      if (d) { parts.push('<path class="line" d="' + d + '" stroke="' + l.color + '"/>'); }
+      if (points > 1) {
+        parts.push('<path class="line" d="' + d + '" stroke="' + l.color + '"/>');
+      } else if (points === 1) {
+        /* 관측이 하루뿐이면 선이 그려지지 않는다. 점으로 찍어 준다. */
+        parts.push('<circle cx="' + lastX.toFixed(1) + '" cy="' + lastY.toFixed(1) +
+          '" r="3.5" fill="' + l.color + '"/>');
+      }
     });
 
     [0, Math.floor(allDates.length / 2), allDates.length - 1].forEach(function (i, k) {
