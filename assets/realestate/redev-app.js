@@ -15,6 +15,7 @@ const base = (root.dataset.base || '/assets/realestate').replace(/\/$/, '');
 const els = {
   title: root.querySelector('.re-panel-title'),
   meta: root.querySelector('.re-panel-meta'),
+  picks: root.querySelector('.re-picks'),
   legend: root.querySelector('.re-legend'),
   tableWrap: root.querySelector('.re-body ~ .re-table-wrap'),
   table: root.querySelector('.re-body ~ .re-table-wrap .re-table'),
@@ -25,7 +26,8 @@ const els = {
   footnote: root.querySelector('.re-footnote'),
 };
 
-const state = { mode: 'complexes', view: 'seoul', sgg: null, summary: null };
+// sggs 는 고른 순서를 지킨다 — 진행 단계 표를 그 순서로 쌓기 때문이다.
+const state = { mode: 'complexes', view: 'seoul', sggs: [], summary: null };
 const sggCache = new Map();
 
 async function getJson(url) {
@@ -87,13 +89,24 @@ function stageColor(stage) {
 // 지도
 // --------------------------------------------------------------------------
 
-const map = initMap(root, {
-  onSelect: (code) => {
-    state.sgg = code;
-    map.setSelected(code);
-    renderPanel();
-  },
-});
+const map = initMap(root, { onSelect: (code) => toggleSgg(code) });
+
+// 지도·칩·빈 상태 요약 표가 모두 이 한 곳을 거친다. 이미 고른 구를 다시 누르면
+// 빠진다 — 추가와 제거가 같은 동작이라야 "다시 눌러 취소"가 예측 가능해진다.
+function toggleSgg(code) {
+  const i = state.sggs.indexOf(code);
+  if (i >= 0) state.sggs.splice(i, 1);
+  else state.sggs.push(code);
+  map.setSelected(state.sggs);
+  renderPanel();
+}
+
+function clearSggs() {
+  if (!state.sggs.length) return;
+  state.sggs = [];
+  map.setSelected([]);
+  renderPanel();
+}
 
 function paintMap() {
   const values = new Map();
@@ -125,9 +138,26 @@ function renderTable(head, rows, { rankColumn = null } = {}) {
   makeSortable(els.table, { rankColumn });
 }
 
-function renderComplexes(detail) {
-  const rows = detail.complexes;
+// 고른 구들의 행을 한 배열로 합치고 각 행에 구 이름을 달아 준다.
+// details 는 [[코드, 상세], ...] 로 고른 순서를 그대로 유지한다.
+function mergeRows(details, key) {
+  return details.flatMap(([code, detail]) =>
+    (detail[key] || []).map((r) => ({ ...r, sggName: map.nameOf(code) })));
+}
+
+// 구가 하나면 모든 행의 값이 같아 쓸모가 없다. 노후 단지 표는 이미 11열이라
+// 390px 에서 가로 스크롤만 길어진다. 둘 이상일 때만 붙인다.
+const sggHead = (multi) => (multi ? [{ label: '구' }] : []);
+const sggCell = (r, multi) => (multi ? `<td class="re-sgg">${r.sggName}</td>` : '');
+
+function renderComplexes(details) {
+  const multi = details.length > 1;
+  // 여러 구를 합치면 파일별 정렬이 무너진다. 안내문의 "오래된 순"을 지키려면
+  // 합친 뒤 다시 세워야 한다.
+  const rows = mergeRows(details, 'complexes');
+  if (multi) rows.sort((a, b) => b.age - a.age);
   const head = [
+    ...sggHead(multi),
     { label: '단지' }, { label: '동' }, { label: '준공' }, { label: '연차' },
     { label: '세대' }, { label: '대지지분' }, { label: '용적률' },
     { label: '용도지역' }, { label: '상한' }, { label: '최근 평당가' }, { label: '정비사업' },
@@ -145,6 +175,7 @@ function renderComplexes(detail) {
         ? ' title="건축물대장에 연면적이 없어 실거래 전용면적으로 역산한 값입니다"'
         : ' title="건축물대장 용적률 산정 연면적 기준"';
     return `<tr>
+    ${sggCell(r, multi)}
     <td class="re-name">${r.name}</td>
     <td>${r.dong || DASH}</td>
     <td>${r.year || DASH}</td>
@@ -162,20 +193,26 @@ function renderComplexes(detail) {
 
   const withLand = rows.filter((r) => r.share !== null).length;
   const measured = rows.filter((r) => r.far_src === '대장').length;
+  const scope = multi ? `${details.length}개 구 ` : '';
   els.note.textContent = withLand
-    ? `${rows.length}곳 중 ${withLand}곳에 대지지분이 있고, 용적률 ${measured}곳은 건축물대장 실측입니다` +
+    ? `${scope}${rows.length}곳 중 ${withLand}곳에 대지지분이 있고, 용적률 ${measured}곳은 건축물대장 실측입니다` +
       ' (나머지 ~ 표시는 실거래 역산). 오래된 순으로 정렬했습니다 —' +
       ' 머리글을 눌러 대지지분 순으로 바꿀 수 있습니다.'
-    : `${rows.length}곳. 이 지역은 대지지분 자료가 없어 연차·세대수·실거래가만 나옵니다.`;
+    : `${scope}${rows.length}곳. 이 지역은 대지지분 자료가 없어 연차·세대수·실거래가만 나옵니다.`;
 }
 
-function renderProjects(detail) {
-  const rows = detail.projects;
+function renderProjects(details) {
+  const multi = details.length > 1;
+  // 노후 단지와 달리 다시 세우지 않는다. 사업장은 비교할 공통 축(연차 같은)이
+  // 없어, 고른 순서대로 쌓는 편이 어디를 보고 있는지 잃지 않는다.
+  const rows = mergeRows(details, 'projects');
   const head = [
+    ...sggHead(multi),
     { label: '사업장' }, { label: '구분' }, { label: '위치' }, { label: '단계' },
     { label: '조합설립' }, { label: '사업시행' }, { label: '관리처분' },
   ];
   const html = rows.map((p) => `<tr${p.suspended ? ' class="is-suspended"' : ''}>
+    ${sggCell(p, multi)}
     <td class="re-name">${p.name}</td>
     <td>${p.se}</td>
     <td>${p.addr || DASH}</td>
@@ -193,7 +230,7 @@ function renderProjects(detail) {
   }
   const suspended = rows.filter((p) => p.suspended).length;
   els.note.textContent =
-    `사업장 ${rows.length}곳` +
+    `${multi ? `${details.length}개 구 ` : ''}사업장 ${rows.length}곳` +
     (suspended ? ` · 이 중 ${suspended}곳은 조합 카페가 닫혀 추진경과를 받지 못했습니다.` : '.') +
     ' 인가일은 최초 인가 기준입니다 (변경인가는 제외).';
 }
@@ -295,32 +332,94 @@ function renderPremium() {
 // 화면 전환
 // --------------------------------------------------------------------------
 
-async function renderPanel() {
-  if (state.mode === 'premium') return;
-  if (!state.sgg) {
-    els.title.textContent = state.mode === 'projects' && state.view === 'gyeonggi'
-      ? '경기는 진행 단계 자료가 없습니다'
-      : '구를 선택하세요';
-    // 정보몽땅이 서울만 상시 갱신한다. 경기 지도가 통째로 회색인 이유를 여기서 밝힌다.
-    els.meta.textContent = state.mode === 'projects' && state.view === 'gyeonggi'
-      ? '정비사업 진행 단계는 서울시 정보몽땅이 유일한 상시 출처라 서울만 있습니다. 경기는 노후 단지 보기를 쓰세요.'
-      : '지도에서 자치구를 누르면 그 구의 목록이 나옵니다.';
+// 구가 하나뿐이면 제목이 곧 구 이름이고 지도에서 다시 눌러 풀 수 있다. 칩은
+// 둘 이상일 때만 — 하나짜리 칩은 제목을 되풀이할 뿐이다.
+function renderPicks() {
+  if (state.sggs.length < 2) {
+    els.picks.hidden = true;
+    els.picks.innerHTML = '';
+    return;
+  }
+  els.picks.hidden = false;
+  els.picks.innerHTML =
+    state.sggs
+      .map((code) => `<button type="button" class="re-pick" data-code="${code}"
+        aria-label="${map.nameOf(code)} 선택 해제">${map.nameOf(code)}<span aria-hidden="true">×</span></button>`)
+      .join('') + '<button type="button" class="re-pick-clear">모두 지우기</button>';
+}
+
+// 아무것도 안 골랐을 때 자리를 비워두면 매번 빈 화면을 마주하게 된다. 이미 받아
+// 둔 redev.json 집계만으로 구 요약을 세운다 — 추가 요청이 없다.
+function renderLanding() {
+  const noProjects = state.mode === 'projects' && state.view === 'gyeonggi';
+  els.title.textContent = noProjects ? '경기는 진행 단계 자료가 없습니다' : '구를 선택하세요';
+  // 정보몽땅이 서울만 상시 갱신한다. 경기 지도가 통째로 회색인 이유를 여기서 밝힌다.
+  els.meta.textContent = noProjects
+    ? '정비사업 진행 단계는 서울시 정보몽땅이 유일한 상시 출처라 서울만 있습니다. 경기는 노후 단지 보기를 쓰세요.'
+    : '지도에서 자치구를 누르면 표에 쌓입니다. 여러 구를 함께 볼 수 있고, 다시 누르면 빠집니다.';
+  if (noProjects) {
+    // 43개 시군구가 전부 0인 표를 그리면 "자료가 있는데 0"으로 읽힌다. 안 그린다.
     els.table.innerHTML = '';
     els.note.textContent = '';
     return;
   }
-  const per = state.summary.sgg[state.sgg];
-  const name = map.nameOf(state.sgg);
-  els.title.textContent = name;
-  els.meta.textContent = per
-    ? `노후 단지 ${per.complexes}곳 · 정비사업장 ${per.projects}곳`
-    : '자료 없음';
+
+  const per = state.summary.sgg || {};
+  const key = state.mode === 'projects' ? 'projects' : 'complexes';
+  const codes = map.codesIn(state.view).filter((c) => per[c]);
+  codes.sort((a, b) => (per[b][key] || 0) - (per[a][key] || 0));
+  const head = [{ label: '구' }, { label: '노후 단지' }, { label: '정비사업장' }];
+  renderTable(
+    head,
+    codes.map((c) => `<tr>
+      <td class="re-name"><button type="button" class="re-pick-row" data-code="${c}">${map.nameOf(c)}</button></td>
+      <td${sortKey(per[c].complexes)}>${fmt(per[c].complexes)}곳</td>
+      <td${sortKey(per[c].projects)}>${fmt(per[c].projects)}곳</td>
+    </tr>`),
+  );
+  els.note.textContent =
+    `${codes.length}개 ${state.view === 'seoul' ? '자치구' : '시군구'}. 구 이름을 누르면 표에 쌓입니다.` +
+    (state.view === 'gyeonggi' ? ' 경기는 정비사업장 자료가 없어 전부 0입니다.' : '');
+}
+
+// 구를 빠르게 여러 번 누르면 fetch 응답 순서가 뒤집혀 옛 결과가 나중에 그려질 수
+// 있다. 토큰이 바뀌었으면 그리지 않고 버린다.
+let renderToken = 0;
+
+async function renderPanel() {
+  if (state.mode === 'premium') return;
+  renderPicks();
+  const token = ++renderToken;
+
+  if (!state.sggs.length) {
+    renderLanding();
+    return;
+  }
+
+  const names = state.sggs.map((c) => map.nameOf(c));
+  els.title.textContent = names.length === 1 ? names[0] : names.join(' · ');
+  const total = state.sggs.reduce(
+    (acc, c) => {
+      const per = state.summary.sgg[c];
+      if (per) {
+        acc.complexes += per.complexes || 0;
+        acc.projects += per.projects || 0;
+      }
+      return acc;
+    },
+    { complexes: 0, projects: 0 },
+  );
+  els.meta.textContent = `노후 단지 ${fmt(total.complexes)}곳 · 정비사업장 ${fmt(total.projects)}곳`;
 
   try {
-    const detail = await loadSgg(state.sgg);
-    if (state.mode === 'complexes') renderComplexes(detail);
-    else renderProjects(detail);
+    const details = await Promise.all(
+      state.sggs.map((code) => loadSgg(code).then((detail) => [code, detail])),
+    );
+    if (token !== renderToken) return;
+    if (state.mode === 'complexes') renderComplexes(details);
+    else renderProjects(details);
   } catch (err) {
+    if (token !== renderToken) return;
     els.table.innerHTML = '';
     els.note.textContent = `자료를 불러오지 못했습니다: ${err.message}`;
   }
@@ -338,8 +437,12 @@ function applyMode() {
     renderPremium();
     return;
   }
-  // 노후 단지 ↔ 진행 단계는 지도가 세는 대상이 달라진다(paintMap 이 state.mode 를 본다).
-  // 다시 칠하지 않으면 처음 칠한 단지 수 색이 그대로 남는다.
+  // 모드가 바뀌면 보는 대상이 달라진다. 선택을 비워 처음 화면으로 되돌린다 —
+  // 진행 단계는 서울만이라 경기 구 선택이 그대로 남으면 빈 표가 된다.
+  state.sggs = [];
+  map.setSelected([]);
+  // 지도가 세는 대상도 달라진다(paintMap 이 state.mode 를 본다). 다시 칠하지
+  // 않으면 처음 칠한 단지 수 색이 그대로 남는다.
   paintMap();
   renderPanel();
 }
@@ -363,10 +466,25 @@ bindTabs('.re-mode-tabs', 'mode', applyMode);
 bindTabs('.re-view-tabs', 'view', () => {
   map.setView(state.view);
   // 다른 시도로 넘어가면 이전 선택은 지도에 보이지 않는다. 선택을 비운다.
-  state.sgg = null;
-  map.setSelected(null);
+  state.sggs = [];
+  map.setSelected([]);
   paintMap();
   renderPanel();
+});
+
+// 칩과 빈 상태 요약 표는 다시 그려지므로 위임으로 받는다.
+els.picks.addEventListener('click', (e) => {
+  if (e.target.closest('.re-pick-clear')) {
+    clearSggs();
+    return;
+  }
+  const pick = e.target.closest('.re-pick');
+  if (pick) toggleSgg(pick.dataset.code);
+});
+
+els.table.addEventListener('click', (e) => {
+  const row = e.target.closest('.re-pick-row');
+  if (row) toggleSgg(row.dataset.code);
 });
 
 (async function start() {

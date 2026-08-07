@@ -19,6 +19,83 @@
   white-space: nowrap;
 }
 
+/* 선택한 구 칩. 구가 둘 이상일 때만 나온다 — 하나면 제목이 곧 구 이름이다. */
+.re-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.re-pick,
+.re-pick-clear {
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.re-pick {
+  border: 1px solid #b9c6d6;
+  background: #eef3f9;
+  color: #33475e;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.re-pick span {
+  font-size: 1.05em;
+  line-height: 1;
+  color: #7a8288;
+}
+
+.re-pick:hover,
+.re-pick:focus-visible {
+  background: #dde7f3;
+}
+
+.re-pick:hover span,
+.re-pick:focus-visible span {
+  color: #d03b3b;
+}
+
+.re-pick-clear {
+  border: 1px solid transparent;
+  background: none;
+  color: #7a8288;
+  text-decoration: underline;
+}
+
+.re-pick-clear:hover,
+.re-pick-clear:focus-visible {
+  color: #3d4144;
+}
+
+/* 빈 상태 요약 표에서 구 이름은 선택을 거는 버튼이다. */
+.re-pick-row {
+  font: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #2f6fb5;
+  cursor: pointer;
+  text-align: left;
+}
+
+.re-pick-row:hover,
+.re-pick-row:focus-visible {
+  text-decoration: underline;
+}
+
+/* 여러 구를 합친 표에서만 나오는 구 열. */
+.re-app.is-redev td.re-sgg {
+  color: #646769;
+  font-size: 0.92em;
+}
+
 .re-legend {
   display: flex;
   flex-wrap: wrap;

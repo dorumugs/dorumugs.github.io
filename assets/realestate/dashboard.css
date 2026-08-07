@@ -25,6 +25,12 @@
   overflow-x: hidden;
 }
 
+/* display 를 주는 클래스 규칙은 브라우저 기본 [hidden]{display:none} 을 이긴다.
+   .re-body(grid) 와 .re-tabs(flex) 가 실제로 그랬다 — 재개발 화면이 프리미엄
+   보기에서 지도와 지역 탭을 hidden 처리하는데도 그대로 보였다. 세 대시보드가
+   hidden 을 화면 전환에 쓰므로 여기서 한 번 못박아 둔다. */
+.re-app [hidden] { display: none !important; }
+
 .re-controls {
   display: flex; justify-content: space-between; align-items: center;
   gap: 10px; flex-wrap: wrap; margin-bottom: 14px;

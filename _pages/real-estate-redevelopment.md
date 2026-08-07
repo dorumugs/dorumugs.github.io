@@ -38,6 +38,7 @@ description: "서울·경기 노후 아파트의 대지지분·용도지역을 �
         <h2 class="re-panel-title">구를 선택하세요</h2>
       </div>
       <p class="re-panel-meta"></p>
+      <div class="re-picks" hidden></div>
       <div class="re-legend"></div>
     </div>
   </div>

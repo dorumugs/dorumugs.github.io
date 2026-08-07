@@ -25,7 +25,6 @@ export function initMap(root, { onSelect, onHover = () => {}, interactive = true
   const paths = Array.from(svg.querySelectorAll('path[data-sgg]'));
   const byCode = new Map(paths.map((p) => [p.dataset.sgg, p]));
   let labels = new Map();
-  let selected = null;
   let hovered = null;
 
   function showTip(path, evt) {
@@ -120,10 +119,13 @@ export function initMap(root, { onSelect, onHover = () => {}, interactive = true
       svg.setAttribute('viewBox',
         `${b.minX - PAD} ${b.minY - PAD} ${b.maxX - b.minX + 2 * PAD} ${b.maxY - b.minY + 2 * PAD}`);
     },
-    setSelected(code) {
-      if (selected) selected.classList.remove('is-selected');
-      selected = code ? byCode.get(code) : null;
-      if (selected) selected.classList.add('is-selected');
+    // null·단일 코드·코드 배열을 모두 받는다. 재개발 화면은 구를 여러 개 고르고,
+    // 실거래 대시보드는 하나만 고른다 — 호출부를 갈라놓지 않으려고 여기서 받아준다.
+    setSelected(codes) {
+      const next = new Set(
+        codes === null || codes === undefined ? [] : Array.isArray(codes) ? codes : [codes],
+      );
+      for (const [code, path] of byCode) path.classList.toggle('is-selected', next.has(code));
     },
     nameOf(code) {
       return byCode.get(code)?.dataset.name || code;
