@@ -84,15 +84,15 @@ description: "데이터로 보는 대시보드를 모았습니다. 국토교통�
 
   <a class="rh-card is-live" href="{{ '/dashboard/pokemon/' | relative_url }}">
     <span class="rh-badge">쓸 수 있음</span>
-    <h2 class="rh-title">포켓몬 카드 가격지수</h2>
+    <h2 class="rh-title">포켓몬 카드 시세</h2>
     <p class="rh-desc">
-      시대 4 × 가격대 3 = <strong>12칸</strong>으로 나눠 층화추출한 <strong>300장</strong>의
-      가격지수입니다. 남의 지수를 인용하지 않고 원가격에서 직접 만듭니다.
+      가격이 잡히는 카드 <strong>전부</strong>의 현재 시세를 카드 사진과 함께 봅니다.
+      영어 이름과 한글 이름 둘 다로 검색할 수 있습니다.
     </p>
     <ul class="rh-points">
-      <li>구성 종목 300장·가중치·산식 전부 공개</li>
-      <li>시대별·가격대별 하위지수</li>
-      <li>매일 TCGplayer 시세 자동 갱신</li>
+      <li>현재가 · 현재 최고 호가 · 관측 최고가를 나란히</li>
+      <li>세트·시대로 걸러보기, 비싼 순 정렬</li>
+      <li>매일 TCGplayer·Cardmarket 시세 자동 갱신</li>
     </ul>
     <span class="rh-go">열어보기 →</span>
   </a>

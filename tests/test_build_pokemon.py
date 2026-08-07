@@ -1,4 +1,4 @@
-"""지수 집계 검증.
+"""화면용 JSON 집계 검증.
 
     python3 -m unittest tests.test_build_pokemon -v
 """
@@ -15,195 +15,95 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import build_pokemon  # noqa: E402
 import tcgdex_api  # noqa: E402
 
+COL = {name: i for i, name in enumerate(build_pokemon.VIEW_COLUMNS)}
 
-def _scan_row(cid: str, market: float) -> dict:
-    row = {c: None for c in tcgdex_api.COLUMNS}
-    row.update({"date": "2026-08-07", "card_id": cid, "variant": "normal", "tp_market": market})
+
+def _card(cid, set_id, name, dex="", market=10.0, high=None, obs=None,
+          obs_date="", cm=None, rarity="Rare") -> dict:
+    row = {c: None for c in tcgdex_api.CARD_COLUMNS}
+    row.update({"card_id": cid, "set_id": set_id, "local_id": cid.split("-")[-1],
+                "name_en": name, "dex_id": dex, "rarity": rarity, "category": "Pokemon",
+                "image": f"x/{set_id}/1", "tp_market": market, "tp_high": high,
+                "obs_max": obs, "obs_max_date": obs_date, "cm_avg": cm,
+                "updated": "2026-08-08"})
     return row
 
 
-class TestBuildUniverse(unittest.TestCase):
-    def _inputs(self):
-        rows, meta, names = [], {}, {}
-        for si, (era, rd) in enumerate(
-            [("빈티지", "2001-06-01"), ("클래식", "2007-08-01"),
-             ("모던", "2014-05-07"), ("최신", "2022-07-01")]
-        ):
-            sid = f"s{si}"
-            meta[sid] = {"name": f"Set {si}", "release_date": rd, "era": era,
-                         "included": True, "coverage": 1.0, "card_count": 90}
-            for i in range(90):
-                rows.append(_scan_row(f"{sid}-{i}", float(i + 1)))
-                names[f"{sid}-{i}"] = f"카드{si}_{i}"
-        return rows, meta, names
+class TestViewRow(unittest.TestCase):
+    def test_maps_columns_in_order(self) -> None:
+        r = build_pokemon.view_row(
+            _card("base1-4", "base1", "Charizard", dex="6", market=818.65,
+                  high=4590.63, obs=900.0, obs_date="2026-08-07", cm=446.7),
+            {"6": "리자몽"})
+        self.assertEqual(len(r), len(build_pokemon.VIEW_COLUMNS))
+        self.assertEqual(r[COL["card_id"]], "base1-4")
+        self.assertEqual(r[COL["name_en"]], "Charizard")
+        self.assertEqual(r[COL["name_ko"]], "리자몽")
+        self.assertEqual(r[COL["price"]], 818.65)
+        self.assertEqual(r[COL["high_ask"]], 4590.63)
+        self.assertEqual(r[COL["obs_max"]], 900.0)
+        self.assertEqual(r[COL["obs_max_date"]], "2026-08-07")
 
-    def test_picks_per_cell_from_every_cell(self) -> None:
-        rows, meta, names = self._inputs()
-        uni = build_pokemon.build_universe(rows, meta, names, seed=1, per_cell=5)
-        self.assertEqual(len(uni["cards"]), 5 * 3 * 4)
-        for era in tcgdex_api.ERAS:
-            for band in tcgdex_api.BANDS:
-                cell = [c for c in uni["cards"] if c["era"] == era and c["band"] == band]
-                self.assertEqual(len(cell), 5, f"{era}/{band}")
+    def test_no_dex_id_means_no_korean_name(self) -> None:
+        r = build_pokemon.view_row(_card("base1-102", "base1", "Water Energy"), {"6": "리자몽"})
+        self.assertEqual(r[COL["name_ko"]], "")
 
-    def test_records_base_price_set_and_name(self) -> None:
-        rows, meta, names = self._inputs()
-        uni = build_pokemon.build_universe(rows, meta, names, seed=1, per_cell=5)
-        card = uni["cards"][0]
-        self.assertGreater(card["base_price"], 0)
-        self.assertTrue(card["set_name"])
-        self.assertTrue(card["name"].startswith("카드"))
-        self.assertEqual(uni["seed"], 1)
+    def test_cardmarket_fills_in_when_tcgplayer_missing(self) -> None:
+        r = build_pokemon.view_row(
+            _card("a-1", "s", "A", market=None, cm=12.5), {})
+        self.assertEqual(r[COL["price"]], 12.5)
 
-    def test_falls_back_to_card_id_when_name_unknown(self) -> None:
-        rows, meta, _ = self._inputs()
-        uni = build_pokemon.build_universe(rows, meta, {}, seed=1, per_cell=5)
-        self.assertTrue(uni["cards"][0]["name"])
-
-    def test_excluded_sets_are_ignored(self) -> None:
-        rows, meta, names = self._inputs()
-        meta["s0"]["included"] = False
-        uni = build_pokemon.build_universe(rows, meta, names, seed=1, per_cell=5)
-        self.assertFalse([c for c in uni["cards"] if c["set_id"] == "s0"])
+    def test_missing_price_is_none_not_zero(self) -> None:
+        r = build_pokemon.view_row(_card("a-1", "s", "A", market=None), {})
+        self.assertIsNone(r[COL["price"]])
 
 
-class TestSeriesFromPrices(unittest.TestCase):
-    def _universe(self):
-        cards = []
-        for era in tcgdex_api.ERAS:
-            for band in tcgdex_api.BANDS:
-                cards.append({"card_id": f"{era}-{band}", "era": era, "band": band,
-                              "base_price": 10.0, "name": "x", "set_id": "s",
-                              "set_name": "S"})
-        return {"base_date": "2026-08-07", "seed": 1, "cards": cards}
+class TestBuildCards(unittest.TestCase):
+    def _meta(self):
+        return {"s1": {"name": "Set One", "release_date": "2020-01-01",
+                       "era": "최신", "included": True},
+                "s2": {"name": "Set Two", "release_date": "1999-01-09",
+                       "era": "빈티지", "included": False}}
 
-    def _rows(self, day: str, price: float):
-        out = []
-        for era in tcgdex_api.ERAS:
-            for band in tcgdex_api.BANDS:
-                r = {c: None for c in tcgdex_api.COLUMNS}
-                r.update({"date": day, "card_id": f"{era}-{band}", "tp_market": price})
-                out.append(r)
-        return out
+    def test_excluded_sets_are_dropped(self) -> None:
+        cards = [_card("s1-1", "s1", "A"), _card("s2-1", "s2", "B")]
+        out = build_pokemon.build_cards(cards, self._meta(), {})
+        self.assertEqual([r[COL["card_id"]] for r in out], ["s1-1"])
 
-    def test_base_date_is_one_hundred(self) -> None:
-        uni = self._universe()
-        s = build_pokemon.series_from_prices(uni, self._rows("2026-08-07", 10.0))
-        self.assertEqual(s["dates"], ["2026-08-07"])
-        self.assertAlmostEqual(s["index"][0], 100.0)
+    def test_sorted_by_price_desc(self) -> None:
+        cards = [_card("s1-1", "s1", "A", market=5.0),
+                 _card("s1-2", "s1", "B", market=50.0),
+                 _card("s1-3", "s1", "C", market=20.0)]
+        out = build_pokemon.build_cards(cards, self._meta(), {})
+        self.assertEqual([r[COL["price"]] for r in out], [50.0, 20.0, 5.0])
 
-    def test_doubling_next_day(self) -> None:
-        uni = self._universe()
-        rows = self._rows("2026-08-07", 10.0) + self._rows("2026-08-08", 20.0)
-        s = build_pokemon.series_from_prices(uni, rows)
-        self.assertAlmostEqual(s["index"][1], 200.0)
-        self.assertAlmostEqual(s["by_era"]["빈티지"][1], 200.0)
-
-    def test_dates_are_sorted(self) -> None:
-        uni = self._universe()
-        rows = self._rows("2026-08-09", 10.0) + self._rows("2026-08-07", 10.0)
-        s = build_pokemon.series_from_prices(uni, rows)
-        self.assertEqual(s["dates"], ["2026-08-07", "2026-08-09"])
-
-    def test_cardmarket_is_used_when_tcgplayer_missing(self) -> None:
-        uni = self._universe()
-        rows = self._rows("2026-08-07", 10.0)
-        for r in rows:
-            r["tp_market"] = None
-            r["cm_avg"] = 20.0
-        s = build_pokemon.series_from_prices(uni, rows)
-        self.assertAlmostEqual(s["index"][0], 200.0)
+    def test_priceless_cards_sort_last(self) -> None:
+        cards = [_card("s1-1", "s1", "A", market=None),
+                 _card("s1-2", "s1", "B", market=1.0)]
+        out = build_pokemon.build_cards(cards, self._meta(), {})
+        self.assertEqual(out[0][COL["card_id"]], "s1-2")
 
 
-class TestRebaseUniverse(unittest.TestCase):
-    def _universe(self):
-        return {"base_date": "2026-08-07", "seed": 1, "per_cell": 1, "rebased": False,
-                "cards": [
-                    {"card_id": "a-1", "era": "빈티지", "band": "고가", "base_price": 10.0,
-                     "name": "A", "set_id": "s", "set_name": "S"},
-                    {"card_id": "b-1", "era": "빈티지", "band": "중가", "base_price": 20.0,
-                     "name": "B", "set_id": "s", "set_name": "S"},
-                ]}
+class TestBuildSets(unittest.TestCase):
+    def test_counts_only_sets_with_cards(self) -> None:
+        meta = {"s1": {"name": "One", "release_date": "2020-01-01", "era": "최신",
+                       "included": True},
+                "s9": {"name": "Nine", "release_date": "2021-01-01", "era": "최신",
+                       "included": True}}
+        cards = [build_pokemon.view_row(_card("s1-1", "s1", "A"), {}),
+                 build_pokemon.view_row(_card("s1-2", "s1", "B"), {})]
+        out = build_pokemon.build_sets(meta, cards)
+        self.assertEqual(list(out), ["s1"])
+        self.assertEqual(out["s1"]["count"], 2)
 
-    def _row(self, day, cid, price):
-        r = {c: None for c in tcgdex_api.COLUMNS}
-        r.update({"date": day, "card_id": cid, "tp_market": price})
-        return r
-
-    def test_first_observation_becomes_the_base(self) -> None:
-        uni = self._universe()
-        rows = [self._row("2026-08-08", "a-1", 12.0), self._row("2026-08-08", "b-1", 25.0)]
-        out = build_pokemon.rebase_universe(uni, rows)
-        self.assertTrue(out["rebased"])
-        self.assertEqual(out["base_date"], "2026-08-08")
-        prices = {c["card_id"]: c["base_price"] for c in out["cards"]}
-        self.assertEqual(prices["a-1"], 12.0)
-        self.assertEqual(prices["b-1"], 25.0)
-
-    def test_index_is_exactly_one_hundred_after_rebase(self) -> None:
-        uni = self._universe()
-        rows = [self._row("2026-08-08", "a-1", 12.0), self._row("2026-08-08", "b-1", 25.0)]
-        out = build_pokemon.rebase_universe(uni, rows)
-        s = build_pokemon.series_from_prices(out, rows)
-        self.assertAlmostEqual(s["index"][0], 100.0)
-
-    def test_earliest_date_wins(self) -> None:
-        uni = self._universe()
-        rows = [self._row("2026-08-09", "a-1", 99.0), self._row("2026-08-08", "a-1", 12.0)]
-        out = build_pokemon.rebase_universe(uni, rows)
-        self.assertEqual(out["base_date"], "2026-08-08")
-        self.assertEqual(out["cards"][0]["base_price"], 12.0)
-
-    def test_already_rebased_is_left_alone(self) -> None:
-        uni = self._universe()
-        uni["rebased"] = True
-        rows = [self._row("2026-08-08", "a-1", 12.0)]
-        out = build_pokemon.rebase_universe(uni, rows)
-        self.assertEqual(out["base_date"], "2026-08-07")
-        self.assertEqual(out["cards"][0]["base_price"], 10.0)
-
-    def test_no_rows_is_left_alone(self) -> None:
-        uni = self._universe()
-        out = build_pokemon.rebase_universe(uni, [])
-        self.assertFalse(out["rebased"])
-        self.assertEqual(out["base_date"], "2026-08-07")
-
-    def test_card_missing_on_base_day_keeps_scan_price(self) -> None:
-        uni = self._universe()
-        rows = [self._row("2026-08-08", "a-1", 12.0)]
-        out = build_pokemon.rebase_universe(uni, rows)
-        prices = {c["card_id"]: c["base_price"] for c in out["cards"]}
-        self.assertEqual(prices["b-1"], 20.0)
-
-
-class TestBackcast(unittest.TestCase):
-    def _universe(self):
-        return {"base_date": "2026-08-07", "cards": [
-            {"card_id": "a-1", "era": "빈티지", "band": "고가", "base_price": 10.0,
-             "name": "A", "set_id": "s", "set_name": "S"},
-        ]}
-
-    def test_uses_cardmarket_averages(self) -> None:
-        row = {c: None for c in tcgdex_api.COLUMNS}
-        row.update({"date": "2026-08-07", "card_id": "a-1", "tp_market": 10.0,
-                    "cm_avg": 10.0, "cm_avg7": 8.0, "cm_avg30": 5.0})
-        out = build_pokemon.backcast_from_cardmarket(self._universe(), [row])
-        self.assertEqual(len(out["dates"]), 3)
-        self.assertLess(out["index"][0], out["index"][-1])
-        self.assertAlmostEqual(out["index"][-1], 100.0)
-        self.assertTrue(out["estimated"])
-
-    def test_dates_run_backwards_from_base(self) -> None:
-        row = {c: None for c in tcgdex_api.COLUMNS}
-        row.update({"date": "2026-08-07", "card_id": "a-1",
-                    "cm_avg": 10.0, "cm_avg7": 8.0, "cm_avg30": 5.0})
-        out = build_pokemon.backcast_from_cardmarket(self._universe(), [row])
-        self.assertEqual(out["dates"], ["2026-07-08", "2026-07-31", "2026-08-07"])
-
-    def test_no_cardmarket_yields_empty(self) -> None:
-        row = {c: None for c in tcgdex_api.COLUMNS}
-        row.update({"date": "2026-08-07", "card_id": "a-1", "tp_market": 10.0})
-        self.assertEqual(build_pokemon.backcast_from_cardmarket(self._universe(), [row])["dates"], [])
+    def test_newest_set_first(self) -> None:
+        meta = {"old": {"name": "Old", "release_date": "1999-01-09", "era": "빈티지",
+                        "included": True},
+                "new": {"name": "New", "release_date": "2025-01-01", "era": "최신",
+                        "included": True}}
+        cards = [build_pokemon.view_row(_card("old-1", "old", "A"), {}),
+                 build_pokemon.view_row(_card("new-1", "new", "B"), {})]
+        self.assertEqual(list(build_pokemon.build_sets(meta, cards)), ["new", "old"])
 
 
 if __name__ == "__main__":

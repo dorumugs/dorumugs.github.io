@@ -1,75 +1,83 @@
-/* 포켓몬 카드 지수 대시보드.
+/* 포켓몬 카드 시세 브라우저.
    390px 에서 가로 오버플로가 없어야 한다. 넘치는 건 .pk-table-wrap 안에서만. */
 
 .pk-app { max-width: 100%; overflow-x: hidden; }
 
-.pk-lede { font-size: 0.95em; line-height: 1.7; }
-
-.pk-stats {
-  display: grid; gap: 10px; margin: 1.2em 0;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+.pk-search { margin: 1em 0 0.6em; }
+.pk-search input {
+  width: 100%; box-sizing: border-box; font-size: 1em;
+  padding: 11px 14px; border: 1px solid #d5d5d5; border-radius: 8px;
 }
-.pk-stat {
-  border: 1px solid #e3e3e3; border-radius: 8px; padding: 12px 14px;
-  background: #fafafa; min-width: 0;
+.pk-search input:focus { outline: 2px solid #2c3e50; outline-offset: -1px; }
+
+.pk-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 0.8em; }
+.pk-filters select {
+  font-size: 0.85em; padding: 6px 8px; max-width: 100%;
+  border: 1px solid #d5d5d5; border-radius: 6px; background: #fff;
+  flex: 1 1 auto; min-width: 0;
 }
-.pk-stat b { display: block; font-size: 1.5em; line-height: 1.2; word-break: break-word; }
-.pk-stat span { display: block; font-size: 0.78em; color: #666; margin-top: 4px; }
-.pk-stat.is-up b { color: #c0392b; }
-.pk-stat.is-down b { color: #2471a3; }
 
-.pk-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 1em 0 0.6em; }
-.pk-tab {
-  border: 1px solid #d8d8d8; background: #fff; border-radius: 999px;
-  padding: 6px 14px; font-size: 0.85em; cursor: pointer;
+.pk-count { font-size: 0.82em; color: #666; margin: 0 0 0.8em; }
+
+.pk-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
 }
-.pk-tab.is-on { background: #2c3e50; color: #fff; border-color: #2c3e50; }
 
-.pk-chart-wrap { margin: 0.6em 0; }
-.pk-chart { width: 100%; height: auto; display: block; }
-.pk-chart .grid { stroke: #ececec; stroke-width: 1; }
-.pk-chart .axis { fill: #888; font-size: 11px; }
-.pk-chart .line { fill: none; stroke-width: 2; }
-.pk-chart .line.is-est { stroke-dasharray: 4 4; opacity: 0.75; }
+.pk-card {
+  border: 1px solid #e5e5e5; border-radius: 10px; overflow: hidden;
+  background: #fff; display: flex; flex-direction: column; min-width: 0;
+}
+.pk-imgwrap { display: block; background: #f2f2f2; line-height: 0; }
+.pk-img { width: 100%; height: auto; display: block; }
+.pk-img.is-broken { visibility: hidden; min-height: 180px; }
+.pk-img.is-none {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 180px; font-size: 0.78em; color: #999; line-height: 1.4;
+}
 
-.pk-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.8em; margin-top: 6px; }
-.pk-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; }
-.pk-legend .is-est-note { color: #888; }
+.pk-body { padding: 10px 11px 12px; min-width: 0; }
+.pk-name {
+  font-size: 0.92em; font-weight: 700; margin: 0; line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.pk-ko { font-size: 0.82em; color: #c0392b; margin: 2px 0 0; overflow-wrap: anywhere; }
+.pk-set {
+  font-size: 0.72em; color: #777; margin: 5px 0 0; line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.pk-price { font-size: 1.15em; font-weight: 800; margin: 8px 0 0; color: #1a1a1a; }
 
-.pk-note { font-size: 0.8em; color: #777; margin: 0.4em 0 1.4em; }
-.pk-sub { font-size: 0.85em; color: #666; }
+.pk-sub {
+  display: grid; grid-template-columns: auto 1fr; gap: 1px 8px;
+  margin: 7px 0 0; font-size: 0.72em;
+}
+.pk-sub dt { color: #888; white-space: nowrap; }
+.pk-sub dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.pk-when { color: #aaa; }
 
-.pk-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.8em 0; }
-.pk-filters select { font-size: 0.85em; padding: 5px 8px; max-width: 48%; }
+.pk-empty { grid-column: 1 / -1; color: #777; font-size: 0.9em; padding: 1.5em 0; }
+
+.pk-more { text-align: center; margin: 1.2em 0 1.6em; }
+.pk-more button {
+  border: 1px solid #d8d8d8; background: #fff; border-radius: 6px;
+  padding: 9px 22px; font-size: 0.88em; cursor: pointer;
+}
 
 /* 표는 자체 스크롤 컨테이너 안에서만 넘친다. */
 .pk-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.pk-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 0.82em; }
-.pk-table th, .pk-table td { padding: 7px 9px; border-bottom: 1px solid #eee; white-space: nowrap; }
-.pk-table th { background: #f5f5f5; text-align: left; font-weight: 600; }
-.pk-table .is-num { text-align: right; }
-.pk-table .up { color: #c0392b; }
-.pk-table .down { color: #2471a3; }
-
-.pk-more { text-align: center; margin: 0.8em 0 1.6em; }
-.pk-more button {
-  border: 1px solid #d8d8d8; background: #fff; border-radius: 6px;
-  padding: 8px 18px; font-size: 0.85em; cursor: pointer;
+.pk-table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 0.82em; }
+.pk-table th, .pk-table td {
+  padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top;
 }
+.pk-table th { background: #f5f5f5; text-align: left; font-weight: 600; white-space: nowrap; }
 
-.pk-formula {
-  background: #f7f7f7; border-left: 3px solid #2c3e50; padding: 12px 14px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.78em; line-height: 1.6;
-  white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
-}
-
-.pk-source { font-size: 0.78em; color: #777; margin-top: 1.6em; }
+.pk-note { font-size: 0.78em; color: #777; }
+.pk-source { font-size: 0.78em; color: #777; margin-top: 1.4em; }
 
 @media (max-width: 480px) {
-  .pk-stats { grid-template-columns: repeat(2, 1fr); }
-  .pk-stat { padding: 10px 11px; }
-  .pk-stat b { font-size: 1.15em; }
-  .pk-stat span { font-size: 0.72em; }
-  .pk-filters select { max-width: 100%; flex: 1 1 100%; }
+  .pk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pk-filters select { flex: 1 1 100%; }
+  .pk-body { padding: 8px 9px 10px; }
+  .pk-price { font-size: 1.02em; }
 }

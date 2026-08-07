@@ -2,6 +2,7 @@
  "miscp": {
   "name": "Miscellaneous Promos",
   "release_date": "1996-01-01",
+  "era": "빈티지",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -27,6 +28,7 @@
  "basep": {
   "name": "Wizards Black Star Promos",
   "release_date": "1999-07-01",
+  "era": "빈티지",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -34,6 +36,7 @@
  "wp": {
   "name": "W Promotional",
   "release_date": "1999-09-01",
+  "era": "빈티지",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -50,6 +53,7 @@
  "jumbo": {
   "name": "Jumbo cards",
   "release_date": "2000-02-01",
+  "era": "빈티지",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null

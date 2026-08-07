@@ -7,16 +7,17 @@
 # 부동산 3종과 같은 flock 을 쓴다. 넷 다 git commit/push 를 하므로 겹치면
 # 한쪽 커밋이 유실된다. 07:30 은 redev_daily.sh(06:10) 가 끝난 뒤다.
 #
-# 스스로 갈라진다.
-#   전수 스캔 미완  scan 모드로 예산만큼 훑는다 (기본 6000콜, 4일이면 끝)
-#   전수 스캔 완료  daily 모드로 유니버스 300장만 받는다 (약 70초)
+# 가격이 잡히는 카드 전부(약 17,700장)를 매일 다시 받는다. 동시 4로 약 70분.
+# 세트마다 저장하므로 중간에 죽어도 다음 실행이 이어받는다.
 #
-# 인증키가 필요 없다. TCGdex 는 키 없이 열려 있다.
+# 한글 이름(PokeAPI)은 거의 바뀌지 않아 파일이 없을 때만 받는다.
+#
+# 인증키가 필요 없다. TCGdex·PokeAPI 둘 다 키 없이 열려 있다.
 #
 # 환경변수
 #   AUTO_COMMIT      1 이면 결과를 gh-pages 에 커밋. 기본은 커밋하지 않음
 #   AUTO_PUSH        1 이면 커밋 후 push. AUTO_COMMIT=1 일 때만 의미 있음
-#   SCAN_MAX_CALLS   전수 스캔 1회 예산. 기본 6000
+#   MAX_CALLS        1회 예산. 기본 30000 (전 카드가 다 들어간다)
 
 set -euo pipefail
 
@@ -25,31 +26,24 @@ cd "$REPO"
 
 AUTO_COMMIT="${AUTO_COMMIT:-0}"
 AUTO_PUSH="${AUTO_PUSH:-0}"
-SCAN_MAX_CALLS="${SCAN_MAX_CALLS:-6000}"
-
-STATE="data/pokemon/scan_state.json"
+MAX_CALLS="${MAX_CALLS:-30000}"
 
 echo "===== $(date '+%F %T') 포켓몬 카드 수집 시작 ====="
 
 FAILED=0
 
-SCAN_DONE=0
-if [ -f "$STATE" ] && python3 -c "import json,sys; sys.exit(0 if json.load(open('$STATE')).get('complete') else 1)"; then
-  SCAN_DONE=1
+# 한글 이름은 거의 바뀌지 않는다. 없을 때만 받는다.
+if [ ! -f data/pokemon/species_ko.json ]; then
+  echo "한글 이름이 없어 먼저 받습니다."
+  if ! python3 -u scripts/collect_pokemon.py --species; then
+    FAILED=1
+    echo "한글 이름 수집 실패 — PokeAPI 응답을 확인하세요." >&2
+  fi
 fi
 
-if [ "$SCAN_DONE" = "1" ]; then
-  echo "전수 스캔 완료 상태 — 유니버스 갱신만 돌립니다."
-  if ! python3 -u scripts/collect_pokemon.py --mode daily; then
-    FAILED=1
-    echo "일일 가격 수집 실패 — TCGdex 응답을 확인하세요." >&2
-  fi
-else
-  echo "전수 스캔 진행 중 — 예산 ${SCAN_MAX_CALLS} 콜."
-  if ! python3 -u scripts/collect_pokemon.py --mode scan --max-calls "$SCAN_MAX_CALLS"; then
-    FAILED=1
-    echo "전수 스캔 실패 — TCGdex 응답을 확인하세요." >&2
-  fi
+if ! python3 -u scripts/collect_pokemon.py --max-calls "$MAX_CALLS"; then
+  FAILED=1
+  echo "카드 시세 수집 실패 — TCGdex 응답을 확인하세요." >&2
 fi
 
 # 집계. 수집이 일부 실패해도 있는 원본으로 다시 굽는다 — 어제 것보다 낫다.

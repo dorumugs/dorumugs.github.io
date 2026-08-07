@@ -1,4 +1,4 @@
-"""TCGdex 카드 가격 API 파싱과 지수 계산.
+"""TCGdex 카드 API 파싱.
 
     https://api.tcgdex.net/v2/en
 
@@ -10,28 +10,31 @@ API 키가 필요 없다. 순수 함수만 두어 네트워크 없이 검증한�
 
 from __future__ import annotations
 
-import random
-
 BASE = "https://api.tcgdex.net/v2/en"
 
-# 가격 CSV 컬럼 순서. collect_pokemon.py 가 이 순서로 쓴다.
-COLUMNS = [
-    "date", "card_id", "variant",
-    "tp_market", "tp_low", "tp_mid",
-    "cm_avg", "cm_trend", "cm_avg7", "cm_avg30",
+# 이미지 URL 앞머리. 저장할 때는 떼고 'base/base1/4' 만 남긴다 — 1만 7천 줄에
+# 같은 45자를 반복해 넣을 이유가 없다. 화면에서 다시 붙인다.
+IMAGE_PREFIX = "https://assets.tcgdex.net/en/"
+
+# 카드 CSV 컬럼 순서. collect_pokemon.py 가 이 순서로 쓴다.
+CARD_COLUMNS = [
+    "card_id", "set_id", "local_id",
+    "name_en", "dex_id", "rarity", "category", "image",
+    "tp_market", "tp_low", "tp_mid", "tp_high",
+    "cm_avg", "cm_low", "cm_trend",
+    "obs_max", "obs_max_date", "updated",
+]
+
+# 가격 컬럼만 따로 — 갱신할 때 메타는 두고 이것만 덮는다.
+PRICE_COLUMNS = [
+    "tp_market", "tp_low", "tp_mid", "tp_high",
+    "cm_avg", "cm_low", "cm_trend",
 ]
 
 ERAS = ("빈티지", "클래식", "모던", "최신")
-BANDS = ("고가", "중가", "저가")
 
 # TCGplayer variant 우선순위. 홀로가 그 카드의 '대표 시세'로 통용된다.
 VARIANT_PRIORITY = ("holofoil", "normal", "reverseHolofoil")
-
-# 칸당 표본 수. 12칸 × 25 = 300장. 동시 4로 약 70초면 다 받는다.
-PER_CELL = 25
-
-# 가격이 빠졌을 때 마지막 값을 이월하는 최대 일수.
-CARRY_FORWARD_DAYS = 7
 
 
 class ApiError(Exception):
@@ -106,165 +109,78 @@ def pick_variant(tcgplayer) -> tuple[str, dict] | None:
     return None
 
 
-def parse_card_pricing(payload: dict, on_date: str) -> dict | None:
-    """카드 응답에서 가격 한 행을 만든다. 양쪽 다 값이 없으면 None.
+def short_image(image: str | None) -> str:
+    """이미지 URL 에서 CDN 앞머리를 뗀다. 화면에서 다시 붙인다."""
+    if not image:
+        return ""
+    return image[len(IMAGE_PREFIX):] if image.startswith(IMAGE_PREFIX) else image
 
-    TCGplayer(USD) 가 지수 기준이고 Cardmarket(EUR) 은 avg7/avg30 을 주므로
-    0일차 변화율의 유일한 근거다. 한쪽만 있어도 행을 남긴다.
+
+def first_dex_id(dex) -> str:
+    """dexId 는 배열로 온다([6]). 첫 번째만 쓴다. 트레이너·에너지는 없다."""
+    if isinstance(dex, list) and dex:
+        return str(dex[0])
+    if isinstance(dex, int):
+        return str(dex)
+    return ""
+
+
+def parse_card_full(payload: dict, on_date: str) -> dict | None:
+    """카드 응답에서 메타와 현재가를 한 행으로. 가격이 하나도 없으면 None.
+
+    관측 최고가는 이 시점의 대표 시세로 시작한다. 다음 수집에서
+    merge_card 가 더 높은 값이 나오면 갱신한다.
     """
-    pricing = (payload or {}).get("pricing") or {}
+    if not isinstance(payload, dict) or not payload.get("id"):
+        return None
+
+    pricing = payload.get("pricing") or {}
     tp_pick = pick_variant(pricing.get("tcgplayer") or {})
     cm = pricing.get("cardmarket") or {}
+    _, tp = ("", {}) if tp_pick is None else tp_pick
 
-    variant, tp = ("", {}) if tp_pick is None else tp_pick
     row = {
-        "date": on_date,
-        "card_id": (payload or {}).get("id") or "",
-        "variant": variant,
+        "card_id": payload["id"],
+        "set_id": (payload.get("set") or {}).get("id") or "",
+        "local_id": str(payload.get("localId") or ""),
+        "name_en": (payload.get("name") or "").strip(),
+        "dex_id": first_dex_id(payload.get("dexId")),
+        "rarity": (payload.get("rarity") or "").strip(),
+        "category": (payload.get("category") or "").strip(),
+        "image": short_image(payload.get("image")),
         "tp_market": _num(tp.get("marketPrice")),
         "tp_low": _num(tp.get("lowPrice")),
         "tp_mid": _num(tp.get("midPrice")),
+        "tp_high": _num(tp.get("highPrice")),
         "cm_avg": _num(cm.get("avg")),
+        "cm_low": _num(cm.get("low")),
         "cm_trend": _num(cm.get("trend")),
-        "cm_avg7": _num(cm.get("avg7")),
-        "cm_avg30": _num(cm.get("avg30")),
+        "obs_max": None,
+        "obs_max_date": "",
+        "updated": on_date,
     }
-    if not row["card_id"]:
+    if all(row[c] is None for c in PRICE_COLUMNS):
         return None
-    if all(row[k] is None for k in COLUMNS[3:]):
-        return None
+
+    current = row["tp_market"] or row["cm_avg"]
+    if current is not None:
+        row["obs_max"] = current
+        row["obs_max_date"] = on_date
     return row
 
 
-def tercile_bounds(prices: list[float]) -> tuple[float, float]:
-    """가격 분포의 3분위 경계 (하한, 상한) 를 낸다."""
-    if not prices:
-        raise ValueError("가격이 비었습니다")
-    ordered = sorted(prices)
-    n = len(ordered)
-    return ordered[n // 3], ordered[(2 * n) // 3]
+def merge_card(old: dict | None, new: dict) -> dict:
+    """새로 받은 행을 기존 행에 겹친다. 관측 최고가는 더 높은 쪽을 남긴다.
 
-
-def band_of(price: float, bounds: tuple[float, float]) -> str:
-    """가격을 가격대 이름으로. 경계값은 위 칸에 넣는다."""
-    low, high = bounds
-    if price >= high:
-        return "고가"
-    if price >= low:
-        return "중가"
-    return "저가"
-
-
-def stratify(cards: list[dict], per_cell: int = PER_CELL, seed: int = 20260807) -> list[dict]:
-    """시대 × 가격대 12칸에서 고정 표본을 뽑는다.
-
-    가격대 경계는 시대 안에서 잡는다. 시대를 가로질러 절대 금액으로 자르면
-    빈티지가 전부 고가, 최신이 전부 저가가 되어 칸이 무너진다.
-
-    칸 안에서 다시 5분위로 나눠 균등하게 뽑는다. 그냥 무작위로 뽑으면 저가
-    쪽에 몰려 그 칸의 상단이 지수에 안 들어간다.
+    최고가를 새 값으로 덮어쓰면 '관측 최고가'가 그냥 현재가가 된다. 값이
+    내려간 날에도 최고 기록은 남아야 한다.
     """
-    by_era: dict[str, list[dict]] = {}
-    for card in cards:
-        if card.get("era") in ERAS and card.get("price"):
-            by_era.setdefault(card["era"], []).append(card)
-
-    picked: list[dict] = []
-    for era in ERAS:
-        pool = by_era.get(era) or []
-        if not pool:
-            continue
-        bounds = tercile_bounds([c["price"] for c in pool])
-        cells: dict[str, list[dict]] = {b: [] for b in BANDS}
-        for card in pool:
-            band = band_of(card["price"], bounds)
-            cells[band].append({**card, "band": band})
-
-        for band in BANDS:
-            cell = sorted(cells[band], key=lambda c: (c["price"], c["card_id"]))
-            if len(cell) <= per_cell:
-                picked.extend(cell)
-                continue
-            # 칸을 5분위로 갈라 각 분위에서 균등하게 뽑는다.
-            rng = random.Random(f"{seed}-{era}-{band}")
-            chunks = 5
-            quota, extra = divmod(per_cell, chunks)
-            chosen: list[dict] = []
-            taken: set[str] = set()
-            for k in range(chunks):
-                start = (len(cell) * k) // chunks
-                end = (len(cell) * (k + 1)) // chunks
-                slice_ = cell[start:end]
-                want = quota + (1 if k < extra else 0)
-                for card in rng.sample(slice_, min(want, len(slice_))):
-                    chosen.append(card)
-                    taken.add(card["card_id"])
-            # 분위가 짧아 못 채웠으면 남은 데서 채운다.
-            if len(chosen) < per_cell:
-                rest = [c for c in cell if c["card_id"] not in taken]
-                chosen.extend(rng.sample(rest, min(per_cell - len(chosen), len(rest))))
-            picked.extend(sorted(chosen, key=lambda c: c["card_id"]))
-    return picked
-
-
-def fill_forward(values: list[float | None], max_days: int = CARRY_FORWARD_DAYS) -> list[float | None]:
-    """결측을 마지막 값으로 이월한다. max_days 를 넘으면 결측으로 둔다.
-
-    영원히 이월하면 상장폐지된 종목을 계속 들고 있는 지수가 된다. 그게 우리가
-    깐 생존편향의 반대편 오류다.
-    """
-    out: list[float | None] = []
-    last: float | None = None
-    run = 0
-    for value in values:
-        if value is not None:
-            out.append(value)
-            last = value
-            run = 0
-            continue
-        run += 1
-        out.append(last if (last is not None and run <= max_days) else None)
-    return out
-
-
-def _cell_relative(card_ids: list[str], day_prices: dict, base_prices: dict) -> float | None:
-    """칸의 평균 상대가격. 쓸 수 있는 카드가 없으면 None."""
-    rels = []
-    for cid in card_ids:
-        now = day_prices.get(cid)
-        base = base_prices.get(cid)
-        if now is not None and base:
-            rels.append(now / base)
-    return sum(rels) / len(rels) if rels else None
-
-
-def index_point(universe: list[dict], day_prices: dict, base_prices: dict) -> dict:
-    """하루치 지수와 하위지수를 낸다. 기준일 = 100.
-
-    12칸을 균등가중한다. 시장 규모 비례가 이론적으로 낫지만 포켓몬 카드는
-    유통 물량이 공개되지 않아 아무도 시장 규모를 모른다. 모르는 걸 아는 척
-    가중치에 넣으면 우리가 깐 지수와 같은 짓이 된다.
-    """
-    cells: dict[tuple[str, str], list[str]] = {}
-    for card in universe:
-        cells.setdefault((card["era"], card["band"]), []).append(card["card_id"])
-
-    rel: dict[tuple[str, str], float] = {}
-    for key, ids in cells.items():
-        value = _cell_relative(ids, day_prices, base_prices)
-        if value is not None:
-            rel[key] = value
-
-    def mean_of(keys) -> float | None:
-        vals = [rel[k] for k in keys if k in rel]
-        return 100.0 * sum(vals) / len(vals) if vals else None
-
-    return {
-        "index": mean_of(list(rel)),
-        "by_era": {e: mean_of([k for k in rel if k[0] == e]) for e in ERAS},
-        "by_band": {b: mean_of([k for k in rel if k[1] == b]) for b in BANDS},
-        "missing": sum(
-            1 for c in universe
-            if day_prices.get(c["card_id"]) is None or not base_prices.get(c["card_id"])
-        ),
-    }
+    if not old:
+        return new
+    merged = dict(new)
+    old_max = old.get("obs_max")
+    new_max = new.get("obs_max")
+    if old_max is not None and (new_max is None or old_max >= new_max):
+        merged["obs_max"] = old_max
+        merged["obs_max_date"] = old.get("obs_max_date", "")
+    return merged
