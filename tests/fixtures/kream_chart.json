@@ -1,0 +1,250 @@
+{
+ "version": "v20260807",
+ "market": {
+  "rows": [
+   {
+    "trade_date": "2026-07-11",
+    "median_price": 182777.77777777778,
+    "transaction_count": 113,
+    "low_price": 20000.0,
+    "high_price": 3510000.0,
+    "avg_price": 321274.34,
+    "open_price": 180000.0,
+    "close_price": 430000.0,
+    "transaction_total": 36304000.0
+   },
+   {
+    "trade_date": "2026-07-10",
+    "median_price": 187833.3333333333,
+    "transaction_count": 136,
+    "low_price": 30000.0,
+    "high_price": 4200000.0,
+    "avg_price": 411786.76,
+    "open_price": 1299000.0,
+    "close_price": 200000.0,
+    "transaction_total": 56003000.0
+   },
+   {
+    "trade_date": "2026-07-09",
+    "median_price": 201222.22222222222,
+    "transaction_count": 139,
+    "low_price": 27000.0,
+    "high_price": 3000000.0,
+    "avg_price": 372158.27,
+    "open_price": 141000.0,
+    "close_price": 979000.0,
+    "transaction_total": 51730000.0
+   },
+   {
+    "trade_date": "2026-07-08",
+    "median_price": 178562.5,
+    "transaction_count": 165,
+    "low_price": 22000.0,
+    "high_price": 6300000.0,
+    "avg_price": 435381.82,
+    "open_price": 143000.0,
+    "close_price": 22000.0,
+    "transaction_total": 71838000.0
+   }
+  ]
+ },
+ "product": {
+  "rows": [
+   {
+    "product_id": 651518,
+    "image_url": "https://kream-phinf.pstatic.net/MjAyNTEwMjhfMTE4/MDAxNzYxNjIzODI5MDI2.XrDlD_m5ZIpqsjEucb2bDr41cWm8xmx6YjZxKDt1lpkg.jLnj9ZqbuVRhPsNANk48K99s6fK-AA5567i2mCyuTrQg.PNG/a_cbef4ae00c544032a05f645686e65b93.png",
+    "name": "Pokemon TCG Charmander AR Pokemon Card 151 (Japanese Ver.)",
+    "translated_name": "포켓몬 TCG 파이리 AR 포켓몬 카드 151 (일어판)",
+    "style_code": "SV2A-168-165_JP",
+    "latest_median_price": 168000,
+    "latest_change_pct": "-6.0E-1",
+    "transaction_count_total": 19,
+    "high_price_30d": 299000,
+    "low_price_30d": 160000,
+    "change_1d_pct": "-",
+    "change_7d_pct": "-6.7E0",
+    "change_30d_pct": "-1.72E1",
+    "median_price_30d_total": 186000,
+    "median_price_3d": 168000,
+    "price_history": [
+     {
+      "date": "2026-07-08",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-09",
+      "price": 203000.0,
+      "volume": 1
+     },
+     {
+      "date": "2026-07-10",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-11",
+      "price": null,
+      "volume": 0
+     }
+    ]
+   },
+   {
+    "product_id": 70130,
+    "image_url": "https://kream-phinf.pstatic.net/MjAyNTExMTlfMjMy/MDAxNzYzNTMzMTU0MjI5.pCqxKKPIJjORG1800BwtIETEkzeWs6P2wnIjjnVZxz8g.h1mB7yKHK8jk8bHabhuneyxWNEmvgK6NHOrUVc-xZGog.PNG/a_a84d3d379ba2450e8f613348accb019b.png",
+    "name": "Pokemon TCG Venusaur 25th Anniversary Collection (Korean Ver.)",
+    "translated_name": "포켓몬 TCG 이상해꽃 25주년 기념 컬랙션 프로모 팩 (한글판)",
+    "style_code": "S8A-P002-025",
+    "latest_median_price": 280000,
+    "latest_change_pct": "-",
+    "transaction_count_total": 1,
+    "high_price_30d": 280000,
+    "low_price_30d": 280000,
+    "change_1d_pct": "-",
+    "change_7d_pct": "-",
+    "change_30d_pct": "-",
+    "median_price_30d_total": 280000,
+    "median_price_3d": 0,
+    "price_history": [
+     {
+      "date": "2026-07-08",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-09",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-10",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-11",
+      "price": null,
+      "volume": 0
+     }
+    ]
+   },
+   {
+    "product_id": 729992,
+    "image_url": "https://kream-phinf.pstatic.net/MjAyNTEyMjBfMTEw/MDAxNzY2MTk2ODQ0MTI3.oxx5xn3hpyTqD0F-0B_z9mbhEM0EGEzawGn2BEY3oDQg.NP3GJlckp4f-hxO-O3jdrKyeoGR_NBxnCjVjvGjWHikg.PNG/a_df1701d850694de69d991fe561818845.png",
+    "name": "Pokemon TCG Pikachu & Zekrom GX RHG Team Up (English Ver.)",
+    "translated_name": "포켓몬 TCG 피카츄 & 제크로무 GX RHG 팀업 (영문판)",
+    "style_code": "TEU33/181_EN",
+    "latest_median_price": 600000,
+    "latest_change_pct": "-",
+    "transaction_count_total": 1,
+    "high_price_30d": 600000,
+    "low_price_30d": 600000,
+    "change_1d_pct": "-",
+    "change_7d_pct": "-",
+    "change_30d_pct": "-",
+    "median_price_30d_total": 600000,
+    "median_price_3d": 0,
+    "price_history": [
+     {
+      "date": "2026-07-08",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-09",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-10",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-11",
+      "price": null,
+      "volume": 0
+     }
+    ]
+   },
+   {
+    "product_id": 647659,
+    "image_url": "",
+    "name": "Pokemon TCG Mega Venusaur ex SAR Mega Brave (Japanese Ver.)",
+    "translated_name": "포켓몬 TCG 메가 이상해꽃 ex SAR 메가브레이브 (일어판)",
+    "style_code": "M1L087-063_JP",
+    "latest_median_price": 145000,
+    "latest_change_pct": "7.4E0",
+    "transaction_count_total": 4,
+    "high_price_30d": 152000,
+    "low_price_30d": 135000,
+    "change_1d_pct": "-",
+    "change_7d_pct": "7.4E0",
+    "change_30d_pct": "-",
+    "median_price_30d_total": 145000,
+    "median_price_3d": 145000,
+    "price_history": [
+     {
+      "date": "2026-07-08",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-09",
+      "price": 135000.0,
+      "volume": 1
+     },
+     {
+      "date": "2026-07-10",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-11",
+      "price": null,
+      "volume": 0
+     }
+    ]
+   },
+   {
+    "product_id": 654504,
+    "image_url": "https://kream-phinf.pstatic.net/MjAyNTEwMjZfMTI5/MDAxNzYxNDEzNjY1MDU3.4LFOY6Y9GYEdSjN0NZh6EFs-UybiG-fdwJnBkR6ansQg.pUndDuxKMRb0EWaW4QzVhr5inWas1zyhC0deS-gfhhYg.PNG/a_1b92d8489a934c448959e40245fc61ce.png",
+    "name": "Pokemon TCG Rayquaza VMAX HR Blue Sky Stream (Japanese Ver.)",
+    "translated_name": "포켓몬 TCG 레쿠쟈 VMAX HR 창공스트림 (일어판)",
+    "style_code": "S7R-083-067_JP",
+    "latest_median_price": 12000000,
+    "latest_change_pct": "-",
+    "transaction_count_total": 1,
+    "high_price_30d": 12000000,
+    "low_price_30d": 12000000,
+    "change_1d_pct": "-",
+    "change_7d_pct": "-",
+    "change_30d_pct": "-",
+    "median_price_30d_total": 12000000,
+    "median_price_3d": 12000000,
+    "price_history": [
+     {
+      "date": "2026-07-08",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-09",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-10",
+      "price": null,
+      "volume": 0
+     },
+     {
+      "date": "2026-07-11",
+      "price": null,
+      "volume": 0
+     }
+    ]
+   }
+  ]
+ }
+}

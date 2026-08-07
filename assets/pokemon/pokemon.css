@@ -3,6 +3,23 @@
 
 .pk-app { max-width: 100%; overflow-x: hidden; }
 
+/* 탭. 두 시장은 기준이 달라 한 화면에 섞지 않는다. */
+.pk-tabs { display: flex; gap: 6px; margin: 1em 0 0.7em; flex-wrap: wrap; }
+.pk-tabs button {
+  flex: 1 1 auto; min-width: 0; cursor: pointer;
+  font-size: 0.88em; padding: 9px 14px;
+  border: 1px solid #d8d8d8; border-radius: 8px; background: #fff; color: #555;
+}
+.pk-tabs button.is-on {
+  background: #2c3e50; border-color: #2c3e50; color: #fff; font-weight: 700;
+}
+
+.pk-warn {
+  font-size: 0.78em; color: #7a5b00; background: #fff8e1;
+  border: 1px solid #f0e0a8; border-radius: 8px;
+  padding: 9px 12px; margin: 0 0 1em; line-height: 1.55;
+}
+
 .pk-search { margin: 1em 0 0.6em; }
 .pk-search input {
   width: 100%; box-sizing: border-box; font-size: 1em;
@@ -84,9 +101,59 @@
 .pk-note { font-size: 0.78em; color: #777; }
 .pk-source { font-size: 0.78em; color: #777; margin-top: 1.4em; }
 
+/* ---- 국내(원화) 탭 ---------------------------------------------------- */
+
+.krw-stats {
+  display: grid; gap: 8px; margin: 0 0 0.9em;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+}
+.krw-stat {
+  border: 1px solid #e8e8e8; border-radius: 8px; padding: 9px 11px;
+  background: #fafafa; min-width: 0;
+}
+.krw-stat span { display: block; font-size: 0.72em; color: #777; }
+.krw-stat b {
+  display: block; font-size: 1.02em; margin-top: 2px;
+  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
+
+/* 차트는 viewBox 로 그려 폭에 맞춰 늘어난다. 가로로 넘치지 않는다. */
+.krw-chart { margin: 0 0 0.4em; }
+.krw-chart svg { display: block; width: 100%; height: auto; }
+.krw-bar { fill: #d9e4ee; }
+.krw-line { fill: none; stroke: #2c3e50; stroke-width: 2.2; stroke-linejoin: round; }
+.krw-grid { stroke: #ececec; stroke-width: 1; }
+.krw-cursor { stroke: #c0392b; stroke-width: 1; stroke-dasharray: 3 3; }
+.krw-axis { font-size: 11px; fill: #999; }
+
+.krw-readout {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline;
+  font-size: 0.8em; color: #555; margin: 0 0 1em;
+  font-variant-numeric: tabular-nums;
+}
+.krw-readout b { color: #1a1a1a; }
+
+.krw-check {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.82em; color: #555; white-space: nowrap;
+}
+
+/* 상품 사진은 카드가 아니라 제품컷이라 비율이 제각각이다. 잘라 맞춘다. */
+.krw-imgwrap { aspect-ratio: 1 / 1; }
+.krw-imgwrap .pk-img { width: 100%; height: 100%; object-fit: contain; }
+
+.krw-en { color: #777; font-size: 0.76em; }
+.krw-chg { font-size: 0.72em; font-weight: 700; white-space: nowrap; }
+.krw-chg.is-up { color: #c0392b; }
+.krw-chg.is-down { color: #1f6fb2; }
+.krw-chg.is-flat { color: #aaa; }
+
 @media (max-width: 480px) {
   .pk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .pk-filters select { flex: 1 1 100%; }
   .pk-body { padding: 8px 9px 10px; }
   .pk-price { font-size: 1.02em; }
+  .krw-check { flex: 1 1 100%; }
+  .krw-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .krw-axis { font-size: 13px; }
 }
