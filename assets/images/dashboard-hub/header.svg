@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="대시보드 배너 — 실거래·학군·재개발·포켓몬 카드">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2a78d6"/>
+      <stop offset="0.34" stop-color="#1baf7a"/>
+      <stop offset="0.67" stop-color="#eda100"/>
+      <stop offset="1" stop-color="#e0574a"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">데이터 <tspan fill="#86b6ef">대시보드</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">글로 한 번 정리한 주제를 눌러볼 수 있는 화면으로 옮깁니다</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="80"  y="236" width="236" height="118" rx="16" fill="#0e2233" stroke="#2a78d6" stroke-width="3"/>
+    <text x="198" y="284" font-size="23" font-weight="800" fill="#86b6ef">실거래</text>
+    <text x="198" y="316" font-size="15" font-weight="500" fill="#cbd5e1">얼마에 팔렸나</text>
+
+    <rect x="348" y="236" width="236" height="118" rx="16" fill="#0f2620" stroke="#1baf7a" stroke-width="3"/>
+    <text x="466" y="284" font-size="23" font-weight="800" fill="#7dd3a8">학군</text>
+    <text x="466" y="316" font-size="15" font-weight="500" fill="#cbd5e1">어느 학교로 가나</text>
+
+    <rect x="616" y="236" width="236" height="118" rx="16" fill="#2a2313" stroke="#eda100" stroke-width="3"/>
+    <text x="734" y="284" font-size="23" font-weight="800" fill="#f0c96b">재개발</text>
+    <text x="734" y="316" font-size="15" font-weight="500" fill="#cbd5e1">언제 새 아파트 되나</text>
+
+    <rect x="884" y="236" width="236" height="118" rx="16" fill="#2b1714" stroke="#e0574a" stroke-width="3"/>
+    <text x="1002" y="284" font-size="23" font-weight="800" fill="#f0a49b">포켓몬 카드</text>
+    <text x="1002" y="316" font-size="15" font-weight="500" fill="#cbd5e1">지수는 정직한가</text>
+  </g>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 부동산과 수집품을 데이터로</text>
+</svg>
