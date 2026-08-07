@@ -133,6 +133,7 @@
  "neo4": {
   "name": "Neo Destiny",
   "release_date": "2002-02-28",
+  "era": "빈티지",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -140,6 +141,7 @@
  "lc": {
   "name": "Legendary Collection",
   "release_date": "2002-05-24",
+  "era": "빈티지",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -210,6 +212,7 @@
  "np": {
   "name": "Nintendo Black Star Promos",
   "release_date": "2003-10-01",
+  "era": "빈티지",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -244,6 +247,7 @@
  "tk-ex-latia": {
   "name": "EX trainer Kit (Latias)",
   "release_date": "2004-07-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -251,6 +255,7 @@
  "tk-ex-latio": {
   "name": "EX trainer Kit (Latios)",
   "release_date": "2004-07-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -330,6 +335,7 @@
  "exu": {
   "name": "Unseen Forces Unown Collection",
   "release_date": "2005-08-22",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -355,6 +361,7 @@
  "tk-ex-m": {
   "name": "EX trainer Kit 2 (Minun)",
   "release_date": "2006-03-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -362,6 +369,7 @@
  "tk-ex-p": {
   "name": "EX trainer Kit 2 (Plusle)",
   "release_date": "2006-03-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -432,6 +440,7 @@
  "dpp": {
   "name": "DP Black Star Promos",
   "release_date": "2007-05-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -457,6 +466,7 @@
  "tk-dp-l": {
   "name": "DP trainer Kit (Lucario)",
   "release_date": "2007-09-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -464,6 +474,7 @@
  "tk-dp-m": {
   "name": "DP trainer Kit (Manaphy)",
   "release_date": "2007-09-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -543,6 +554,7 @@
  "pl1": {
   "name": "Platinum",
   "release_date": "2009-02-11",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -604,6 +616,7 @@
  "hgssp": {
   "name": "HGSS Black Star Promos",
   "release_date": "2010-02-11",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -611,6 +624,7 @@
  "tk-hs-r": {
   "name": "HS trainer Kit (Raichu)",
   "release_date": "2010-05-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -618,6 +632,7 @@
  "tk-hs-g": {
   "name": "HS trainer Kit (Gyarados)",
   "release_date": "2010-05-01",
+  "era": "클래식",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -670,6 +685,7 @@
  "bwp": {
   "name": "BW Black Star Promos",
   "release_date": "2011-04-26",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -677,6 +693,7 @@
  "2011bw": {
   "name": "McDonald's Collection 2011",
   "release_date": "2011-06-17",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -693,6 +710,7 @@
  "tk-bw-z": {
   "name": "BW trainer Kit (Zoroark)",
   "release_date": "2011-09-01",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -700,6 +718,7 @@
  "tk-bw-e": {
   "name": "BW trainer Kit (Excadrill)",
   "release_date": "2011-09-01",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -716,6 +735,7 @@
  "bw4": {
   "name": "Next Destinies",
   "release_date": "2012-02-08",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -732,6 +752,7 @@
  "2012bw": {
   "name": "McDonald's Collection 2012",
   "release_date": "2012-06-15",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -793,6 +814,7 @@
  "xyp": {
   "name": "XY Black Star Promos",
   "release_date": "2013-10-12",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -800,6 +822,7 @@
  "rc": {
   "name": "Radiant Collection",
   "release_date": "2013-11-06",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -843,6 +866,7 @@
  "tk-xy-sy": {
   "name": "XY trainer Kit (Sylveon)",
   "release_date": "2014-03-12",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -850,6 +874,7 @@
  "tk-xy-n": {
   "name": "XY trainer Kit (Noivern)",
   "release_date": "2014-03-12",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -866,6 +891,7 @@
  "2014xy": {
   "name": "McDonald's Collection 2014",
   "release_date": "2014-05-23",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -882,6 +908,7 @@
  "tk-xy-b": {
   "name": "XY trainer Kit (Bisharp)",
   "release_date": "2014-11-01",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -889,6 +916,7 @@
  "tk-xy-w": {
   "name": "XY trainer Kit (Wigglytuff)",
   "release_date": "2014-11-01",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -923,6 +951,7 @@
  "tk-xy-latia": {
   "name": "XY trainer Kit (Latias)",
   "release_date": "2015-04-29",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -930,6 +959,7 @@
  "tk-xy-latio": {
   "name": "XY trainer Kit (Latios)",
   "release_date": "2015-04-29",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -964,6 +994,7 @@
  "2015xy": {
   "name": "McDonald's Collection 2015",
   "release_date": "2015-11-27",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -989,6 +1020,7 @@
  "tk-xy-su": {
   "name": "XY trainer Kit (Suicune)",
   "release_date": "2016-04-27",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -996,6 +1028,7 @@
  "tk-xy-p": {
   "name": "XY trainer Kit (Pikachu Libre)",
   "release_date": "2016-04-27",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1021,6 +1054,7 @@
  "2016xy": {
   "name": "McDonald's Collection 2016",
   "release_date": "2016-08-20",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1037,6 +1071,7 @@
  "smp": {
   "name": "SM Black Star Promos",
   "release_date": "2017-02-03",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1053,6 +1088,7 @@
  "tk-sm-r": {
   "name": "SM trainer Kit (Alolan Raichu)",
   "release_date": "2017-04-21",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1060,6 +1096,7 @@
  "tk-sm-l": {
   "name": "SM trainer Kit (Lycanroc)",
   "release_date": "2017-04-21",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1076,6 +1113,7 @@
  "2017sm": {
   "name": "McDonald's Collection 2017",
   "release_date": "2017-08-03",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1146,6 +1184,7 @@
  "2018sm": {
   "name": "McDonald's Collection 2018",
   "release_date": "2018-10-19",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1216,6 +1255,7 @@
  "2019sm": {
   "name": "McDonald's Collection 2019",
   "release_date": "2019-10-15",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1232,6 +1272,7 @@
  "swshp": {
   "name": "SWSH Black Star Promos",
   "release_date": "2019-11-15",
+  "era": "모던",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1293,6 +1334,7 @@
  "2021swsh": {
   "name": "McDonald's Collection 2021",
   "release_date": "2021-02-09",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1345,6 +1387,7 @@
  "cel25cc": {
   "name": "Celebrations Classic Collection",
   "release_date": "2021-10-08",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1415,6 +1458,7 @@
  "2022swsh": {
   "name": "McDonald's Collection 2022",
   "release_date": "2022-08-03",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1476,6 +1520,7 @@
  "svp": {
   "name": "SVP Black Star Promos",
   "release_date": "2023-03-31",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1483,6 +1528,7 @@
  "sve": {
   "name": "Scarlet & Violet Energy",
   "release_date": "2023-03-31",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1508,6 +1554,7 @@
  "2023sv": {
   "name": "McDonald's Collection 2023",
   "release_date": "2023-08-01",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1596,6 +1643,7 @@
  "P-A": {
   "name": "Promos-A",
   "release_date": "2024-10-30",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1621,6 +1669,7 @@
  "2024sv": {
   "name": "McDonald's Collection 2024",
   "release_date": "2024-12-04",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1700,6 +1749,7 @@
  "sv10": {
   "name": "Destined Rivals",
   "release_date": "2025-05-30",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1752,6 +1802,7 @@
  "mee": {
   "name": "Mega Evolution Energy",
   "release_date": "2025-09-25",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null
@@ -1768,6 +1819,7 @@
  "mep": {
   "name": "MEP Black Star Promos",
   "release_date": "2025-09-26",
+  "era": "최신",
   "included": false,
   "reason": "이름 프리필터 제외",
   "coverage": null

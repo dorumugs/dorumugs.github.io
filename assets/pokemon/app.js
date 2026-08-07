@@ -1,6 +1,9 @@
 /* 포켓몬 카드 시세 브라우저.
    외부 라이브러리를 쓰지 않는다. 카드가 1만 7천 장이라 렌더는 페이지 단위로
-   끊고, 이미지는 지연 로딩한다. */
+   끊고, 이미지는 지연 로딩한다.
+
+   cards.json 은 사전 인코딩돼 있다 — 세트·등급·날짜는 번호로 오고, card_id 와
+   이미지 경로는 아예 없다. 규칙이 있어서 여기서 만든다. */
 (function () {
   'use strict';
 
@@ -10,8 +13,8 @@
   var PAGE = 60;
 
   var state = {
-    cols: null, prefix: '', rows: [], sets: {}, meta: null,
-    filtered: [], shown: PAGE
+    prefix: '', sets: [], series: [], rarities: [], dates: [],
+    rows: [], setInfo: {}, meta: null, filtered: [], shown: PAGE
   };
   var C = {};
 
@@ -39,6 +42,15 @@
     return String(s || '').toLowerCase().replace(/\s+/g, '');
   }
 
+  function setIdOf(r) { return state.sets[r[C.set]] || ''; }
+  function cardIdOf(r) { return setIdOf(r) + '-' + r[C.local_id]; }
+
+  /* 이미지 경로는 '시리즈/세트/번호'. 전수 확인된 규칙이라 저장하지 않고 만든다. */
+  function imagePathOf(r) {
+    var serie = state.series[r[C.set]];
+    return serie ? serie + '/' + setIdOf(r) + '/' + r[C.local_id] : '';
+  }
+
   function applyFilters() {
     var q = norm(document.getElementById('pk-q').value);
     var setId = document.getElementById('pk-set').value;
@@ -46,23 +58,23 @@
     var sort = document.getElementById('pk-sort').value;
 
     var out = state.rows.filter(function (r) {
-      if (setId && r[C.set_id] !== setId) { return false; }
+      if (setId && setIdOf(r) !== setId) { return false; }
       if (era) {
-        var s = state.sets[r[C.set_id]];
+        var s = state.setInfo[setIdOf(r)];
         if (!s || s.era !== era) { return false; }
       }
-      if (q) {
-        if (norm(r[C.name_en]).indexOf(q) < 0 && norm(r[C.name_ko]).indexOf(q) < 0) {
-          return false;
-        }
+      if (q && norm(r[C.name_en]).indexOf(q) < 0 && norm(r[C.name_ko]).indexOf(q) < 0) {
+        return false;
       }
       return true;
     });
 
     if (sort === 'price-asc') {
       out.sort(function (a, b) {
-        return (a[C.price] === null) - (b[C.price] === null) ||
-          (a[C.price] || 0) - (b[C.price] || 0);
+        var av = a[C.price], bv = b[C.price];
+        if (av === null) { return 1; }
+        if (bv === null) { return -1; }
+        return av - bv;
       });
     } else if (sort === 'name') {
       out.sort(function (a, b) { return a[C.name_en].localeCompare(b[C.name_en]); });
@@ -88,30 +100,36 @@
   }
 
   function cardHtml(r) {
-    var set = state.sets[r[C.set_id]] || {};
-    var img = r[C.image]
-      ? state.prefix + r[C.image] + '/low.webp'
-      : '';
-    var full = r[C.image] ? state.prefix + r[C.image] + '/high.webp' : '';
+    var setId = setIdOf(r);
+    var info = state.setInfo[setId] || {};
+    var path = imagePathOf(r);
+    var rarity = state.rarities[r[C.rarity]] || '';
+    var when = state.dates[r[C.obs_date]] || '';
 
-    var thumb = img
-      ? '<img class="pk-img" src="' + esc(img) + '" alt="' + esc(r[C.name_en]) +
-        '" loading="lazy" width="245" height="342" onerror="this.classList.add(\'is-broken\')">'
-      : '<div class="pk-img is-none">이미지 없음</div>';
+    /* 자리표시를 항상 뒤에 깔고 이미지를 그 위에 올린다. TCGdex 가 이미지를
+       안 주는 카드가 588장 있고, 경로는 있는데 CDN 에 파일이 없는 것도 있다.
+       실패하면 이미지만 사라지고 자리표시가 드러난다. */
+    var thumb = '<span class="pk-noimg">이미지 없음</span>' + (path
+      ? '<img class="pk-img" src="' + esc(state.prefix + path + '/low.webp') +
+        '" alt="' + esc(r[C.name_en]) + '" loading="lazy" width="245" height="342"' +
+        ' onerror="this.style.display=\'none\'">'
+      : '');
 
     return '<article class="pk-card">' +
-      (full ? '<a class="pk-imgwrap" href="' + esc(full) + '" target="_blank" rel="noopener">' + thumb + '</a>'
-            : '<div class="pk-imgwrap">' + thumb + '</div>') +
+      (path
+        ? '<a class="pk-imgwrap" href="' + esc(state.prefix + path + '/high.webp') +
+          '" target="_blank" rel="noopener">' + thumb + '</a>'
+        : '<div class="pk-imgwrap">' + thumb + '</div>') +
       '<div class="pk-body">' +
         '<h3 class="pk-name">' + esc(r[C.name_en]) + '</h3>' +
         (r[C.name_ko] ? '<p class="pk-ko">' + esc(r[C.name_ko]) + '</p>' : '') +
-        '<p class="pk-set">' + esc(set.name || r[C.set_id]) + ' · #' + esc(r[C.local_id]) +
-          (r[C.rarity] ? ' · ' + esc(r[C.rarity]) : '') + '</p>' +
+        '<p class="pk-set">' + esc(info.name || setId) + ' · #' + esc(r[C.local_id]) +
+          (rarity ? ' · ' + esc(rarity) : '') + '</p>' +
         '<p class="pk-price">' + money(r[C.price]) + '</p>' +
         '<div class="pk-sub">' +
           subRow('최고 호가', money(r[C.high_ask])) +
           subRow('관측 최고가', money(r[C.obs_max]),
-                 r[C.obs_max] !== null && r[C.obs_max_date] ? r[C.obs_max_date] : '') +
+                 r[C.obs_max] !== null && r[C.obs_max] !== undefined ? when : '') +
           subRow('EUR 평균', money(r[C.cm_avg], '€')) +
         '</div>' +
       '</div>' +
@@ -129,16 +147,16 @@
       state.filtered.length.toLocaleString('ko-KR') + '장 중 ' +
       slice.length.toLocaleString('ko-KR') + '장 표시';
 
-    var more = document.getElementById('pk-more');
-    more.style.display = state.filtered.length > state.shown ? '' : 'none';
+    document.getElementById('pk-more').style.display =
+      state.filtered.length > state.shown ? '' : 'none';
   }
 
   function fillFilters() {
     var setSel = document.getElementById('pk-set');
     var eraSel = document.getElementById('pk-era');
     var eras = [];
-    Object.keys(state.sets).forEach(function (sid) {
-      var s = state.sets[sid];
+    Object.keys(state.setInfo).forEach(function (sid) {
+      var s = state.setInfo[sid];
       setSel.insertAdjacentHTML('beforeend',
         '<option value="' + esc(sid) + '">' + esc(s.name) + ' (' + s.count + ')</option>');
       if (s.era && eras.indexOf(s.era) < 0) { eras.push(s.era); }
@@ -169,12 +187,15 @@
   Promise.all([fetchJson('cards'), fetchJson('sets'), fetchJson('meta')])
     .then(function (res) {
       var payload = res[0];
-      state.cols = payload.columns;
-      state.prefix = payload.image_prefix;
-      state.rows = payload.rows;
-      state.sets = res[1];
-      state.meta = res[2];
       payload.columns.forEach(function (name, i) { C[name] = i; });
+      state.prefix = payload.image_prefix;
+      state.sets = payload.sets;
+      state.series = payload.series;
+      state.rarities = payload.rarities;
+      state.dates = payload.dates;
+      state.rows = payload.rows;
+      state.setInfo = res[1];
+      state.meta = res[2];
 
       fillFilters();
       bind();

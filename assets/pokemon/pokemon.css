@@ -28,13 +28,17 @@
   border: 1px solid #e5e5e5; border-radius: 10px; overflow: hidden;
   background: #fff; display: flex; flex-direction: column; min-width: 0;
 }
-.pk-imgwrap { display: block; background: #f2f2f2; line-height: 0; }
-.pk-img { width: 100%; height: auto; display: block; }
-.pk-img.is-broken { visibility: hidden; min-height: 180px; }
-.pk-img.is-none {
-  display: flex; align-items: center; justify-content: center;
-  min-height: 180px; font-size: 0.78em; color: #999; line-height: 1.4;
+/* 자리표시를 깔고 이미지를 덮는다. 이미지가 실패하면 자리표시가 드러난다. */
+.pk-imgwrap {
+  display: block; position: relative; background: #f2f2f2; line-height: 0;
+  aspect-ratio: 245 / 342;
 }
+.pk-noimg {
+  position: absolute; inset: 0; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 0.78em; color: #999; line-height: 1.4;
+}
+.pk-img { position: relative; width: 100%; height: auto; display: block; }
 
 .pk-body { padding: 10px 11px 12px; min-width: 0; }
 .pk-name {
