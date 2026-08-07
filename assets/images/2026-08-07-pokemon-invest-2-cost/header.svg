@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="포켓몬 카드 왕복 마찰비용 배너 — 매입가 100에서 관세·감정·수수료·세금을 차례로 뺀 폭포 차트와 매입가별 손익분기 필요 상승률">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#10212b"/>
+    </linearGradient>
+    <linearGradient id="acc2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#e11d48"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg2)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#acc2)"/>
+
+  <text class="ko" x="80" y="100" font-size="40" font-weight="800" fill="#f8fafc">몇 % 올라야 <tspan fill="#38bdf8">본전</tspan>인가</text>
+  <text class="ko" x="82" y="144" font-size="21" font-weight="500" fill="#94a3b8">매입 · 감정 · 매도 세 단계에서 새는 돈을 원 단위로 다 셌습니다.</text>
+
+  <g class="ko" text-anchor="middle">
+    <text x="80" y="192" font-size="16" font-weight="700" fill="#7dd3fc" text-anchor="start">왕복 마찰비용 폭포 (매입가 100 기준)</text>
+
+    <rect x="80"  y="206" width="112" height="112" rx="10" fill="#0f2a3a" stroke="#38bdf8" stroke-width="3"/>
+    <text x="136" y="252" font-size="26" font-weight="800" fill="#7dd3fc">100</text>
+    <text x="136" y="278" font-size="13" font-weight="500" fill="#94a3b8">매입가</text>
+    <text x="136" y="298" font-size="12" font-weight="500" fill="#64748b">출발점</text>
+
+    <rect x="212" y="228" width="112" height="90" rx="10" fill="#2a1a10" stroke="#f97316" stroke-width="2"/>
+    <text x="268" y="266" font-size="22" font-weight="800" fill="#fdba74">-18</text>
+    <text x="268" y="288" font-size="13" font-weight="500" fill="#94a3b8">관세·부가세</text>
+    <text x="268" y="306" font-size="12" font-weight="500" fill="#64748b">해외 매입 시</text>
+
+    <rect x="344" y="248" width="112" height="70" rx="10" fill="#2a1a10" stroke="#f97316" stroke-width="2"/>
+    <text x="400" y="282" font-size="22" font-weight="800" fill="#fdba74">-15</text>
+    <text x="400" y="302" font-size="13" font-weight="500" fill="#94a3b8">감정 all-in</text>
+
+    <rect x="476" y="266" width="112" height="52" rx="10" fill="#2a1116" stroke="#e11d48" stroke-width="2"/>
+    <text x="532" y="294" font-size="20" font-weight="800" fill="#fda4af">-8</text>
+    <text x="532" y="312" font-size="13" font-weight="500" fill="#94a3b8">판매 수수료</text>
+
+    <rect x="608" y="282" width="112" height="36" rx="10" fill="#2a1116" stroke="#e11d48" stroke-width="2"/>
+    <text x="664" y="306" font-size="18" font-weight="800" fill="#fda4af">-6 세금</text>
+
+    <rect x="740" y="206" width="132" height="112" rx="10" fill="#2a1116" stroke="#f43f5e" stroke-width="3"/>
+    <text x="806" y="252" font-size="26" font-weight="800" fill="#fda4af">53</text>
+    <text x="806" y="278" font-size="13" font-weight="500" fill="#94a3b8">실수령</text>
+    <text x="806" y="298" font-size="12" font-weight="500" fill="#64748b">왕복 최악 시나리오</text>
+  </g>
+
+  <g class="ko">
+    <rect x="900" y="196" width="220" height="152" rx="16" fill="#101c2b" stroke="#38bdf8" stroke-width="2"/>
+    <text x="924" y="226" font-size="15" font-weight="700" fill="#7dd3fc">본전 필요 상승률</text>
+    <text x="924" y="258" font-size="14" font-weight="500" fill="#cbd5e1">5만 원 카드</text>
+    <text x="1096" y="258" font-size="18" font-weight="800" fill="#f43f5e" text-anchor="end">15.0%</text>
+    <text x="924" y="288" font-size="14" font-weight="500" fill="#cbd5e1">20만 원 카드</text>
+    <text x="1096" y="288" font-size="18" font-weight="800" fill="#fbbf24" text-anchor="end">3.8%</text>
+    <text x="924" y="318" font-size="14" font-weight="500" fill="#cbd5e1">500만 원 카드</text>
+    <text x="1096" y="318" font-size="18" font-weight="800" fill="#4ade80" text-anchor="end">0.15%</text>
+  </g>
+
+  <text class="ko" x="80" y="388" font-size="15" font-weight="500" fill="#64748b">2편 · 총비용 해부 &#124; 소액일수록 구조적으로 불리합니다 — 고정비가 역진적으로 작동</text>
+</svg>

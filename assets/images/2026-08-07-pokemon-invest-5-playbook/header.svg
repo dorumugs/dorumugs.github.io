@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="포켓몬 카드 실행 규칙 배너 — 순금융자산 1에서 3퍼센트 배분 상한 게이지와 배분·선별·진위·출구·기록 다섯 단계 체크리스트">
+  <defs>
+    <linearGradient id="bg5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#10222a"/>
+    </linearGradient>
+    <linearGradient id="acc5" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22c55e"/>
+      <stop offset="0.5" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg5)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#acc5)"/>
+
+  <text class="ko" x="80" y="100" font-size="40" font-weight="800" fill="#f8fafc">그래도 한다면 — <tspan fill="#4ade80">사고 안 나는 규칙</tspan></text>
+  <text class="ko" x="82" y="144" font-size="21" font-weight="500" fill="#94a3b8">출구를 모르면 들어가지 않습니다. 이게 이 시장의 첫 번째 규칙이에요.</text>
+
+  <g class="ko">
+    <text x="80" y="192" font-size="16" font-weight="700" fill="#86efac">배분 상한 — 순금융자산 대비</text>
+    <rect x="80" y="206" width="440" height="34" rx="17" fill="#152030" stroke="#334155" stroke-width="2"/>
+    <rect x="82" y="208" width="24" height="30" rx="15" fill="#22c55e"/>
+    <text x="130" y="229" font-size="16" font-weight="800" fill="#4ade80">1~3%</text>
+    <text x="210" y="229" font-size="14" font-weight="500" fill="#64748b">← 여기까지. 전액 잃어도 계획이 안 바뀌는 금액</text>
+
+    <rect x="80" y="256" width="212" height="46" rx="10" fill="#2a1116" stroke="#f43f5e" stroke-width="2"/>
+    <text x="186" y="284" font-size="15" font-weight="700" fill="#fda4af" text-anchor="middle">대출 · 생활비 금지</text>
+
+    <rect x="308" y="256" width="212" height="46" rx="10" fill="#2a1116" stroke="#f43f5e" stroke-width="2"/>
+    <text x="414" y="284" font-size="15" font-weight="700" fill="#fda4af" text-anchor="middle">한 장 몰빵 금지</text>
+
+    <rect x="80" y="316" width="440" height="46" rx="10" fill="#152030" stroke="#38bdf8" stroke-width="2"/>
+    <text x="300" y="344" font-size="15" font-weight="700" fill="#7dd3fc" text-anchor="middle">예산 500만 원 미만 → 투자 말고 소비로</text>
+  </g>
+
+  <g class="ko">
+    <rect x="570" y="176" width="550" height="208" rx="16" fill="#101c2b" stroke="#38bdf8" stroke-width="2"/>
+    <text x="596" y="208" font-size="16" font-weight="700" fill="#7dd3fc">사기 전에 통과시킬 다섯 단계</text>
+
+    <text x="600" y="246" font-size="17" font-weight="800" fill="#4ade80">✓</text>
+    <text x="628" y="246" font-size="15" font-weight="600" fill="#e2e8f0">배분 — 3% 이내 · 전액 손실 가정</text>
+
+    <text x="600" y="276" font-size="17" font-weight="800" fill="#4ade80">✓</text>
+    <text x="628" y="276" font-size="15" font-weight="600" fill="#e2e8f0">선별 — 인구 리포트 · 증가율 · 리프린트 이력</text>
+
+    <text x="600" y="306" font-size="17" font-weight="800" fill="#4ade80">✓</text>
+    <text x="628" y="306" font-size="15" font-weight="600" fill="#e2e8f0">비용 — 본전 상승률 · 젬 레이트 기대값</text>
+
+    <text x="600" y="336" font-size="17" font-weight="800" fill="#4ade80">✓</text>
+    <text x="628" y="336" font-size="15" font-weight="600" fill="#e2e8f0">진위 — 인증번호 직접 조회 · 봉인 실물 확인</text>
+
+    <text x="600" y="366" font-size="17" font-weight="800" fill="#4ade80">✓</text>
+    <text x="628" y="366" font-size="15" font-weight="600" fill="#e2e8f0">출구 — 채널 · 목표가 · 급매 호가 · 이체 증빙</text>
+  </g>
+
+  <text class="ko" x="80" y="396" font-size="15" font-weight="500" fill="#64748b">5편 · 실행 규칙 &#124; 확실하게 버는 쪽은 감정소 · 플랫폼 · 제조사입니다</text>
+</svg>

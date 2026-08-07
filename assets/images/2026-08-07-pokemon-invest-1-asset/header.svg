@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="포켓몬 카드 자산군 실사 배너 — 흔히 인용되는 3,821% 지수의 네 가지 함정을 표시한 도표">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#231029"/>
+    </linearGradient>
+    <linearGradient id="acc1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#facc15"/>
+      <stop offset="0.5" stop-color="#f97316"/>
+      <stop offset="1" stop-color="#e11d48"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg1)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#acc1)"/>
+
+  <text class="ko" x="80" y="100" font-size="40" font-weight="800" fill="#f8fafc">포켓몬 카드는 <tspan fill="#facc15">자산인가</tspan></text>
+  <text class="ko" x="82" y="144" font-size="21" font-weight="500" fill="#94a3b8">수집가의 언어를 투자자의 언어로 바꿔서 다시 물어봅니다.</text>
+
+  <g class="ko">
+    <rect x="80" y="196" width="380" height="152" rx="16" fill="#1b1408" stroke="#facc15" stroke-width="3"/>
+    <text x="108" y="240" font-size="18" font-weight="600" fill="#fde68a">흔히 인용되는 숫자</text>
+    <text x="108" y="292" font-size="46" font-weight="800" fill="#facc15">3,821%</text>
+    <text x="108" y="324" font-size="15" font-weight="500" fill="#94a3b8">2004년 이후 누적 · 카드 래더 지수</text>
+  </g>
+
+  <g class="ko">
+    <text x="500" y="212" font-size="17" font-weight="700" fill="#fca5a5">그런데 이 숫자에 빠진 것</text>
+
+    <rect x="500" y="230" width="290" height="52" rx="10" fill="#2a1116" stroke="#e11d48" stroke-width="2"/>
+    <text x="518" y="252" font-size="15" font-weight="700" fill="#fda4af">지수 소유주 = 감정회사 계열</text>
+    <text x="518" y="272" font-size="13" font-weight="500" fill="#94a3b8">이해상충이 구조적으로 존재</text>
+
+    <rect x="810" y="230" width="290" height="52" rx="10" fill="#2a1116" stroke="#e11d48" stroke-width="2"/>
+    <text x="828" y="252" font-size="15" font-weight="700" fill="#fda4af">생존편향</text>
+    <text x="828" y="272" font-size="13" font-weight="500" fill="#94a3b8">잊힌 카드는 지수에서 빠짐</text>
+
+    <rect x="500" y="296" width="290" height="52" rx="10" fill="#2a1116" stroke="#f97316" stroke-width="2"/>
+    <text x="518" y="318" font-size="15" font-weight="700" fill="#fdba74">비용 0 가정</text>
+    <text x="518" y="338" font-size="13" font-weight="500" fill="#94a3b8">감정료 · 수수료 · 세금 미반영</text>
+
+    <rect x="810" y="296" width="290" height="52" rx="10" fill="#2a1116" stroke="#f97316" stroke-width="2"/>
+    <text x="828" y="318" font-size="15" font-weight="700" fill="#fdba74">체결된 것만 집계</text>
+    <text x="828" y="338" font-size="13" font-weight="500" fill="#94a3b8">안 팔린 하락은 안 잡힘</text>
+  </g>
+
+  <text class="ko" x="80" y="388" font-size="15" font-weight="500" fill="#64748b">1편 · 시장 구조와 지수 해부 &#124; 현금흐름 없음 · 밸류에이션 앵커 없음 · 유동성 낮음</text>
+</svg>
