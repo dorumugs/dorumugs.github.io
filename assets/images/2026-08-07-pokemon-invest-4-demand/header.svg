@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="포켓몬 카드 수요 사이클 배너 — 2020년 폭등, 2022년 조정, 2024년 재상승, 2025년 하반기 모던 급락을 잇는 선 그래프와 외생 리스크 세 가지">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#26131c"/>
+    </linearGradient>
+    <linearGradient id="acc4" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset="0.5" stop-color="#f43f5e"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg4)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#acc4)"/>
+
+  <text class="ko" x="80" y="100" font-size="40" font-weight="800" fill="#f8fafc">수요는 <tspan fill="#f43f5e">언제 멈추나</tspan></text>
+  <text class="ko" x="82" y="144" font-size="21" font-weight="500" fill="#94a3b8">유동성 · 규제 · IP 소유자 — 셋 다 내 통제 밖에 있습니다.</text>
+
+  <g class="ko">
+    <line x1="80" y1="330" x2="700" y2="330" stroke="#334155" stroke-width="2"/>
+    <polyline points="96,308 200,196 300,286 420,236 520,214 600,282 680,262"
+              fill="none" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <circle cx="200" cy="196" r="7" fill="#0b1220" stroke="#a78bfa" stroke-width="4"/>
+    <text x="200" y="182" font-size="13" font-weight="700" fill="#c4b5fd" text-anchor="middle">2021 고점</text>
+
+    <circle cx="300" cy="286" r="7" fill="#0b1220" stroke="#f43f5e" stroke-width="4"/>
+    <text x="300" y="312" font-size="13" font-weight="700" fill="#fda4af" text-anchor="middle">-40~70%</text>
+
+    <circle cx="520" cy="214" r="7" fill="#0b1220" stroke="#38bdf8" stroke-width="4"/>
+    <text x="520" y="200" font-size="13" font-weight="700" fill="#7dd3fc" text-anchor="middle">2025 상</text>
+
+    <circle cx="600" cy="282" r="7" fill="#0b1220" stroke="#f43f5e" stroke-width="4"/>
+    <text x="608" y="308" font-size="13" font-weight="700" fill="#fda4af" text-anchor="middle">모던 -48%</text>
+
+    <text x="96"  y="356" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">2020</text>
+    <text x="300" y="356" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">2022</text>
+    <text x="520" y="356" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">2025</text>
+    <text x="680" y="356" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">2026</text>
+  </g>
+
+  <g class="ko">
+    <rect x="750" y="182" width="370" height="52" rx="10" fill="#2a1116" stroke="#f43f5e" stroke-width="2"/>
+    <text x="772" y="204" font-size="15" font-weight="700" fill="#fda4af">IP 소유자 — 2026.8 신원확인 도입</text>
+    <text x="772" y="224" font-size="13" font-weight="500" fill="#94a3b8">발행자가 되팔이를 직접 막기 시작</text>
+
+    <rect x="750" y="244" width="370" height="52" rx="10" fill="#241a10" stroke="#f59e0b" stroke-width="2"/>
+    <text x="772" y="266" font-size="15" font-weight="700" fill="#fbbf24">과세 — 이미 진행 중</text>
+    <text x="772" y="286" font-size="13" font-weight="500" fill="#94a3b8">국세청, 플랫폼 리셀 자료 수집</text>
+
+    <rect x="750" y="306" width="370" height="52" rx="10" fill="#1b1a2e" stroke="#a78bfa" stroke-width="2"/>
+    <text x="772" y="328" font-size="15" font-weight="700" fill="#c4b5fd">사행성 — 오리파 규제 논의</text>
+    <text x="772" y="348" font-size="13" font-weight="500" fill="#94a3b8">규제되면 사라질 도박 수요</text>
+  </g>
+
+  <text class="ko" x="80" y="392" font-size="15" font-weight="500" fill="#64748b">4편 · 수요와 리스크 &#124; 수집품은 위험자산 베타를 갖습니다 — 분산이 필요할 때 분산이 안 돼요</text>
+</svg>

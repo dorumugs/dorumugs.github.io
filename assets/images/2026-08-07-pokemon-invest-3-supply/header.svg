@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="포켓몬 카드 공급 구조 배너 — 누적 인쇄량 750억에서 850억 장으로 증가하고 2028년 생산능력이 두 배가 되는 막대 그래프, 그리고 등급별 감정 인구 증가율">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#141f14"/>
+    </linearGradient>
+    <linearGradient id="acc3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4ade80"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg3)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#acc3)"/>
+
+  <text class="ko" x="80" y="100" font-size="40" font-weight="800" fill="#f8fafc">희소성은 <tspan fill="#4ade80">실시간으로 희석</tspan>됩니다</text>
+  <text class="ko" x="82" y="144" font-size="21" font-weight="500" fill="#94a3b8">연 100억 장이 새로 찍히고, 2028년이면 생산능력이 두 배가 돼요.</text>
+
+  <g class="ko">
+    <text x="80" y="188" font-size="16" font-weight="700" fill="#86efac">누적 인쇄량 (억 장)</text>
+
+    <rect x="80"  y="266" width="86" height="58" rx="8" fill="#14331f" stroke="#4ade80" stroke-width="2"/>
+    <text x="123" y="304" font-size="20" font-weight="800" fill="#86efac" text-anchor="middle">750</text>
+    <text x="123" y="344" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">직전</text>
+
+    <rect x="182" y="252" width="86" height="72" rx="8" fill="#14331f" stroke="#4ade80" stroke-width="2"/>
+    <text x="225" y="298" font-size="20" font-weight="800" fill="#86efac" text-anchor="middle">850</text>
+    <text x="225" y="344" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">2026.3</text>
+
+    <rect x="284" y="204" width="86" height="120" rx="8" fill="#33260f" stroke="#f59e0b" stroke-width="3" stroke-dasharray="7 5"/>
+    <text x="327" y="272" font-size="20" font-weight="800" fill="#fbbf24" text-anchor="middle">2배</text>
+    <text x="327" y="298" font-size="13" font-weight="600" fill="#fbbf24" text-anchor="middle">생산능력</text>
+    <text x="327" y="344" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">2028 예정</text>
+
+    <text x="420" y="212" font-size="15" font-weight="600" fill="#cbd5e1">연간 +100억 장 · 3년 연속</text>
+    <text x="420" y="238" font-size="15" font-weight="500" fill="#94a3b8">= 지구인 1인당 연 1.25장</text>
+    <text x="420" y="264" font-size="15" font-weight="500" fill="#94a3b8">= 30년 역사의 12%가 최근 1년치</text>
+  </g>
+
+  <g class="ko">
+    <rect x="770" y="180" width="350" height="168" rx="16" fill="#101c14" stroke="#4ade80" stroke-width="2"/>
+    <text x="794" y="212" font-size="15" font-weight="700" fill="#86efac">베이스 세트 리자몽 · 1년 인구 증가</text>
+
+    <text x="794" y="248" font-size="14" font-weight="500" fill="#cbd5e1">1st Ed PSA 10</text>
+    <rect x="960" y="236" width="6" height="14" rx="3" fill="#4ade80"/>
+    <text x="1096" y="248" font-size="17" font-weight="800" fill="#4ade80" text-anchor="end">0%</text>
+
+    <text x="794" y="282" font-size="14" font-weight="500" fill="#cbd5e1">1st Ed 전체</text>
+    <rect x="960" y="270" width="72" height="14" rx="3" fill="#fbbf24"/>
+    <text x="1096" y="282" font-size="17" font-weight="800" fill="#fbbf24" text-anchor="end">+12%</text>
+
+    <text x="794" y="316" font-size="14" font-weight="500" fill="#cbd5e1">Unlimited 전체</text>
+    <rect x="960" y="304" width="112" height="14" rx="3" fill="#f43f5e"/>
+    <text x="1096" y="316" font-size="17" font-weight="800" fill="#fda4af" text-anchor="end">+31%</text>
+  </g>
+
+  <text class="ko" x="80" y="388" font-size="15" font-weight="500" fill="#64748b">3편 · 공급 구조 &#124; 진짜 고정된 건 1999년 인쇄 부수 × 최고 등급 인구 — 그리고 그건 이미 수억 원</text>
+</svg>
