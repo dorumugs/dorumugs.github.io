@@ -82,8 +82,41 @@ def build_universe(scan_rows: list[dict], set_meta: dict, names: dict | None = N
         "base_date": date.today().isoformat(),
         "seed": seed, "per_cell": per_cell,
         "generated": date.today().isoformat(),
+        # 기준가는 아직 스캔 값이다. 첫 일일 관측이 들어오면 rebase_universe 가
+        # 그 값으로 다시 잡는다.
+        "rebased": False,
         "cards": cards,
     }
+
+
+def rebase_universe(universe: dict, price_rows: list[dict]) -> dict:
+    """첫 일일 관측을 기준가로 삼는다. 한 번만 한다.
+
+    유니버스를 확정할 때 쓰는 기준가는 전수 스캔 때 받은 값이다. 그 스캔은
+    80분에 걸쳐 돌기 때문에 카드마다 찍힌 시각이 다르고, 그날 다시 받은
+    값과도 어긋난다. 그대로 두면 화면에 '기준일 = 100' 이라 써 놓고 첫 점이
+    98.9 로 찍힌다.
+
+    스캔 가격은 '어느 칸에 넣을지' 를 정하는 데만 쓰고, 지수의 출발점은
+    첫 관측으로 다시 잡는다.
+    """
+    if universe.get("rebased"):
+        return universe
+
+    by_date: dict[str, dict[str, float]] = {}
+    for row in price_rows:
+        price = _price_of(row)
+        if price:
+            by_date.setdefault(row["date"], {})[row["card_id"]] = price
+    if not by_date:
+        return universe
+
+    first = min(by_date)
+    prices = by_date[first]
+    cards = [{**c, "base_price": round(prices[c["card_id"]], 2)}
+             if c["card_id"] in prices else dict(c)
+             for c in universe["cards"]]
+    return {**universe, "base_date": first, "rebased": True, "cards": cards}
 
 
 def series_from_prices(universe: dict, price_rows: list[dict]) -> dict:
@@ -174,6 +207,14 @@ def main() -> int:
     universe = json.loads(collect_pokemon.UNIVERSE_FILE.read_text(encoding="utf-8"))
 
     price_rows = _read_rows(collect_pokemon.PRICES_FILE)
+
+    rebased = rebase_universe(universe, price_rows)
+    if rebased is not universe:
+        collect_pokemon.UNIVERSE_FILE.write_text(
+            json.dumps(rebased, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"기준가를 첫 관측({rebased['base_date']})으로 다시 잡았습니다.")
+        universe = rebased
+
     series = series_from_prices(universe, price_rows)
 
     last_date = series["dates"][-1] if series["dates"] else None

@@ -115,6 +115,67 @@ class TestSeriesFromPrices(unittest.TestCase):
         self.assertAlmostEqual(s["index"][0], 200.0)
 
 
+class TestRebaseUniverse(unittest.TestCase):
+    def _universe(self):
+        return {"base_date": "2026-08-07", "seed": 1, "per_cell": 1, "rebased": False,
+                "cards": [
+                    {"card_id": "a-1", "era": "빈티지", "band": "고가", "base_price": 10.0,
+                     "name": "A", "set_id": "s", "set_name": "S"},
+                    {"card_id": "b-1", "era": "빈티지", "band": "중가", "base_price": 20.0,
+                     "name": "B", "set_id": "s", "set_name": "S"},
+                ]}
+
+    def _row(self, day, cid, price):
+        r = {c: None for c in tcgdex_api.COLUMNS}
+        r.update({"date": day, "card_id": cid, "tp_market": price})
+        return r
+
+    def test_first_observation_becomes_the_base(self) -> None:
+        uni = self._universe()
+        rows = [self._row("2026-08-08", "a-1", 12.0), self._row("2026-08-08", "b-1", 25.0)]
+        out = build_pokemon.rebase_universe(uni, rows)
+        self.assertTrue(out["rebased"])
+        self.assertEqual(out["base_date"], "2026-08-08")
+        prices = {c["card_id"]: c["base_price"] for c in out["cards"]}
+        self.assertEqual(prices["a-1"], 12.0)
+        self.assertEqual(prices["b-1"], 25.0)
+
+    def test_index_is_exactly_one_hundred_after_rebase(self) -> None:
+        uni = self._universe()
+        rows = [self._row("2026-08-08", "a-1", 12.0), self._row("2026-08-08", "b-1", 25.0)]
+        out = build_pokemon.rebase_universe(uni, rows)
+        s = build_pokemon.series_from_prices(out, rows)
+        self.assertAlmostEqual(s["index"][0], 100.0)
+
+    def test_earliest_date_wins(self) -> None:
+        uni = self._universe()
+        rows = [self._row("2026-08-09", "a-1", 99.0), self._row("2026-08-08", "a-1", 12.0)]
+        out = build_pokemon.rebase_universe(uni, rows)
+        self.assertEqual(out["base_date"], "2026-08-08")
+        self.assertEqual(out["cards"][0]["base_price"], 12.0)
+
+    def test_already_rebased_is_left_alone(self) -> None:
+        uni = self._universe()
+        uni["rebased"] = True
+        rows = [self._row("2026-08-08", "a-1", 12.0)]
+        out = build_pokemon.rebase_universe(uni, rows)
+        self.assertEqual(out["base_date"], "2026-08-07")
+        self.assertEqual(out["cards"][0]["base_price"], 10.0)
+
+    def test_no_rows_is_left_alone(self) -> None:
+        uni = self._universe()
+        out = build_pokemon.rebase_universe(uni, [])
+        self.assertFalse(out["rebased"])
+        self.assertEqual(out["base_date"], "2026-08-07")
+
+    def test_card_missing_on_base_day_keeps_scan_price(self) -> None:
+        uni = self._universe()
+        rows = [self._row("2026-08-08", "a-1", 12.0)]
+        out = build_pokemon.rebase_universe(uni, rows)
+        prices = {c["card_id"]: c["base_price"] for c in out["cards"]}
+        self.assertEqual(prices["b-1"], 20.0)
+
+
 class TestBackcast(unittest.TestCase):
     def _universe(self):
         return {"base_date": "2026-08-07", "cards": [
