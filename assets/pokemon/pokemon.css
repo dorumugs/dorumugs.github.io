@@ -1,0 +1,75 @@
+/* 포켓몬 카드 지수 대시보드.
+   390px 에서 가로 오버플로가 없어야 한다. 넘치는 건 .pk-table-wrap 안에서만. */
+
+.pk-app { max-width: 100%; overflow-x: hidden; }
+
+.pk-lede { font-size: 0.95em; line-height: 1.7; }
+
+.pk-stats {
+  display: grid; gap: 10px; margin: 1.2em 0;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.pk-stat {
+  border: 1px solid #e3e3e3; border-radius: 8px; padding: 12px 14px;
+  background: #fafafa; min-width: 0;
+}
+.pk-stat b { display: block; font-size: 1.5em; line-height: 1.2; word-break: break-word; }
+.pk-stat span { display: block; font-size: 0.78em; color: #666; margin-top: 4px; }
+.pk-stat.is-up b { color: #c0392b; }
+.pk-stat.is-down b { color: #2471a3; }
+
+.pk-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 1em 0 0.6em; }
+.pk-tab {
+  border: 1px solid #d8d8d8; background: #fff; border-radius: 999px;
+  padding: 6px 14px; font-size: 0.85em; cursor: pointer;
+}
+.pk-tab.is-on { background: #2c3e50; color: #fff; border-color: #2c3e50; }
+
+.pk-chart-wrap { margin: 0.6em 0; }
+.pk-chart { width: 100%; height: auto; display: block; }
+.pk-chart .grid { stroke: #ececec; stroke-width: 1; }
+.pk-chart .axis { fill: #888; font-size: 11px; }
+.pk-chart .line { fill: none; stroke-width: 2; }
+.pk-chart .line.is-est { stroke-dasharray: 4 4; opacity: 0.75; }
+
+.pk-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.8em; margin-top: 6px; }
+.pk-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; }
+.pk-legend .is-est-note { color: #888; }
+
+.pk-note { font-size: 0.8em; color: #777; margin: 0.4em 0 1.4em; }
+.pk-sub { font-size: 0.85em; color: #666; }
+
+.pk-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.8em 0; }
+.pk-filters select { font-size: 0.85em; padding: 5px 8px; max-width: 48%; }
+
+/* 표는 자체 스크롤 컨테이너 안에서만 넘친다. */
+.pk-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.pk-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 0.82em; }
+.pk-table th, .pk-table td { padding: 7px 9px; border-bottom: 1px solid #eee; white-space: nowrap; }
+.pk-table th { background: #f5f5f5; text-align: left; font-weight: 600; }
+.pk-table .is-num { text-align: right; }
+.pk-table .up { color: #c0392b; }
+.pk-table .down { color: #2471a3; }
+
+.pk-more { text-align: center; margin: 0.8em 0 1.6em; }
+.pk-more button {
+  border: 1px solid #d8d8d8; background: #fff; border-radius: 6px;
+  padding: 8px 18px; font-size: 0.85em; cursor: pointer;
+}
+
+.pk-formula {
+  background: #f7f7f7; border-left: 3px solid #2c3e50; padding: 12px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78em; line-height: 1.6;
+  white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
+}
+
+.pk-source { font-size: 0.78em; color: #777; margin-top: 1.6em; }
+
+@media (max-width: 480px) {
+  .pk-stats { grid-template-columns: repeat(2, 1fr); }
+  .pk-stat { padding: 10px 11px; }
+  .pk-stat b { font-size: 1.15em; }
+  .pk-stat span { font-size: 0.72em; }
+  .pk-filters select { max-width: 100%; flex: 1 1 100%; }
+}

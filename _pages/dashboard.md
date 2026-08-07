@@ -81,6 +81,22 @@ description: "데이터로 보는 도구들을 모았습니다. 국토교통부 
 ## 수집품
 
 <div class="rh-grid">
+
+  <a class="rh-card is-live" href="{{ '/dashboard/pokemon/' | relative_url }}">
+    <span class="rh-badge">쓸 수 있음</span>
+    <h2 class="rh-title">포켓몬 카드 가격지수</h2>
+    <p class="rh-desc">
+      시대 4 × 가격대 3 = <strong>12칸</strong>으로 나눠 층화추출한 <strong>300장</strong>의
+      가격지수입니다. 남의 지수를 인용하지 않고 원가격에서 직접 만듭니다.
+    </p>
+    <ul class="rh-points">
+      <li>구성 종목 300장·가중치·산식 전부 공개</li>
+      <li>시대별·가격대별 하위지수</li>
+      <li>매일 TCGplayer 시세 자동 갱신</li>
+    </ul>
+    <span class="rh-go">열어보기 →</span>
+  </a>
+
 </div>
 
 ## 바탕이 된 글
