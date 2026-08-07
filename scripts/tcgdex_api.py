@@ -134,3 +134,137 @@ def parse_card_pricing(payload: dict, on_date: str) -> dict | None:
     if all(row[k] is None for k in COLUMNS[3:]):
         return None
     return row
+
+
+def tercile_bounds(prices: list[float]) -> tuple[float, float]:
+    """가격 분포의 3분위 경계 (하한, 상한) 를 낸다."""
+    if not prices:
+        raise ValueError("가격이 비었습니다")
+    ordered = sorted(prices)
+    n = len(ordered)
+    return ordered[n // 3], ordered[(2 * n) // 3]
+
+
+def band_of(price: float, bounds: tuple[float, float]) -> str:
+    """가격을 가격대 이름으로. 경계값은 위 칸에 넣는다."""
+    low, high = bounds
+    if price >= high:
+        return "고가"
+    if price >= low:
+        return "중가"
+    return "저가"
+
+
+def stratify(cards: list[dict], per_cell: int = PER_CELL, seed: int = 20260807) -> list[dict]:
+    """시대 × 가격대 12칸에서 고정 표본을 뽑는다.
+
+    가격대 경계는 시대 안에서 잡는다. 시대를 가로질러 절대 금액으로 자르면
+    빈티지가 전부 고가, 최신이 전부 저가가 되어 칸이 무너진다.
+
+    칸 안에서 다시 5분위로 나눠 균등하게 뽑는다. 그냥 무작위로 뽑으면 저가
+    쪽에 몰려 그 칸의 상단이 지수에 안 들어간다.
+    """
+    by_era: dict[str, list[dict]] = {}
+    for card in cards:
+        if card.get("era") in ERAS and card.get("price"):
+            by_era.setdefault(card["era"], []).append(card)
+
+    picked: list[dict] = []
+    for era in ERAS:
+        pool = by_era.get(era) or []
+        if not pool:
+            continue
+        bounds = tercile_bounds([c["price"] for c in pool])
+        cells: dict[str, list[dict]] = {b: [] for b in BANDS}
+        for card in pool:
+            band = band_of(card["price"], bounds)
+            cells[band].append({**card, "band": band})
+
+        for band in BANDS:
+            cell = sorted(cells[band], key=lambda c: (c["price"], c["card_id"]))
+            if len(cell) <= per_cell:
+                picked.extend(cell)
+                continue
+            # 칸을 5분위로 갈라 각 분위에서 균등하게 뽑는다.
+            rng = random.Random(f"{seed}-{era}-{band}")
+            chunks = 5
+            quota, extra = divmod(per_cell, chunks)
+            chosen: list[dict] = []
+            taken: set[str] = set()
+            for k in range(chunks):
+                start = (len(cell) * k) // chunks
+                end = (len(cell) * (k + 1)) // chunks
+                slice_ = cell[start:end]
+                want = quota + (1 if k < extra else 0)
+                for card in rng.sample(slice_, min(want, len(slice_))):
+                    chosen.append(card)
+                    taken.add(card["card_id"])
+            # 분위가 짧아 못 채웠으면 남은 데서 채운다.
+            if len(chosen) < per_cell:
+                rest = [c for c in cell if c["card_id"] not in taken]
+                chosen.extend(rng.sample(rest, min(per_cell - len(chosen), len(rest))))
+            picked.extend(sorted(chosen, key=lambda c: c["card_id"]))
+    return picked
+
+
+def fill_forward(values: list[float | None], max_days: int = CARRY_FORWARD_DAYS) -> list[float | None]:
+    """결측을 마지막 값으로 이월한다. max_days 를 넘으면 결측으로 둔다.
+
+    영원히 이월하면 상장폐지된 종목을 계속 들고 있는 지수가 된다. 그게 우리가
+    깐 생존편향의 반대편 오류다.
+    """
+    out: list[float | None] = []
+    last: float | None = None
+    run = 0
+    for value in values:
+        if value is not None:
+            out.append(value)
+            last = value
+            run = 0
+            continue
+        run += 1
+        out.append(last if (last is not None and run <= max_days) else None)
+    return out
+
+
+def _cell_relative(card_ids: list[str], day_prices: dict, base_prices: dict) -> float | None:
+    """칸의 평균 상대가격. 쓸 수 있는 카드가 없으면 None."""
+    rels = []
+    for cid in card_ids:
+        now = day_prices.get(cid)
+        base = base_prices.get(cid)
+        if now is not None and base:
+            rels.append(now / base)
+    return sum(rels) / len(rels) if rels else None
+
+
+def index_point(universe: list[dict], day_prices: dict, base_prices: dict) -> dict:
+    """하루치 지수와 하위지수를 낸다. 기준일 = 100.
+
+    12칸을 균등가중한다. 시장 규모 비례가 이론적으로 낫지만 포켓몬 카드는
+    유통 물량이 공개되지 않아 아무도 시장 규모를 모른다. 모르는 걸 아는 척
+    가중치에 넣으면 우리가 깐 지수와 같은 짓이 된다.
+    """
+    cells: dict[tuple[str, str], list[str]] = {}
+    for card in universe:
+        cells.setdefault((card["era"], card["band"]), []).append(card["card_id"])
+
+    rel: dict[tuple[str, str], float] = {}
+    for key, ids in cells.items():
+        value = _cell_relative(ids, day_prices, base_prices)
+        if value is not None:
+            rel[key] = value
+
+    def mean_of(keys) -> float | None:
+        vals = [rel[k] for k in keys if k in rel]
+        return 100.0 * sum(vals) / len(vals) if vals else None
+
+    return {
+        "index": mean_of(list(rel)),
+        "by_era": {e: mean_of([k for k in rel if k[0] == e]) for e in ERAS},
+        "by_band": {b: mean_of([k for k in rel if k[1] == b]) for b in BANDS},
+        "missing": sum(
+            1 for c in universe
+            if day_prices.get(c["card_id"]) is None or not base_prices.get(c["card_id"])
+        ),
+    }
