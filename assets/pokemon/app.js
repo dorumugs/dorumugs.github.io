@@ -77,6 +77,16 @@
     render();
   }
 
+  /* 라벨과 값을 한 줄에. 카드 폭이 좁아 둘이 안 들어가면 값이 아랫줄로
+     내려가되 금액 자체는 절대 쪼개지지 않는다 ('$4,590.6 / 3' 방지). */
+  function subRow(label, value, when) {
+    return '<div class="pk-row">' +
+      '<span class="pk-lbl">' + esc(label) + '</span>' +
+      '<span class="pk-val">' + esc(value) +
+        (when ? '<i class="pk-when">' + esc(when) + '</i>' : '') +
+      '</span></div>';
+  }
+
   function cardHtml(r) {
     var set = state.sets[r[C.set_id]] || {};
     var img = r[C.image]
@@ -98,12 +108,12 @@
         '<p class="pk-set">' + esc(set.name || r[C.set_id]) + ' · #' + esc(r[C.local_id]) +
           (r[C.rarity] ? ' · ' + esc(r[C.rarity]) : '') + '</p>' +
         '<p class="pk-price">' + money(r[C.price]) + '</p>' +
-        '<dl class="pk-sub">' +
-          '<dt>최고 호가</dt><dd>' + money(r[C.high_ask]) + '</dd>' +
-          '<dt>관측 최고가</dt><dd>' + money(r[C.obs_max]) +
-            (r[C.obs_max_date] ? ' <span class="pk-when">' + esc(r[C.obs_max_date]) + '</span>' : '') + '</dd>' +
-          '<dt>Cardmarket</dt><dd>' + money(r[C.cm_avg], '€') + '</dd>' +
-        '</dl>' +
+        '<div class="pk-sub">' +
+          subRow('최고 호가', money(r[C.high_ask])) +
+          subRow('관측 최고가', money(r[C.obs_max]),
+                 r[C.obs_max] !== null && r[C.obs_max_date] ? r[C.obs_max_date] : '') +
+          subRow('EUR 평균', money(r[C.cm_avg], '€')) +
+        '</div>' +
       '</div>' +
     '</article>';
   }
