@@ -1,5 +1,12 @@
 # 포켓몬 카드 지수 대시보드 구현 계획
 
+> ⛔ **폐기됨 (2026-08-07).** Task 1~2(`/dashboard/` 허브 이전)는 구현되어
+> 지금도 유효합니다. **Task 3~10 의 지수 부분은 폐기**되었고 코드도 지웠습니다 —
+> 사용자가 원한 건 추이가 아니라 현재가였습니다. 현재 설계는
+> [`../specs/2026-08-07-pokemon-card-browser-design.md`](../specs/2026-08-07-pokemon-card-browser-design.md) 입니다.
+> 이 문서는 그때 밟은 지뢰(전수 스캔 예산·재개, gzip mtime, 크론 flock)의
+> 기록으로 남깁니다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** `/real-estate/` 허브를 `/dashboard/` 로 이전하고, 구성·가중치·산식을 전부 공개한 포켓몬 카드 가격지수 대시보드를 매일 자동 갱신되게 붙인다.
