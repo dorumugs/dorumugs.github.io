@@ -172,6 +172,20 @@ def run_scan(max_calls: int, on_date: str) -> int:
     if NAMES_FILE.exists():
         names = json.loads(NAMES_FILE.read_text(encoding="utf-8"))
 
+    def flush() -> None:
+        """세트 하나가 끝날 때마다 저장한다.
+
+        루프 끝에서 한 번만 저장하면, 2만 장을 훑는 80분짜리 실행이 중간에
+        죽었을 때 그때까지 받은 걸 전부 잃는다. 재개 설계가 무의미해진다.
+        """
+        _write_gz(SCAN_FILE, scanned)
+        SETS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        SETS_FILE.write_text(json.dumps(set_meta, ensure_ascii=False, indent=1), encoding="utf-8")
+        NAMES_FILE.write_text(json.dumps(names, ensure_ascii=False, indent=1), encoding="utf-8")
+        state["done_sets"] = sorted(done)
+        state["complete"] = len(done) >= len(sets)
+        _save_state(state)
+
     spent = 0
     for entry in sets:
         if entry["set_id"] in done:
@@ -188,6 +202,7 @@ def run_scan(max_calls: int, on_date: str) -> int:
                 "included": False, "reason": "이름 프리필터 제외", "coverage": None,
             }
             done.add(entry["set_id"])
+            flush()
             continue
 
         card_ids = detail["card_ids"]
@@ -206,18 +221,12 @@ def run_scan(max_calls: int, on_date: str) -> int:
         if included:
             scanned = merge_rows(scanned, rows)
         done.add(entry["set_id"])
+        flush()
         print(f"  {detail['set_id']:<12} {detail['name'][:28]:<28} "
               f"{len(rows):>4}/{len(card_ids):<4} 커버리지 {cov:>4.0%} "
               f"{'포함' if included else '제외'}")
 
-    _write_gz(SCAN_FILE, scanned)
-    SETS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    SETS_FILE.write_text(json.dumps(set_meta, ensure_ascii=False, indent=1), encoding="utf-8")
-    NAMES_FILE.write_text(json.dumps(names, ensure_ascii=False, indent=1), encoding="utf-8")
-    state["done_sets"] = sorted(done)
-    state["complete"] = len(done) >= len(sets)
-    _save_state(state)
-
+    flush()
     print(f"진행 {len(done)}/{len(sets)} 세트")
     if state["complete"]:
         print("전수 스캔 완료. build_pokemon.py 로 유니버스를 확정하세요.")
