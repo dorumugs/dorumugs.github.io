@@ -40,6 +40,7 @@ SCAN_FILE = DATA_DIR / "scan.csv.gz"
 SETS_FILE = DATA_DIR / "sets.json"
 PRICES_FILE = DATA_DIR / "prices.csv.gz"
 UNIVERSE_FILE = DATA_DIR / "universe.json"
+NAMES_FILE = DATA_DIR / "names.json"
 
 WORKERS = 4
 TIMEOUT = 30
@@ -114,13 +115,21 @@ def _get_json(url: str):
     raise tcgdex_api.ApiError(f"{url} 요청 실패: {last}")
 
 
-def _fetch_cards(card_ids: list[str], on_date: str) -> list[dict]:
-    """카드 가격을 동시 WORKERS 개로 받는다. 실패한 카드는 조용히 빠진다."""
+def _fetch_cards(card_ids: list[str], on_date: str, names: dict | None = None) -> list[dict]:
+    """카드 가격을 동시 WORKERS 개로 받는다. 실패한 카드는 조용히 빠진다.
+
+    names 를 주면 card_id → 카드 이름을 함께 채운다. 가격 CSV 에는 이름 칸이
+    없지만(컬럼이 고정) 화면 표에는 이름이 필요하다. 어차피 응답을 받는 김에
+    같이 걷어 둔다.
+    """
     def one(cid: str):
         try:
-            return tcgdex_api.parse_card_pricing(_get_json(f"{tcgdex_api.BASE}/cards/{cid}"), on_date)
+            payload = _get_json(f"{tcgdex_api.BASE}/cards/{cid}")
         except tcgdex_api.ApiError:
             return None
+        if names is not None and payload.get("name"):
+            names[cid] = payload["name"]
+        return tcgdex_api.parse_card_pricing(payload, on_date)
 
     with cf.ThreadPoolExecutor(WORKERS) as pool:
         return [r for r in pool.map(one, card_ids) if r]
@@ -159,6 +168,9 @@ def run_scan(max_calls: int, on_date: str) -> int:
     set_meta: dict[str, dict] = {}
     if SETS_FILE.exists():
         set_meta = json.loads(SETS_FILE.read_text(encoding="utf-8"))
+    names: dict[str, str] = {}
+    if NAMES_FILE.exists():
+        names = json.loads(NAMES_FILE.read_text(encoding="utf-8"))
 
     spent = 0
     for entry in sets:
@@ -179,7 +191,7 @@ def run_scan(max_calls: int, on_date: str) -> int:
             continue
 
         card_ids = detail["card_ids"]
-        rows = _fetch_cards(card_ids, on_date)
+        rows = _fetch_cards(card_ids, on_date, names)
         spent += len(card_ids)
 
         cov = coverage_of(rows, card_ids)
@@ -201,6 +213,7 @@ def run_scan(max_calls: int, on_date: str) -> int:
     _write_gz(SCAN_FILE, scanned)
     SETS_FILE.parent.mkdir(parents=True, exist_ok=True)
     SETS_FILE.write_text(json.dumps(set_meta, ensure_ascii=False, indent=1), encoding="utf-8")
+    NAMES_FILE.write_text(json.dumps(names, ensure_ascii=False, indent=1), encoding="utf-8")
     state["done_sets"] = sorted(done)
     state["complete"] = len(done) >= len(sets)
     _save_state(state)
