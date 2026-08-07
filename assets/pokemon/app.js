@@ -13,8 +13,9 @@
   var PAGE = 60;
 
   var state = {
-    prefix: '', tcgPrefix: '', sets: [], series: [], rarities: [], dates: [],
-    rows: [], setInfo: {}, meta: null, filtered: [], shown: PAGE
+    prefix: '', tcgPrefix: '', ptcgPrefix: '', sets: [], series: [],
+    rarities: [], dates: [], rows: [], setInfo: {}, art: {}, meta: null,
+    filtered: [], shown: PAGE
   };
   var C = {};
 
@@ -47,9 +48,15 @@
 
   /* 이미지 주소를 만든다. {thumb, full} 이거나, 구할 수 없으면 null.
 
-     기본은 TCGdex 이고 경로는 '시리즈/세트/번호' 규칙이다(전수 확인). TCGdex 가
-     이미지를 아예 안 주는 카드가 588장 있어서(Shining Legends·Dragon Majesty
-     등 세트 통째로) 그런 카드는 TCGplayer 제품 사진으로 메운다. */
+     출처가 셋이고 순서대로 떨어진다.
+
+       1. TCGdex — 경로가 '시리즈/세트/번호' 로 규칙적이다 (전수 확인).
+       2. TCGplayer — TCGdex 가 이미지를 안 주는 588장을 productId 로 메운다.
+       3. pokemontcg.io — 위 둘 다 없는 세트(Shiny Vault·Galarian Gallery·
+          Trainer Gallery)용. 여기만은 규칙으로 만들지 않고 art.json 에
+          '실제로 있는 것만' 적어 두었다. 없는 이미지를 요청하지 않기 위해서다.
+
+     셋 다 없는 카드가 39장 남는다 (My First Battle, Poké Card Creator Pack). */
   function imageOf(r) {
     var serie = state.series[r[C.set]];
     if (serie) {
@@ -61,6 +68,13 @@
       return {
         thumb: state.tcgPrefix + pid + '_200w.jpg',
         full: state.tcgPrefix + pid + '_in_1000x1000.jpg'
+      };
+    }
+    var alt = state.art[cardIdOf(r)];
+    if (alt) {
+      return {
+        thumb: state.ptcgPrefix + alt + '.png',
+        full: state.ptcgPrefix + alt + '_hires.png'
       };
     }
     return null;
@@ -198,12 +212,14 @@
     });
   }
 
-  Promise.all([fetchJson('cards'), fetchJson('sets'), fetchJson('meta')])
+  Promise.all([fetchJson('cards'), fetchJson('sets'), fetchJson('meta'),
+               fetchJson('art')])
     .then(function (res) {
       var payload = res[0];
       payload.columns.forEach(function (name, i) { C[name] = i; });
       state.prefix = payload.image_prefix;
       state.tcgPrefix = payload.tcgplayer_image_prefix || '';
+      state.ptcgPrefix = payload.ptcg_image_prefix || '';
       state.sets = payload.sets;
       state.series = payload.series;
       state.rarities = payload.rarities;
@@ -211,6 +227,7 @@
       state.rows = payload.rows;
       state.setInfo = res[1];
       state.meta = res[2];
+      state.art = res[3];
 
       fillFilters();
       bind();

@@ -23,8 +23,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import collect_card_art  # noqa: E402
 import collect_pokemon  # noqa: E402
 import pokeapi  # noqa: E402
+import ptcg_api  # noqa: E402
 import tcgdex_api  # noqa: E402
 
 OUT_DIR = ROOT / "assets" / "pokemon"
@@ -63,6 +65,17 @@ class Dictionary:
             self._index[value] = len(self.values)
             self.values.append(value)
         return self._index[value]
+
+
+def build_art(cards: list[dict], payload: dict, art: dict) -> dict:
+    """화면에 실을 대체 사진 표. 실제로 남은 카드 것만 골라 담는다.
+
+    경로 규칙을 화면에 심지 않고 확인된 카드만 싣는다 — 없는 이미지를 요청해
+    404 를 흘리지 않기 위해서다."""
+    set_at = VIEW_COLUMNS.index("set")
+    local_at = VIEW_COLUMNS.index("local_id")
+    live = {f"{payload['sets'][r[set_at]]}-{r[local_at]}" for r in payload["rows"]}
+    return {cid: path for cid, path in sorted(art.items()) if cid in live}
 
 
 def build_payload(cards: list[dict], set_meta: dict, species: dict) -> dict:
@@ -105,6 +118,7 @@ def build_payload(cards: list[dict], set_meta: dict, species: dict) -> dict:
         "columns": VIEW_COLUMNS,
         "image_prefix": tcgdex_api.IMAGE_PREFIX,
         "tcgplayer_image_prefix": TCGPLAYER_IMAGE_PREFIX,
+        "ptcg_image_prefix": ptcg_api.IMAGE_PREFIX,
         "sets": sets.values,
         "series": [series_by_set.get(sid, "") for sid in sets.values],
         "rarities": rarities.values,
@@ -149,15 +163,29 @@ def main() -> int:
 
     payload = build_payload(cards, set_meta, species)
     sets = build_sets(set_meta, payload)
+    art = build_art(cards, payload,
+                    collect_pokemon._read_json(collect_card_art.ART_FILE, {}))
 
     ko_at = VIEW_COLUMNS.index("name_ko")
     with_ko = sum(1 for r in payload["rows"] if r[ko_at])
+
+    # 사진이 하나도 없는 카드를 세어 둔다. 화면에 그대로 적는다.
+    set_at = VIEW_COLUMNS.index("set")
+    local_at = VIEW_COLUMNS.index("local_id")
+    pid_at = VIEW_COLUMNS.index("tcg_pid")
+    no_art = sum(
+        1 for r in payload["rows"]
+        if not payload["series"][r[set_at]]
+        and not r[pid_at]
+        and f"{payload['sets'][r[set_at]]}-{r[local_at]}" not in art)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "cards.json").write_text(
         json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (OUT_DIR / "sets.json").write_text(
         json.dumps(sets, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    (OUT_DIR / "art.json").write_text(
+        json.dumps(art, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (OUT_DIR / "meta.json").write_text(json.dumps({
         "generated": args.generated,
         "card_count": len(payload["rows"]),
@@ -165,11 +193,14 @@ def main() -> int:
         "with_korean_name": with_ko,
         "species_count": len(species),
         "sets_excluded": sum(1 for m in set_meta.values() if not m.get("included")),
+        "art_filled": len(art),
+        "no_art": no_art,
     }, ensure_ascii=False), encoding="utf-8")
 
     raw = (OUT_DIR / "cards.json").stat().st_size
     packed = len(gzip.compress((OUT_DIR / "cards.json").read_bytes(), 9))
     print(f"카드 {len(payload['rows']):,}장 · 세트 {len(sets)}개 · 한글명 {with_ko:,}장")
+    print(f"대체 사진 {len(art):,}장 · 사진이 아예 없는 카드 {no_art:,}장")
     print(f"cards.json 원본 {raw/1024:.0f}KB · gzip {packed/1024:.0f}KB")
     return 0
 
