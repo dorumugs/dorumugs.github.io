@@ -70,12 +70,23 @@ description: "포켓몬 카드 현재 시세를 카드 사진과 함께 봅니�
     <li><strong>한글 이름은 포켓몬 이름입니다.</strong> 카드 정식 한글명이 공개된 데이터가 없어, 도감번호로 포켓몬 종 이름을 붙였습니다. <code>Charizard ex</code> 는 <code>리자몽 ex</code> 로 나옵니다.</li>
     <li><strong>트레이너·에너지 카드는 한글 이름이 없습니다.</strong> 도감번호가 없기 때문입니다.</li>
     <li><strong>가격이 안 잡히는 카드는 빠져 있습니다.</strong> 프로모·트레이너킷은 유통 경로가 불규칙해 시세 자체가 잡히지 않습니다.</li>
-    <li><strong>영문판 기준입니다.</strong> 국내 원화 시세는 공개 API 가 없어 다루지 않습니다.</li>
+    <li><strong>영문판·달러 기준입니다.</strong> 국내 원화 시세는 공개 API 가 없어 여기서 다루지 않습니다. 원화로 보시려면 아래 링크를 쓰세요.</li>
   </ul>
+
+  <h2>원화 시세는 여기서</h2>
+
+  <p>
+    국내 시세를 여는 공개 API 가 없어 이 대시보드는 달러·유로만 다룹니다.
+    원화로 보시려면 <a href="https://content.kream.co.kr/pokemon-tcg-chart" rel="noopener" target="_blank">KREAM 포켓몬 카드 시세표</a>가
+    <strong>PSA 10 등급</strong> 기준 원화 시세를 보여줍니다. 등급 카드만 다루므로
+    이 대시보드(등급 없는 raw 카드 시세)와는 기준이 다릅니다 — 같은 카드라도
+    금액이 크게 벌어집니다.
+  </p>
 
   <p class="pk-source">
     출처: <a href="https://tcgdex.dev/" rel="noopener">TCGdex</a> (카드·시세·이미지) ·
-    <a href="https://pokeapi.co/" rel="noopener">PokéAPI</a> (한글 이름).
+    <a href="https://pokeapi.co/" rel="noopener">PokéAPI</a> (한글 이름) ·
+    TCGplayer (TCGdex 에 이미지가 없는 카드의 제품 사진).
     시세 참고용이며 투자 권유가 아닙니다.
   </p>
 

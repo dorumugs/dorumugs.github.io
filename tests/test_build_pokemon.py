@@ -19,12 +19,13 @@ C = {name: i for i, name in enumerate(build_pokemon.VIEW_COLUMNS)}
 
 
 def _card(cid, set_id, name, dex="", market=10.0, high=None, obs=None,
-          obs_date="", cm=None, rarity="Rare", serie="x") -> dict:
+          obs_date="", cm=None, rarity="Rare", serie="x", pid="") -> dict:
     local = cid.split("-")[-1]
     row = {c: None for c in tcgdex_api.CARD_COLUMNS}
     row.update({"card_id": cid, "set_id": set_id, "local_id": local,
                 "name_en": name, "dex_id": dex, "rarity": rarity, "category": "Pokemon",
-                "image": f"{serie}/{set_id}/{local}", "tp_market": market, "tp_high": high,
+                "image": f"{serie}/{set_id}/{local}" if serie else "",
+                "tp_product_id": pid, "tp_market": market, "tp_high": high,
                 "obs_max": obs, "obs_max_date": obs_date, "cm_avg": cm,
                 "updated": "2026-08-08"})
     return row
@@ -123,6 +124,26 @@ class TestBuildPayload(unittest.TestCase):
         p = build_pokemon.build_payload(cards, _meta(), {})
         self.assertEqual(p["sets"], ["s1"])
         self.assertEqual(p["rarities"], ["Rare Holo"])
+
+
+class TestFallbackImage(unittest.TestCase):
+    """TCGdex 가 이미지를 안 주면 TCGplayer productId 로 메운다."""
+
+    def test_product_id_is_carried_when_tcgdex_has_no_image(self) -> None:
+        p = build_pokemon.build_payload(
+            [_card("s1-1", "s1", "A", serie="", pid="146653")], _meta(), {})
+        self.assertEqual(p["rows"][0][C["tcg_pid"]], "146653")
+        self.assertEqual(p["series"][p["rows"][0][C["set"]]], "")
+
+    def test_product_id_is_dropped_when_tcgdex_has_an_image(self) -> None:
+        p = build_pokemon.build_payload(
+            [_card("s1-1", "s1", "A", serie="base", pid="146653")], _meta(), {})
+        self.assertEqual(p["rows"][0][C["tcg_pid"]], "")
+
+    def test_neither_source_leaves_it_blank(self) -> None:
+        p = build_pokemon.build_payload(
+            [_card("s1-1", "s1", "A", serie="", pid="")], _meta(), {})
+        self.assertEqual(p["rows"][0][C["tcg_pid"]], "")
 
 
 class TestBuildSets(unittest.TestCase):

@@ -19,7 +19,7 @@ IMAGE_PREFIX = "https://assets.tcgdex.net/en/"
 # 카드 CSV 컬럼 순서. collect_pokemon.py 가 이 순서로 쓴다.
 CARD_COLUMNS = [
     "card_id", "set_id", "local_id",
-    "name_en", "dex_id", "rarity", "category", "image",
+    "name_en", "dex_id", "rarity", "category", "image", "tp_product_id",
     "tp_market", "tp_low", "tp_mid", "tp_high",
     "cm_avg", "cm_low", "cm_trend",
     "obs_max", "obs_max_date", "updated",
@@ -148,6 +148,10 @@ def parse_card_full(payload: dict, on_date: str) -> dict | None:
         "rarity": (payload.get("rarity") or "").strip(),
         "category": (payload.get("category") or "").strip(),
         "image": short_image(payload.get("image")),
+        # TCGdex 가 이미지를 안 주는 카드가 588장 있다 (Shining Legends,
+        # Dragon Majesty 등 세트 통째로). 그런 카드는 TCGplayer 제품 이미지로
+        # 메우므로 productId 를 같이 걷어 둔다.
+        "tp_product_id": str(tp.get("productId") or ""),
         "tp_market": _num(tp.get("marketPrice")),
         "tp_low": _num(tp.get("lowPrice")),
         "tp_mid": _num(tp.get("midPrice")),

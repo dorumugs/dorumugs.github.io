@@ -13,7 +13,7 @@
   var PAGE = 60;
 
   var state = {
-    prefix: '', sets: [], series: [], rarities: [], dates: [],
+    prefix: '', tcgPrefix: '', sets: [], series: [], rarities: [], dates: [],
     rows: [], setInfo: {}, meta: null, filtered: [], shown: PAGE
   };
   var C = {};
@@ -45,10 +45,25 @@
   function setIdOf(r) { return state.sets[r[C.set]] || ''; }
   function cardIdOf(r) { return setIdOf(r) + '-' + r[C.local_id]; }
 
-  /* 이미지 경로는 '시리즈/세트/번호'. 전수 확인된 규칙이라 저장하지 않고 만든다. */
-  function imagePathOf(r) {
+  /* 이미지 주소를 만든다. {thumb, full} 이거나, 구할 수 없으면 null.
+
+     기본은 TCGdex 이고 경로는 '시리즈/세트/번호' 규칙이다(전수 확인). TCGdex 가
+     이미지를 아예 안 주는 카드가 588장 있어서(Shining Legends·Dragon Majesty
+     등 세트 통째로) 그런 카드는 TCGplayer 제품 사진으로 메운다. */
+  function imageOf(r) {
     var serie = state.series[r[C.set]];
-    return serie ? serie + '/' + setIdOf(r) + '/' + r[C.local_id] : '';
+    if (serie) {
+      var path = state.prefix + serie + '/' + setIdOf(r) + '/' + r[C.local_id];
+      return { thumb: path + '/low.webp', full: path + '/high.webp' };
+    }
+    var pid = r[C.tcg_pid];
+    if (pid) {
+      return {
+        thumb: state.tcgPrefix + pid + '_200w.jpg',
+        full: state.tcgPrefix + pid + '_in_1000x1000.jpg'
+      };
+    }
+    return null;
   }
 
   function applyFilters() {
@@ -102,22 +117,21 @@
   function cardHtml(r) {
     var setId = setIdOf(r);
     var info = state.setInfo[setId] || {};
-    var path = imagePathOf(r);
+    var pic = imageOf(r);
     var rarity = state.rarities[r[C.rarity]] || '';
     var when = state.dates[r[C.obs_date]] || '';
 
-    /* 자리표시를 항상 뒤에 깔고 이미지를 그 위에 올린다. TCGdex 가 이미지를
-       안 주는 카드가 588장 있고, 경로는 있는데 CDN 에 파일이 없는 것도 있다.
-       실패하면 이미지만 사라지고 자리표시가 드러난다. */
-    var thumb = '<span class="pk-noimg">이미지 없음</span>' + (path
-      ? '<img class="pk-img" src="' + esc(state.prefix + path + '/low.webp') +
+    /* 자리표시를 항상 뒤에 깔고 이미지를 그 위에 올린다. 경로는 있는데 CDN 에
+       파일이 없는 카드도 있어서, 실패하면 이미지만 사라지고 자리표시가 드러난다. */
+    var thumb = '<span class="pk-noimg">이미지 없음</span>' + (pic
+      ? '<img class="pk-img" src="' + esc(pic.thumb) +
         '" alt="' + esc(r[C.name_en]) + '" loading="lazy" width="245" height="342"' +
         ' onerror="this.style.display=\'none\'">'
       : '');
 
     return '<article class="pk-card">' +
-      (path
-        ? '<a class="pk-imgwrap" href="' + esc(state.prefix + path + '/high.webp') +
+      (pic
+        ? '<a class="pk-imgwrap" href="' + esc(pic.full) +
           '" target="_blank" rel="noopener">' + thumb + '</a>'
         : '<div class="pk-imgwrap">' + thumb + '</div>') +
       '<div class="pk-body">' +
@@ -189,6 +203,7 @@
       var payload = res[0];
       payload.columns.forEach(function (name, i) { C[name] = i; });
       state.prefix = payload.image_prefix;
+      state.tcgPrefix = payload.tcgplayer_image_prefix || '';
       state.sets = payload.sets;
       state.series = payload.series;
       state.rarities = payload.rarities;

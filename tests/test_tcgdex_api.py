@@ -122,6 +122,7 @@ class TestParseCardFull(unittest.TestCase):
         self.assertEqual(row["name_en"], "Charizard")
         self.assertEqual(row["dex_id"], "6")
         self.assertEqual(row["image"], "base/base1/4")
+        self.assertTrue(row["tp_product_id"], "TCGplayer productId 를 걷어야 한다")
         self.assertGreater(row["tp_market"], 0)
         self.assertGreater(row["tp_high"], 0)
         self.assertEqual(row["updated"], "2026-08-07")
@@ -130,6 +131,10 @@ class TestParseCardFull(unittest.TestCase):
         row = tcgdex_api.parse_card_full(_fixture("tcgdex_card_priced.json"), "2026-08-07")
         self.assertEqual(row["obs_max"], row["tp_market"])
         self.assertEqual(row["obs_max_date"], "2026-08-07")
+
+    def test_missing_product_id_is_blank(self) -> None:
+        payload = {"id": "x-1", "pricing": {"cardmarket": {"avg": 5.0}}}
+        self.assertEqual(tcgdex_api.parse_card_full(payload, "2026-08-07")["tp_product_id"], "")
 
     def test_energy_card_has_no_dex_id(self) -> None:
         row = tcgdex_api.parse_card_full(_fixture("tcgdex_card_energy.json"), "2026-08-07")

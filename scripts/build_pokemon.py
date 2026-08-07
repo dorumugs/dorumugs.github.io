@@ -33,8 +33,11 @@ OUT_DIR = ROOT / "assets" / "pokemon"
 # card_id 와 image 는 여기 없다 — 화면에서 만든다.
 VIEW_COLUMNS = [
     "set", "local_id", "name_en", "name_ko", "rarity",
-    "price", "high_ask", "obs_max", "obs_date", "cm_avg",
+    "price", "high_ask", "obs_max", "obs_date", "cm_avg", "tcg_pid",
 ]
+
+# TCGdex 가 이미지를 안 주는 카드용 대체 CDN. productId 로 제품 사진을 준다.
+TCGPLAYER_IMAGE_PREFIX = "https://tcgplayer-cdn.tcgplayer.com/product/"
 
 
 def _round(value, digits=2):
@@ -91,6 +94,8 @@ def build_payload(cards: list[dict], set_meta: dict, species: dict) -> dict:
             _round(card.get("obs_max")),
             dates.index(card.get("obs_max_date", "")),
             _round(card.get("cm_avg")),
+            # TCGdex 이미지가 있으면 대체 사진은 필요 없다. 없을 때만 담는다.
+            (card.get("tp_product_id") or "") if not serie else "",
         ])
 
     price_at = VIEW_COLUMNS.index("price")
@@ -99,6 +104,7 @@ def build_payload(cards: list[dict], set_meta: dict, species: dict) -> dict:
     return {
         "columns": VIEW_COLUMNS,
         "image_prefix": tcgdex_api.IMAGE_PREFIX,
+        "tcgplayer_image_prefix": TCGPLAYER_IMAGE_PREFIX,
         "sets": sets.values,
         "series": [series_by_set.get(sid, "") for sid in sets.values],
         "rarities": rarities.values,
