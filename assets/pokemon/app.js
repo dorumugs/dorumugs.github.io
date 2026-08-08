@@ -15,7 +15,8 @@
   var state = {
     prefix: '', tcgPrefix: '', ptcgPrefix: '', sets: [], series: [],
     rarities: [], dates: [], rows: [], setInfo: {}, art: {}, graded: {},
-    meta: null, filtered: [], shown: PAGE
+    meta: null, filtered: [], shown: PAGE,
+    view: 'grid'   // 'grid' 카드형 | 'table' 표형
   };
   var C = {};
   var G = {};
@@ -54,10 +55,18 @@
        1. TCGdex — 경로가 '시리즈/세트/번호' 로 규칙적이다 (전수 확인).
        2. TCGplayer — TCGdex 가 이미지를 안 주는 588장을 productId 로 메운다.
        3. pokemontcg.io — 위 둘 다 없는 세트(Shiny Vault·Galarian Gallery·
-          Trainer Gallery)용. 여기만은 규칙으로 만들지 않고 art.json 에
-          '실제로 있는 것만' 적어 두었다. 없는 이미지를 요청하지 않기 위해서다.
+          Trainer Gallery)용.
+       4. Bulbagarden Archives — 상업 시세 사이트가 안 다루는 옛 비매품 세트
+          (My First Battle, Poké Card Creator Pack).
 
-     셋 다 없는 카드가 39장 남는다 (My First Battle, Poké Card Creator Pack). */
+     3·4순위는 규칙으로 만들지 않고 art.json 에 **확인된 주소만** 적어 두었다.
+     없는 이미지를 요청해 404 를 흘리지 않기 위해서다.
+
+     모든 <img> 에 referrerpolicy="no-referrer" 가 붙어야 한다. 위키는 Referer
+     가 남의 도메인이면 막고, 그러면 Chrome 이 ERR_BLOCKED_BY_ORB 로 이미지를
+     통째로 버린다 (실측). Referer 를 안 보내면 200 이다.
+
+     넷 다 없는 카드는 6장뿐이다 (기본 에너지·포션·스위치). */
   function imageOf(r) {
     var serie = state.series[r[C.set]];
     if (serie) {
@@ -72,12 +81,7 @@
       };
     }
     var alt = state.art[cardIdOf(r)];
-    if (alt) {
-      return {
-        thumb: state.ptcgPrefix + alt + '.png',
-        full: state.ptcgPrefix + alt + '_hires.png'
-      };
-    }
+    if (alt) { return { thumb: alt[0], full: alt[1] }; }
     return null;
   }
 
@@ -176,13 +180,13 @@
     var thumb = '<span class="pk-noimg">이미지 없음</span>' + (pic
       ? '<img class="pk-img" src="' + esc(pic.thumb) +
         '" alt="' + esc(r[C.name_en]) + '" loading="lazy" width="245" height="342"' +
-        ' onerror="this.style.display=\'none\'">'
+        ' referrerpolicy="no-referrer" onerror="this.style.display=\'none\'">'
       : '');
 
     return '<article class="pk-card">' +
       (pic
         ? '<a class="pk-imgwrap" href="' + esc(pic.full) +
-          '" target="_blank" rel="noopener">' + thumb + '</a>'
+          '" target="_blank" rel="noopener noreferrer">' + thumb + '</a>'
         : '<div class="pk-imgwrap">' + thumb + '</div>') +
       '<div class="pk-body">' +
         '<h3 class="pk-name">' + esc(r[C.name_en]) + '</h3>' +
@@ -201,12 +205,54 @@
     '</article>';
   }
 
+  /* 표형 한 줄. 카드형과 같은 데이터를 좁게 편다. 사진은 작게라도 있어야
+     어떤 카드인지 알아본다 — 이름만으로는 같은 포켓몬이 수십 장이다. */
+  function rowHtml(r) {
+    var setId = setIdOf(r);
+    var info = state.setInfo[setId] || {};
+    var pic = imageOf(r);
+    var rarity = state.rarities[r[C.rarity]] || '';
+    var g = state.graded[cardIdOf(r)];
+
+    var thumb = pic
+      ? '<a href="' + esc(pic.full) + '" target="_blank" rel="noopener noreferrer">' +
+        '<img class="pk-thumb" src="' + esc(pic.thumb) + '" alt="' +
+        esc(r[C.name_en]) + '" loading="lazy" width="44" height="61"' +
+        ' referrerpolicy="no-referrer" onerror="this.style.display=\'none\'"></a>'
+      : '<span class="pk-thumb is-none">—</span>';
+
+    return '<tr>' +
+      '<td class="pk-thumbcell">' + thumb + '</td>' +
+      '<td><b>' + esc(r[C.name_en]) + '</b>' +
+        (r[C.name_ko] ? '<i>' + esc(r[C.name_ko]) + '</i>' : '') + '</td>' +
+      '<td class="cmp-dim">' + esc(info.name || setId) + '<i>#' +
+        esc(r[C.local_id]) + (rarity ? ' · ' + esc(rarity) : '') + '</i></td>' +
+      '<td class="cmp-num"><b>' + money(r[C.price]) + '</b></td>' +
+      '<td class="cmp-num">' + money(r[C.high_ask]) + '</td>' +
+      '<td class="cmp-num' + (g && g[G.psa10] ? ' is-psa' : '') + '">' +
+        (g && g[G.psa10] ? money(g[G.psa10]) +
+          '<i>' + esc((g[G.psa10_n] || 0) + '건') + '</i>' : '—') + '</td>' +
+      '</tr>';
+  }
+
   function render() {
     var grid = document.getElementById('pk-grid');
+    var wrap = document.getElementById('pk-tablewrap');
     var slice = state.filtered.slice(0, state.shown);
-    grid.innerHTML = slice.length
-      ? slice.map(cardHtml).join('')
-      : '<p class="pk-empty">찾는 카드가 없습니다. 철자나 필터를 확인해 보세요.</p>';
+    var table = state.view === 'table';
+
+    grid.hidden = table;
+    wrap.hidden = !table;
+
+    if (table) {
+      document.getElementById('pk-tbody').innerHTML = slice.length
+        ? slice.map(rowHtml).join('')
+        : '<tr><td colspan="6" class="pk-empty">찾는 카드가 없습니다.</td></tr>';
+    } else {
+      grid.innerHTML = slice.length
+        ? slice.map(cardHtml).join('')
+        : '<p class="pk-empty">찾는 카드가 없습니다. 철자나 필터를 확인해 보세요.</p>';
+    }
 
     document.getElementById('pk-count').textContent =
       state.filtered.length.toLocaleString('ko-KR') + '장 중 ' +
@@ -247,6 +293,13 @@
       state.shown += PAGE;
       render();
     });
+    Array.prototype.forEach.call(
+      document.querySelectorAll('input[name="pk-view"]'), function (radio) {
+        radio.addEventListener('change', function () {
+          state.view = radio.value;
+          render();
+        });
+      });
   }
 
   Promise.all([fetchJson('cards'), fetchJson('sets'), fetchJson('meta'),

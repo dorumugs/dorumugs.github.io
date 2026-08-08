@@ -17,7 +17,7 @@
 #                   등급이 하루 50장이라 비싼 카드부터 돌며 며칠에 걸쳐 채운다.
 #   4. 환율        달러/원. 비교 화면이 두 시장을 같은 축에 놓을 때 쓴다.
 #   5. 국내 시세    KREAM 시세표. 헤드리스 Chrome 으로 페이지를 열어 받는다.
-#   6. 집계         화면용 JSON 세 벌 (글로벌·국내·PSA10 통합).
+#   6. 집계         화면용 JSON 두 벌 (글로벌·국내).
 #
 # 한글 이름(PokeAPI)은 거의 바뀌지 않아 파일이 없을 때만 받는다.
 #
@@ -103,11 +103,6 @@ if [ -f data/pokemon/kream.json.gz ]; then
   if ! python3 -u scripts/build_kream.py; then
     FAILED=1
     echo "build_kream.py 가 비정상 종료했습니다." >&2
-  fi
-  # PSA 10 통합 표. 국내·글로벌 등급 시세가 다 있어야 의미가 있다.
-  if ! python3 -u scripts/build_unified.py; then
-    FAILED=1
-    echo "build_unified.py 가 비정상 종료했습니다." >&2
   fi
 fi
 

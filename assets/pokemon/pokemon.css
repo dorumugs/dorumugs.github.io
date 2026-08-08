@@ -168,6 +168,33 @@
 .krw-chg.is-down { color: #1f6fb2; }
 .krw-chg.is-flat { color: #aaa; }
 
+/* ---- 보기 전환 · 표형 -------------------------------------------------- */
+
+.pk-viewbar {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+  margin: 0 0 0.8em;
+}
+.pk-viewbar .pk-count { margin: 0; }
+.pk-views {
+  margin-left: auto; display: inline-flex; gap: 12px;
+  font-size: 0.82em; color: #555;
+}
+.pk-views label { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+
+/* 표형에서도 사진이 있어야 어떤 카드인지 안다. 작게 넣는다. */
+.pk-list { min-width: 620px; font-size: 0.78em; }
+.pk-list thead th { position: sticky; top: 0; z-index: 1; }
+.pk-list td { vertical-align: middle; }
+.pk-list b { display: block; overflow-wrap: anywhere; }
+.pk-list i { display: block; color: #999; font-style: normal; font-size: 0.92em; }
+.pk-thumbcell { width: 52px; padding-right: 0; }
+.pk-thumb {
+  display: block; width: 44px; height: auto; border-radius: 3px; background: #f2f2f2;
+}
+.pk-thumb.is-none {
+  width: 44px; height: 44px; color: #ccc; text-align: center; line-height: 44px;
+}
+
 /* ---- 비교 탭 ---------------------------------------------------------- */
 
 .cmp-cols {

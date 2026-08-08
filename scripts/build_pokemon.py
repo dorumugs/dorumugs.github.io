@@ -73,6 +73,24 @@ class Dictionary:
         return self._index[value]
 
 
+def art_urls(entry) -> list | None:
+    """수집기가 적어둔 것을 화면이 그대로 쓸 [썸네일, 원본] 로 편다.
+
+    출처마다 모양이 다르다.
+      pokemontcg.io  {"src":"ptcg", "path":"swsh45sv/SV001"}  -> 규칙으로 편다
+      위키           {"src":"bulba","thumb":…, "full":…}      -> 이미 완성된 주소
+    옛 형식(경로 문자열)도 받아 준다 — 수집기를 다시 안 돌려도 되게."""
+    if isinstance(entry, str):
+        return [ptcg_api.thumb_url(entry), ptcg_api.full_url(entry)]
+    if not isinstance(entry, dict):
+        return None
+    if entry.get("src") == "ptcg" and entry.get("path"):
+        return [ptcg_api.thumb_url(entry["path"]), ptcg_api.full_url(entry["path"])]
+    if entry.get("thumb"):
+        return [entry["thumb"], entry.get("full") or entry["thumb"]]
+    return None
+
+
 def build_art(cards: list[dict], payload: dict, art: dict) -> dict:
     """화면에 실을 대체 사진 표. 실제로 남은 카드 것만 골라 담는다.
 
@@ -81,7 +99,14 @@ def build_art(cards: list[dict], payload: dict, art: dict) -> dict:
     set_at = VIEW_COLUMNS.index("set")
     local_at = VIEW_COLUMNS.index("local_id")
     live = {f"{payload['sets'][r[set_at]]}-{r[local_at]}" for r in payload["rows"]}
-    return {cid: path for cid, path in sorted(art.items()) if cid in live}
+    out = {}
+    for card_id, entry in sorted(art.items()):
+        if card_id not in live:
+            continue
+        urls = art_urls(entry)
+        if urls:
+            out[card_id] = urls
+    return out
 
 
 def build_graded(cards: list[dict], graded_rows: list[dict]) -> dict:
