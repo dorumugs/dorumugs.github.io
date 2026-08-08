@@ -212,22 +212,38 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
     <input type="search" id="cmp-q" placeholder="포켓몬 이름으로 양쪽 동시 검색 — 리자몽, 피카츄" autocomplete="off" aria-label="양쪽 시장 검색">
   </div>
 
-  <div class="cmp-panel" id="cmp-panel" hidden>
-    <div class="cmp-side" id="cmp-pick-usd"></div>
-    <div class="cmp-gap" id="cmp-gap"></div>
-    <div class="cmp-side" id="cmp-pick-krw"></div>
+  <div class="cmp-picked" id="cmp-panel" hidden>
+    <div class="pk-table-wrap">
+      <table class="pk-table cmp-table">
+        <thead>
+          <tr><th>항목</th><th>글로벌 · 영문판</th><th>국내 · KREAM</th><th>차이</th></tr>
+        </thead>
+        <tbody id="cmp-tbody"></tbody>
+      </table>
+    </div>
+    <p class="cmp-verdict" id="cmp-gap"></p>
   </div>
 
   <div class="cmp-cols">
     <div class="cmp-col">
       <h3>글로벌 · 영문판</h3>
       <p class="pk-count" id="cmp-count-usd">검색어를 입력하세요.</p>
-      <div class="cmp-list" id="cmp-list-usd"></div>
+      <div class="pk-table-wrap cmp-scroll">
+        <table class="pk-table cmp-pick">
+          <thead><tr><th>카드</th><th>세트 · 번호</th><th>raw</th><th>PSA 10</th></tr></thead>
+          <tbody id="cmp-list-usd"></tbody>
+        </table>
+      </div>
     </div>
     <div class="cmp-col">
       <h3>국내 · 일본판 위주 · PSA 10</h3>
       <p class="pk-count" id="cmp-count-krw">검색어를 입력하세요.</p>
-      <div class="cmp-list" id="cmp-list-krw"></div>
+      <div class="pk-table-wrap cmp-scroll">
+        <table class="pk-table cmp-pick">
+          <thead><tr><th>상품</th><th>언어 · 품번</th><th>30일 거래</th><th>PSA 10</th></tr></thead>
+          <tbody id="cmp-list-krw"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 

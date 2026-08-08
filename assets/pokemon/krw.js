@@ -408,16 +408,16 @@
       var cardId = sid + '-' + r[GC.local_id];
       var g = (cmp.graded && cmp.graded[cardId]) || null;
       var psa = g ? g[cmp.gcol.psa10] : null;
-      return '<button type="button" class="cmp-item" data-side="usd" data-id="' +
-        esc(cardId) + '">' +
-        '<b>' + esc(r[GC.name_en]) + '</b>' +
-        (r[GC.name_ko] ? '<i>' + esc(r[GC.name_ko]) + '</i>' : '') +
-        '<span class="cmp-set">' + esc(sid) + ' · #' + esc(r[GC.local_id]) + '</span>' +
-        '<span class="cmp-p">raw ' + bothFromUsd(r[GC.price]) + '</span>' +
-        (psa ? '<span class="cmp-p is-psa">PSA 10 ' + bothFromUsd(psa) + '</span>'
-             : '<span class="cmp-p is-none">PSA 10 없음</span>') +
-        '</button>';
-    }).join('') || '<p class="pk-empty">글로벌에 없습니다.</p>';
+      return '<tr class="cmp-item" tabindex="0" data-side="usd" data-id="' +
+        esc(cardId) + '" data-psa="' + (psa ? '1' : '0') + '">' +
+        '<td><b>' + esc(r[GC.name_en]) + '</b>' +
+          (r[GC.name_ko] ? '<i>' + esc(r[GC.name_ko]) + '</i>' : '') + '</td>' +
+        '<td class="cmp-dim">' + esc(sid) + ' · #' + esc(r[GC.local_id]) + '</td>' +
+        '<td class="cmp-num">' + bothFromUsd(r[GC.price]) + '</td>' +
+        '<td class="cmp-num' + (psa ? ' is-psa' : ' is-none') + '">' +
+          (psa ? bothFromUsd(psa) : '—') + '</td>' +
+        '</tr>';
+    }).join('') || '<tr><td colspan="4" class="pk-empty">글로벌에 없습니다.</td></tr>';
   }
 
   function renderKrwList(q) {
@@ -430,15 +430,19 @@
       hits.length.toLocaleString('ko-KR') + '종 중 ' +
       Math.min(LIMIT, hits.length) + '종';
 
-    el('cmp-list-krw').innerHTML = hits.slice(0, LIMIT).map(function (r, i) {
+    el('cmp-list-krw').innerHTML = hits.slice(0, LIMIT).map(function (r) {
       var idx = state.data.rows.indexOf(r);
-      return '<button type="button" class="cmp-item" data-side="krw" data-id="' + idx + '">' +
-        '<b>' + esc(r[C.name_ko]) + '</b>' +
-        '<span class="cmp-set">' + esc(r[C.lang] || '기타') + ' · ' + esc(r[C.code]) +
-          ' · 30일 ' + Number(r[C.tx] || 0).toLocaleString('ko-KR') + '건</span>' +
-        '<span class="cmp-p is-psa">PSA 10 ' + bothFromWon(r[C.price]) + '</span>' +
-        '</button>';
-    }).join('') || '<p class="pk-empty">국내에 없습니다.</p>';
+      var tx = Number(r[C.tx] || 0);
+      return '<tr class="cmp-item" tabindex="0" data-side="krw" data-id="' + idx +
+        '" data-psa="1">' +
+        '<td><b>' + esc(r[C.name_ko]) + '</b></td>' +
+        '<td class="cmp-dim">' + esc(r[C.lang] || '기타') + ' · ' + esc(r[C.code]) + '</td>' +
+        /* 거래가 한 건이면 그 값은 시세가 아니라 사례 하나다. 눈에 띄게 둔다. */
+        '<td class="cmp-num' + (tx <= 1 ? ' is-thin' : '') + '">' +
+          tx.toLocaleString('ko-KR') + '건</td>' +
+        '<td class="cmp-num is-psa">' + bothFromWon(r[C.price]) + '</td>' +
+        '</tr>';
+    }).join('') || '<tr><td colspan="4" class="pk-empty">국내에 없습니다.</td></tr>';
   }
 
   function pickCard(side, id) {
@@ -454,17 +458,34 @@
       var g = (cmp.graded && cmp.graded[id]) || null;
       cmp.usd = {
         title: row[GC.name_en], sub: d.sets[row[GC.set]] + ' · #' + row[GC.local_id],
-        raw: row[GC.price], psa10: g ? g[cmp.gcol.psa10] : null
+        ko: row[GC.name_ko], raw: row[GC.price],
+        psa10: g ? g[cmp.gcol.psa10] : null,
+        psa10n: g ? g[cmp.gcol.psa10_n] : null,
+        psa10date: g ? g[cmp.gcol.psa10_date] : '',
+        psa9: g ? g[cmp.gcol.psa9] : null
       };
     } else {
       var r2 = state.data.rows[Number(id)];
       if (!r2) { return; }
       cmp.krw = {
         title: r2[C.name_ko], sub: (r2[C.lang] || '기타') + ' · ' + r2[C.code],
-        psa10won: r2[C.price], tx: r2[C.tx]
+        en: r2[C.name_en], lang: r2[C.lang] || '기타',
+        psa10won: r2[C.price], tx: r2[C.tx],
+        high: r2[C.high_30d], low: r2[C.low_30d]
       };
     }
     renderPanel();
+  }
+
+  /* 고른 두 장을 항목별로 나란히 놓는다. 차이 칸은 **같은 등급끼리만** 채운다 —
+     빈칸을 남기는 게 잘못된 뺄셈을 보여주는 것보다 낫다. */
+  function row(label, left, right, diff, cls) {
+    return '<tr' + (cls ? ' class="' + cls + '"' : '') + '>' +
+      '<th scope="row">' + esc(label) + '</th>' +
+      '<td class="cmp-num">' + (left || '—') + '</td>' +
+      '<td class="cmp-num">' + (right || '—') + '</td>' +
+      '<td class="cmp-num">' + (diff || '') + '</td>' +
+      '</tr>';
   }
 
   function renderPanel() {
@@ -472,66 +493,101 @@
     if (!cmp.usd && !cmp.krw) { panel.hidden = true; return; }
     panel.hidden = false;
 
-    el('cmp-pick-usd').innerHTML = cmp.usd
-      ? '<span class="cmp-tag">글로벌 · 영문판</span>' +
-        '<b>' + esc(cmp.usd.title) + '</b>' +
-        '<span class="cmp-set">' + esc(cmp.usd.sub) + '</span>' +
-        '<span class="cmp-p">raw ' + bothFromUsd(cmp.usd.raw) + '</span>' +
-        (cmp.usd.psa10
-          ? '<span class="cmp-p is-psa">PSA 10 ' + bothFromUsd(cmp.usd.psa10) + '</span>'
-          : '<span class="cmp-p is-none">PSA 10 값이 아직 없습니다</span>')
-      : '<span class="cmp-empty">왼쪽에서 한 장 고르세요</span>';
+    var u = cmp.usd, k = cmp.krw;
+    var out = '';
 
-    el('cmp-pick-krw').innerHTML = cmp.krw
-      ? '<span class="cmp-tag">국내 · PSA 10</span>' +
-        '<b>' + esc(cmp.krw.title) + '</b>' +
-        '<span class="cmp-set">' + esc(cmp.krw.sub) + '</span>' +
-        '<span class="cmp-p is-psa">' + bothFromWon(cmp.krw.psa10won) + '</span>' +
-        '<span class="cmp-set">30일 거래 ' +
-          Number(cmp.krw.tx || 0).toLocaleString('ko-KR') + '건</span>'
-      : '<span class="cmp-empty">오른쪽에서 한 종 고르세요</span>';
+    out += row('카드',
+      u ? '<b>' + esc(u.title) + '</b>' + (u.ko ? '<i>' + esc(u.ko) + '</i>' : '')
+        : '<span class="cmp-empty">왼쪽 표에서 한 줄 고르세요</span>',
+      k ? '<b>' + esc(k.title) + '</b>' : '<span class="cmp-empty">오른쪽 표에서 한 줄 고르세요</span>',
+      '');
 
-    el('cmp-gap').innerHTML = gapHtml();
+    out += row('세트 · 품번', u ? esc(u.sub) : '', k ? esc(k.sub) : '', '');
+    out += row('언어판', u ? '영문판' : '', k ? esc(k.lang) : '', '');
+    out += row('raw 현재가', u ? bothFromUsd(u.raw) : '', '—',
+      k ? '<span class="cmp-na">국내는 raw 를 안 팝니다</span>' : '');
+
+    var diff = psa10Diff();
+    out += row('PSA 10',
+      u ? (u.psa10 ? bothFromUsd(u.psa10) : '<span class="cmp-none">아직 없음</span>') : '',
+      k ? bothFromWon(k.psa10won) : '',
+      diff.cell, 'cmp-key');
+
+    out += row('PSA 9', u ? (u.psa9 ? bothFromUsd(u.psa9) : '—') : '', '—', '');
+    out += row('표본',
+      u && u.psa10 ? esc(u.psa10n + '건') +
+        (u.psa10date ? '<i>' + esc(u.psa10date) + '</i>' : '') : '',
+      k ? esc(Number(k.tx || 0).toLocaleString('ko-KR') + '건') + '<i>최근 30일</i>' : '',
+      '');
+    /* 고가와 저가가 같으면 거래가 한 건뿐이라는 뜻이다. 그 사실을 적어 준다. */
+    out += row('30일 고·저', '',
+      k ? (k.high === k.low
+            ? '<b>' + esc(Number(k.high || 0).toLocaleString('ko-KR')) + '원</b>' +
+              '<i>고·저가 같음 — 거래 한 건</i>'
+            : '<b>고 ' + esc(Number(k.high || 0).toLocaleString('ko-KR')) + '원</b>' +
+              '<i>저 ' + esc(Number(k.low || 0).toLocaleString('ko-KR')) + '원</i>')
+        : '', '');
+
+    el('cmp-tbody').innerHTML = out;
+    el('cmp-gap').innerHTML = diff.note;
   }
 
   /* 같은 등급끼리만 뺀다. 글로벌에 PSA 10 이 없으면 뺄 것이 없다고 적는다 —
-     raw 와 PSA 10 을 빼면 그 차이는 나라 차이가 아니라 등급 프리미엄이다. */
-  function gapHtml() {
+     raw 와 PSA 10 을 빼면 그 차이는 나라 차이가 아니라 등급 프리미엄이다.
+     {cell: 표의 '차이' 칸, note: 표 아래 한 줄} 을 돌려준다. */
+  function psa10Diff() {
     if (!cmp.usd || !cmp.krw) {
-      return '<span class="cmp-note">양쪽에서 하나씩 고르면 차이를 계산합니다.</span>';
+      return { cell: '', note: '<span class="cmp-note">양쪽에서 하나씩 고르면 차이를 계산합니다.</span>' };
     }
     if (cmp.usd.psa10 === null || cmp.usd.psa10 === undefined) {
-      return '<span class="cmp-note">이 글로벌 카드는 <b>PSA 10 값이 없어</b> 뺄 수 없습니다.<br>' +
-        'raw 와 PSA 10 을 빼면 나라 차이가 아니라 등급 프리미엄이 나옵니다.</span>';
+      return {
+        cell: '<span class="cmp-na">계산 안 함</span>',
+        note: '<span class="cmp-note">이 글로벌 카드는 <b>PSA 10 값이 없어</b> 뺄 수 없습니다. ' +
+          'raw 와 PSA 10 을 빼면 나라 차이가 아니라 등급 프리미엄이 나옵니다.</span>'
+      };
     }
     var a = usdToWon(cmp.usd.psa10);
     var b = cmp.krw.psa10won;
-    if (!a) { return '<span class="cmp-note">환율을 불러오지 못했습니다.</span>'; }
-    var diff = b - a;
-    var pct = (diff / a) * 100;
-    var up = diff > 0;
-    return '<span class="cmp-note">둘 다 PSA 10 이라 비교됩니다</span>' +
-      '<b class="cmp-diff ' + (up ? 'is-up' : 'is-down') + '">' +
-        (up ? '국내가 ' : '국내가 ') +
-        Math.abs(pct).toFixed(1) + '% ' + (up ? '비쌉니다' : '쌉니다') + '</b>' +
-      '<span class="cmp-note">차이 ' +
-        (up ? '+' : '−') + Math.abs(Math.round(diff)).toLocaleString('ko-KR') + '원</span>' +
-      '<span class="cmp-note cmp-caveat">영문판과 일본판은 다른 카드입니다. ' +
-        '수수료·감정료·관세는 빠져 있습니다.</span>';
+    if (!a) {
+      return { cell: '', note: '<span class="cmp-note">환율을 불러오지 못했습니다.</span>' };
+    }
+    var gap = b - a;
+    var pct = (gap / a) * 100;
+    var up = gap > 0;
+    return {
+      cell: '<b class="cmp-diff ' + (up ? 'is-up' : 'is-down') + '">' +
+        (up ? '+' : '−') + Math.abs(pct).toFixed(1) + '%</b>' +
+        '<i>' + (up ? '+' : '−') +
+        Math.abs(Math.round(gap)).toLocaleString('ko-KR') + '원</i>',
+      note: '<span class="cmp-note">둘 다 PSA 10 이라 비교됩니다 — <b>국내가 ' +
+        Math.abs(pct).toFixed(1) + '% ' + (up ? '비쌉니다' : '쌉니다') + '.</b> ' +
+        '<span class="cmp-caveat">영문판과 일본판은 다른 카드입니다. ' +
+        '수수료·감정료·관세는 빠져 있습니다.</span></span>'
+    };
   }
 
   function bindCompare() {
     el('cmp-q').addEventListener('input', debounce(cmpSearch, 200));
     ['cmp-list-usd', 'cmp-list-krw'].forEach(function (id) {
-      el(id).addEventListener('click', function (ev) {
-        var btn = ev.target.closest ? ev.target.closest('.cmp-item') : null;
-        if (!btn) { return; }
-        var list = el(id);
-        Array.prototype.forEach.call(list.querySelectorAll('.cmp-item'), function (b) {
-          b.classList.remove('is-on');
+      var body = el(id);
+
+      function choose(target) {
+        var tr = target && target.closest ? target.closest('.cmp-item') : null;
+        if (!tr) { return; }
+        Array.prototype.forEach.call(body.querySelectorAll('.cmp-item'), function (x) {
+          x.classList.remove('is-on');
         });
-        btn.classList.add('is-on');
-        pickCard(btn.dataset.side, btn.dataset.id);
+        tr.classList.add('is-on');
+        pickCard(tr.dataset.side, tr.dataset.id);
+      }
+
+      body.addEventListener('click', function (ev) { choose(ev.target); });
+      /* 표의 줄을 키보드로도 고를 수 있어야 한다. tr 에 tabindex 를 줬다. */
+      body.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          choose(ev.target);
+        }
       });
     });
   }

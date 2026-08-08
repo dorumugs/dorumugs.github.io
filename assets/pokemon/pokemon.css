@@ -177,54 +177,44 @@
 .cmp-col { min-width: 0; }
 .cmp-col h3 { font-size: 0.9em; margin: 0 0 0.4em; }
 
-.cmp-list { display: flex; flex-direction: column; gap: 6px; max-height: 460px; overflow-y: auto; }
-.cmp-item {
-  display: block; width: 100%; text-align: left; cursor: pointer; min-width: 0;
-  border: 1px solid #e3e3e3; border-radius: 8px; background: #fff;
-  padding: 8px 10px; font-size: 0.78em; line-height: 1.45; font-family: inherit;
-}
-.cmp-item:hover { border-color: #b9c6d2; }
-.cmp-item.is-on { border-color: #2c3e50; background: #f4f7fa; box-shadow: inset 0 0 0 1px #2c3e50; }
-.cmp-item b { display: block; font-size: 1.05em; overflow-wrap: anywhere; }
-.cmp-item i { display: block; color: #c0392b; font-style: normal; overflow-wrap: anywhere; }
-.cmp-set { display: block; color: #888; font-size: 0.9em; overflow-wrap: anywhere; }
-.cmp-p {
-  display: block; margin-top: 2px; font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-.cmp-p small { color: #888; }
-.cmp-p.is-psa { font-weight: 700; color: #7a5b00; }
-.cmp-p.is-none { color: #aaa; }
+/* 고르는 표. 줄 하나가 카드 하나다. */
+.cmp-scroll { max-height: 440px; overflow-y: auto; }
+.cmp-pick { min-width: 420px; font-size: 0.76em; }
+.cmp-pick thead th { position: sticky; top: 0; z-index: 1; }
+.cmp-item { cursor: pointer; }
+.cmp-item:hover > td { background: #f6f9fc; }
+.cmp-item.is-on > td { background: #eaf1f8; box-shadow: inset 0 1px 0 #2c3e50, inset 0 -1px 0 #2c3e50; }
+.cmp-item:focus { outline: 2px solid #2c3e50; outline-offset: -2px; }
+.cmp-item b { display: block; overflow-wrap: anywhere; }
+.cmp-item i { display: block; color: #c0392b; font-style: normal; font-size: 0.92em; }
+.cmp-dim { color: #888; overflow-wrap: anywhere; }
+.cmp-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cmp-num small { color: #999; display: block; }
+.cmp-num.is-psa { font-weight: 700; color: #7a5b00; }
+.cmp-num.is-none { color: #bbb; }
+.cmp-num.is-thin { color: #c0392b; }
 
-/* 고른 두 장. 가운데 칸이 차이를 말한다. */
-.cmp-panel {
-  display: grid; gap: 10px; margin: 0 0 1.2em; align-items: stretch;
-  grid-template-columns: 1fr minmax(160px, 0.9fr) 1fr;
+/* 고른 두 장을 항목별로 놓는 표. */
+.cmp-picked { margin: 0 0 1.4em; }
+.cmp-table { min-width: 560px; font-size: 0.78em; }
+.cmp-table th[scope="row"] {
+  background: #fafafa; white-space: nowrap; font-weight: 600; color: #555;
 }
-.cmp-side {
-  border: 1px solid #e0e0e0; border-radius: 10px; padding: 10px 12px;
-  background: #fff; font-size: 0.8em; line-height: 1.5; min-width: 0;
-}
-.cmp-side b { display: block; font-size: 1.08em; overflow-wrap: anywhere; }
-.cmp-tag {
-  display: inline-block; font-size: 0.82em; color: #fff; background: #2c3e50;
-  border-radius: 4px; padding: 1px 6px; margin-bottom: 4px;
-}
-.cmp-empty { color: #aaa; }
-.cmp-gap {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; text-align: center; padding: 10px; min-width: 0;
-  border: 1px dashed #d8d8d8; border-radius: 10px; background: #fafafa;
-}
-.cmp-note { font-size: 0.72em; color: #777; line-height: 1.5; }
-.cmp-caveat { color: #a08a55; }
-.cmp-diff { font-size: 1.05em; font-variant-numeric: tabular-nums; }
+.cmp-table td { vertical-align: top; }
+.cmp-table b { overflow-wrap: anywhere; }
+.cmp-table i { display: block; color: #999; font-style: normal; font-size: 0.92em; }
+.cmp-table tr.cmp-key > * { background: #fbf9f4; }
+.cmp-table tr.cmp-key th[scope="row"] { background: #f6f1e4; }
+.cmp-empty { color: #aaa; font-weight: 400; }
+.cmp-none { color: #bbb; }
+.cmp-na { color: #a08a55; font-size: 0.92em; }
+.cmp-diff { font-size: 1.15em; font-variant-numeric: tabular-nums; }
 .cmp-diff.is-up { color: #c0392b; }
 .cmp-diff.is-down { color: #1f6fb2; }
 
-@media (max-width: 760px) {
-  .cmp-panel { grid-template-columns: 1fr; }
-}
+.cmp-verdict { font-size: 0.78em; color: #555; margin: 0.6em 0 0; line-height: 1.6; }
+.cmp-note { line-height: 1.6; }
+.cmp-caveat { color: #a08a55; }
 
 @media (max-width: 480px) {
   .pk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
