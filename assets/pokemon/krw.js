@@ -14,7 +14,10 @@
   var BASE = app.dataset.base;
   var PAGE = 48;
 
-  var state = { data: null, loading: false, filtered: [], shown: PAGE };
+  var state = {
+    data: null, loading: false, filtered: [], shown: PAGE,
+    currency: 'KRW'   // 목록에 원래 통화와 함께 보일 통화
+  };
   var C = {};
   var M = {};
 
@@ -349,59 +352,154 @@
       .then(function (d) { cmp.global = d; return d; });
   }
 
-  function usdToWon(usd) {
+  /* ---- 통화 -------------------------------------------------------------
+     모든 값을 일단 달러로 모은 뒤 원·유로·엔으로 편다. 환율은 USD 기준
+     하나뿐이라 교차 환산이 어긋날 일이 없다.
+
+     주의: 여기서 만드는 유로는 **환산 유로**다. 카드의 `cm_avg` 는 Cardmarket
+     유럽 시장의 **실제 체결가**라 다른 값이다. 화면에서 섞지 않는다. */
+
+  var CURRENCIES = [
+    { code: 'KRW', label: '원', suffix: '원', digits: 0 },
+    { code: 'USD', label: '달러', prefix: '$', digits: 0 },
+    { code: 'EUR', label: '유로', prefix: '€', digits: 0 },
+    { code: 'JPY', label: '엔', suffix: '엔', digits: 0 }
+  ];
+
+  function rate(code) {
     var fx = (cmp.meta && cmp.meta.fx) || {};
-    return fx.rate ? usd * fx.rate : null;
+    return (fx.rates && fx.rates[code]) || null;
   }
 
-  function wonToUsd(won) {
-    var fx = (cmp.meta && cmp.meta.fx) || {};
-    return fx.rate ? won / fx.rate : null;
+  function fromUsd(usd, code) {
+    var r = rate(code);
+    return (usd === null || usd === undefined || !r) ? null : usd * r;
   }
 
-  /* 두 통화를 항상 같이 적는다. 한쪽만 적으면 독자가 머릿속으로 환산하다 틀린다. */
-  function bothFromUsd(usd) {
+  function toUsd(amount, code) {
+    var r = rate(code);
+    return (amount === null || amount === undefined || !r) ? null : amount / r;
+  }
+
+  function fmt(amount, code) {
+    if (amount === null || amount === undefined) { return '—'; }
+    var c = null;
+    CURRENCIES.forEach(function (x) { if (x.code === code) { c = x; } });
+    if (!c) { return String(amount); }
+    return (c.prefix || '') +
+      Number(amount).toLocaleString('ko-KR', { maximumFractionDigits: c.digits }) +
+      (c.suffix || '');
+  }
+
+  /* 목록용 — 원래 통화와 사용자가 고른 통화 둘만. 넷을 다 넣으면 표가 못 읽힌다. */
+  function pairFromUsd(usd) {
     if (usd === null || usd === undefined) { return '—'; }
-    var w = usdToWon(usd);
-    return '$' + Number(usd).toLocaleString('ko-KR', { maximumFractionDigits: 0 }) +
-      (w ? ' <small>· ' + Math.round(w).toLocaleString('ko-KR') + '원</small>' : '');
+    var pick = state.currency;
+    if (pick === 'USD') { return fmt(usd, 'USD'); }
+    return fmt(usd, 'USD') + '<small>' + fmt(fromUsd(usd, pick), pick) + '</small>';
   }
 
-  function bothFromWon(won) {
+  function pairFromWon(won) {
     if (won === null || won === undefined) { return '—'; }
-    var u = wonToUsd(won);
-    return Number(won).toLocaleString('ko-KR') + '원' +
-      (u ? ' <small>· $' + Math.round(u).toLocaleString('ko-KR') + '</small>' : '');
+    var pick = state.currency;
+    if (pick === 'KRW') { return fmt(won, 'KRW'); }
+    return fmt(won, 'KRW') +
+      '<small>' + fmt(fromUsd(toUsd(won, 'KRW'), pick), pick) + '</small>';
+  }
+
+  /* 비교표용 — 네 통화를 다 편다. 여기서는 자리가 있다. */
+  function allFromUsd(usd) {
+    if (usd === null || usd === undefined) { return '—'; }
+    return CURRENCIES.map(function (c, i) {
+      var v = fmt(fromUsd(usd, c.code), c.code);
+      return i === 0 ? '<b>' + v + '</b>' : '<i>' + v + '</i>';
+    }).join('');
+  }
+
+  function allFromWon(won) {
+    return allFromUsd(toUsd(won, 'KRW'));
+  }
+
+  /* ---- 검색: 이름으로 / 가격대로 -----------------------------------------
+     이름이 달라도 값이 비슷하면 견줄 거리가 된다. 가격대 모드는 고른 금액의
+     ±범위에 드는 카드를 양쪽에서 찾아 준다. 기준은 **PSA 10** 이다 — 국내가
+     전부 PSA 10 이라 그래야 같은 것끼리 걸린다. */
+
+  function searchMode() {
+    var m = document.querySelector('input[name="cmp-mode"]:checked');
+    return m ? m.value : 'name';
+  }
+
+  function bandBounds() {
+    var amount = parseFloat(String(el('cmp-amount').value).replace(/[^0-9.]/g, ''));
+    if (!amount || amount <= 0) { return null; }
+    var usd = toUsd(amount, el('cmp-cur').value);
+    if (usd === null) { return null; }
+    var tol = Number(el('cmp-tol').value) / 100;
+    return { usd: usd, lo: usd * (1 - tol), hi: usd * (1 + tol), tol: tol };
   }
 
   function cmpSearch() {
-    var q = norm(el('cmp-q').value);
-    if (!q) {
-      el('cmp-list-usd').innerHTML = '';
-      el('cmp-list-krw').innerHTML = '';
-      el('cmp-count-usd').textContent = '검색어를 입력하세요.';
-      el('cmp-count-krw').textContent = '검색어를 입력하세요.';
+    if (searchMode() === 'band') {
+      var band = bandBounds();
+      if (!band) {
+        emptyLists('금액을 입력하세요.');
+        return;
+      }
+      renderGlobalList(null, band);
+      renderKrwList(null, band);
       return;
     }
-    renderGlobalList(q);
-    renderKrwList(q);
+    var q = norm(el('cmp-q').value);
+    if (!q) {
+      emptyLists('검색어를 입력하세요.');
+      return;
+    }
+    renderGlobalList(q, null);
+    renderKrwList(q, null);
+  }
+
+  function emptyLists(message) {
+    el('cmp-list-usd').innerHTML = '';
+    el('cmp-list-krw').innerHTML = '';
+    el('cmp-count-usd').textContent = message;
+    el('cmp-count-krw').textContent = message;
   }
 
   var LIMIT = 30;
 
-  function renderGlobalList(q) {
+  function renderGlobalList(q, band) {
     var d = cmp.global;
     if (!d) { return; }
     var GC = {};
     d.columns.forEach(function (n, i) { GC[n] = i; });
-    var hits = d.rows.filter(function (r) {
-      return norm(r[GC.name_en]).indexOf(q) >= 0 || norm(r[GC.name_ko]).indexOf(q) >= 0;
-    });
-    hits.sort(function (a, b) { return (b[GC.price] || 0) - (a[GC.price] || 0); });
+    function psaOf(r) {
+      var g = cmp.graded && cmp.graded[d.sets[r[GC.set]] + '-' + r[GC.local_id]];
+      return g ? g[cmp.gcol.psa10] : null;
+    }
+
+    var hits;
+    if (band) {
+      /* 가격대 모드는 PSA 10 이 있는 카드만 본다. raw 를 섞으면 등급이 다른
+         것끼리 걸려서 "비슷한 가격" 이라는 말이 무의미해진다. */
+      hits = d.rows.filter(function (r) {
+        var p = psaOf(r);
+        return p !== null && p !== undefined && p >= band.lo && p <= band.hi;
+      });
+      hits.sort(function (a, b) {
+        return Math.abs(psaOf(a) - band.usd) - Math.abs(psaOf(b) - band.usd);
+      });
+    } else {
+      hits = d.rows.filter(function (r) {
+        return norm(r[GC.name_en]).indexOf(q) >= 0 || norm(r[GC.name_ko]).indexOf(q) >= 0;
+      });
+      hits.sort(function (a, b) { return (b[GC.price] || 0) - (a[GC.price] || 0); });
+    }
 
     el('cmp-count-usd').textContent =
       hits.length.toLocaleString('ko-KR') + '장 중 ' +
-      Math.min(LIMIT, hits.length) + '장';
+      Math.min(LIMIT, hits.length) + '장' +
+      (band ? ' · PSA 10 이 있는 카드만' : '');
 
     el('cmp-list-usd').innerHTML = hits.slice(0, LIMIT).map(function (r) {
       var sid = d.sets[r[GC.set]];
@@ -413,18 +511,30 @@
         '<td><b>' + esc(r[GC.name_en]) + '</b>' +
           (r[GC.name_ko] ? '<i>' + esc(r[GC.name_ko]) + '</i>' : '') + '</td>' +
         '<td class="cmp-dim">' + esc(sid) + ' · #' + esc(r[GC.local_id]) + '</td>' +
-        '<td class="cmp-num">' + bothFromUsd(r[GC.price]) + '</td>' +
+        '<td class="cmp-num">' + pairFromUsd(r[GC.price]) + '</td>' +
         '<td class="cmp-num' + (psa ? ' is-psa' : ' is-none') + '">' +
-          (psa ? bothFromUsd(psa) : '—') + '</td>' +
+          (psa ? pairFromUsd(psa) : '—') + '</td>' +
         '</tr>';
     }).join('') || '<tr><td colspan="4" class="pk-empty">글로벌에 없습니다.</td></tr>';
   }
 
-  function renderKrwList(q) {
-    var hits = state.data.rows.filter(function (r) {
-      return norm(r[C.name_ko]).indexOf(q) >= 0 || norm(r[C.name_en]).indexOf(q) >= 0;
-    });
-    hits.sort(function (a, b) { return (b[C.price] || 0) - (a[C.price] || 0); });
+  function renderKrwList(q, band) {
+    var hits;
+    if (band) {
+      hits = state.data.rows.filter(function (r) {
+        var usd = toUsd(r[C.price], 'KRW');
+        return usd !== null && usd >= band.lo && usd <= band.hi;
+      });
+      hits.sort(function (a, b) {
+        return Math.abs(toUsd(a[C.price], 'KRW') - band.usd) -
+               Math.abs(toUsd(b[C.price], 'KRW') - band.usd);
+      });
+    } else {
+      hits = state.data.rows.filter(function (r) {
+        return norm(r[C.name_ko]).indexOf(q) >= 0 || norm(r[C.name_en]).indexOf(q) >= 0;
+      });
+      hits.sort(function (a, b) { return (b[C.price] || 0) - (a[C.price] || 0); });
+    }
 
     el('cmp-count-krw').textContent =
       hits.length.toLocaleString('ko-KR') + '종 중 ' +
@@ -440,7 +550,7 @@
         /* 거래가 한 건이면 그 값은 시세가 아니라 사례 하나다. 눈에 띄게 둔다. */
         '<td class="cmp-num' + (tx <= 1 ? ' is-thin' : '') + '">' +
           tx.toLocaleString('ko-KR') + '건</td>' +
-        '<td class="cmp-num is-psa">' + bothFromWon(r[C.price]) + '</td>' +
+        '<td class="cmp-num is-psa">' + pairFromWon(r[C.price]) + '</td>' +
         '</tr>';
     }).join('') || '<tr><td colspan="4" class="pk-empty">국내에 없습니다.</td></tr>';
   }
@@ -458,7 +568,7 @@
       var g = (cmp.graded && cmp.graded[id]) || null;
       cmp.usd = {
         title: row[GC.name_en], sub: d.sets[row[GC.set]] + ' · #' + row[GC.local_id],
-        ko: row[GC.name_ko], raw: row[GC.price],
+        ko: row[GC.name_ko], raw: row[GC.price], cm: row[GC.cm_avg],
         psa10: g ? g[cmp.gcol.psa10] : null,
         psa10n: g ? g[cmp.gcol.psa10_n] : null,
         psa10date: g ? g[cmp.gcol.psa10_date] : '',
@@ -479,9 +589,11 @@
 
   /* 고른 두 장을 항목별로 나란히 놓는다. 차이 칸은 **같은 등급끼리만** 채운다 —
      빈칸을 남기는 게 잘못된 뺄셈을 보여주는 것보다 낫다. */
+  /* label 은 이 파일 안의 고정 문자열이라 그대로 넣는다 (일부는 <small> 을
+     쓴다). 사용자 입력이 들어오는 left/right 는 부르는 쪽에서 esc 한다. */
   function row(label, left, right, diff, cls) {
     return '<tr' + (cls ? ' class="' + cls + '"' : '') + '>' +
-      '<th scope="row">' + esc(label) + '</th>' +
+      '<th scope="row">' + label + '</th>' +
       '<td class="cmp-num">' + (left || '—') + '</td>' +
       '<td class="cmp-num">' + (right || '—') + '</td>' +
       '<td class="cmp-num">' + (diff || '') + '</td>' +
@@ -504,16 +616,28 @@
 
     out += row('세트 · 품번', u ? esc(u.sub) : '', k ? esc(k.sub) : '', '');
     out += row('언어판', u ? '영문판' : '', k ? esc(k.lang) : '', '');
-    out += row('raw 현재가', u ? bothFromUsd(u.raw) : '', '—',
+    out += row('raw 현재가', u ? allFromUsd(u.raw) : '', '—',
       k ? '<span class="cmp-na">국내는 raw 를 안 팝니다</span>' : '');
 
     var diff = psa10Diff();
     out += row('PSA 10',
-      u ? (u.psa10 ? bothFromUsd(u.psa10) : '<span class="cmp-none">아직 없음</span>') : '',
-      k ? bothFromWon(k.psa10won) : '',
+      u ? (u.psa10 ? allFromUsd(u.psa10) : '<span class="cmp-none">아직 없음</span>') : '',
+      k ? allFromWon(k.psa10won) : '',
       diff.cell, 'cmp-key');
 
-    out += row('PSA 9', u ? (u.psa9 ? bothFromUsd(u.psa9) : '—') : '', '—', '');
+    out += row('PSA 9', u ? (u.psa9 ? allFromUsd(u.psa9) : '—') : '', '—', '');
+
+    /* 이 유로만은 환산이 아니다. Cardmarket 유럽 시장의 실제 체결가라
+       달러를 환산한 값과 다르고, 그 차이 자체가 정보다. */
+    if (u && u.cm) {
+      var conv = fromUsd(u.raw, 'EUR');
+      out += row('유럽 실거래 <small>Cardmarket</small>',
+        fmt(u.cm, 'EUR') + (conv
+          ? '<i>달러 환산은 ' + fmt(conv, 'EUR') + '</i>' : ''),
+        '—',
+        '<span class="cmp-na">환산이 아니라 실제 유럽 시세</span>');
+    }
+
     out += row('표본',
       u && u.psa10 ? esc(u.psa10n + '건') +
         (u.psa10date ? '<i>' + esc(u.psa10date) + '</i>' : '') : '',
@@ -546,7 +670,7 @@
           'raw 와 PSA 10 을 빼면 나라 차이가 아니라 등급 프리미엄이 나옵니다.</span>'
       };
     }
-    var a = usdToWon(cmp.usd.psa10);
+    var a = fromUsd(cmp.usd.psa10, 'KRW');
     var b = cmp.krw.psa10won;
     if (!a) {
       return { cell: '', note: '<span class="cmp-note">환율을 불러오지 못했습니다.</span>' };
@@ -554,20 +678,45 @@
     var gap = b - a;
     var pct = (gap / a) * 100;
     var up = gap > 0;
+    /* 김치 프리미엄 — 국내가 해외보다 비싼 정도. 음수면 역프리미엄이다.
+       암호화폐 쪽에서 굳은 말이라 뜻이 바로 통한다. */
+    var label = up ? '김치 프리미엄' : '역프리미엄';
     return {
       cell: '<b class="cmp-diff ' + (up ? 'is-up' : 'is-down') + '">' +
         (up ? '+' : '−') + Math.abs(pct).toFixed(1) + '%</b>' +
+        '<i>' + esc(label) + '</i>' +
         '<i>' + (up ? '+' : '−') +
         Math.abs(Math.round(gap)).toLocaleString('ko-KR') + '원</i>',
-      note: '<span class="cmp-note">둘 다 PSA 10 이라 비교됩니다 — <b>국내가 ' +
-        Math.abs(pct).toFixed(1) + '% ' + (up ? '비쌉니다' : '쌉니다') + '.</b> ' +
+      note: '<span class="cmp-note">둘 다 PSA 10 이라 비교됩니다 — <b>' +
+        esc(label) + ' ' + (up ? '+' : '−') + Math.abs(pct).toFixed(1) + '%.</b> ' +
+        '국내가 해외보다 ' + Math.abs(pct).toFixed(1) + '% ' +
+        (up ? '비쌉니다' : '쌉니다') + '. ' +
         '<span class="cmp-caveat">영문판과 일본판은 다른 카드입니다. ' +
-        '수수료·감정료·관세는 빠져 있습니다.</span></span>'
+        '수수료·감정료·관세·환전비용은 빠져 있어, 이 폭이 그대로 차익이 되지는 ' +
+        '않습니다.</span></span>'
     };
   }
 
   function bindCompare() {
     el('cmp-q').addEventListener('input', debounce(cmpSearch, 200));
+    el('cmp-amount').addEventListener('input', debounce(cmpSearch, 250));
+    ['cmp-cur', 'cmp-tol'].forEach(function (id) {
+      el(id).addEventListener('change', cmpSearch);
+    });
+    el('cmp-display').addEventListener('change', function () {
+      state.currency = el('cmp-display').value;
+      cmpSearch();
+    });
+    Array.prototype.forEach.call(
+      document.querySelectorAll('input[name="cmp-mode"]'), function (radio) {
+        radio.addEventListener('change', function () {
+          var band = searchMode() === 'band';
+          el('cmp-by-name').hidden = band;
+          el('cmp-by-band').hidden = !band;
+          cmpSearch();
+        });
+      });
+
     ['cmp-list-usd', 'cmp-list-krw'].forEach(function (id) {
       var body = el(id);
 
@@ -609,9 +758,12 @@
       bindCompare();
       renderPanel();
       var fx = cmp.meta.fx || {};
-      el('cmp-meta').textContent = fx.rate
-        ? '환산 환율 USD 1 = ' + fx.rate.toLocaleString('ko-KR') + '원 (' +
-          fx.date + ' 기준 · ' + fx.source + '). 글로벌 PSA 10 이 붙은 카드는 ' +
+      el('cmp-meta').textContent = (fx.rates && fx.rates.KRW)
+        ? '환산 환율 USD 1 = ' + fx.rates.KRW.toLocaleString('ko-KR') + '원 · ' +
+          fx.rates.EUR + '유로 · ' + fx.rates.JPY.toLocaleString('ko-KR') + '엔 (' +
+          fx.date + ' 기준 · ' + fx.source + '). ' +
+          '유럽 실거래(Cardmarket) 유로만은 환산이 아니라 실제 시세입니다. ' +
+          '글로벌 PSA 10 이 붙은 카드는 ' +
           (cmp.meta.graded_count || 0).toLocaleString('ko-KR') + '장입니다.'
         : '환율을 불러오지 못해 환산이 표시되지 않습니다.';
       if (el('cmp-q').value) { cmpSearch(); }

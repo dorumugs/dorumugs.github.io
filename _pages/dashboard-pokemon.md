@@ -208,8 +208,39 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
     <strong>양쪽에서 한 장씩 직접 고르세요.</strong> 고른 두 장만 같은 통화로 환산해 나란히 놓습니다.
   </p>
 
-  <div class="pk-search">
+  <div class="cmp-modes" role="radiogroup" aria-label="찾는 방법">
+    <label><input type="radio" name="cmp-mode" value="name" checked> 이름으로</label>
+    <label><input type="radio" name="cmp-mode" value="band"> 가격대로</label>
+    <span class="cmp-curpick">
+      <label for="cmp-display">표시 통화</label>
+      <select id="cmp-display" aria-label="목록에 함께 보일 통화">
+        <option value="KRW">원 (₩)</option>
+        <option value="USD">달러 ($)</option>
+        <option value="EUR">유로 (€)</option>
+        <option value="JPY">엔 (¥)</option>
+      </select>
+    </span>
+  </div>
+
+  <div class="pk-search" id="cmp-by-name">
     <input type="search" id="cmp-q" placeholder="포켓몬 이름으로 양쪽 동시 검색 — 리자몽, 피카츄" autocomplete="off" aria-label="양쪽 시장 검색">
+  </div>
+
+  <div class="cmp-band" id="cmp-by-band" hidden>
+    <input type="text" id="cmp-amount" inputmode="decimal" placeholder="금액 — 예: 10000000" autocomplete="off" aria-label="기준 금액">
+    <select id="cmp-cur" aria-label="입력한 금액의 통화">
+      <option value="KRW">원</option>
+      <option value="USD">달러</option>
+      <option value="EUR">유로</option>
+      <option value="JPY">엔</option>
+    </select>
+    <select id="cmp-tol" aria-label="허용 범위">
+      <option value="10">±10%</option>
+      <option value="20" selected>±20%</option>
+      <option value="35">±35%</option>
+      <option value="50">±50%</option>
+    </select>
+    <p class="pk-note">이 금액 근처의 <strong>PSA 10</strong> 카드를 양쪽에서 찾습니다. 이름이 달라도 값이 비슷하면 견줄 거리가 됩니다.</p>
   </div>
 
   <div class="cmp-picked" id="cmp-panel" hidden>
@@ -250,10 +281,12 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
   <h2>이 비교를 읽는 법</h2>
 
   <ul>
-    <li><strong>같은 등급끼리만 빼세요.</strong> 국내는 전부 PSA 10 입니다. 글로벌 카드의 raw 가격과 국내 PSA 10 을 빼면 그 차이는 나라 차이가 아니라 <strong>등급 프리미엄</strong>입니다.</li>
-    <li><strong>영문판과 일본판은 다른 물건입니다.</strong> 같은 포켓몬·같은 기술이라도 인쇄·유통량이 달라 값이 따로 움직입니다.</li>
-    <li><strong>환율은 매일 바뀝니다.</strong> 환산에 쓴 환율과 기준일을 아래에 적어 두었습니다.</li>
-    <li><strong>수수료·감정료·관세가 빠진 값입니다.</strong> 실제로 사고팔면 그만큼 줄어듭니다. <a href="/finance/포켓몬카드_투자_총비용_감정_수수료_세금/">총비용 편</a>에 계산이 있습니다.</li>
+    <li><strong>김치 프리미엄이 뭔가요.</strong> 국내 가격이 해외보다 비싼 정도입니다. <strong>+</strong> 면 국내가 비싸고(김프), <strong>−</strong> 면 국내가 싼 <strong>역프리미엄</strong>입니다. 코인 시장에서 굳은 말을 그대로 씁니다 — 개념은 <a href="/finance/김치프리미엄_차익_세후계산_심화/">김프 편</a>에 정리해 두었습니다.</li>
+    <li><strong>이 폭이 그대로 차익은 아닙니다.</strong> 수수료·감정료·관세·환전비용이 다 빠진 값입니다. 코인 김프가 그렇듯, <strong>마찰비용이 프리미엄보다 크면 남는 게 없습니다.</strong> <a href="/finance/포켓몬카드_투자_총비용_감정_수수료_세금/">총비용 편</a>에 왕복 계산이 있습니다.</li>
+    <li><strong>같은 등급끼리만 뺍니다.</strong> 국내는 전부 PSA 10 이라, 글로벌 카드에 PSA 10 값이 없으면 <strong>계산하지 않습니다</strong>. raw 와 PSA 10 을 빼면 나오는 건 나라 차이가 아니라 등급 프리미엄이니까요.</li>
+    <li><strong>영문판과 일본판은 다른 물건입니다.</strong> 같은 포켓몬·같은 기술이라도 인쇄·유통량이 달라 값이 따로 움직입니다. 국내 목록의 <strong>영문판</strong> 상품끼리 견주면 가장 깔끔합니다.</li>
+    <li><strong>유로는 두 종류입니다.</strong> 표의 <strong>유럽 실거래</strong>는 Cardmarket 의 실제 체결가이고, 나머지 유로는 달러를 환산한 값입니다. 둘이 다르면 그 차이 자체가 유럽 시장의 특성입니다.</li>
+    <li><strong>환율은 매일 바뀝니다.</strong> 환산에 쓴 환율과 기준일을 맨 아래에 적어 두었습니다.</li>
   </ul>
 
   <p class="pk-note" id="cmp-meta"></p>
