@@ -151,7 +151,7 @@ KREAM 이 간헐적으로 500 을 낸다. 그때는 KREAM 자기 화면도
 
 ## 4. 화면
 
-`/dashboard/pokemon/` 에 탭 셋(글로벌·국내·비교). 기본은 글로벌.
+`/dashboard/pokemon/` 에 탭 셋(글로벌·국내·PSA 10). 기본은 글로벌.
 
 ### 국내 탭
 
@@ -349,6 +349,55 @@ KREAM 에도 **영문판 상품이 14종** 있고 품번이 `BS4/102_EN` 처럼 
 항상 표시해 두었으므로 사용자가 골라낼 수 있다.
 
 
+## 5-4. PSA 10 통합 표 — 한 표에는 한 가지 값만
+
+"글로벌과 국내를 한 표로 합칠 수 없나" 는 질문에서 나왔다. 답은
+**조건 하나를 붙이면 된다** 였다.
+
+두 표가 안 합쳐졌던 이유는 시장이 달라서가 아니라 **재는 값이 달라서**다 —
+글로벌은 raw, 국내는 PSA 10. 섞으면 가격순 정렬이 곧바로 거짓말이 된다
+(raw $819 카드가 PSA 10 1,000만원짜리보다 위로 간다).
+
+**PSA 10 으로 한정하면 그 문제가 사라진다.** 그래서 이 표에는 PSA 10 만 넣고
+raw 브라우저는 그대로 따로 둔다. 원칙은 *한 표에는 한 가지 값만.*
+
+### 무엇을 합치고 무엇을 안 합치나
+
+| | 근거 | 결과 |
+|---|---|---|
+| **합친다** 국내 언어판 | 품번에서 언어 접미사만 떼면 같아진다. `S7R-083-067_JP` = `S7R083-067_KR` | 899종 → **859줄** (40쌍이 접힘) |
+| **안 합친다** 글로벌 ↔ 국내 | 영문판 14종의 품번으로 시험했더니 유일하게 이어진 게 **1건** | 같은 표에 두되 줄은 따로 |
+
+앞자리 `BS` `TEU` `CRZ` `MEW` 는 **PTCGO 세트 약칭**이라 TCGdex 세트 id 와 체계가
+다르다. `PTCGO → pokemontcg.io → TCGdex` 3단 매핑을 태워도 14종이다. 안 한다.
+
+**이름으로 묶으면 안 된다.** "피카츄" 하나에 국내 112종·글로벌 98장이고,
+종 이름 하나에 글로벌 카드가 1장뿐인 경우는 **0건**이다.
+
+### 접고 보니 드러난 것
+
+같은 품번인데 **일어판이 한글판의 3~10배**다.
+
+| 카드 | 일어판 | 한글판 | 배수 |
+|---|---|---|---|
+| 레쿠쟈 VMAX HR 창공스트림 | 1,200만원 | 115만원 | **10.4배** |
+| 레쿠쟈 V SR 창공스트림 | 250만원 | 30만원 | 8.2배 |
+| 블래키 V SR 이브이 히어로즈 | 81만원 | 13만원 | 6.2배 |
+
+**나라 사이 차이(김치 프리미엄)보다 언어판 사이 차이가 더 클 때가 많다.**
+따로 흩어 놓았을 때는 안 보이던 사실이다.
+
+### 글로벌 줄에 한글 이름을 붙인다
+
+국내 줄은 한글뿐이라, 안 붙이면 "리자몽" 으로 찾았을 때 글로벌 줄이 통째로
+빠진다. 도감번호로 종 이름을 붙여 `Charizard · 리자몽` 으로 담는다.
+
+### 탭 이름
+
+`비교` 가 아니라 **`PSA 10`** 이다. 비교는 어느 탭에서든 하는 동작이고, 이 탭을
+구분 짓는 건 담긴 값이다. 주소는 `#psa10` 이며 옛 `#cmp` 도 계속 열린다.
+
+
 ## 6. 파이프라인
 
 | 파일 | 역할 |
@@ -357,12 +406,13 @@ KREAM 에도 **영문판 상품이 14종** 있고 품번이 `BS4/102_EN` 처럼 
 | `scripts/kream_api.py` | 응답 파싱 순수 함수 |
 | `scripts/collect_kream.py` | 브라우저 캡처 · `--from-file` · 실패 시 기존 유지 |
 | `scripts/build_kream.py` | `assets/pokemon/krw.json` |
-| `scripts/collect_fx.py` | 달러/원 환율 · `data/pokemon/fx.json` |
+| `scripts/collect_fx.py` | 환율 4통화 · `data/pokemon/fx.json` |
+| `scripts/build_unified.py` | PSA 10 통합 표 · `assets/pokemon/unified.json` |
 | `scripts/ptcg_api.py` | pokemontcg.io 경로 순수 함수 |
 | `scripts/collect_card_art.py` | 존재 확인 후 `data/pokemon/art.json` |
 | `scripts/ppt_api.py` | 등급 시세 파싱 순수 함수 |
 | `scripts/collect_graded.py` | 크레딧 예산·재개 · `data/pokemon/graded.csv.gz` |
-| `assets/pokemon/krw.js` | 국내 탭 · 비교 탭 · 탭 전환 |
+| `assets/pokemon/krw.js` | 국내 탭 · PSA 10 탭 · 탭 전환 |
 
 크론은 `pokemon_daily.sh` 하나 그대로. 07:30, 같은 `flock`. 단계만 늘었다.
 Chrome 이 없는 환경을 위해 `SKIP_KREAM=1` 을 둔다.
@@ -373,12 +423,12 @@ Chrome 이 없는 환경을 위해 `SKIP_KREAM=1` 을 둔다.
 python3 -m unittest discover -s tests
 ```
 
-433개 통과. 새로 붙인 것은 `test_kream_api`(23) · `test_build_kream`(13) ·
-`test_ptcg_api`(13) · `test_ppt_api`(21). 고정 응답은 `tests/fixtures/kream_chart.json` 이다 —
+454개 통과. 새로 붙인 것은 `test_kream_api`(23) · `test_build_kream`(13) ·
+`test_ptcg_api`(13) · `test_ppt_api`(21) · `test_build_unified`(21). 고정 응답은 `tests/fixtures/kream_chart.json` 이다 —
 KREAM 은 공식 API 가 아니라 화면이 바뀌면 조용히 깨지므로 실제 응답 표본을
 박아 둔다.
 
-화면은 헤드리스로 몰아 64개 항목을 확인했다. 390px·1280px 양쪽에서
+화면은 헤드리스로 몰아 63개 항목을 확인했다. 390px·1280px 양쪽에서
 
 - 가로 오버플로 없음 (`scrollWidth` 실측 + 넘치는 개별 요소 탐색)
 - 탭 전환 · 국내 데이터 지연 로딩 · 차트 31점 렌더

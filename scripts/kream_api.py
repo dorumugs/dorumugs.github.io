@@ -183,6 +183,82 @@ def language_counts(products: list[list]) -> dict:
     return dict(sorted(counts.items(), key=lambda kv: -kv[1]))
 
 
+def base_code(style_code: str) -> str:
+    """언어 접미사와 구분기호를 떼어 같은 카드끼리 묶는 열쇠.
+
+    `S7R-083-067_JP` 와 `S7R083-067_KR` 은 같은 카드의 일어판·한글판이다.
+    KREAM 이 하이픈을 일정하게 쓰지 않아 기호를 다 지우고 대문자로 맞춘다.
+
+    이름으로 묶으면 안 된다 — "리자몽" 하나에 국내 45종·글로벌 76장이라
+    엉킨다. 품번은 하드 키다.
+    """
+    text = re.sub(r"_(JP|KR|EN)$", "", (style_code or "").strip(), flags=re.I)
+    return re.sub(r"[^A-Za-z0-9]", "", text).upper()
+
+
+def strip_language_suffix(name: str) -> str:
+    """'레쿠쟈 VMAX HR 창공스트림 (일어판)' -> '레쿠쟈 VMAX HR 창공스트림'.
+
+    언어가 열로 빠진 표에서는 이름 뒤의 '(일어판)' 이 거짓이 된다 — 그 줄은
+    일어판과 한글판을 같이 들고 있기 때문이다.
+    """
+    return re.sub(r"\s*\((?:일어판|한글판|영문판|기타)\)\s*$", "", name or "").strip()
+
+
+def merge_languages(products: list[list]) -> list[dict]:
+    """같은 품번의 언어판을 한 줄로 묶는다.
+
+    돌려주는 각 줄:
+      {"key", "name_ko", "name_en", "by_lang": {"일어판": row, …}, "langs": [...]}
+
+    899종이 859줄이 된다(40쌍이 접힌다). 접힌 쌍은 일어판이 한글판의 3~10배인
+    경우가 많아, 따로 흩어 놓으면 안 보이던 사실이 드러난다.
+    """
+    code_at = PRODUCT_COLUMNS.index("code")
+    lang_at = PRODUCT_COLUMNS.index("lang")
+    name_at = PRODUCT_COLUMNS.index("name_ko")
+    en_at = PRODUCT_COLUMNS.index("name_en")
+    price_at = PRODUCT_COLUMNS.index("price")
+
+    groups: dict[str, dict] = {}
+    for row in products:
+        key = base_code(row[code_at]) or f"~{row[code_at]}"
+        group = groups.get(key)
+        if group is None:
+            group = groups[key] = {
+                "key": key,
+                "name_ko": strip_language_suffix(row[name_at]),
+                "name_en": row[en_at],
+                "by_lang": {}, "langs": [],
+            }
+        lang = row[lang_at] or "기타"
+        # 같은 언어판이 두 번 나오면 비싼 쪽을 남긴다. 값이 붙은 쪽이 본품이다.
+        kept = group["by_lang"].get(lang)
+        if kept is None or (row[price_at] or 0) > (kept[price_at] or 0):
+            group["by_lang"][lang] = row
+        if lang not in group["langs"]:
+            group["langs"].append(lang)
+
+    out = list(groups.values())
+    out.sort(key=lambda g: -max(
+        (r[price_at] or 0) for r in g["by_lang"].values()))
+    return out
+
+
+def language_ratio(group: dict) -> float | None:
+    """한 줄 안에서 가장 비싼 언어판이 가장 싼 것의 몇 배인가.
+
+    같은 카드의 일어판이 한글판의 10배인 일이 흔하다. 그 숫자가 이 표의
+    존재 이유다. 언어판이 하나뿐이면 비교할 것이 없으므로 None.
+    """
+    price_at = PRODUCT_COLUMNS.index("price")
+    prices = [r[price_at] for r in group.get("by_lang", {}).values() if r[price_at]]
+    if len(prices) < 2:
+        return None
+    low = min(prices)
+    return round(max(prices) / low, 1) if low else None
+
+
 def is_valid(payload: dict) -> bool:
     """수집기가 받은 게 진짜 시세 응답인지. 빈 껍데기로 덮어쓰지 않으려는 것."""
     if not isinstance(payload, dict):
