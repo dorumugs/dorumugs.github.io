@@ -17,6 +17,7 @@
   var state = {
     data: null, meta: null, loading: false, filtered: [], shown: PAGE,
     currency: 'KRW',  // 목록에 원화와 함께 보일 통화
+    xref: {},         // 종 이름 -> {g: 글로벌 카드 수, d: 국내 상품 수}
     view: 'grid',     // 'grid' 카드형 | 'table' 표형
     merge: false      // 같은 품번의 언어판을 한 줄로 묶을지
   };
@@ -286,6 +287,24 @@
     return fmt(w, 'KRW') + '<small>' + fmt(fromUsd(toUsd(w, 'KRW'), pick), pick) + '</small>';
   }
 
+  /* 글로벌에도 이 **포켓몬**이 있는지. 카드 단위 결합은 근거가 없어 하지 않는다.
+     참/거짓이 아니라 개수를 적어야 '같은 카드' 로 오해되지 않는다. */
+  function xrefOf(name) {
+    var keys = Object.keys(state.xref);
+    var best = '';
+    for (var i = 0; i < keys.length; i++) {
+      if (name.indexOf(keys[i]) >= 0 && keys[i].length > best.length) { best = keys[i]; }
+    }
+    return best ? { species: best, count: state.xref[best].g } : null;
+  }
+
+  function xrefHtml(name) {
+    var x = xrefOf(name || '');
+    if (!x) { return ''; }
+    return '<a class="pk-xref" href="#usd:' + encodeURIComponent(x.species) + '">' +
+      '글로벌 ' + esc(x.species) + ' ' + x.count + '장 →</a>';
+  }
+
   function cardHtml(g) {
     var r = g.rows[0];
     var pic = imageOf(r);
@@ -327,6 +346,7 @@
               row('30일 저가', won(r[C.low_30d])) +
               row('30일 거래', Number(r[C.tx] || 0).toLocaleString('ko-KR') + '건') +
             '</div>') +
+        xrefHtml(g.name) +
       '</div>' +
     '</article>';
   }
@@ -357,7 +377,7 @@
         (g.rows.length > 1 ? '' : '<i>' + esc(r[C.name_en]) + '</i>') + '</td>' +
       '<td class="cmp-dim">' + stack(function (x) {
           return esc(x[C.lang] || '기타');
-        }) + '<i>' + esc(g.code) + '</i></td>' +
+        }) + '<i>' + esc(g.code) + '</i>' + xrefHtml(g.name) + '</td>' +
       '<td class="cmp-num is-psa">' + stack(function (x) {
           return money2(x[C.price]);
         }) + '</td>' +
@@ -469,11 +489,14 @@
         if (!r.ok) { throw new Error('krw ' + r.status); }
         return r.json();
       }),
-      fetch(BASE + '/meta.json', { cache: 'no-cache' }).then(function (r) { return r.json(); })
+      fetch(BASE + '/meta.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }),
+      fetch(BASE + '/xref.json', { cache: 'no-cache' })
+        .then(function (r) { return r.json(); }).catch(function () { return {}; })
     ])
       .then(function (res) {
         var data = res[0];
         state.meta = res[1];
+        state.xref = res[2] || {};
         state.data = data;
         data.columns.forEach(function (name, i) { C[name] = i; });
         data.market_columns.forEach(function (name, i) { M[name] = i; });
@@ -563,5 +586,36 @@
     }
   });
 
+  /* 종 단위 안내 링크(#krw:리자몽 / #usd:리자몽). 반대 탭으로 넘기고 그 이름으로
+     검색까지 걸어 준다. 두 탭이 서로를 모르므로 여기가 유일한 연결점이다. */
+  function jump(hash) {
+    var m = /^#(usd|krw):(.+)$/.exec(hash || '');
+    if (!m) { return false; }
+    var target = m[1];
+    var species = decodeURIComponent(m[2]);
+    activate(target);
+    var box = el(target === 'usd' ? 'pk-q' : 'krw-q');
+    if (!box) { return true; }
+    /* 국내 탭은 데이터를 늦게 받는다. 준비될 때까지 몇 번 다시 시도한다. */
+    var tries = 0;
+    (function fill() {
+      box.value = species;
+      box.dispatchEvent(new Event('input'));
+      if (++tries < 20 && target === 'krw' && !state.data) {
+        setTimeout(fill, 300);
+      }
+    })();
+    var top = document.querySelector('.pk-tabs');
+    if (top && top.scrollIntoView) { top.scrollIntoView(); }
+    return true;
+  }
+
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest ? ev.target.closest('a.pk-xref') : null;
+    if (!a) { return; }
+    if (jump(a.getAttribute('href'))) { ev.preventDefault(); }
+  });
+
   if (location.hash === '#krw') { activate('krw'); }
+  jump(location.hash);
 })();

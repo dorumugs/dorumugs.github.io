@@ -24,6 +24,7 @@ import rtms  # noqa: E402
 
 OUT_DIR = ROOT / "assets" / "pokemon"
 OUT_FILE = OUT_DIR / "krw.json"
+XREF_FILE = OUT_DIR / "xref.json"
 
 
 def build(payload: dict, generated: str) -> dict:
@@ -58,6 +59,49 @@ def build(payload: dict, generated: str) -> dict:
     }
 
 
+def build_xref(products: list[list], cards_payload: dict) -> dict:
+    """두 시장을 **종(species) 단위**로 잇는다. 카드 단위로는 못 잇는다.
+
+    왜 종 단위인가
+    --------------
+    국내 영문판 14종의 품번으로 카드 단위 결합을 시험했을 때 확실히 이어진 게
+    1건이었다(2026-08-08 실측). 나머지는 일어판·한글판이라 영문판과 다른
+    물건이다. 그래서 "이 카드가 저쪽에도 있다" 는 말은 할 수 없다.
+
+    할 수 있는 말은 "이 **포켓몬**이 저쪽에 몇 개 있다" 다. 글로벌 카드에는
+    도감번호로 붙인 한글 종 이름이 있고, 국내 상품명에서 그 종 이름이 899종 중
+    801종(89%) 잡힌다.
+
+    **참/거짓이 아니라 개수를 돌려준다.** "국내 있음" 이라고 적으면 사람은
+    '같은 카드가 저 값에 거래된다' 로 읽는다. "국내 리자몽 46종" 이라고 적으면
+    특정 카드가 아니라 종 얘기라는 게 숫자 자체로 드러난다.
+
+    {종 이름: {"g": 글로벌 카드 수, "d": 국내 상품 수}} — 양쪽에 다 있는 종만.
+    """
+    ko_at = kream_api.PRODUCT_COLUMNS.index("name_ko")
+    name_at = cards_payload["columns"].index("name_ko")
+
+    global_count: dict = {}
+    for row in cards_payload["rows"]:
+        species = row[name_at]
+        if species:
+            global_count[species] = global_count.get(species, 0) + 1
+
+    domestic_count: dict = {}
+    for row in products:
+        title = row[ko_at]
+        # 가장 긴 이름부터 맞춘다. '리자몽' 과 '메가리자몽' 이 같이 걸리면
+        # 긴 쪽이 실제 종이다.
+        hits = [s for s in global_count if s and s in title]
+        if hits:
+            best = max(hits, key=len)
+            domestic_count[best] = domestic_count.get(best, 0) + 1
+
+    return {species: {"g": global_count[species], "d": count}
+            for species, count in sorted(domestic_count.items())
+            if global_count.get(species)}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--generated", default=date.today().isoformat())
@@ -74,9 +118,19 @@ def main() -> int:
         return 1
 
     view = build(payload, args.generated)
+    cards_payload = json.loads((OUT_DIR / "cards.json").read_text(encoding="utf-8")) \
+        if (OUT_DIR / "cards.json").exists() else None
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(
         json.dumps(view, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+    if cards_payload:
+        dates = kream_api.history_dates(payload)
+        xref = build_xref(kream_api.parse_products(payload, dates), cards_payload)
+        XREF_FILE.write_text(
+            json.dumps(xref, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8")
+        print(f"두 시장에 다 있는 종 {len(xref):,}종 -> {XREF_FILE}")
 
     stats = view["stats"]
     packed = len(gzip.compress(OUT_FILE.read_bytes(), 9))
