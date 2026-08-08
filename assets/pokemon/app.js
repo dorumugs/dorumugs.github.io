@@ -52,7 +52,10 @@
 
      출처가 셋이고 순서대로 떨어진다.
 
-       1. TCGdex — 경로가 '시리즈/세트/번호' 로 규칙적이다 (전수 확인).
+       0. art.json — 이 카드에 대해 **실제로 열리는 것을 확인한** 주소. 규칙보다
+          우선한다. TCGdex 가 경로만 주고 파일이 없는 카드가 90장 있어서다
+          (Aquapolis·Skyridge 의 H 번호 홀로 등).
+       1. TCGdex — 경로가 '시리즈/세트/번호' 로 규칙적이다.
        2. TCGplayer — TCGdex 가 이미지를 안 주는 588장을 productId 로 메운다.
        3. pokemontcg.io — 위 둘 다 없는 세트(Shiny Vault·Galarian Gallery·
           Trainer Gallery)용.
@@ -68,6 +71,12 @@
 
      넷 다 없는 카드는 6장뿐이다 (기본 에너지·포션·스위치). */
   function imageOf(r) {
+    /* 확인된 주소가 있으면 그게 1순위다. 화면은 경로를 **세트 단위**로 만드는데
+       TCGdex 는 같은 세트 안에서도 카드마다 파일이 있기도 없기도 하다 — 그래서
+       "이 카드에 대해 실제로 열리는 것을 확인한 주소"가 규칙보다 우선한다. */
+    var known = state.art[cardIdOf(r)];
+    if (known) { return { thumb: known[0], full: known[1] }; }
+
     var serie = state.series[r[C.set]];
     if (serie) {
       var path = state.prefix + serie + '/' + setIdOf(r) + '/' + r[C.local_id];
@@ -80,8 +89,6 @@
         full: state.tcgPrefix + pid + '_in_1000x1000.jpg'
       };
     }
-    var alt = state.art[cardIdOf(r)];
-    if (alt) { return { thumb: alt[0], full: alt[1] }; }
     return null;
   }
 

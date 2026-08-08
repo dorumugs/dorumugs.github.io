@@ -129,8 +129,13 @@ def build_graded(cards: list[dict], graded_rows: list[dict]) -> dict:
     return dict(sorted(out.items()))
 
 
-def build_payload(cards: list[dict], set_meta: dict, species: dict) -> dict:
-    """포함된 세트의 카드만, 현재가 높은 순으로 사전 인코딩해 담는다."""
+def build_payload(cards: list[dict], set_meta: dict, species: dict,
+                  broken: set | None = None) -> dict:
+    """포함된 세트의 카드만, 현재가 높은 순으로 사전 인코딩해 담는다.
+
+    broken 은 TCGdex 경로가 있는데 파일이 없는 카드다. 수집기가 매일 원본을
+    다시 받아 경로를 되살리므로 여기서 무시해야 대체 사진으로 넘어간다."""
+    broken = broken or set()
     included = {sid for sid, m in set_meta.items() if m.get("included")}
 
     sets = Dictionary()
@@ -143,7 +148,7 @@ def build_payload(cards: list[dict], set_meta: dict, species: dict) -> dict:
         sid = card["set_id"]
         if sid not in included:
             continue
-        serie = serie_of(card.get("image", ""))
+        serie = "" if card["card_id"] in broken else serie_of(card.get("image", ""))
         if serie and sid not in series_by_set:
             series_by_set[sid] = serie
         price = _round(card.get("tp_market") or card.get("cm_avg"))
@@ -212,7 +217,8 @@ def main() -> int:
     set_meta = collect_pokemon._read_json(collect_pokemon.SETS_FILE, {})
     species = collect_pokemon._read_json(collect_pokemon.SPECIES_FILE, {})
 
-    payload = build_payload(cards, set_meta, species)
+    broken = set(collect_pokemon._read_json(collect_card_art.BROKEN_FILE, []))
+    payload = build_payload(cards, set_meta, species, broken)
     sets = build_sets(set_meta, payload)
     art = build_art(cards, payload,
                     collect_pokemon._read_json(collect_card_art.ART_FILE, {}))
@@ -259,7 +265,8 @@ def main() -> int:
     raw = (OUT_DIR / "cards.json").stat().st_size
     packed = len(gzip.compress((OUT_DIR / "cards.json").read_bytes(), 9))
     print(f"카드 {len(payload['rows']):,}장 · 세트 {len(sets)}개 · 한글명 {with_ko:,}장")
-    print(f"대체 사진 {len(art):,}장 · 사진이 아예 없는 카드 {no_art:,}장")
+    print(f"대체 사진 {len(art):,}장 · 사진이 아예 없는 카드 {no_art:,}장"
+          f" · 깨진 TCGdex 경로 {len(broken):,}장")
     print(f"등급 시세가 붙은 카드 {len(graded):,}장")
     print(f"cards.json 원본 {raw/1024:.0f}KB · gzip {packed/1024:.0f}KB")
     return 0

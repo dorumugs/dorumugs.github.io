@@ -14,6 +14,11 @@ import re
 
 IMAGE_PREFIX = "https://images.pokemontcg.io/"
 
+# TCGdex 는 경로를 주면서 파일이 없는 카드가 있다 — 특히 e-Card 시절
+# Aquapolis·Skyridge 의 H 번호 홀로들이다. 그래서 "경로가 없는 카드"만이 아니라
+# **경로가 있어도 실제로 열리는지** 확인해야 한다.
+TCGDEX_IMAGE_PREFIX = "https://assets.tcgdex.net/en/"
+
 # 우리(TCGdex) 세트 id -> pokemontcg.io 세트 id.
 # 세트 이름을 맞춰 뽑고 실제 이미지를 두들겨 확인한 것만 남긴다.
 # My First Battle(mfb)·Poké Card Creator Pack(ex5.5) 은 저쪽에도 없어서 뺐다.
@@ -24,7 +29,14 @@ SET_MAP = {
     "swsh10.5tg": "swsh10tg",      # Astral Radiance Trainer Gallery
     "swsh11.5tg": "swsh11tg",      # Lost Origin Trainer Gallery
     "swsh12.5tg": "swsh12tg",      # Silver Tempest Trainer Gallery
-    "ecard3": "ecard3",            # Skyridge
+    "ecard2": "ecard2",            # Aquapolis — H 번호 홀로가 TCGdex 에 없다
+    "ecard3": "ecard3",            # Skyridge — 위와 같다
+    "sm6": "sm6",                  # Forbidden Light
+    "sm2": "sm2",                  # Guardians Rising
+    "dc1": "dc1",                  # Double Crisis
+    "pop6": "pop6",                # POP Series 6
+    "pl2": "pl2",                  # Rising Rivals
+    "cel25": "cel25",              # Celebrations
     "sm3.5": "sm35",               # Shining Legends
     "sm7.5": "sm75",               # Dragon Majesty
     "xy8": "xy8",                  # BREAKthrough
@@ -75,3 +87,11 @@ def needs_art(image: str, tp_product_id: str) -> bool:
     parts = (image or "").split("/")
     has_tcgdex = len(parts) == 3 and all(parts)
     return not has_tcgdex and not (tp_product_id or "").strip()
+
+
+def tcgdex_thumb_url(image: str) -> str:
+    """TCGdex 썸네일 주소. 경로가 온전하지 않으면 빈 문자열."""
+    parts = (image or "").split("/")
+    if len(parts) != 3 or not all(parts):
+        return ""
+    return f"{TCGDEX_IMAGE_PREFIX}{image}/low.webp"
