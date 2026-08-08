@@ -15,8 +15,9 @@
 #                   메운다. 새로 생긴 구멍만 확인하므로 평소엔 요청이 없다.
 #   3. 등급 시세    PokemonPriceTracker 의 eBay 감정 낙찰가(PSA 10/9). 무료
 #                   등급이 하루 50장이라 비싼 카드부터 돌며 며칠에 걸쳐 채운다.
-#   4. 국내 시세    KREAM 시세표. 헤드리스 Chrome 으로 페이지를 열어 받는다.
-#   5. 집계         화면용 JSON 두 벌.
+#   4. 환율        달러/원. 비교 화면이 두 시장을 같은 축에 놓을 때 쓴다.
+#   5. 국내 시세    KREAM 시세표. 헤드리스 Chrome 으로 페이지를 열어 받는다.
+#   6. 집계         화면용 JSON 두 벌.
 #
 # 한글 이름(PokeAPI)은 거의 바뀌지 않아 파일이 없을 때만 받는다.
 #
@@ -65,6 +66,11 @@ fi
 if ! python3 -u scripts/collect_card_art.py; then
   FAILED=1
   echo "대체 사진 수집 실패 — pokemontcg.io 응답을 확인하세요." >&2
+fi
+
+# 달러/원 환율. 비교 화면이 두 시장을 같은 축에 놓을 때 쓴다.
+if ! python3 -u scripts/collect_fx.py; then
+  echo "환율을 못 받았습니다. 어제 값을 그대로 씁니다." >&2
 fi
 
 # 감정 등급(PSA) 시세. 무료 등급이 하루 50장이라 비싼 카드부터 나눠 받는다.

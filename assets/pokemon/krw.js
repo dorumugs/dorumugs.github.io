@@ -332,10 +332,242 @@
       });
   }
 
+  /* ---- 비교 -------------------------------------------------------------
+     자동 매칭은 하지 않는다. "피카츄"만 해도 국내 112종 · 글로벌 98장이라
+     기계가 이으면 베이스셋 카드와 최신 일본판 SAR 이 묶인다. 양쪽을 나란히
+     보여주고 고르는 건 사람이 한다. 고른 둘만 같은 통화로 환산해 견준다. */
+
+  var cmp = { usd: null, krw: null, global: null, ready: false };
+
+  /* 글로벌 데이터는 app.js 가 들고 있다. 같은 파일을 두 번 받지 않도록
+     전역으로 넘겨받는다. 아직 안 왔으면 직접 받는다. */
+  function globalData() {
+    if (cmp.global) { return Promise.resolve(cmp.global); }
+    if (window.__pkGlobal) { cmp.global = window.__pkGlobal; return Promise.resolve(cmp.global); }
+    return fetch(BASE + '/cards.json', { cache: 'no-cache' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { cmp.global = d; return d; });
+  }
+
+  function usdToWon(usd) {
+    var fx = (cmp.meta && cmp.meta.fx) || {};
+    return fx.rate ? usd * fx.rate : null;
+  }
+
+  function wonToUsd(won) {
+    var fx = (cmp.meta && cmp.meta.fx) || {};
+    return fx.rate ? won / fx.rate : null;
+  }
+
+  /* 두 통화를 항상 같이 적는다. 한쪽만 적으면 독자가 머릿속으로 환산하다 틀린다. */
+  function bothFromUsd(usd) {
+    if (usd === null || usd === undefined) { return '—'; }
+    var w = usdToWon(usd);
+    return '$' + Number(usd).toLocaleString('ko-KR', { maximumFractionDigits: 0 }) +
+      (w ? ' <small>· ' + Math.round(w).toLocaleString('ko-KR') + '원</small>' : '');
+  }
+
+  function bothFromWon(won) {
+    if (won === null || won === undefined) { return '—'; }
+    var u = wonToUsd(won);
+    return Number(won).toLocaleString('ko-KR') + '원' +
+      (u ? ' <small>· $' + Math.round(u).toLocaleString('ko-KR') + '</small>' : '');
+  }
+
+  function cmpSearch() {
+    var q = norm(el('cmp-q').value);
+    if (!q) {
+      el('cmp-list-usd').innerHTML = '';
+      el('cmp-list-krw').innerHTML = '';
+      el('cmp-count-usd').textContent = '검색어를 입력하세요.';
+      el('cmp-count-krw').textContent = '검색어를 입력하세요.';
+      return;
+    }
+    renderGlobalList(q);
+    renderKrwList(q);
+  }
+
+  var LIMIT = 30;
+
+  function renderGlobalList(q) {
+    var d = cmp.global;
+    if (!d) { return; }
+    var GC = {};
+    d.columns.forEach(function (n, i) { GC[n] = i; });
+    var hits = d.rows.filter(function (r) {
+      return norm(r[GC.name_en]).indexOf(q) >= 0 || norm(r[GC.name_ko]).indexOf(q) >= 0;
+    });
+    hits.sort(function (a, b) { return (b[GC.price] || 0) - (a[GC.price] || 0); });
+
+    el('cmp-count-usd').textContent =
+      hits.length.toLocaleString('ko-KR') + '장 중 ' +
+      Math.min(LIMIT, hits.length) + '장';
+
+    el('cmp-list-usd').innerHTML = hits.slice(0, LIMIT).map(function (r) {
+      var sid = d.sets[r[GC.set]];
+      var cardId = sid + '-' + r[GC.local_id];
+      var g = (cmp.graded && cmp.graded[cardId]) || null;
+      var psa = g ? g[cmp.gcol.psa10] : null;
+      return '<button type="button" class="cmp-item" data-side="usd" data-id="' +
+        esc(cardId) + '">' +
+        '<b>' + esc(r[GC.name_en]) + '</b>' +
+        (r[GC.name_ko] ? '<i>' + esc(r[GC.name_ko]) + '</i>' : '') +
+        '<span class="cmp-set">' + esc(sid) + ' · #' + esc(r[GC.local_id]) + '</span>' +
+        '<span class="cmp-p">raw ' + bothFromUsd(r[GC.price]) + '</span>' +
+        (psa ? '<span class="cmp-p is-psa">PSA 10 ' + bothFromUsd(psa) + '</span>'
+             : '<span class="cmp-p is-none">PSA 10 없음</span>') +
+        '</button>';
+    }).join('') || '<p class="pk-empty">글로벌에 없습니다.</p>';
+  }
+
+  function renderKrwList(q) {
+    var hits = state.data.rows.filter(function (r) {
+      return norm(r[C.name_ko]).indexOf(q) >= 0 || norm(r[C.name_en]).indexOf(q) >= 0;
+    });
+    hits.sort(function (a, b) { return (b[C.price] || 0) - (a[C.price] || 0); });
+
+    el('cmp-count-krw').textContent =
+      hits.length.toLocaleString('ko-KR') + '종 중 ' +
+      Math.min(LIMIT, hits.length) + '종';
+
+    el('cmp-list-krw').innerHTML = hits.slice(0, LIMIT).map(function (r, i) {
+      var idx = state.data.rows.indexOf(r);
+      return '<button type="button" class="cmp-item" data-side="krw" data-id="' + idx + '">' +
+        '<b>' + esc(r[C.name_ko]) + '</b>' +
+        '<span class="cmp-set">' + esc(r[C.lang] || '기타') + ' · ' + esc(r[C.code]) +
+          ' · 30일 ' + Number(r[C.tx] || 0).toLocaleString('ko-KR') + '건</span>' +
+        '<span class="cmp-p is-psa">PSA 10 ' + bothFromWon(r[C.price]) + '</span>' +
+        '</button>';
+    }).join('') || '<p class="pk-empty">국내에 없습니다.</p>';
+  }
+
+  function pickCard(side, id) {
+    if (side === 'usd') {
+      var d = cmp.global, GC = {};
+      d.columns.forEach(function (n, i) { GC[n] = i; });
+      var row = null;
+      d.rows.some(function (r) {
+        if (d.sets[r[GC.set]] + '-' + r[GC.local_id] === id) { row = r; return true; }
+        return false;
+      });
+      if (!row) { return; }
+      var g = (cmp.graded && cmp.graded[id]) || null;
+      cmp.usd = {
+        title: row[GC.name_en], sub: d.sets[row[GC.set]] + ' · #' + row[GC.local_id],
+        raw: row[GC.price], psa10: g ? g[cmp.gcol.psa10] : null
+      };
+    } else {
+      var r2 = state.data.rows[Number(id)];
+      if (!r2) { return; }
+      cmp.krw = {
+        title: r2[C.name_ko], sub: (r2[C.lang] || '기타') + ' · ' + r2[C.code],
+        psa10won: r2[C.price], tx: r2[C.tx]
+      };
+    }
+    renderPanel();
+  }
+
+  function renderPanel() {
+    var panel = el('cmp-panel');
+    if (!cmp.usd && !cmp.krw) { panel.hidden = true; return; }
+    panel.hidden = false;
+
+    el('cmp-pick-usd').innerHTML = cmp.usd
+      ? '<span class="cmp-tag">글로벌 · 영문판</span>' +
+        '<b>' + esc(cmp.usd.title) + '</b>' +
+        '<span class="cmp-set">' + esc(cmp.usd.sub) + '</span>' +
+        '<span class="cmp-p">raw ' + bothFromUsd(cmp.usd.raw) + '</span>' +
+        (cmp.usd.psa10
+          ? '<span class="cmp-p is-psa">PSA 10 ' + bothFromUsd(cmp.usd.psa10) + '</span>'
+          : '<span class="cmp-p is-none">PSA 10 값이 아직 없습니다</span>')
+      : '<span class="cmp-empty">왼쪽에서 한 장 고르세요</span>';
+
+    el('cmp-pick-krw').innerHTML = cmp.krw
+      ? '<span class="cmp-tag">국내 · PSA 10</span>' +
+        '<b>' + esc(cmp.krw.title) + '</b>' +
+        '<span class="cmp-set">' + esc(cmp.krw.sub) + '</span>' +
+        '<span class="cmp-p is-psa">' + bothFromWon(cmp.krw.psa10won) + '</span>' +
+        '<span class="cmp-set">30일 거래 ' +
+          Number(cmp.krw.tx || 0).toLocaleString('ko-KR') + '건</span>'
+      : '<span class="cmp-empty">오른쪽에서 한 종 고르세요</span>';
+
+    el('cmp-gap').innerHTML = gapHtml();
+  }
+
+  /* 같은 등급끼리만 뺀다. 글로벌에 PSA 10 이 없으면 뺄 것이 없다고 적는다 —
+     raw 와 PSA 10 을 빼면 그 차이는 나라 차이가 아니라 등급 프리미엄이다. */
+  function gapHtml() {
+    if (!cmp.usd || !cmp.krw) {
+      return '<span class="cmp-note">양쪽에서 하나씩 고르면 차이를 계산합니다.</span>';
+    }
+    if (cmp.usd.psa10 === null || cmp.usd.psa10 === undefined) {
+      return '<span class="cmp-note">이 글로벌 카드는 <b>PSA 10 값이 없어</b> 뺄 수 없습니다.<br>' +
+        'raw 와 PSA 10 을 빼면 나라 차이가 아니라 등급 프리미엄이 나옵니다.</span>';
+    }
+    var a = usdToWon(cmp.usd.psa10);
+    var b = cmp.krw.psa10won;
+    if (!a) { return '<span class="cmp-note">환율을 불러오지 못했습니다.</span>'; }
+    var diff = b - a;
+    var pct = (diff / a) * 100;
+    var up = diff > 0;
+    return '<span class="cmp-note">둘 다 PSA 10 이라 비교됩니다</span>' +
+      '<b class="cmp-diff ' + (up ? 'is-up' : 'is-down') + '">' +
+        (up ? '국내가 ' : '국내가 ') +
+        Math.abs(pct).toFixed(1) + '% ' + (up ? '비쌉니다' : '쌉니다') + '</b>' +
+      '<span class="cmp-note">차이 ' +
+        (up ? '+' : '−') + Math.abs(Math.round(diff)).toLocaleString('ko-KR') + '원</span>' +
+      '<span class="cmp-note cmp-caveat">영문판과 일본판은 다른 카드입니다. ' +
+        '수수료·감정료·관세는 빠져 있습니다.</span>';
+  }
+
+  function bindCompare() {
+    el('cmp-q').addEventListener('input', debounce(cmpSearch, 200));
+    ['cmp-list-usd', 'cmp-list-krw'].forEach(function (id) {
+      el(id).addEventListener('click', function (ev) {
+        var btn = ev.target.closest ? ev.target.closest('.cmp-item') : null;
+        if (!btn) { return; }
+        var list = el(id);
+        Array.prototype.forEach.call(list.querySelectorAll('.cmp-item'), function (b) {
+          b.classList.remove('is-on');
+        });
+        btn.classList.add('is-on');
+        pickCard(btn.dataset.side, btn.dataset.id);
+      });
+    });
+  }
+
+  function loadCompare() {
+    if (cmp.ready) { return; }
+    load();  // 국내 데이터가 필요하다
+    Promise.all([
+      globalData(),
+      fetch(BASE + '/graded.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }),
+      fetch(BASE + '/meta.json', { cache: 'no-cache' }).then(function (r) { return r.json(); })
+    ]).then(function (res) {
+      cmp.global = res[0];
+      cmp.gcol = {};
+      res[1].columns.forEach(function (n, i) { cmp.gcol[n] = i; });
+      cmp.graded = res[1].cards;
+      cmp.meta = res[2];
+      cmp.ready = true;
+      bindCompare();
+      renderPanel();
+      var fx = cmp.meta.fx || {};
+      el('cmp-meta').textContent = fx.rate
+        ? '환산 환율 USD 1 = ' + fx.rate.toLocaleString('ko-KR') + '원 (' +
+          fx.date + ' 기준 · ' + fx.source + '). 글로벌 PSA 10 이 붙은 카드는 ' +
+          (cmp.meta.graded_count || 0).toLocaleString('ko-KR') + '장입니다.'
+        : '환율을 불러오지 못해 환산이 표시되지 않습니다.';
+      if (el('cmp-q').value) { cmpSearch(); }
+    }).catch(function (err) {
+      el('cmp-count-usd').textContent = '비교 데이터를 불러오지 못했습니다. (' + err.message + ')';
+    });
+  }
+
   /* ---- 탭 --------------------------------------------------------------- */
 
   function activate(which) {
-    ['usd', 'krw'].forEach(function (name) {
+    ['usd', 'krw', 'cmp'].forEach(function (name) {
       var on = name === which;
       var tab = el('pk-tab-' + name);
       var view = el('pk-view-' + name);
@@ -345,12 +577,14 @@
       view.hidden = !on;
     });
     if (which === 'krw') { load(); }
+    if (which === 'cmp') { loadCompare(); }
     if (history.replaceState) {
-      history.replaceState(null, '', which === 'krw' ? '#krw' : location.pathname);
+      history.replaceState(null, '',
+        which === 'usd' ? location.pathname : '#' + which);
     }
   }
 
-  ['usd', 'krw'].forEach(function (name) {
+  ['usd', 'krw', 'cmp'].forEach(function (name) {
     var tab = el('pk-tab-' + name);
     if (tab) {
       tab.addEventListener('click', function () { activate(name); });
@@ -358,4 +592,5 @@
   });
 
   if (location.hash === '#krw') { activate('krw'); }
+  if (location.hash === '#cmp') { activate('cmp'); }
 })();

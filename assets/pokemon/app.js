@@ -253,6 +253,8 @@
                fetchJson('art'), fetchJson('graded')])
     .then(function (res) {
       var payload = res[0];
+      /* 비교 탭(krw.js)이 같은 1MB 를 또 받지 않도록 넘겨둔다. */
+      window.__pkGlobal = payload;
       payload.columns.forEach(function (name, i) { C[name] = i; });
       state.prefix = payload.image_prefix;
       state.tcgPrefix = payload.tcgplayer_image_prefix || '';

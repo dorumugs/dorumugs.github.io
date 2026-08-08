@@ -15,11 +15,15 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
   <div class="pk-tabs" role="tablist" aria-label="시장 고르기">
     <button type="button" id="pk-tab-usd" class="is-on" role="tab" aria-selected="true" aria-controls="pk-view-usd">글로벌 · 달러</button>
     <button type="button" id="pk-tab-krw" role="tab" aria-selected="false" aria-controls="pk-view-krw">국내 · 원화</button>
+    <button type="button" id="pk-tab-cmp" role="tab" aria-selected="false" aria-controls="pk-view-cmp">비교</button>
   </div>
 
   <p class="pk-warn">
-    두 탭은 <strong>같은 카드의 다른 값이 아닙니다.</strong> 글로벌은 등급 없는 raw 영문판,
-    국내는 <strong>PSA 10 등급</strong>에 대부분 일본판입니다. 나란히 놓고 빼면 안 됩니다.
+    두 시장은 <strong>파는 물건이 다릅니다.</strong> 글로벌은 <strong>영문판</strong>이고
+    등급 없는 raw 가 기본이며 비싼 카드에만 PSA 10 이 붙어 있습니다. 국내는
+    <strong>대부분 일본판</strong>이고 전부 <strong>PSA 10</strong>입니다.
+    같은 포켓몬이라도 세트·판본이 다르면 다른 카드이니, 값을 빼기 전에
+    <strong>[비교]</strong> 탭에서 어느 카드끼리 견주는지 직접 확인하세요.
   </p>
 
 <section id="pk-view-usd" role="tabpanel" aria-labelledby="pk-tab-usd" markdown="0">
@@ -178,7 +182,7 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
   <h2>알아두실 것</h2>
 
   <ul>
-    <li><strong>PSA 10 등급 기준입니다.</strong> 등급이 없는 카드나 낮은 등급은 값이 크게 다릅니다. 글로벌 탭(raw)과 나란히 비교하면 안 됩니다.</li>
+    <li><strong>PSA 10 등급 기준입니다.</strong> 등급이 없는 카드나 낮은 등급은 값이 크게 다릅니다. 글로벌 탭의 <strong>raw 가격과 빼면 안 되고</strong>, 글로벌 쪽 PSA 10 과 견주세요 — <a href="#cmp" id="krw-to-cmp">비교 탭</a>이 그것만 골라 계산해 줍니다.</li>
     <li><strong>대부분 일본판입니다.</strong> 899종 중 830종이 일어판이고 한글판은 54종뿐입니다.</li>
     <li><strong>표본이 얇습니다.</strong> 899종 가운데 404종은 30일 거래가 1건 이하입니다. 한 사람이 한 번 판 값이 그대로 "시세"가 됩니다.</li>
     <li><strong>KREAM 에 올라온 상품만 있습니다.</strong> 번개장터·중고나라 등 다른 경로의 거래는 안 잡힙니다.</li>
@@ -191,6 +195,52 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
   </p>
 
   <p class="pk-note" id="krw-meta"></p>
+
+</section>
+
+<section id="pk-view-cmp" role="tabpanel" aria-labelledby="pk-tab-cmp" hidden markdown="0">
+
+  <h2>두 시장 나란히 보기</h2>
+
+  <p class="pk-warn">
+    <strong>자동으로 짝지어 주지 않습니다.</strong> "피카츄"만 해도 국내 112종, 글로벌 98장이라
+    기계가 이으면 베이스셋 카드와 최신 일본판 SAR 이 묶입니다. 검색해서
+    <strong>양쪽에서 한 장씩 직접 고르세요.</strong> 고른 두 장만 같은 통화로 환산해 나란히 놓습니다.
+  </p>
+
+  <div class="pk-search">
+    <input type="search" id="cmp-q" placeholder="포켓몬 이름으로 양쪽 동시 검색 — 리자몽, 피카츄" autocomplete="off" aria-label="양쪽 시장 검색">
+  </div>
+
+  <div class="cmp-panel" id="cmp-panel" hidden>
+    <div class="cmp-side" id="cmp-pick-usd"></div>
+    <div class="cmp-gap" id="cmp-gap"></div>
+    <div class="cmp-side" id="cmp-pick-krw"></div>
+  </div>
+
+  <div class="cmp-cols">
+    <div class="cmp-col">
+      <h3>글로벌 · 영문판</h3>
+      <p class="pk-count" id="cmp-count-usd">검색어를 입력하세요.</p>
+      <div class="cmp-list" id="cmp-list-usd"></div>
+    </div>
+    <div class="cmp-col">
+      <h3>국내 · 일본판 위주 · PSA 10</h3>
+      <p class="pk-count" id="cmp-count-krw">검색어를 입력하세요.</p>
+      <div class="cmp-list" id="cmp-list-krw"></div>
+    </div>
+  </div>
+
+  <h2>이 비교를 읽는 법</h2>
+
+  <ul>
+    <li><strong>같은 등급끼리만 빼세요.</strong> 국내는 전부 PSA 10 입니다. 글로벌 카드의 raw 가격과 국내 PSA 10 을 빼면 그 차이는 나라 차이가 아니라 <strong>등급 프리미엄</strong>입니다.</li>
+    <li><strong>영문판과 일본판은 다른 물건입니다.</strong> 같은 포켓몬·같은 기술이라도 인쇄·유통량이 달라 값이 따로 움직입니다.</li>
+    <li><strong>환율은 매일 바뀝니다.</strong> 환산에 쓴 환율과 기준일을 아래에 적어 두었습니다.</li>
+    <li><strong>수수료·감정료·관세가 빠진 값입니다.</strong> 실제로 사고팔면 그만큼 줄어듭니다. <a href="/finance/포켓몬카드_투자_총비용_감정_수수료_세금/">총비용 편</a>에 계산이 있습니다.</li>
+  </ul>
+
+  <p class="pk-note" id="cmp-meta"></p>
 
 </section>
 

@@ -227,6 +227,8 @@ def main() -> int:
         "art_filled": len(art),
         "no_art": no_art,
         "graded_count": len(graded),
+        # 비교 화면이 두 시장을 같은 통화로 놓을 때 쓴다. 기준일도 같이 싣는다.
+        "fx": collect_pokemon._read_json(ROOT / "data" / "pokemon" / "fx.json", {}),
     }, ensure_ascii=False), encoding="utf-8")
 
     raw = (OUT_DIR / "cards.json").stat().st_size
