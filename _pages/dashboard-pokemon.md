@@ -107,10 +107,10 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
     <li><strong>한글 이름은 포켓몬 이름입니다.</strong> 카드 정식 한글명이 공개된 데이터가 없어, 도감번호로 포켓몬 종 이름을 붙였습니다. <code>Charizard ex</code> 는 <code>리자몽 ex</code> 로 나옵니다.</li>
     <li><strong>트레이너·에너지 카드는 한글 이름이 없습니다.</strong> 도감번호가 없기 때문입니다.</li>
     <li><strong>가격이 안 잡히는 카드는 빠져 있습니다.</strong> 프로모·트레이너킷은 유통 경로가 불규칙해 시세 자체가 잡히지 않습니다.</li>
-    <li><strong>사진이 없는 카드가 6장 있습니다.</strong> 네 출처를 다 뒤져도 없는 것들입니다 (기본 에너지·포션·스위치).</li>
+    <li><strong>사진이 없는 카드가 <span data-live="no-art">—</span> 있습니다.</strong> 네 출처를 다 뒤져도 없는 것들입니다 (기본 에너지·포션·스위치).</li>
     <li><strong>감정 등급 시세는 비싼 카드에만 붙습니다.</strong> raw 시세가 $100 이 넘는 카드부터 순서대로 모읍니다. 그 아래는 감정료가 카드값을 넘어서 감정 자체를 안 합니다.</li>
     <li><strong>등급 시장은 거래가 아주 얇습니다.</strong> 베이스셋 리자몽 PSA 10 조차 최근 1년에 <strong>1건</strong> 팔렸습니다. 건수가 한 자리면 "시세"라고 부르기 어렵습니다.</li>
-    <li><strong>raw 와 PSA 10 은 몇 배씩 벌어집니다.</strong> 지금 모인 카드 기준 중앙값이 <strong>8.6배</strong>, 최대 40배가 넘습니다. 그 차이가 곧 감정료·대기시간·등급이 안 나올 위험의 값입니다.</li>
+    <li><strong>raw 와 PSA 10 은 몇 배씩 벌어집니다.</strong> 지금 모인 카드 기준 <span data-live="premium">—</span>. 그 차이가 곧 감정료·대기시간·등급이 안 나올 위험의 값입니다.</li>
   </ul>
 
   <p class="pk-source">
@@ -224,10 +224,10 @@ description: "포켓몬 카드 시세를 카드 사진과 함께 봅니다. 글�
 
   <ul>
     <li><strong>PSA 10 등급 기준입니다.</strong> 등급이 없는 카드나 낮은 등급은 값이 크게 다릅니다. 글로벌 탭의 <strong>raw 가격과 빼면 안 됩니다</strong> — 그 차이는 나라 차이가 아니라 등급 프리미엄입니다.</li>
-    <li><strong>대부분 일본판입니다.</strong> 899종 중 830종이 일어판이고 한글판은 54종뿐입니다.</li>
-    <li><strong>표본이 얇습니다.</strong> 899종 가운데 404종은 30일 거래가 1건 이하입니다. 한 사람이 한 번 판 값이 그대로 "시세"가 됩니다.</li>
+    <li><strong>대부분 일본판입니다.</strong> <span data-live="langs">—</span></li>
+    <li><strong>표본이 얇습니다.</strong> <span data-live="thin">—</span> 한 사람이 한 번 판 값이 그대로 "시세"가 됩니다.</li>
     <li><strong>KREAM 에 올라온 상품만 있습니다.</strong> 번개장터·중고나라 등 다른 경로의 거래는 안 잡힙니다.</li>
-    <li><strong>같은 카드인데 언어판끼리 3~10배 벌어집니다.</strong> <strong>언어판 묶기</strong>를 켜면 품번이 같은 일어판·한글판이 한 줄로 묶여 격차가 보입니다 (40줄). 품번으로만 묶으므로 다른 카드가 섞이지 않습니다.</li>
+    <li><strong>같은 카드인데 언어판끼리 3~10배 벌어집니다.</strong> <strong>언어판 묶기</strong>를 켜면 품번이 같은 일어판·한글판이 한 줄로 묶여 격차가 보입니다 (<span data-live="merged">—</span>). 품번으로만 묶으므로 다른 카드가 섞이지 않습니다.</li>
     <li><strong>수수료·감정료가 빠진 값입니다.</strong> 실제 손익은 <a href="/finance/포켓몬카드_투자_총비용_감정_수수료_세금/">총비용 편</a>을 참고하세요.</li>
   </ul>
 

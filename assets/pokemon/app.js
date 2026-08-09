@@ -15,7 +15,7 @@
   var state = {
     prefix: '', tcgPrefix: '', ptcgPrefix: '', sets: [], series: [],
     rarities: [], dates: [], rows: [], setInfo: {}, art: {}, graded: {},
-    meta: null, xref: {}, filtered: [], shown: PAGE,
+    meta: null, filtered: [], shown: PAGE,
     view: 'grid'   // 'grid' 카드형 | 'table' 표형
   };
   var C = {};
@@ -175,18 +175,6 @@
       '</div>';
   }
 
-  /* 국내에도 이 **포켓몬**이 있는지 알린다. 카드 단위로는 못 잇는다 —
-     국내 영문판 14종으로 품번 결합을 시험했을 때 확실히 이어진 게 1건이었다.
-     그래서 '국내 있음' 같은 참/거짓이 아니라 **개수**를 적는다. 개수를 보면
-     특정 카드가 아니라 종 얘기라는 게 드러난다. */
-  function xrefHtml(r) {
-    var ko = r[C.name_ko];
-    var x = ko && state.xref[ko];
-    if (!x) { return ''; }
-    return '<a class="pk-xref" href="#krw:' + encodeURIComponent(ko) + '">' +
-      '국내 ' + esc(ko) + ' ' + x.d + '종 →</a>';
-  }
-
   function cardHtml(r) {
     var setId = setIdOf(r);
     var info = state.setInfo[setId] || {};
@@ -220,7 +208,6 @@
           subRow('EUR 평균', money(r[C.cm_avg], '€')) +
         '</div>' +
         gradedHtml(cardIdOf(r)) +
-        xrefHtml(r) +
       '</div>' +
     '</article>';
   }
@@ -246,8 +233,7 @@
       '<td><b>' + esc(r[C.name_en]) + '</b>' +
         (r[C.name_ko] ? '<i>' + esc(r[C.name_ko]) + '</i>' : '') + '</td>' +
       '<td class="cmp-dim">' + esc(info.name || setId) + '<i>#' +
-        esc(r[C.local_id]) + (rarity ? ' · ' + esc(rarity) : '') + '</i>' +
-        xrefHtml(r) + '</td>' +
+        esc(r[C.local_id]) + (rarity ? ' · ' + esc(rarity) : '') + '</i></td>' +
       '<td class="cmp-num"><b>' + money(r[C.price]) + '</b></td>' +
       '<td class="cmp-num">' + money(r[C.high_ask]) + '</td>' +
       '<td class="cmp-num' + (g && g[G.psa10] ? ' is-psa' : '') + '">' +
@@ -281,6 +267,30 @@
 
     document.getElementById('pk-more').style.display =
       state.filtered.length > state.shown ? '' : 'none';
+  }
+
+  /* 본문에 박힌 숫자를 데이터에서 그려 넣는다. 하드코딩하면 다음 갱신에 곧
+     거짓이 된다 — 실제로 899종/404종/830종이 하루 만에 틀어져 있었다. */
+  function setLive(key, text) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll('[data-live="' + key + '"]'), function (e) {
+        e.textContent = text;
+      });
+  }
+
+  function fillLive() {
+    setLive('no-art', (state.meta.no_art || 0).toLocaleString('ko-KR') + '장');
+
+    var mult = [];
+    Object.keys(state.graded).forEach(function (id) {
+      var p = state.graded[id][G.premium];
+      if (p) { mult.push(p); }
+    });
+    if (mult.length) {
+      mult.sort(function (a, b) { return a - b; });
+      setLive('premium', '중앙값 ' + mult[Math.floor(mult.length / 2)] +
+        '배, 최대 ' + mult[mult.length - 1] + '배입니다');
+    }
   }
 
   function fillFilters() {
@@ -324,9 +334,7 @@
   }
 
   Promise.all([fetchJson('cards'), fetchJson('sets'), fetchJson('meta'),
-               fetchJson('art'), fetchJson('graded'),
-               /* 두 시장을 종 단위로 잇는 표. 없어도 화면은 돌아간다. */
-               fetchJson('xref').catch(function () { return {}; })])
+               fetchJson('art'), fetchJson('graded')])
     .then(function (res) {
       var payload = res[0];
       /* 비교 탭(krw.js)이 같은 1MB 를 또 받지 않도록 넘겨둔다. */
@@ -345,12 +353,12 @@
       state.art = res[3];
       res[4].columns.forEach(function (name, i) { G[name] = i; });
       state.graded = res[4].cards;
-      state.xref = res[5] || {};
 
       fillFilters();
       bind();
       applyFilters();
 
+      fillLive();
       document.getElementById('pk-meta').textContent =
         '카드 ' + state.meta.card_count.toLocaleString('ko-KR') + '장 · 세트 ' +
         state.meta.set_count + '개 · 한글 이름이 붙은 카드 ' +
