@@ -80,18 +80,18 @@
   "name": "Gym Heroes",
   "release_date": "2000-08-14",
   "era": "빈티지",
-  "included": true,
-  "reason": "",
-  "coverage": 1.0,
+  "included": false,
+  "reason": "가격 커버리지 0% < 80%",
+  "coverage": 0.0,
   "card_count": 132
  },
  "gym2": {
   "name": "Gym Challenge",
   "release_date": "2000-10-16",
   "era": "빈티지",
-  "included": true,
-  "reason": "",
-  "coverage": 0.9848,
+  "included": false,
+  "reason": "가격 커버리지 0% < 80%",
+  "coverage": 0.0,
   "card_count": 132
  },
  "neo1": {
@@ -180,7 +180,7 @@
   "included": true,
   "reason": "",
   "coverage": 1.0,
-  "card_count": 185
+  "card_count": 186
  },
  "ecard3": {
   "name": "Skyridge",
@@ -188,7 +188,7 @@
   "era": "빈티지",
   "included": true,
   "reason": "",
-  "coverage": 0.989,
+  "coverage": 1.0,
   "card_count": 182
  },
  "ex1": {
@@ -232,7 +232,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9794,
+  "coverage": 1.0,
   "card_count": 97
  },
  "ex5": {
@@ -241,7 +241,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9706,
+  "coverage": 1.0,
   "card_count": 102
  },
  "tk-ex-latia": {
@@ -284,7 +284,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9741,
+  "coverage": 1.0,
   "card_count": 116
  },
  "ex7": {
@@ -293,7 +293,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.982,
+  "coverage": 0.973,
   "card_count": 111
  },
  "ex8": {
@@ -320,7 +320,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9412,
+  "coverage": 1.0,
   "card_count": 17
  },
  "ex10": {
@@ -432,9 +432,9 @@
   "name": "POP Series 5",
   "release_date": "2007-03-01",
   "era": "클래식",
-  "included": false,
-  "reason": "가격 커버리지 76% < 80%",
-  "coverage": 0.7647,
+  "included": true,
+  "reason": "",
+  "coverage": 0.8824,
   "card_count": 17
  },
  "dpp": {
@@ -574,16 +574,16 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.8,
+  "coverage": 1.0,
   "card_count": 120
  },
  "pl3": {
   "name": "Supreme Victors",
   "release_date": "2009-08-19",
   "era": "클래식",
-  "included": false,
-  "reason": "가격 커버리지 77% < 80%",
-  "coverage": 0.7712,
+  "included": true,
+  "reason": "",
+  "coverage": 1.0,
   "card_count": 153
  },
  "pl4": {
@@ -592,7 +592,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9459,
+  "coverage": 1.0,
   "card_count": 111
  },
  "ru1": {
@@ -601,7 +601,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 1.0,
+  "coverage": 0.875,
   "card_count": 16
  },
  "hgss1": {
@@ -610,7 +610,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9677,
+  "coverage": 1.0,
   "card_count": 124
  },
  "hgssp": {
@@ -643,7 +643,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9583,
+  "coverage": 1.0,
   "card_count": 96
  },
  "hgss3": {
@@ -652,7 +652,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.978,
+  "coverage": 1.0,
   "card_count": 91
  },
  "hgss4": {
@@ -661,7 +661,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9806,
+  "coverage": 1.0,
   "card_count": 103
  },
  "col1": {
@@ -1904,5 +1904,41 @@
   "reason": "",
   "coverage": 1.0,
   "card_count": 120
+ },
+ "swsh9tg": {
+  "name": "Brilliant Stars Trainer Gallery",
+  "release_date": "2022-02-25",
+  "era": "최신",
+  "included": true,
+  "reason": "",
+  "coverage": 1.0,
+  "card_count": 30
+ },
+ "swsh10tg": {
+  "name": "Astral Radiance Trainer Gallery",
+  "release_date": "2022-05-27",
+  "era": "최신",
+  "included": true,
+  "reason": "",
+  "coverage": 1.0,
+  "card_count": 30
+ },
+ "swsh11tg": {
+  "name": "Lost Origin Trainer Gallery",
+  "release_date": "2022-09-09",
+  "era": "최신",
+  "included": true,
+  "reason": "",
+  "coverage": 1.0,
+  "card_count": 30
+ },
+ "swsh12tg": {
+  "name": "Silver Tempest Trainer Gallery",
+  "release_date": "2022-11-11",
+  "era": "최신",
+  "included": true,
+  "reason": "",
+  "coverage": 1.0,
+  "card_count": 30
  }
 }
