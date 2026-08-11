@@ -6,9 +6,11 @@
 
 from __future__ import annotations
 
+import io
 import pathlib
 import sys
 import unittest
+import zipfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
 
@@ -217,3 +219,31 @@ class TotalWeightOkTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ZipBombGuardTest(unittest.TestCase):
+    """압축 해제 크기 상한. cron 무인 실행이라 오염된 응답에 서버가 죽으면 안 된다."""
+
+    def _bomb(self) -> bytes:
+        """헤더의 file_size 가 진실인 zip. 상한을 넘는 sheet1.xml 하나만 담는다."""
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("xl/worksheets/sheet1.xml", b"\0" * (h.MAX_UNZIPPED_BYTES + 1))
+        return buf.getvalue()
+
+    def test_상한_넘는_시트는_빈_결과로_떨어진다(self) -> None:
+        parsed = h.parse_spdr(self._bomb())
+        self.assertEqual(parsed["rows"], [])
+        self.assertEqual(parsed["cash"], 0.0)
+
+    def test_압축률이_높아도_메모리로_풀지_않는다(self) -> None:
+        raw = self._bomb()
+        self.assertLess(len(raw), 1024 * 1024, "압축본은 작다 — 그래서 상한이 필요하다")
+        archive = zipfile.ZipFile(io.BytesIO(raw))
+        with self.assertRaises(ValueError):
+            h._read_capped(archive, "xl/worksheets/sheet1.xml")
+
+    def test_정상_파일은_그대로_읽힌다(self) -> None:
+        """상한 때문에 멀쩡한 파일이 막히면 안 된다 — XLV 는 그대로 파싱된다."""
+        parsed = h.parse_spdr((FIXTURES / "us_holdings_spdr_xlv.xlsx").read_bytes())
+        self.assertGreater(len(parsed["rows"]), 0)

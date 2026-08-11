@@ -126,6 +126,12 @@ URL_SPDR = (
 )
 URL_ARK = "https://assets.ark-funds.com/fund-documents/funds-etf-csv/{file}.csv"
 
+# 응답·압축해제 크기 상한. 실측 최대는 JNK(채권 1,211종) 의 xlsx 로 원본 약 250 KB,
+# sheet1.xml 해제 후 약 6 MB 다. 여유를 20배 두되 무제한은 두지 않는다 — cron 무인
+# 실행이라 오염된 응답 하나로 서버가 OOM 으로 죽는 걸 막는 게 목적이다.
+MAX_RESPONSE_BYTES = 32 * 1024 * 1024
+MAX_UNZIPPED_BYTES = 128 * 1024 * 1024
+
 _XLSX_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 _RE_COL = re.compile(r"[A-Z]+")
 _RE_SPDR_ASOF = re.compile(r"As of\s+(\d{1,2})-([A-Za-z]{3})-(\d{4})")
@@ -312,10 +318,27 @@ def parse_ark(raw: bytes) -> dict:
     }
 
 
+def _read_capped(archive: zipfile.ZipFile, name: str) -> bytes:
+    """압축 해제 크기를 확인하고 읽는다.
+
+    xlsx 는 zip 이라 작은 응답이 해제되면 수 GB 로 부풀 수 있다(zip bomb).
+    cron 으로 무인 실행되는 수집기라 한 번 터지면 서버가 OOM 으로 죽는다.
+    ZipInfo.file_size 는 헤더에 적힌 값이라 위조될 수 있으니, 읽을 때도
+    상한+1 바이트만 받아 실제 크기로 한 번 더 막는다.
+    """
+    if archive.getinfo(name).file_size > MAX_UNZIPPED_BYTES:
+        raise ValueError(f"{name}: 압축 해제 크기 상한 초과")
+    with archive.open(name) as fp:
+        data = fp.read(MAX_UNZIPPED_BYTES + 1)
+    if len(data) > MAX_UNZIPPED_BYTES:
+        raise ValueError(f"{name}: 압축 해제 크기 상한 초과")
+    return data
+
+
 def _shared_strings(archive: zipfile.ZipFile) -> list[str]:
     try:
-        root = ET.fromstring(archive.read("xl/sharedStrings.xml"))
-    except KeyError:
+        root = ET.fromstring(_read_capped(archive, "xl/sharedStrings.xml"))
+    except (KeyError, ValueError):
         return []
     ns = {"m": _XLSX_NS}
     out = []
@@ -347,8 +370,8 @@ def parse_spdr(raw: bytes) -> dict:
     """
     try:
         archive = zipfile.ZipFile(io.BytesIO(raw))
-        sheet = ET.fromstring(archive.read("xl/worksheets/sheet1.xml"))
-    except (zipfile.BadZipFile, KeyError, ET.ParseError):
+        sheet = ET.fromstring(_read_capped(archive, "xl/worksheets/sheet1.xml"))
+    except (zipfile.BadZipFile, KeyError, ET.ParseError, ValueError):
         return {"asOf": "", "rows": [], "cash": 0.0, "swap": 0.0, "swapNote": "", "other": 0.0, "noTicker": False}
 
     strings = _shared_strings(archive)

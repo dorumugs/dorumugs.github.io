@@ -130,11 +130,21 @@ class Budget:
         return max(0, self.limit - self.used)
 
 
-def fetch(url: str, budget: Budget, referer: str | None = None, tries: int = 3) -> bytes | None:
+def fetch(
+    url: str,
+    budget: Budget,
+    referer: str | None = None,
+    tries: int = 3,
+    max_bytes: int | None = None,
+) -> bytes | None:
     """한 번 받는다. 예산이 없으면 None.
 
     네이버는 간헐적으로 끊는다. 실패를 전체 실행의 실패로 치지 않는다 —
     한 종목의 일봉이 빠지면 그 종목만 판정에서 빠지면 될 일이다.
+
+    max_bytes 를 주면 그 크기를 넘는 응답은 실패로 친다. Content-Length 는
+    안 믿는다(없거나 거짓일 수 있다) — 상한+1 바이트를 실제로 읽어서 판단한다.
+    기본값 None 은 무제한이라, 기존 호출부의 동작은 그대로다.
     """
     if not budget.take():
         return None
@@ -145,7 +155,13 @@ def fetch(url: str, budget: Budget, referer: str | None = None, tries: int = 3) 
         try:
             request = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(request, timeout=20) as response:
-                return response.read()
+                if max_bytes is None:
+                    return response.read()
+                body = response.read(max_bytes + 1)
+                if len(body) > max_bytes:
+                    print(f"    응답이 {max_bytes} 바이트를 넘어 버립니다: {url}", file=sys.stderr)
+                    return None
+                return body
         except (urllib.error.URLError, OSError, TimeoutError):
             if attempt == tries - 1:
                 return None

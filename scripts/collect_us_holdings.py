@@ -58,7 +58,7 @@ def collect_one(ticker: str, name: str, issuer: str, budget: Budget) -> dict | N
     url = h.holdings_url(ticker)
     if url is None:
         return None
-    raw = fetch(url, budget)
+    raw = fetch(url, budget, max_bytes=h.MAX_RESPONSE_BYTES)
     if raw is None:
         return None
     parser = PARSERS[issuer]
