@@ -8,13 +8,13 @@ toc: false
 header:
   image: /assets/images/dashboard-hub/header.svg
   teaser: /assets/images/dashboard-hub/header.svg
-description: "데이터로 보는 대시보드를 모았습니다. 국토교통부 실거래가 435만 건으로 만든 부동산 도구 셋과, 구성·가중치·산식을 전부 공개한 포켓몬 카드 가격지수."
+description: "데이터로 보는 대시보드를 모았습니다. 국토교통부 실거래가 435만 건으로 만든 부동산 도구 셋, 국내 테마·업종 20일 모멘텀과 ETF 연결, 구성·가중치·산식을 전부 공개한 포켓몬 카드 가격지수."
 ---
 
 <link rel="stylesheet" href="{{ '/assets/realestate/hub.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 
 글로 한 번 정리한 주제를 눌러볼 수 있는 화면으로 옮기고 있습니다.
-지금은 수도권 부동산과 포켓몬 카드 시장을 다룹니다.
+지금은 수도권 부동산, 국내 주식 테마, 포켓몬 카드 시장을 다룹니다.
 
 ## 부동산
 
@@ -93,6 +93,28 @@ description: "데이터로 보는 대시보드를 모았습니다. 국토교통�
       <li>현재가 · 현재 최고 호가 · 관측 최고가를 나란히</li>
       <li>세트·시대로 걸러보기, 비싼 순 정렬</li>
       <li>매일 TCGplayer·Cardmarket 시세 자동 갱신</li>
+    </ul>
+    <span class="rh-go">열어보기 →</span>
+  </a>
+
+</div>
+
+## 주식
+
+<div class="rh-grid">
+
+  <a class="rh-card is-live" href="{{ '/dashboard/etf-theme/' | relative_url }}">
+    <span class="rh-badge">쓸 수 있음</span>
+    <h2 class="rh-title">ETF 테마 모멘텀</h2>
+    <p class="rh-desc">
+      국내 테마 <strong>265개</strong>와 업종 <strong>79개</strong>가 최근 20 거래일
+      동안 실제로 오르고 있는지를 구성종목으로 판정하고, 그 흐름을 살 수 있는
+      ETF <strong>1,160개</strong>로 잇습니다.
+    </p>
+    <ul class="rh-points">
+      <li>테마 수익률은 평균이 아니라 <strong>중위값</strong> — 한 종목 급등에 안 흔들립니다</li>
+      <li>상승 종목 비율 · 추세 곧기 · 20일 중앙 거래대금까지 함께</li>
+      <li>판정 조건을 전부 공개합니다. 점수 가중치로 감추지 않습니다</li>
     </ul>
     <span class="rh-go">열어보기 →</span>
   </a>

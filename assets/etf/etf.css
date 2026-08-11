@@ -1,0 +1,298 @@
+/* ETF·테마 20일 모멘텀 대시보드.
+   390px 에서 가로 오버플로가 없어야 한다. 넘치는 건 스크롤 래퍼 안에서만. */
+
+.ef-app { max-width: 100%; overflow-x: hidden; }
+
+/* 테마 main.css 의 HTML5 리셋(`section {display:block}`)이 브라우저 기본
+   `[hidden] {display:none}` 을 이긴다. 그대로 두면 탭이 안 숨겨지고 두 화면이
+   세로로 겹쳐 나온다. 선택자를 더 구체적으로 써서 되돌린다. */
+.ef-app [hidden] { display: none; }
+
+/* --- 시장 온도 ----------------------------------------------------------- */
+
+.ef-market {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 1em 0 0.9em; font-size: 0.82em;
+}
+.ef-stat {
+  flex: 1 1 auto; min-width: 0;
+  border: 1px solid #e2e2e2; border-radius: 8px; background: #fafafa;
+  padding: 8px 11px; line-height: 1.45;
+}
+.ef-stat b { display: block; font-size: 1.25em; font-weight: 700; }
+.ef-stat span { color: #777; }
+
+/* --- 탭 ------------------------------------------------------------------ */
+
+.ef-tabs { display: flex; gap: 6px; margin: 0 0 0.9em; flex-wrap: wrap; }
+.ef-tabs button {
+  flex: 1 1 auto; min-width: 0; cursor: pointer;
+  font-size: 0.88em; padding: 9px 14px;
+  border: 1px solid #d8d8d8; border-radius: 8px; background: #fff; color: #555;
+}
+.ef-tabs button.is-on {
+  background: #2c3e50; border-color: #2c3e50; color: #fff; font-weight: 700;
+}
+
+/* --- 오늘의 후보 --------------------------------------------------------- */
+
+.ef-pick { margin: 0 0 1em; }
+.ef-pick h3 {
+  font-size: 0.95em; margin: 0 0 0.5em; padding: 0;
+  border: 0; color: #2c3e50;
+}
+.ef-pick-empty {
+  font-size: 0.8em; color: #7a5b00; background: #fff8e1;
+  border: 1px solid #f0e0a8; border-radius: 8px;
+  padding: 10px 12px; line-height: 1.6;
+}
+
+/* --- 필터 ---------------------------------------------------------------- */
+
+.ef-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 0.7em; }
+.ef-filters input[type="search"] {
+  flex: 1 1 100%; box-sizing: border-box; font-size: 0.95em;
+  padding: 10px 13px; border: 1px solid #d5d5d5; border-radius: 8px;
+}
+.ef-filters input[type="search"]:focus { outline: 2px solid #2c3e50; outline-offset: -1px; }
+.ef-filters select {
+  font-size: 0.82em; padding: 6px 8px; max-width: 100%;
+  border: 1px solid #d5d5d5; border-radius: 6px; background: #fff;
+  flex: 1 1 auto; min-width: 0;
+}
+
+.ef-check {
+  display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: #555;
+  flex: 1 1 auto; min-width: 0; white-space: nowrap;
+  border: 1px solid #d5d5d5; border-radius: 6px; padding: 6px 9px; background: #fff;
+  cursor: pointer;
+}
+.ef-check input { margin: 0; }
+
+.ef-count { font-size: 0.8em; color: #777; margin: 0 0 0.6em; }
+
+/* 두 시간축을 나란히. 20일은 대세를 보는 배경, 10일은 실제 보유 구간이다. */
+.ef-heads { display: flex; gap: 14px; margin: 2px 0 5px; }
+.ef-head { display: flex; flex-direction: column; min-width: 0; }
+.ef-head i { font-style: normal; font-size: 0.66em; color: #999; }
+.ef-head b { font-size: 1.1em; font-weight: 700; white-space: nowrap; }
+
+/* 손절·기대폭·손익비. 이게 있어야 주문을 낼 수 있다. */
+.ef-swing {
+  display: flex; flex-wrap: wrap; gap: 3px 12px;
+  font-size: 0.73em; color: #777; line-height: 1.5;
+  border-top: 1px dashed #ececec; border-bottom: 1px dashed #ececec;
+  padding: 5px 0; margin: 5px 0;
+}
+.ef-swing em { font-style: normal; font-weight: 700; color: #444; }
+
+.ef-plan-title {
+  font-size: 0.86em; margin: 1.1em 0 0.4em; padding: 0; border: 0; color: #2c3e50;
+}
+.ef-plan { margin: 0; font-size: 0.78em; }
+.ef-plan dt { color: #888; margin-top: 8px; }
+.ef-plan dd { margin: 1px 0 0; }
+.ef-plan dd b { font-size: 1.15em; color: #222; }
+.ef-plan dd span { display: block; color: #888; line-height: 1.55; margin-top: 1px; }
+
+/* --- 카드 ---------------------------------------------------------------- */
+
+.ef-grid {
+  display: grid; gap: 9px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 620px) { .ef-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .ef-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+.ef-card {
+  border: 1px solid #e4e4e4; border-radius: 10px; background: #fff;
+  padding: 11px 12px; cursor: pointer; text-align: left; width: 100%;
+  display: block; font: inherit; color: inherit;
+  min-width: 0; overflow: hidden;
+}
+.ef-card:hover { border-color: #b9c6d2; background: #fcfdff; }
+.ef-card:focus-visible { outline: 2px solid #2c3e50; outline-offset: 1px; }
+
+.ef-card-top {
+  display: flex; align-items: baseline; gap: 7px; margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+.ef-name {
+  font-weight: 700; font-size: 0.92em; line-height: 1.35;
+  flex: 1 1 60%; min-width: 0; word-break: break-word;
+}
+.ef-r20 { font-size: 1.15em; font-weight: 700; white-space: nowrap; }
+
+.ef-up { color: #c0392b; }     /* 국내 관행: 상승 빨강 */
+.ef-down { color: #2471c4; }
+.ef-flat { color: #888; }
+
+.ef-sub {
+  font-size: 0.74em; color: #777; line-height: 1.55;
+  display: flex; flex-wrap: wrap; gap: 4px 10px;
+}
+.ef-sub em { font-style: normal; color: #444; }
+
+.ef-spark { display: block; width: 100%; height: 30px; margin: 6px 0 5px; }
+
+/* 상승 종목 비율 막대. 숫자만으로는 감이 안 온다. */
+.ef-breadth { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+.ef-breadth-bar {
+  flex: 1 1 auto; height: 5px; border-radius: 3px; background: #ececec;
+  overflow: hidden; min-width: 0;
+}
+.ef-breadth-bar i { display: block; height: 100%; background: #c0392b; }
+.ef-breadth span { font-size: 0.72em; color: #777; white-space: nowrap; }
+
+/* --- 등급 배지 ----------------------------------------------------------- */
+
+.ef-badge {
+  display: inline-block; font-size: 0.68em; font-weight: 700;
+  padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid transparent;
+}
+/* 눌림매수를 진한 색(최상위)으로 뒀다가 같은 급으로 낮췄다. 검증에서 절대
+   수익은 가장 높았지만 **시장 대비로는 −0.07%** 였다. 배지가 성적보다 세게
+   보이면 그 자체가 오해를 만든다. 추세진행과 같은 톤으로 두고 이름으로만 구분한다. */
+.ef-g-눌림매수 { background: #e8f1e9; color: #16704a; border-color: #c2ddc9; }
+.ef-g-추세진행 { background: #e3f4ea; color: #16704a; border-color: #b9dfc9; }
+.ef-g-과열주의 { background: #fdf0e2; color: #9a5b12; border-color: #f0d3ae; }
+.ef-g-약세 { background: #f1f1f1; color: #777; border-color: #e0e0e0; }
+.ef-g-유동성부족 { background: #f7f2f2; color: #9a6b6b; border-color: #e8dada; }
+.ef-g-금리형 { background: #f4f4f7; color: #777; border-color: #e2e2ea; }
+.ef-g-판정불가 { background: #f4f4f7; color: #999; border-color: #e6e6ec; }
+
+.ef-tagrow { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.ef-tag {
+  font-size: 0.68em; color: #666; background: #f4f4f4;
+  border-radius: 4px; padding: 2px 6px; white-space: nowrap;
+}
+.ef-tag.is-warn { background: #fdf3e3; color: #8a5a12; }
+
+.ef-more { text-align: center; margin: 1em 0; }
+.ef-more button {
+  font-size: 0.85em; padding: 8px 22px; cursor: pointer;
+  border: 1px solid #d3d3d3; border-radius: 8px; background: #fff; color: #444;
+}
+
+/* --- 상세 패널 ----------------------------------------------------------- */
+
+.ef-panel {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(20, 24, 28, 0.45);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+@media (min-width: 620px) { .ef-panel { align-items: center; } }
+
+.ef-panel-inner {
+  position: relative; background: #fff; width: 100%; max-width: 640px;
+  max-height: 86vh; overflow-y: auto; overflow-x: hidden;
+  border-radius: 14px 14px 0 0; padding: 16px 16px 22px;
+}
+@media (min-width: 620px) { .ef-panel-inner { border-radius: 14px; } }
+
+.ef-panel-inner h2 {
+  font-size: 1.02em; margin: 0 34px 0.2em 0; padding: 0; border: 0;
+  line-height: 1.4; word-break: break-word;
+}
+.ef-panel-close {
+  position: absolute; top: 10px; right: 10px;
+  width: 30px; height: 30px; cursor: pointer; font-size: 0.9em;
+  border: 1px solid #dcdcdc; border-radius: 8px; background: #fff; color: #666;
+}
+
+.ef-why { margin: 0.7em 0 1em; padding: 0; list-style: none; font-size: 0.8em; }
+.ef-why li {
+  padding: 5px 0 5px 16px; position: relative; color: #444; line-height: 1.55;
+  border-bottom: 1px solid #f1f1f1;
+}
+.ef-why li::before { content: "·"; position: absolute; left: 4px; color: #999; }
+
+/* 표는 자체 스크롤 안에서만 넘친다. 페이지 몸통은 절대 가로로 안 넘친다. */
+.ef-tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0.5em 0 0; }
+.ef-table { width: 100%; border-collapse: collapse; font-size: 0.78em; min-width: 320px; }
+.ef-table th, .ef-table td {
+  padding: 6px 8px; border-bottom: 1px solid #eee; text-align: right;
+  white-space: nowrap;
+}
+.ef-table th { color: #777; font-weight: 600; background: #fafafa; }
+.ef-table th:first-child, .ef-table td:first-child {
+  text-align: left; white-space: normal; word-break: break-word; min-width: 8em;
+}
+
+.ef-note { font-size: 0.76em; color: #888; margin: 0.9em 0 0; line-height: 1.6; }
+
+/* --- 검증 결과 ----------------------------------------------------------- */
+
+.ef-backtest { margin: 0.6em 0 1.4em; }
+.ef-backtest .ef-table td:first-child { min-width: 6em; }
+.ef-backtest .ef-baseline td { background: #fafafa; color: #777; font-style: italic; }
+
+/* 등급 옆 성적표. 배지를 근거로 착각하지 않게 하는 자리다. */
+.ef-record {
+  font-size: 0.76em; line-height: 1.6; margin: 0.9em 0 0;
+  border: 1px solid #e2e2e2; border-radius: 8px; background: #fafafa;
+  padding: 9px 11px;
+}
+.ef-record.is-warn { background: #fdf3e3; border-color: #f0d3ae; }
+.ef-record b { color: #333; }
+.ef-record > b { display: block; margin-bottom: 3px; color: #2c3e50; }
+.ef-record span { display: block; color: #777; }
+.ef-record-note { margin-top: 4px; color: #8a5a12 !important; }
+
+.ef-disclaimer {
+  font-size: 0.76em; color: #666; background: #f7f7f7;
+  border: 1px solid #e6e6e6; border-radius: 8px;
+  padding: 11px 13px; line-height: 1.7; margin: 1.6em 0 0;
+}
+
+.ef-error {
+  font-size: 0.85em; color: #8a2b2b; background: #fdf0f0;
+  border: 1px solid #f0d0d0; border-radius: 8px; padding: 11px 13px;
+}
+
+/* --- 테마·업종 표 --------------------------------------------------------- */
+
+.ef-tbl-title {
+  font-size: 0.95em; margin: 1.4em 0 0.5em; padding: 0; border: 0; color: #2c3e50;
+}
+.ef-tbl-title .ef-count { font-weight: 400; margin: 0 0 0 6px; }
+
+/* 265개를 훑어야 하므로 줄 높이를 줄이고, 이름 칸만 넉넉히 준다. */
+.ef-grouptable { min-width: 560px; }
+.ef-grouptable td { padding: 7px 8px; }
+.ef-grouptable .ef-rowname {
+  font-weight: 600; color: #222; min-width: 9em; max-width: 14em;
+}
+.ef-row { cursor: pointer; }
+.ef-row:hover td { background: #f6f9fc; }
+.ef-row:focus-visible { outline: 2px solid #2c3e50; outline-offset: -2px; }
+
+/* 표 안의 배지·딱지는 줄 높이를 밀지 않게 줄인다. */
+.ef-table .ef-badge { font-size: 0.9em; padding: 1px 6px; }
+.ef-table .ef-tag { font-size: 0.9em; }
+.ef-table i { font-style: normal; color: #999; font-size: 0.88em; }
+
+/* --- 매물대 -------------------------------------------------------------- */
+
+.ef-supply { border-top: 0; margin-top: 0; padding-top: 0; }
+.ef-supply i { font-style: normal; }
+
+/* 가격이 세로축, 위가 비싼 쪽. 막대 길이가 그 가격대에서 거래된 양이다. */
+.ef-profile { display: flex; gap: 8px; align-items: stretch; margin: 0.5em 0 0.2em; flex-wrap: wrap; }
+.ef-profile svg {
+  flex: 1 1 auto; min-width: 0; height: 190px;
+  background: #fbfbfb; border: 1px solid #eee; border-radius: 6px;
+}
+.ef-profile-axis {
+  display: flex; flex-direction: column; justify-content: space-between;
+  font-size: 0.68em; color: #999; padding: 2px 0; white-space: nowrap;
+}
+.ef-profile .ef-note { flex: 1 1 100%; margin-top: 4px; }
+
+/* 위험금액 입력. 이 값 하나로 카드마다 살 수량이 정해진다. */
+.ef-risk-box { flex: 1 1 100%; gap: 7px; }
+.ef-risk-box input {
+  width: 7.5em; font-size: 1em; padding: 3px 6px;
+  border: 1px solid #d5d5d5; border-radius: 5px; text-align: right;
+}

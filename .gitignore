@@ -48,3 +48,8 @@ __pycache__/
 
 # Superpowers 브레인스토밍 목업 (로컬 전용)
 .superpowers/
+
+# ETF·테마 일봉 캐시. 5,600심볼 × 130거래일이라 gzip 6MB 다. 매일 커밋하면
+# 1년에 2GB 가 쌓인다. 2분이면 다시 받는 재생성 캐시라 저장소에 넣지 않는다.
+# 커밋하는 건 집계 결과(assets/etf/*.json) 뿐이다.
+data/stocks/
