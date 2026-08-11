@@ -1066,34 +1066,66 @@
 
   /* 미국 ETF 구성종목. 국내 표(holdingsTable)를 그대로 못 쓴다 — 국내는 20일
      수익률 칸이 있지만 미국 구성종목은 발행사 CSV/xlsx 에 그 값이 없다.
-     종목명·티커·비중만 확실하다. */
+     종목명·티커·비중만 확실하다.
+
+     레버리지 상품(SOXL 등)은 스왑으로 배수를 만든다 — swap 이 있으면 그
+     비중을 표 아래 그대로 적는다. 표에 실린 건 "주식 몇 %" 뿐인데 그게
+     펀드 전체라고 오해하면 안 되기 때문이다(72% 만 보고 "현금 많은
+     펀드"로 착각하는 게 실제로 있었던 버그다).
+
+     BIL·JNK 같은 채권형은 noTicker=true 로 온다 — 개별 채권에 주식 티커가
+     없는 게 정상이라 티커 칸 자체를 빼고 보여준다. */
   function usHoldingsTable(row) {
     var entry = state.usHoldings ? state.usHoldings[row.ticker] : null;
-    if (!entry || (!entry.rows.length && !entry.cash)) {
+    var hasData = entry && (entry.rows.length || entry.cash || entry.swap || entry.other);
+    if (!hasData) {
       var issuer = (entry && entry.issuer) || issuerGuess(row.name);
       return '<h3 class="ef-plan-title">구성종목</h3>' +
         '<p class="ef-note">구성종목을 받지 못했습니다' +
         (issuer ? ' (' + escapeHtml(issuer) + ')' : '') + '. 확인된 발행사(Direxion·ARK·SPDR)' +
         '가 아니거나, 발행사가 그날 파일을 아직 안 올린 경우입니다.</p>';
     }
+    var title = '<h3 class="ef-plan-title">구성종목 · ' + escapeHtml(entry.issuer || '') +
+      (entry.asOf ? ' · ' + prettyDate(entry.asOf) + ' 기준' : '') + '</h3>';
+    var countTail = entry.count > entry.rows.length
+      ? ' · 상위 ' + entry.rows.length + '/' + entry.count + '종목만 놓았습니다' : '';
+
+    if (entry.noTicker) {
+      var bondBody = entry.rows.map(function (r) {
+        return '<tr><td>' + escapeHtml(r.name) + '</td><td>' + r.weight.toFixed(2) + '%</td></tr>';
+      }).join('');
+      return title +
+        '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
+        '<th>종목명</th><th>비중</th></tr></thead><tbody>' + bondBody + '</tbody></table></div>' +
+        '<p class="ef-note">채권형이라 개별 종목 티커가 없습니다' + countTail + '.</p>';
+    }
+
     var body = entry.rows.map(function (r) {
       return '<tr><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.ticker) + '</td>' +
         '<td>' + r.weight.toFixed(2) + '%</td></tr>';
     }).join('');
-    var cashNote = entry.cash > 0
-      ? '<p class="ef-note">현금·기타 ' + entry.cash.toFixed(1) + '%' +
-        (entry.count > entry.rows.length
-          ? ' · 상위 ' + entry.rows.length + '/' + entry.count + '종목만 놓았습니다' : '') +
-        '</p>'
-      : (entry.count > entry.rows.length
-          ? '<p class="ef-note">상위 ' + entry.rows.length + '/' + entry.count + '종목만 놓았습니다.</p>' : '');
-    return '<h3 class="ef-plan-title">구성종목 · ' + escapeHtml(entry.issuer || '') +
-      (entry.asOf ? ' · ' + prettyDate(entry.asOf) + ' 기준' : '') + '</h3>' +
+    var swap = entry.swap || 0;
+    var cash = entry.cash || 0;
+    var other = entry.other || 0;
+    var note;
+    if (swap > 0) {
+      var levTxt = Math.abs(row.lev) + '배';
+      note = '<p class="ef-note">지수 스왑 ' + swap.toFixed(1) + '%' +
+        (entry.swapNote ? '(' + escapeHtml(entry.swapNote) + ')' : '') +
+        ' · 현금성 ' + cash.toFixed(1) + '%' +
+        (other > 0 ? ' · 기타(펀드 자체 명목가치) ' + other.toFixed(1) + '%' : '') +
+        ' — ' + levTxt + '는 주식만으로 만들지 않고 스왑으로 채웁니다' + countTail + '.</p>';
+    } else if (cash > 0 || other > 0) {
+      note = '<p class="ef-note">현금·기타 ' + (cash + other).toFixed(1) + '%' + countTail + '</p>';
+    } else if (countTail) {
+      note = '<p class="ef-note">' + countTail.replace(/^ · /, '') + '.</p>';
+    } else {
+      note = '';
+    }
+    return title +
       '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
       '<th>종목명</th><th>티커</th><th>비중</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
-      cashNote +
-      '<p class="ef-note">레버리지 상품은 스왑으로 배수를 만들어 개별 종목 비중 합이 100% 에 못 미칠 수 있습니다. ' +
-      '남는 부분이 위 현금·기타입니다.</p>';
+      note;
   }
 
   function openPanel(kind, code) {

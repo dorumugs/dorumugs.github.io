@@ -108,7 +108,9 @@ def build_holdings(universe: list[dict]) -> dict:
 
     data/stocks/us_holdings.json.gz(collect_us_holdings.py 가 채운다)를 그대로
     내보내지 않는다 — 종목마다 30~60줄이라 192개 다 합치면 화면이 안 쓰는 무게가
-    된다. 카드 하나가 보여줄 상위 25개 + 현금만 남긴다.
+    된다. 카드 하나가 보여줄 상위 25개(rows)만 자르고, cash·swap·swapNote·
+    other·noTicker 는 통째로 넘긴다 — 이 넷은 배열이 아니라 스칼라라 무겁지
+    않고, 레버리지 상품의 스왑 비중을 화면에서 보여주려면 다 있어야 한다.
 
     발행사를 아는데(ISSUER_BY_TICKER) 캐시에 없는 티커는 빈 항목으로 넣어 둔다 —
     그래야 화면이 "아직 못 받음" 과 "애초에 발행사를 모름" 을 구별할 수 있다.
@@ -125,7 +127,9 @@ def build_holdings(universe: list[dict]) -> dict:
         if not entry:
             out[ticker] = {
                 "issuer": hapi.ISSUER_BY_TICKER[ticker],
-                "asOf": "", "rows": [], "cash": 0.0, "count": 0,
+                "asOf": "", "rows": [], "cash": 0.0,
+                "swap": 0.0, "swapNote": "", "other": 0.0, "noTicker": False,
+                "count": 0,
             }
             continue
         rows = entry.get("rows") or []
@@ -134,6 +138,10 @@ def build_holdings(universe: list[dict]) -> dict:
             "asOf": entry.get("asOf", ""),
             "rows": rows[:HOLDINGS_TOP_N],
             "cash": entry.get("cash", 0.0),
+            "swap": entry.get("swap", 0.0),
+            "swapNote": entry.get("swapNote", ""),
+            "other": entry.get("other", 0.0),
+            "noTicker": entry.get("noTicker", False),
             "count": len(rows),
         }
     return out

@@ -66,12 +66,19 @@ def collect_one(ticker: str, name: str, issuer: str, budget: Budget) -> dict | N
         parsed = parser(raw)
     except Exception:  # noqa: BLE001 — 발행사 파일 포맷이 어떻게 깨질지 모른다
         return None
-    if not parsed["rows"] and not parsed["cash"]:
+    # 스왑·기타도 "받은 데이터" 다 — 인버스·채권 레버리지 상품(TZA·TMF 등)은
+    # 개별 종목·현금이 거의 없고 스왑뿐이라, rows·cash 만 보면 아무것도 못 받은
+    # 걸로 착각해 통째로 버리게 된다.
+    if not parsed["rows"] and not parsed["cash"] and not parsed.get("swap") and not parsed.get("other"):
         return None
     lev = leverage_of(name)
-    if not h.total_weight_ok(parsed["rows"], parsed["cash"], leverage=lev):
-        total = h.total_weight(parsed["rows"], parsed["cash"])
-        print(f"    {ticker}: 비중 합 {total:.1f}% — 95~105%×{max(1, abs(lev)):.0f} 범위 밖", file=sys.stderr)
+    swap = parsed.get("swap", 0.0)
+    other = parsed.get("other", 0.0)
+    # 범위 밖이어도 데이터는 그대로 쓴다 — 로그만 남긴다. 잘못 잡은 임계값 때문에
+    # 멀쩡한 펀드가 조용히 사라지면 빈 표보다 못한 결과가 된다.
+    if not h.total_weight_ok(parsed["rows"], parsed["cash"], swap, other, leverage=lev):
+        total = h.total_weight(parsed["rows"], parsed["cash"], swap, other)
+        print(f"    {ticker}: 비중 합 {total:.1f}% — 80~130%×{max(1, abs(lev)):.0f} 범위 밖", file=sys.stderr)
     parsed["issuer"] = issuer
     parsed["fetchedDate"] = date.today().isoformat()
     return parsed
