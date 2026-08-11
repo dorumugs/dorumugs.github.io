@@ -36,7 +36,9 @@ DATA = REPO / "data" / "stocks"
 OUT = REPO / "assets" / "etf"
 
 BARS_FILE = DATA / "us_bars.csv.gz"
+HOLDINGS_FILE = DATA / "us_holdings.json.gz"
 INDEX_KEY = "SPX"
+HOLDINGS_TOP_N = 25
 
 # 레버리지·인버스 판별. 국내는 이름에 '레버리지' 가 박혀 있지만 미국은 영어다.
 LEV_WORDS = {
@@ -99,6 +101,42 @@ def fx_return(fx: dict[str, float], dates: list[str], span: int) -> float | None
     if not now or not past:
         return None
     return now / past - 1
+
+
+def build_holdings(universe: list[dict]) -> dict:
+    """assets/etf/us_holdings.json 에 쓸 모양으로 다듬는다.
+
+    data/stocks/us_holdings.json.gz(collect_us_holdings.py 가 채운다)를 그대로
+    내보내지 않는다 — 종목마다 30~60줄이라 192개 다 합치면 화면이 안 쓰는 무게가
+    된다. 카드 하나가 보여줄 상위 25개 + 현금만 남긴다.
+
+    발행사를 아는데(ISSUER_BY_TICKER) 캐시에 없는 티커는 빈 항목으로 넣어 둔다 —
+    그래야 화면이 "아직 못 받음" 과 "애초에 발행사를 모름" 을 구별할 수 있다.
+    """
+    import us_holdings_api as hapi  # noqa: PLC0415 — main() 에서만 쓰는 지연 임포트
+
+    cache = b.read_json_gz(HOLDINGS_FILE) or {}
+    out: dict[str, dict] = {}
+    for item in universe:
+        ticker = item["ticker"]
+        if ticker not in hapi.ISSUER_BY_TICKER:
+            continue  # 발행사를 모른다 — 화면에 항목 자체를 안 만든다
+        entry = cache.get(ticker)
+        if not entry:
+            out[ticker] = {
+                "issuer": hapi.ISSUER_BY_TICKER[ticker],
+                "asOf": "", "rows": [], "cash": 0.0, "count": 0,
+            }
+            continue
+        rows = entry.get("rows") or []
+        out[ticker] = {
+            "issuer": entry.get("issuer", hapi.ISSUER_BY_TICKER[ticker]),
+            "asOf": entry.get("asOf", ""),
+            "rows": rows[:HOLDINGS_TOP_N],
+            "cash": entry.get("cash", 0.0),
+            "count": len(rows),
+        }
+    return out
 
 
 def main() -> int:
@@ -201,11 +239,20 @@ def main() -> int:
         encoding="utf-8",
     )
 
+    holdings = build_holdings(universe)
+    (OUT / "us_holdings.json").write_text(
+        json.dumps(holdings, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    have = sum(1 for v in holdings.values() if v["rows"] or v["cash"])
+
     lev3 = sum(1 for r in rows if abs(r["lev"]) >= 3)
     print(f"미국 ETF {len(rows)}개 · 기준 {base_date} · 환율 {rate:,.2f}원 ({max(fx)})")
     print(f"  S&P500 20일 {bench_r20:+.2%} · 국면 {regime['label']} · 3배 레버리지 {lev3}개")
     print("  등급: " + ", ".join(f"{g} {grades[g]}" for g in b.GRADE_ORDER if grades.get(g)))
     print(f"  assets/etf/us.json  {(OUT / 'us.json').stat().st_size / 1024:.0f}KB")
+    print(f"  구성종목 {have}/{len(holdings)}개 발행사 확인 종목 중 보유 · "
+          f"assets/etf/us_holdings.json {(OUT / 'us_holdings.json').stat().st_size / 1024:.0f}KB")
     return 0
 
 

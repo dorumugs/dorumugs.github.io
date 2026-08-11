@@ -26,6 +26,7 @@
     upjongShown: GROUP_PAGE,
     risk: 300000,
     us: null,
+    usHoldings: null,
     usShown: PAGE,
     basket: [],
     corr: null,
@@ -1052,6 +1053,49 @@
       items.map(function (i) { return '<span>· ' + i + '</span>'; }).join('') + '</div>';
   }
 
+  /* 발행사 이름 짐작. us_holdings.json 에 없는(=수집 대상이 아닌) ETF 라도
+     '누가 운용하는지' 는 종목명 앞부분으로 알려줄 수 있다 — 빈 표만 던지는 것보다
+     낫다. 어차피 안내문일 뿐이라 완벽할 필요는 없다. */
+  function issuerGuess(name) {
+    var TWO_WORD = ['Global X', 'State Street', 'First Trust', 'JPMorgan Equity'];
+    for (var i = 0; i < TWO_WORD.length; i++) {
+      if (name.indexOf(TWO_WORD[i]) === 0) { return TWO_WORD[i]; }
+    }
+    return (name.split(' ')[0] || '').replace(/^i?Shares$/i, 'iShares');
+  }
+
+  /* 미국 ETF 구성종목. 국내 표(holdingsTable)를 그대로 못 쓴다 — 국내는 20일
+     수익률 칸이 있지만 미국 구성종목은 발행사 CSV/xlsx 에 그 값이 없다.
+     종목명·티커·비중만 확실하다. */
+  function usHoldingsTable(row) {
+    var entry = state.usHoldings ? state.usHoldings[row.ticker] : null;
+    if (!entry || (!entry.rows.length && !entry.cash)) {
+      var issuer = (entry && entry.issuer) || issuerGuess(row.name);
+      return '<h3 class="ef-plan-title">구성종목</h3>' +
+        '<p class="ef-note">구성종목을 받지 못했습니다' +
+        (issuer ? ' (' + escapeHtml(issuer) + ')' : '') + '. 확인된 발행사(Direxion·ARK·SPDR)' +
+        '가 아니거나, 발행사가 그날 파일을 아직 안 올린 경우입니다.</p>';
+    }
+    var body = entry.rows.map(function (r) {
+      return '<tr><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.ticker) + '</td>' +
+        '<td>' + r.weight.toFixed(2) + '%</td></tr>';
+    }).join('');
+    var cashNote = entry.cash > 0
+      ? '<p class="ef-note">현금·기타 ' + entry.cash.toFixed(1) + '%' +
+        (entry.count > entry.rows.length
+          ? ' · 상위 ' + entry.rows.length + '/' + entry.count + '종목만 놓았습니다' : '') +
+        '</p>'
+      : (entry.count > entry.rows.length
+          ? '<p class="ef-note">상위 ' + entry.rows.length + '/' + entry.count + '종목만 놓았습니다.</p>' : '');
+    return '<h3 class="ef-plan-title">구성종목 · ' + escapeHtml(entry.issuer || '') +
+      (entry.asOf ? ' · ' + prettyDate(entry.asOf) + ' 기준' : '') + '</h3>' +
+      '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
+      '<th>종목명</th><th>티커</th><th>비중</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+      cashNote +
+      '<p class="ef-note">레버리지 상품은 스왑으로 배수를 만들어 개별 종목 비중 합이 100% 에 못 미칠 수 있습니다. ' +
+      '남는 부분이 위 현금·기타입니다.</p>';
+  }
+
   function openPanel(kind, code) {
     var panel = $('ef-panel');
     var title = $('ef-panel-title');
@@ -1065,8 +1109,14 @@
 
     title.innerHTML = (kind === 'us' ? escapeHtml(row.ticker) + ' · ' : '') +
       escapeHtml(row.name) + ' ' + badge(row.grade);
+    // 미국 ETF 는 구성종목을 애초에 못 받은 채로 등급을 매긴다(build_us_etf.py 가
+    // breadth_ok 를 항상 true 로 둔다) — 그래서 나온 '구성종목 다수가 상승' 은
+    // 확인 안 된 근거다. 국내와 달리 실제로 아는 게 없으니 문구를 빼고 보여준다.
+    var reasons = kind === 'us'
+      ? row.reasons.filter(function (r) { return r.indexOf('구성종목') < 0; })
+      : row.reasons;
     var head = '<ul class="ef-why">' +
-      row.reasons.map(function (r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') +
+      reasons.map(function (r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') +
       '</ul>' + (kind === 'us' ? usNotes(row) : gradeRecord(row.grade)) +
       tradePlan(row, kind === 'us' ? 'etf' : kind) +
       (kind === 'etf'
@@ -1078,7 +1128,7 @@
     document.body.style.overflow = 'hidden';
 
     if (kind === 'us') {
-      body.innerHTML = head + supplySection(row);
+      body.innerHTML = head + supplySection(row) + usHoldingsTable(row);
       return;
     }
     loadDetails().then(function (d) {
@@ -1217,7 +1267,8 @@
   Promise.all([
     fetchJson('meta'), fetchJson('etfs'), fetchJson('groups'),
     fetchJson('backtest').catch(function () { return null; }),
-    fetchJson('us').catch(function () { return null; })
+    fetchJson('us').catch(function () { return null; }),
+    fetchJson('us_holdings').catch(function () { return null; })
   ])
     .then(function (res) {
       state.meta = res[0];
@@ -1225,6 +1276,7 @@
       state.groups = res[2];
       state.backtest = res[3];
       state.us = res[4];
+      state.usHoldings = res[5] || {};
 
       var etfGrades = GRADE_ORDER.filter(function (g) {
         return state.etfs.some(function (r) { return r.grade === g; });
