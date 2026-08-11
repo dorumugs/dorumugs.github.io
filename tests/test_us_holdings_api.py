@@ -10,6 +10,7 @@ import io
 import pathlib
 import sys
 import unittest
+from datetime import date
 import zipfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
@@ -247,3 +248,142 @@ class ZipBombGuardTest(unittest.TestCase):
         """상한 때문에 멀쩡한 파일이 막히면 안 된다 — XLV 는 그대로 파싱된다."""
         parsed = h.parse_spdr((FIXTURES / "us_holdings_spdr_xlv.xlsx").read_bytes())
         self.assertGreater(len(parsed["rows"]), 0)
+
+
+class IsharesTest(unittest.TestCase):
+    """iShares — 주식형(SOXX)과 채권형(TLT)의 열 구성이 다르다."""
+
+    def test_주식형은_티커와_비중을_읽는다(self) -> None:
+        p = h.parse_ishares(load("us_holdings_ishares_soxx.csv"))
+        self.assertEqual(p["asOf"], "2026-08-10")
+        self.assertFalse(p["noTicker"])
+        self.assertEqual(len(p["rows"]), 34)
+        self.assertEqual(p["rows"][0]["ticker"], "NVDA")
+        self.assertAlmostEqual(sum(r["weight"] for r in p["rows"]), 99.99, places=1)
+
+    def test_채권형은_티커_열이_없다(self) -> None:
+        """TLT 는 Ticker 열 자체가 없다. 없다고 현금으로 쓸어담으면 안 된다."""
+        p = h.parse_ishares(load("us_holdings_ishares_tlt.csv"))
+        self.assertTrue(p["noTicker"])
+        self.assertEqual(p["cash"], 0.0)
+        self.assertEqual(len(p["rows"]), 48)
+        self.assertEqual(p["rows"][0]["name"], "TREASURY BOND")
+        self.assertTrue(all(r["ticker"] == "" for r in p["rows"]))
+
+    def test_헤더를_못_찾으면_빈_결과(self) -> None:
+        self.assertEqual(h.parse_ishares(b"<!DOCTYPE html><html></html>")["rows"], [])
+
+
+class GlobalxTest(unittest.TestCase):
+    def test_비중_티커_이름을_읽는다(self) -> None:
+        p = h.parse_globalx(load("us_holdings_globalx_lit.csv"))
+        self.assertEqual(p["asOf"], "2026-08-10")
+        self.assertEqual(len(p["rows"]), 41)
+        self.assertAlmostEqual(sum(r["weight"] for r in p["rows"]), 99.98, places=1)
+
+    def test_해외상장_티커의_접미를_안_뗀다(self) -> None:
+        """'ERA FP' 에서 ' FP' 를 떼면 미국 티커와 충돌해 엉뚱한 회사가 된다."""
+        p = h.parse_globalx(load("us_holdings_globalx_lit.csv"))
+        self.assertTrue(any(" " in r["ticker"] for r in p["rows"]))
+
+    def test_URL_은_최신_날짜부터_나열한다(self) -> None:
+        urls = h.globalx_urls("LIT", date(2026, 8, 12), back=2)
+        self.assertEqual(len(urls), 3)
+        self.assertIn("lit_full-holdings_20260812.csv", urls[0])
+        self.assertIn("lit_full-holdings_20260810.csv", urls[2])
+        self.assertEqual(h.globalx_urls("SPY", date(2026, 8, 12)), [])
+
+
+class VanguardTest(unittest.TestCase):
+    def test_주식형은_티커와_비중을_읽는다(self) -> None:
+        p = h.parse_vanguard(load("us_holdings_vanguard_voo.json"))
+        self.assertEqual(p["asOf"], "2026-06-30")
+        self.assertFalse(p["noTicker"])
+        self.assertEqual(p["rows"][0]["ticker"], "NVDA")
+
+    def test_한_장만_받아도_진짜_종목수를_남긴다(self) -> None:
+        """500행 상한이라 받은 줄 수가 종목 수가 아니다 — 화면이 거짓말하면 안 된다."""
+        p = h.parse_vanguard(load("us_holdings_vanguard_voo.json"))
+        self.assertEqual(p["totalCount"], 504)
+        self.assertLess(len(p["rows"]), p["totalCount"])
+
+    def test_채권형은_티커를_통째로_버린다(self) -> None:
+        """채권 원장의 ticker 는 발행사의 '주식' 티커라 그대로 쓰면 오해를 만든다."""
+        p = h.parse_vanguard(load("us_holdings_vanguard_bnd.json"), bond=True)
+        self.assertTrue(p["noTicker"])
+        self.assertTrue(all(r["ticker"] == "" for r in p["rows"]))
+        self.assertEqual(p["totalCount"], 10065)
+
+    def test_JSON_이_아니면_빈_결과(self) -> None:
+        self.assertEqual(h.parse_vanguard(b"<html>nope</html>")["rows"], [])
+
+
+class ProsharesTest(unittest.TestCase):
+    """전 종목 단일 파일. 비중 열이 없어 금액에서 만든다 — 분모가 핵심이다."""
+
+    def setUp(self) -> None:
+        self.all = h.parse_proshares_all(load("us_holdings_proshares_daily.csv"))
+
+    def test_펀드별로_갈라진다(self) -> None:
+        self.assertEqual(sorted(self.all), ["NOBL", "SQQQ", "TQQQ", "UVXY"])
+        self.assertEqual(self.all["TQQQ"]["asOf"], "2026-08-10")
+
+    def test_UVXY_선물이_정확히_1점5배로_떨어진다(self) -> None:
+        """분모를 Exposure 합으로 잡으면 이 값이 안 나온다 — NAV 는 Market Value 합이다."""
+        p = self.all["UVXY"]
+        self.assertAlmostEqual(p["swap"], 150.0, places=1)
+
+    def test_선물을_현금으로_세지_않는다(self) -> None:
+        """VIX 선물을 현금에 넣으면 '현금 100% 펀드' 라는 거짓 화면이 된다."""
+        p = self.all["UVXY"]
+        self.assertLess(p["cash"], 25.0)
+        self.assertEqual(p["rows"], [])
+
+    def test_TQQQ_는_주식과_스왑을_함께_든다(self) -> None:
+        p = self.all["TQQQ"]
+        self.assertGreater(p["swap"], 200.0)
+        self.assertGreater(len(p["rows"]), 50)
+        self.assertIn("NASDAQ 100", p["swapNote"])
+
+    def test_인버스는_스왑이_음수다(self) -> None:
+        self.assertLess(self.all["SQQQ"]["swap"], -200.0)
+
+    def test_레버리지_아닌_상품은_스왑이_없다(self) -> None:
+        p = self.all["NOBL"]
+        self.assertEqual(p["swap"], 0.0)
+        self.assertAlmostEqual(sum(r["weight"] for r in p["rows"]), 99.9, places=0)
+
+    def test_NAV_잔여항목은_개별_칸으로_안_센다(self) -> None:
+        """'Net Other Assets' 는 분모에만 들어간다 — 현금에 또 더하면 이중계상이다."""
+        for p in self.all.values():
+            self.assertNotIn("Net Other Assets", p["swapNote"])
+            names = [r["name"] for r in p["rows"]]
+            self.assertFalse(any("Net Other Assets" in n for n in names))
+
+
+class InverseValidityTest(unittest.TestCase):
+    def test_인버스는_비중합을_검사하지_않는다(self) -> None:
+        """부호 섞인 합은 배수와 무관하다 — 여기에 임계값을 맞추면 진짜 오류를 놓친다."""
+        rows = [{"ticker": "X", "name": "x", "weight": 87.7}]
+        self.assertTrue(h.total_weight_ok(rows, 34.0, -100.0, 0.0, leverage=-1.0))
+
+    def test_롱_레버리지는_여전히_검사한다(self) -> None:
+        rows = [{"ticker": "X", "name": "x", "weight": 10.0}]
+        self.assertFalse(h.total_weight_ok(rows, 0.0, 0.0, 0.0, leverage=3.0))
+
+
+class CashLikeTest(unittest.TestCase):
+    """티커가 있어도 실질이 현금인 줄은 종목 표에 올리지 않는다."""
+
+    def test_자사_MMF_는_1위_보유가_아니다(self) -> None:
+        """TQQQ 표 1위가 'PROSHARES GENIUS MNY MKT ETF' 로 찍히던 문제."""
+        p = h.parse_proshares_all(load("us_holdings_proshares_daily.csv"))["TQQQ"]
+        self.assertFalse(any(r["ticker"] == "IQMM" for r in p["rows"]))
+        self.assertEqual(p["rows"][0]["ticker"], "NVDA")
+        self.assertGreater(p["cash"], 30.0)
+
+    def test_현금성_판정(self) -> None:
+        self.assertTrue(h._is_cash_like("PROSHARES GENIUS MNY MKT ETF"))
+        self.assertTrue(h._is_cash_like("Goldman Sachs Money Market Fund"))
+        self.assertFalse(h._is_cash_like("NVIDIA CORP"))
+        self.assertFalse(h._is_cash_like("MARKET AXESS HOLDINGS"))

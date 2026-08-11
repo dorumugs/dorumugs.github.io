@@ -1054,14 +1054,26 @@
   }
 
   /* 발행사 이름 짐작. us_holdings.json 에 없는(=수집 대상이 아닌) ETF 라도
-     '누가 운용하는지' 는 종목명 앞부분으로 알려줄 수 있다 — 빈 표만 던지는 것보다
-     낫다. 어차피 안내문일 뿐이라 완벽할 필요는 없다. */
+     '누가 운용하는지' 는 종목명 앞부분으로 알려줄 수 있다.
+
+     단, 첫 낱말을 무조건 집으면 안 된다 — "United States Oil Fund LP" 가
+     "United" 로 잘려 발행사인 척하게 된다. 아는 이름에만 맞히고, 모르면
+     빈 문자열을 돌려 안내문에서 괄호를 통째로 뺀다. 틀린 이름을 대는 것보다
+     아무 이름도 안 대는 게 낫다. */
+  var KNOWN_ISSUERS = [
+    'Global X', 'State Street', 'First Trust', 'JPMorgan', 'iShares', 'Shares',
+    'ProShares', 'Direxion', 'Vanguard', 'Invesco', 'SPDR', 'ARK', 'VanEck',
+    'WisdomTree', 'Schwab', 'Fidelity', 'Amplify', 'GraniteShares', 'Teucrium',
+    'Sprott', 'KraneShares', 'Bitwise', 'Grayscale', 'Defiance', 'Roundhill',
+    'YieldMax', 'Simplify', 'Tradr'
+  ];
   function issuerGuess(name) {
-    var TWO_WORD = ['Global X', 'State Street', 'First Trust', 'JPMorgan Equity'];
-    for (var i = 0; i < TWO_WORD.length; i++) {
-      if (name.indexOf(TWO_WORD[i]) === 0) { return TWO_WORD[i]; }
+    for (var i = 0; i < KNOWN_ISSUERS.length; i++) {
+      if (name.indexOf(KNOWN_ISSUERS[i]) === 0) {
+        return KNOWN_ISSUERS[i] === 'Shares' ? 'iShares' : KNOWN_ISSUERS[i];
+      }
     }
-    return (name.split(' ')[0] || '').replace(/^i?Shares$/i, 'iShares');
+    return '';
   }
 
   /* 미국 ETF 구성종목. 국내 표(holdingsTable)를 그대로 못 쓴다 — 국내는 20일
@@ -1074,7 +1086,11 @@
      펀드"로 착각하는 게 실제로 있었던 버그다).
 
      BIL·JNK 같은 채권형은 noTicker=true 로 온다 — 개별 채권에 주식 티커가
-     없는 게 정상이라 티커 칸 자체를 빼고 보여준다. */
+     없는 게 정상이라 티커 칸 자체를 빼고 보여준다.
+
+     인버스 상품(SOXS·TZA·SQQQ 등)은 개별 종목을 아예 안 담는다 — rows 가
+     비고 스왑이 음수로만 온다. 표를 빈 채로 그리면 "못 받았다"로 보이므로
+     표를 아예 만들지 않고 설명 줄만 남긴다. */
   function usHoldingsTable(row) {
     var entry = state.usHoldings ? state.usHoldings[row.ticker] : null;
     var hasData = entry && (entry.rows.length || entry.cash || entry.swap || entry.other);
@@ -1082,8 +1098,9 @@
       var issuer = (entry && entry.issuer) || issuerGuess(row.name);
       return '<h3 class="ef-plan-title">구성종목</h3>' +
         '<p class="ef-note">구성종목을 받지 못했습니다' +
-        (issuer ? ' (' + escapeHtml(issuer) + ')' : '') + '. 확인된 발행사(Direxion·ARK·SPDR)' +
-        '가 아니거나, 발행사가 그날 파일을 아직 안 올린 경우입니다.</p>';
+        (issuer ? ' (' + escapeHtml(issuer) + ')' : '') + '. 확인된 발행사' +
+        '(Direxion·ARK·SPDR·iShares·ProShares·Vanguard·Global X)가 아니거나, ' +
+        '발행사가 그날 파일을 아직 안 올린 경우입니다.</p>';
     }
     var title = '<h3 class="ef-plan-title">구성종목 · ' + escapeHtml(entry.issuer || '') +
       (entry.asOf ? ' · ' + prettyDate(entry.asOf) + ' 기준' : '') + '</h3>';
@@ -1108,13 +1125,21 @@
     var cash = entry.cash || 0;
     var other = entry.other || 0;
     var note;
-    if (swap > 0) {
-      var levTxt = Math.abs(row.lev) + '배';
-      note = '<p class="ef-note">지수 스왑 ' + swap.toFixed(1) + '%' +
-        (entry.swapNote ? '(' + escapeHtml(entry.swapNote) + ')' : '') +
+    if (swap !== 0) {
+      /* 파생은 스왑만이 아니다 — UVXY 는 VIX 선물, TQQQ 는 지수스왑이다.
+         부호는 방향이다: 인버스는 음수로 온다(SOXS −300%).
+
+         배수는 row.lev 로 말하지 않는다. 그 값은 종목명에서 짐작한 것이라
+         틀릴 때가 있다 — UVXY 는 이름에 'Ultra' 가 붙어 2배로 읽히지만
+         2018년부터 1.5배이고, 실제 파생 노출도 150.0% 로 측정된다. 짐작한
+         배수와 측정한 노출이 어긋나면 화면이 거짓말을 하게 되므로, 여기서는
+         **측정된 수치만** 말한다. */
+      var dir = swap < 0 ? '하락에 베팅하는 ' : '';
+      note = '<p class="ef-note">파생(스왑·선물) ' + Math.abs(swap).toFixed(1) + '%' +
+        (entry.swapNote ? ' · ' + escapeHtml(entry.swapNote) : '') +
         ' · 현금성 ' + cash.toFixed(1) + '%' +
         (other > 0 ? ' · 기타(펀드 자체 명목가치) ' + other.toFixed(1) + '%' : '') +
-        ' — ' + levTxt + '는 주식만으로 만들지 않고 스왑으로 채웁니다' + countTail + '.</p>';
+        ' — ' + dir + '배수를 주식이 아니라 파생으로 만듭니다' + countTail + '.</p>';
     } else if (cash > 0 || other > 0) {
       note = '<p class="ef-note">현금·기타 ' + (cash + other).toFixed(1) + '%' + countTail + '</p>';
     } else if (countTail) {
@@ -1122,10 +1147,13 @@
     } else {
       note = '';
     }
-    return title +
-      '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
-      '<th>종목명</th><th>티커</th><th>비중</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
-      note;
+    /* 개별 종목이 하나도 없으면 표를 만들지 않는다 — 머리글만 있고 몸통이 빈
+       표는 "데이터를 못 받았다"로 읽힌다. 인버스 상품이 여기로 온다. */
+    var table = entry.rows.length
+      ? '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
+        '<th>종목명</th><th>티커</th><th>비중</th></tr></thead><tbody>' + body + '</tbody></table></div>'
+      : '<p class="ef-note">개별 종목을 담지 않는 상품입니다.</p>';
+    return title + table + note;
   }
 
   function openPanel(kind, code) {

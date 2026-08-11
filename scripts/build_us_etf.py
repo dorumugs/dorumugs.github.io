@@ -142,7 +142,10 @@ def build_holdings(universe: list[dict]) -> dict:
             "swapNote": entry.get("swapNote", ""),
             "other": entry.get("other", 0.0),
             "noTicker": entry.get("noTicker", False),
-            "count": len(rows),
+            # 뱅가드는 API 가 첫 500행만 주므로 받은 줄 수가 진짜 종목 수가 아니다
+            # (VT 는 10,032종목 중 500줄). parse_vanguard 가 실어 보낸 totalCount
+            # 를 우선 쓴다 — 안 그러면 화면이 "상위 25/500" 이라고 거짓말한다.
+            "count": entry.get("totalCount") or len(rows),
         }
     return out
 

@@ -43,7 +43,14 @@ PARSERS = {
     h.ISSUER_DIREXION: h.parse_direxion,
     h.ISSUER_SPDR: h.parse_spdr,
     h.ISSUER_ARK: h.parse_ark,
+    h.ISSUER_ISHARES: h.parse_ishares,
+    h.ISSUER_VANGUARD: h.parse_vanguard,
 }
+
+# 티커별 URL 로 안 되는 두 발행사. main() 이 따로 처리한다.
+#   ProShares  전 종목이 파일 하나에 들어 있어 하루 한 번이면 19개가 다 온다
+#   Global X   파일명에 날짜가 박혀 최근 영업일부터 거슬러 올라가며 찾는다
+SPECIAL_ISSUERS = frozenset({h.ISSUER_PROSHARES, h.ISSUER_GLOBALX})
 
 
 def _fresh(entry: dict | None) -> bool:
@@ -53,19 +60,8 @@ def _fresh(entry: dict | None) -> bool:
     return entry.get("fetchedDate") == date.today().isoformat()
 
 
-def collect_one(ticker: str, name: str, issuer: str, budget: Budget) -> dict | None:
-    """구성종목 하나. 실패해도 예외를 밖으로 던지지 않는다 — 실행 전체를 죽이면 안 된다."""
-    url = h.holdings_url(ticker)
-    if url is None:
-        return None
-    raw = fetch(url, budget, max_bytes=h.MAX_RESPONSE_BYTES)
-    if raw is None:
-        return None
-    parser = PARSERS[issuer]
-    try:
-        parsed = parser(raw)
-    except Exception:  # noqa: BLE001 — 발행사 파일 포맷이 어떻게 깨질지 모른다
-        return None
+def _finish(parsed: dict, ticker: str, name: str, issuer: str) -> dict | None:
+    """파싱 결과를 검사하고 발행사·수집일을 얹는다. 버릴 것만 None."""
     # 스왑·기타도 "받은 데이터" 다 — 인버스·채권 레버리지 상품(TZA·TMF 등)은
     # 개별 종목·현금이 거의 없고 스왑뿐이라, rows·cash 만 보면 아무것도 못 받은
     # 걸로 착각해 통째로 버리게 된다.
@@ -74,14 +70,77 @@ def collect_one(ticker: str, name: str, issuer: str, budget: Budget) -> dict | N
     lev = leverage_of(name)
     swap = parsed.get("swap", 0.0)
     other = parsed.get("other", 0.0)
-    # 범위 밖이어도 데이터는 그대로 쓴다 — 로그만 남긴다. 잘못 잡은 임계값 때문에
-    # 멀쩡한 펀드가 조용히 사라지면 빈 표보다 못한 결과가 된다.
-    if not h.total_weight_ok(parsed["rows"], parsed["cash"], swap, other, leverage=lev):
+    # 뱅가드는 첫 500행만 받으므로(VT 는 10,032종목) 비중 합이 100 에 한참
+    # 못 미치는 게 정상이다 — 검사에서 뺀다. 대신 totalCount 로 진짜 종목 수를
+    # 남겨 화면에 "상위 25/10032" 로 적는다.
+    if issuer != h.ISSUER_VANGUARD and not h.total_weight_ok(
+        parsed["rows"], parsed["cash"], swap, other, leverage=lev
+    ):
         total = h.total_weight(parsed["rows"], parsed["cash"], swap, other)
         print(f"    {ticker}: 비중 합 {total:.1f}% — 80~130%×{max(1, abs(lev)):.0f} 범위 밖", file=sys.stderr)
     parsed["issuer"] = issuer
     parsed["fetchedDate"] = date.today().isoformat()
     return parsed
+
+
+def collect_globalx(ticker: str, name: str, budget: Budget) -> dict | None:
+    """Global X 는 파일명에 날짜가 박힌다. 최근 날짜부터 200 이 나올 때까지."""
+    for url in h.globalx_urls(ticker, date.today()):
+        raw = fetch(url, budget, max_bytes=h.MAX_RESPONSE_BYTES)
+        if raw is None:
+            continue
+        try:
+            parsed = h.parse_globalx(raw)
+        except Exception:  # noqa: BLE001 — 발행사 파일 포맷이 어떻게 깨질지 모른다
+            continue
+        if parsed["rows"]:
+            return _finish(parsed, ticker, name, h.ISSUER_GLOBALX)
+    return None
+
+
+def collect_proshares(budget: Budget, universe_names: dict[str, str]) -> dict[str, dict]:
+    """ProShares 전 종목을 요청 한 번으로. 실패하면 빈 딕셔너리."""
+    raw = fetch(URL := h.URL_PROSHARES_ALL, budget, max_bytes=h.MAX_RESPONSE_BYTES)
+    if raw is None:
+        print(f"    ProShares 일별보유 파일을 못 받았습니다: {URL}", file=sys.stderr)
+        return {}
+    try:
+        by_ticker = h.parse_proshares_all(raw)
+    except Exception:  # noqa: BLE001
+        print("    ProShares 일별보유 파일 파싱 실패", file=sys.stderr)
+        return {}
+    out: dict[str, dict] = {}
+    for ticker in h.PROSHARES_TICKERS:
+        parsed = by_ticker.get(ticker)
+        if not parsed:
+            continue
+        done = _finish(parsed, ticker, universe_names.get(ticker, ticker), h.ISSUER_PROSHARES)
+        if done:
+            out[ticker] = done
+    return out
+
+
+def collect_one(ticker: str, name: str, issuer: str, budget: Budget) -> dict | None:
+    """구성종목 하나. 실패해도 예외를 밖으로 던지지 않는다 — 실행 전체를 죽이면 안 된다."""
+    if issuer == h.ISSUER_GLOBALX:
+        return collect_globalx(ticker, name, budget)
+    url = h.holdings_url(ticker)
+    if url is None:
+        return None
+    raw = fetch(url, budget, max_bytes=h.MAX_RESPONSE_BYTES)
+    if raw is None:
+        return None
+    parser = PARSERS[issuer]
+    try:
+        if issuer == h.ISSUER_VANGUARD:
+            # 채권 원장의 ticker 는 그 채권을 발행한 회사의 '주식' 티커라 그대로
+            # 쓰면 안 된다 — parse_vanguard 의 bond 인자 설명 참고.
+            parsed = parser(raw, bond=h.VANGUARD_PATH.get(ticker) == "bond")
+        else:
+            parsed = parser(raw)
+    except Exception:  # noqa: BLE001 — 발행사 파일 포맷이 어떻게 깨질지 모른다
+        return None
+    return _finish(parsed, ticker, name, issuer)
 
 
 def main() -> int:
@@ -99,8 +158,11 @@ def main() -> int:
     cache: dict[str, dict] = read_json_gz(HOLDINGS_FILE) or {}
     budget = Budget(args.max_calls)
 
+    names = {row["ticker"]: row["name"] for row in universe}
+
     no_issuer = 0
     todo: list[tuple[str, str, str]] = []  # (ticker, name, issuer)
+    proshares_stale = False
     for row in universe:
         ticker = row["ticker"]
         issuer = h.ISSUER_BY_TICKER.get(ticker)
@@ -108,6 +170,10 @@ def main() -> int:
             no_issuer += 1
             continue
         if not args.force and _fresh(cache.get(ticker)):
+            continue
+        if issuer == h.ISSUER_PROSHARES:
+            # 티커별로 안 받는다 — 하나라도 낡았으면 파일 하나를 받아 19개를 다 채운다.
+            proshares_stale = True
             continue
         todo.append((ticker, row["name"], issuer))
 
@@ -129,6 +195,13 @@ def main() -> int:
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         list(pool.map(one, todo))
+
+    if proshares_stale:
+        bulk = collect_proshares(budget, names)
+        results.update(bulk)
+        fetched += len(bulk)
+        failed.extend(t for t in h.PROSHARES_TICKERS if t not in bulk)
+        print(f"  ProShares 일별보유 파일 1건으로 {len(bulk)}개 채움")
 
     cache.update(results)
     # 이번에 실패했고 캐시에도 없던 티커는 실패로 남긴다(다음 실행이 재시도).
