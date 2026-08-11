@@ -17,6 +17,7 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
   <div class="ef-tabs" role="tablist" aria-label="보기 고르기">
     <button type="button" id="ef-tab-etf" class="is-on" role="tab" aria-selected="true" aria-controls="ef-view-etf">ETF</button>
     <button type="button" id="ef-tab-group" role="tab" aria-selected="false" aria-controls="ef-view-group">테마 · 업종</button>
+    <button type="button" id="ef-tab-us" role="tab" aria-selected="false" aria-controls="ef-view-us">미국 ETF</button>
   </div>
 
 <section id="ef-view-etf" role="tabpanel" aria-labelledby="ef-tab-etf" markdown="0">
@@ -90,6 +91,42 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
 
 </section>
 
+<section id="ef-view-us" role="tabpanel" aria-labelledby="ef-tab-us" hidden markdown="0">
+
+  <div class="ef-market" id="ef-us-market" aria-live="polite"></div>
+
+  <div class="ef-filters">
+    <input type="search" id="ef-uq" placeholder="티커나 이름으로 검색 — TQQQ, SOXL, semiconductor" autocomplete="off" aria-label="미국 ETF 검색">
+    <select id="ef-ugrade" aria-label="등급 거르기"><option value="">등급 전체</option></select>
+    <select id="ef-ulev" aria-label="배수 거르기">
+      <option value="">배수 전체</option>
+      <option value="1">1배만</option>
+      <option value="lev">레버리지만</option>
+      <option value="lev3">3배만</option>
+      <option value="inv">인버스만</option>
+    </select>
+    <select id="ef-uliq" aria-label="거래대금 하한">
+      <option value="0">거래대금 전체</option>
+      <option value="500000000" selected>5억 이상</option>
+      <option value="10000000000">100억 이상</option>
+      <option value="100000000000">1000억 이상</option>
+    </select>
+    <select id="ef-usort" aria-label="정렬">
+      <option value="grade">등급순</option>
+      <option value="riskAdj">위험 대비 수익순</option>
+      <option value="overhead">위에 물린 물량 적은 순</option>
+      <option value="rSwing">달러 수익률순</option>
+      <option value="rSwingKrw">원화 수익률순</option>
+      <option value="turnoverKrw">거래대금순</option>
+    </select>
+  </div>
+
+  <p class="ef-count" id="ef-ucount"></p>
+  <div class="ef-grid" id="ef-ulist"></div>
+  <p class="ef-more"><button type="button" id="ef-umore2" hidden>더 보기</button></p>
+
+</section>
+
   <div class="ef-panel" id="ef-panel" hidden role="dialog" aria-modal="true" aria-labelledby="ef-panel-title">
     <div class="ef-panel-inner">
       <button type="button" class="ef-panel-close" id="ef-panel-close" aria-label="닫기">✕</button>
@@ -99,6 +136,34 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
   </div>
 
 </div>
+
+## 미국 ETF는 다르게 읽어야 합니다
+
+**환율이 섞여 있습니다.** 원화로 사는 사람의 수익률은 `(1+달러수익) × (1+환율변동) − 1`
+입니다. 지금 기준 최근 8주 원달러가 **−6.55%** 라, 달러로 +30.6% 오른 ETF도 원화로는
+**+22.0%** 입니다. 카드에 **달러 수익률과 원화 수익률을 나란히** 놓은 이유입니다.
+
+**세금 체계가 완전히 다릅니다.** 국내 상장 ETF는 매매차익이 배당소득으로 잡히지만, 미국
+상장 ETF는 **양도소득세 22%**(연 250만원 기본공제, 분리과세)입니다. 8주마다 회전하는
+매매라면 이 차이가 수익률을 크게 갉습니다. 이 화면의 어떤 숫자에도 세금은 반영돼 있지
+않습니다.
+
+**괴리율을 알 수 없습니다.** 네이버가 해외 ETF의 NAV를 주지 않습니다. 국내 화면에 있던
+괴리 경고가 여기엔 없으니, 유동성 낮은 것은 스프레드를 직접 확인하세요.
+
+**대세 확인이 안 됩니다.** 국내 테마와 연결이 없어 상승 비율(폭)을 계산할 수 없습니다.
+근거가 국내보다 한 겹 얇습니다.
+
+**기준일이 하루 이릅니다.** 미국 종가는 한국 시간 다음 날 새벽에 확정됩니다. 저녁에
+갱신하면 마지막 줄은 '어제 미국 장'입니다.
+
+**3배 레버리지가 있습니다.** 국내는 최대 2배지만 미국은 3배(TQQQ·SOXL·UPRO·CURE 등
+24개)까지 있습니다. 임계값은 배수만큼 늘려서 판정하므로 3배 ETF는 과열선이 세 배입니다.
+대신 손절폭도 −20%대로 벌어지니 **수량을 그만큼 줄여야** 같은 위험이 됩니다.
+
+**벤치마크는 S&P500입니다.** 미국 ETF를 코스피와 견주는 건 말이 안 되니까요.
+거래대금 하한만은 환율로 환산해 국내와 같은 원화 기준(5억 원)을 씁니다 — 잣대를 하나만
+두려고요.
 
 ## 주 1회, 같은 시각에만 여세요
 

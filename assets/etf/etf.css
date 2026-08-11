@@ -336,3 +336,11 @@
   border: 1px solid #cfd8e0; border-radius: 8px; background: #f7fafc; color: #2c3e50;
 }
 .ef-copy.is-done { background: #e9f5ee; border-color: #c2ddc9; color: #16704a; }
+
+/* 미국 ETF 카드. 티커를 앞세워야 눈으로 찾는다. */
+.ef-ticker {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: #eef2f6; color: #2c3e50; border-radius: 4px;
+  padding: 1px 5px; font-size: 0.92em; margin-right: 2px;
+}
+.ef-sub i { font-style: normal; color: #999; }

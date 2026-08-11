@@ -10,15 +10,21 @@
 # 부동산 3종·포켓몬과 **같은 flock 을 공유한다.** 다섯 다 git commit/push 를
 # 하므로 겹치면 한쪽 커밋이 유실된다. 반드시 유지할 것.
 #
-# 두 단계다.
+# 네 단계다. 전체 약 1분 20초.
 #
-#   1. 수집   테마 265 · 업종 79 · ETF 1,160 · 일봉 4,407심볼. 전체 백필이
-#             약 6,000요청에 1분이다. 주기는 collect_stocks.py 가 파일이 얼마나
-#             낡았는지 보고 스스로 가른다 — 그룹·구성종목은 7일, 일봉 전체
-#             재수집은 30일. 요일로 가르지 않으므로 하루 걸러도 다음 실행이 메운다.
-#   2. 집계   지표와 등급을 계산해 assets/etf/*.json 을 굽는다.
+#   1. 국내 수집   테마 265 · 업종 79 · ETF 1,160 · 일봉 4,407심볼 (약 50초)
+#   2. 미국 수집   씨앗 192티커 → 일봉 193종목 + S&P500 + 원달러 (약 8초)
+#   3. 집계        지표와 등급을 계산해 assets/etf/*.json 을 굽는다 (약 10초)
+#   4. 채점        3.5년치로 등급 성적표를 다시 매긴다 (약 11초)
 #
-# 인증키가 필요 없다. 네이버 세 곳 다 키 없이 열려 있다.
+# 수집 주기는 스크립트가 **파일이 얼마나 낡았는지** 보고 스스로 가른다 —
+# 그룹·구성종목·미국 씨앗은 7일, 일봉 전체 재수집은 30일. 요일로 가르지 않으므로
+# 하루 걸러도 다음 실행이 메운다.
+#
+# 국내와 미국은 서버가 다르다(finance.naver.com vs api.stock.naver.com).
+# 한쪽이 죽어도 다른 쪽은 살 수 있어 따로 돌리고 따로 실패를 센다.
+#
+# 인증키가 필요 없다. 쓰는 곳 전부 키 없이 열려 있다.
 #
 # 커밋 대상은 assets/etf 뿐이다. data/stocks 는 .gitignore 로 막혀 있다 —
 # 일봉 캐시가 gzip 8MB 라 매일 커밋하면 1년에 2GB 가 쌓이는데, 2분이면 다시
@@ -50,7 +56,17 @@ FAILED=0
 
 if ! python3 -u scripts/collect_stocks.py "${COLLECT_ARGS[@]}"; then
   FAILED=1
-  echo "수집이 끝까지 못 갔습니다 — 네이버 응답을 확인하세요." >&2
+  echo "국내 수집이 끝까지 못 갔습니다 — 네이버 응답을 확인하세요." >&2
+fi
+
+# 미국 상장 ETF. 서버가 달라(api.stock.naver.com) 국내가 죽어도 이쪽은 살 수
+# 있고 반대도 마찬가지다. 그래서 따로 돌리고 따로 실패를 센다. 약 8초.
+US_ARGS=()
+[ "${FORCE_FULL:-0}" = "1" ] && US_ARGS+=(--full-bars)
+[ "${FORCE_GROUPS:-0}" = "1" ] && US_ARGS+=(--refresh-seed)
+if ! python3 -u scripts/collect_us_etf.py "${US_ARGS[@]}"; then
+  FAILED=1
+  echo "미국 ETF 수집이 끝까지 못 갔습니다." >&2
 fi
 
 # 수집이 일부 실패해도 있는 캐시로 다시 굽는다. 어제 집계본보다 낫다.
@@ -58,6 +74,12 @@ fi
 if ! python3 -u scripts/build_etf_theme.py; then
   FAILED=1
   echo "build_etf_theme.py 가 비정상 종료했습니다." >&2
+fi
+
+# 미국 ETF 집계. 국내 캐시가 없어도 독립적으로 돈다.
+if ! python3 -u scripts/build_us_etf.py; then
+  FAILED=1
+  echo "build_us_etf.py 가 비정상 종료했습니다." >&2
 fi
 
 # 등급 성적표. 3.5년치를 매일 다시 채점해 최신 시장까지 반영한다. 약 20초.

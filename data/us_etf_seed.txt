@@ -1,0 +1,60 @@
+# 미국 상장 ETF 씨앗 목록.
+#
+# 왜 목록을 손으로 두나. 네이버는 미국 ETF **목록** 엔드포인트를 공개하지 않는다.
+# 자동완성(ac.stock.naver.com)으로 두 글자 접두사를 훑어 봤지만 국내 종목에 밀려
+# SPY·QQQ·SOXL 같은 주요 티커를 오히려 놓쳤다. 반면 **정확한 티커로 물으면
+# 100% 잡힌다**(138개 중 138개, 0.8초).
+#
+# 그래서 여기에 티커만 적어 두고 나머지는 자동으로 한다 — 자동완성이 거래소
+# 접미사(.O 나스닥 / .K 아멕스 / 없음 NYSE Arca)와 정식 이름을 붙여 주고,
+# ETF 가 아닌 것(ETN 등)은 수집 단계에서 걸러 태그를 단다.
+#
+# 미국 ETF 는 3,000개가 넘지만 그중 스윙으로 들어갈 만한 유동성을 갖춘 건
+# 몇백 개다. 전부 긁어 오는 것보다 이쪽이 낫다 — 어차피 거래대금 하한에서
+# 대부분 걸린다.
+#
+# 새 ETF 를 넣고 싶으면 티커 한 줄만 추가하면 된다. 없는 티커는 수집 로그에
+# '못 찾음' 으로 남는다.
+
+# --- 대표 지수 ---
+SPY VOO IVV VTI QQQ QQQM DIA IWM MDY RSP VT
+
+# --- 레버리지·인버스 (3배 포함) ---
+TQQQ SQQQ UPRO SPXU SPXL SPXS UDOW SDOW TNA TZA
+QLD SSO SDS PSQ SH DOG TWM
+SOXL SOXS NVDL NVDX NVDU TSLL TSLQ TSLS AAPU AAPD MSFU MSFD
+CONL AMDL AMDD GGLL METU AMZU MSTX MSTU
+LABU LABD CURE DFEN NAIL DRN DPST WEBL
+DUST NUGT JNUG JDST ERX ERY GUSH DRIP
+YINN YANG TMF TMV UBT TBT
+
+# --- 섹터 (SPDR Select) ---
+XLK XLE XLF XLV XLI XLP XLY XLU XLB XLRE XLC XBI XOP XME XHB XRT KRE ITB
+
+# --- 반도체·기술 테마 ---
+SOXX SMH IGV SKYY HACK BOTZ ROBO ARKK ARKW ARKG ARKQ ARKF WCLD CIBR AIQ
+
+# --- 에너지 전환·원자재 테마 ---
+ICLN TAN FAN LIT REMX URA URNM COPX SIL
+
+# --- 가상자산 ---
+IBIT FBTC ETHA ARKB BITB BITX
+
+# --- 실물·원자재 ---
+GLD IAU GLDM SLV GDX GDXJ USO UNG DBC PDBC CPER DBA WEAT CORN
+
+# --- 채권 ---
+TLT IEF SHY IEI LQD HYG JNK AGG BND TIP VCIT VCSH EMB MUB
+
+# --- 배당·인컴·커버드콜 ---
+SCHD VYM DVY VIG NOBL SPHD JEPI JEPQ QYLD XYLD RYLD DIVO PFF
+
+# --- 국가·지역 ---
+EFA IEFA EEM IEMG VEA VWO VXUS EWJ EWY EWT INDA FXI KWEB MCHI
+EWZ EWG EWU EWC EWA EWH EZU EPI
+
+# --- 부동산·기타 ---
+VNQ SCHH IYR REM XLRE
+
+# --- 현금성·변동성 ---
+BIL SGOV SHV USFR VIXY UVXY SVXY

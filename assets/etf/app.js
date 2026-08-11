@@ -25,6 +25,8 @@
     themeShown: GROUP_PAGE,
     upjongShown: GROUP_PAGE,
     risk: 300000,
+    us: null,
+    usShown: PAGE,
     basket: [],
     corr: null,
     corrPromise: null
@@ -267,6 +269,123 @@
       '<th>이름</th><th>' + swingWeeks() + '주</th><th>20일</th><th>상승비율</th><th>시장대비</th>' +
       '<th>물린 물량</th><th>등급</th><th>종목</th><th>ETF</th></tr></thead><tbody>' + body +
       '</tbody></table></div>';
+  }
+
+  /* --- 미국 ETF ----------------------------------------------------------- */
+
+  function usLevLabel(lev) {
+    if (lev === 0 || lev === 1) { return null; }
+    var abs = Math.abs(lev);
+    return (lev < 0 ? '인버스 ' : '레버리지 ') + abs + '배';
+  }
+
+  /* 미국 ETF 는 국내와 다른 게 많아 카드를 따로 그린다.
+
+     가장 중요한 차이는 **환율**이다. 원화로 사는 사람의 수익률은 달러 수익률이
+     아니다. 둘을 나란히 놓지 않으면 달러로 +30% 인데 원화로 +22% 인 것을 모른다. */
+  function usCard(row) {
+    var tags = [];
+    var lev = usLevLabel(row.lev);
+    if (lev) { tags.push('<span class="ef-tag is-warn">' + lev + '</span>'); }
+    if (!row.isEtf) { tags.push('<span class="ef-tag is-warn">ETN — 발행사 신용위험</span>'); }
+    tags.push('<span class="ef-tag">' + escapeHtml(row.exchange || '미국') + '</span>');
+
+    var s = usSizing(row);
+    return '<div class="ef-cardwrap">' +
+      '<button type="button" class="ef-card" data-kind="us" data-code="' + escapeHtml(row.code) + '">' +
+      '<span class="ef-card-top"><span class="ef-name">' +
+        '<b class="ef-ticker">' + escapeHtml(row.ticker) + '</b> ' + escapeHtml(row.name) + '</span></span>' +
+      '<span class="ef-heads">' +
+        '<span class="ef-head"><i>' + swingWeeks() + '주 · 달러</i><b class="' +
+          dirClass(row.rSwing) + '">' + pct(row.rSwing) + '</b></span>' +
+        '<span class="ef-head"><i>' + swingWeeks() + '주 · 원화</i><b class="' +
+          dirClass(row.rSwingKrw) + '">' + pct(row.rSwingKrw) + '</b></span>' +
+        '<span class="ef-head"><i>20일 · 달러</i><b class="' +
+          dirClass(row.r20) + '">' + pct(row.r20) + '</b></span>' +
+      '</span>' +
+      badge(row.grade) +
+      sparkSvg(row.spark, row.r20) +
+      (row.stopPct === null ? '' :
+        '<span class="ef-swing">' +
+        '<span>손절 <em class="ef-down">' + pct(row.stopPct) + '</em></span>' +
+        '<span>' + swingWeeks() + '주 폭 <em>±' + (row.expectedSwing * 100).toFixed(1) + '%</em></span>' +
+        (s && s.shares ? '<span>수량 <em>' + s.shares.toLocaleString() + '주</em> · 투입 <em>' +
+          moneyShort(s.amount) + '</em></span>' : '') +
+        '</span>') +
+      '<span class="ef-sub">' +
+        '<span>현재 <em>$' + (row.price === null ? '—' : row.price.toLocaleString()) + '</em>' +
+        (row.priceKrw ? ' <i>' + row.priceKrw.toLocaleString() + '원</i>' : '') + '</span>' +
+        '<span>S&P500 대비 <em>' + pct(row.excess) + '</em></span>' +
+        '<span>거래대금 <em>' + moneyShort(row.turnoverKrw) + '</em></span>' +
+        (row.overhead === null ? '' : '<span>위에 물린 물량 <em' +
+          (row.overhead >= 0.6 ? ' class="ef-down"' : '') + '>' +
+          Math.round(row.overhead * 100) + '%</em></span>') +
+      '</span>' +
+      '<span class="ef-tagrow">' + tags.join('') + '</span>' +
+      '</button></div>';
+  }
+
+  /* 미국 ETF 는 달러로 거래하지만 잃어도 되는 금액은 원화로 정한다.
+     수량 = 위험금액(원) ÷ (원화 환산 가격 × 손절폭). */
+  function usSizing(row) {
+    if (!row.stopPct || !row.priceKrw) { return null; }
+    if (row.grade === '금리형' || row.grade === '판정불가') { return null; }
+    var perShare = row.priceKrw * Math.abs(row.stopPct);
+    if (perShare <= 0) { return null; }
+    var byRisk = Math.floor(state.risk / perShare);
+    var byLiquidity = row.turnoverKrw
+      ? Math.floor(row.turnoverKrw * 0.01 / row.priceKrw) : byRisk;
+    var shares = Math.max(0, Math.min(byRisk, byLiquidity));
+    if (shares < 1) { return { shares: 0, amount: 0, capped: byLiquidity < byRisk }; }
+    return { shares: shares, amount: shares * row.priceKrw,
+             capped: shares < byRisk, byRisk: byRisk };
+  }
+
+  function filteredUs() {
+    if (!state.us) { return []; }
+    var q = $('ef-uq').value.trim().toLowerCase();
+    var grade = $('ef-ugrade').value;
+    var lev = $('ef-ulev').value;
+    var liq = parseFloat($('ef-uliq').value) || 0;
+    return sortRows(state.us.rows.filter(function (r) {
+      if (q && r.name.toLowerCase().indexOf(q) < 0 && r.ticker.toLowerCase().indexOf(q) < 0) { return false; }
+      if (grade && r.grade !== grade) { return false; }
+      if (lev === '1' && r.lev !== 1) { return false; }
+      if (lev === 'lev' && r.lev <= 1) { return false; }
+      if (lev === 'lev3' && r.lev < 3) { return false; }
+      if (lev === 'inv' && r.lev >= 0) { return false; }
+      if (liq && (r.turnoverKrw === null || r.turnoverKrw < liq)) { return false; }
+      return true;
+    }), $('ef-usort').value);
+  }
+
+  function renderUs() {
+    if (!state.us) { return; }
+    var rows = filteredUs();
+    var shown = rows.slice(0, state.usShown);
+    $('ef-ulist').innerHTML = shown.map(usCard).join('');
+    $('ef-ucount').textContent = rows.length
+      ? '미국 ETF ' + rows.length + '개 중 ' + shown.length + '개 표시'
+      : '조건에 맞는 ETF 가 없습니다.';
+    $('ef-umore2').hidden = shown.length >= rows.length;
+
+    var m = state.us.meta;
+    var regCls = m.regime.label === '역풍'
+      ? 'background:#fdf0f0;border-color:#f0d0d0;color:#8a2b2b'
+      : 'background:#e9f5ee;border-color:#c3e2d0;color:#16704a';
+    $('ef-us-market').innerHTML =
+      '<span class="ef-stat" style="flex:1 1 100%;' + regCls + '">' +
+        '<b style="font-size:1em">시장 국면 · ' + escapeHtml(m.regime.label) + '</b>' +
+        '<span>' + escapeHtml(m.regime.note) + '</span></span>' +
+      '<span class="ef-stat" style="flex:1 1 100%;background:#fff8e1;border-color:#f0e0a8;color:#7a5b00">' +
+        '<b style="font-size:1em">환율이 섞여 있습니다</b>' +
+        '<span>원달러 ' + m.fxRate.toLocaleString() + '원. 원화 수익률은 달러 수익률에 ' +
+        '환율 변동을 곱한 값입니다. <strong>양도소득세 22%</strong>(연 250만원 공제)도 ' +
+        '어떤 숫자에도 반영돼 있지 않습니다.</span></span>' +
+      '<span class="ef-stat"><span>기준 거래일</span><b>' + prettyDate(m.baseDate) + '</b></span>' +
+      '<span class="ef-stat"><span>S&P500 20일</span><b class="' + dirClass(m.spx20) + '">' +
+        pct(m.spx20) + '</b></span>' +
+      '<span class="ef-stat"><span>대상 ETF</span><b>' + m.count + '</b></span>';
   }
 
   /* --- 바구니: 분산이 되는가 --------------------------------------------- */
@@ -917,19 +1036,39 @@
     return lines.join('\n');
   }
 
+  /* 미국 ETF 에만 붙는 주의. 국내와 다른 것을 매번 상기시킨다 —
+     환율·세금·괴리율·대세 확인 불가. */
+  function usNotes(row) {
+    var m = state.us.meta;
+    var items = [
+      '<strong>원화 수익률 ' + pct(row.rSwingKrw) + '</strong> = 달러 ' + pct(row.rSwing) +
+        ' × 환율 ' + pct(row.fxMove) + '. 기초자산이 그대로여도 환율만으로 움직입니다',
+      '<strong>양도소득세 22%</strong>(연 250만원 공제)가 어떤 숫자에도 반영돼 있지 않습니다',
+      'NAV 를 못 받아 <strong>괴리율을 알 수 없습니다</strong>. 유동성 낮으면 스프레드를 직접 확인하세요',
+      '국내 테마와 연결이 없어 <strong>상승 비율(폭)을 확인할 수 없습니다</strong>',
+      '기준일 ' + prettyDate(m.baseDate) + ' — 미국 종가는 한국 시간 다음 날 새벽에 확정됩니다'
+    ];
+    return '<div class="ef-record is-warn"><b>미국 ETF 라 다른 점</b>' +
+      items.map(function (i) { return '<span>· ' + i + '</span>'; }).join('') + '</div>';
+  }
+
   function openPanel(kind, code) {
     var panel = $('ef-panel');
     var title = $('ef-panel-title');
     var body = $('ef-panel-body');
     var row = kind === 'etf'
       ? state.etfs.filter(function (r) { return r.code === code; })[0]
-      : state.groups.filter(function (r) { return r.key === code; })[0];
+      : (kind === 'us'
+        ? (state.us ? state.us.rows.filter(function (r) { return r.code === code; })[0] : null)
+        : state.groups.filter(function (r) { return r.key === code; })[0]);
     if (!row) { return; }
 
-    title.innerHTML = escapeHtml(row.name) + ' ' + badge(row.grade);
+    title.innerHTML = (kind === 'us' ? escapeHtml(row.ticker) + ' · ' : '') +
+      escapeHtml(row.name) + ' ' + badge(row.grade);
     var head = '<ul class="ef-why">' +
       row.reasons.map(function (r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') +
-      '</ul>' + gradeRecord(row.grade) + tradePlan(row, kind) +
+      '</ul>' + (kind === 'us' ? usNotes(row) : gradeRecord(row.grade)) +
+      tradePlan(row, kind === 'us' ? 'etf' : kind) +
       (kind === 'etf'
         ? '<button type="button" class="ef-copy" id="ef-copy" data-code="' +
           escapeHtml(row.code) + '">진입 기록 복사</button>'
@@ -938,6 +1077,10 @@
     panel.hidden = false;
     document.body.style.overflow = 'hidden';
 
+    if (kind === 'us') {
+      body.innerHTML = head + supplySection(row);
+      return;
+    }
     loadDetails().then(function (d) {
       var rows = kind === 'etf' ? (d.etf[code] || []) : (d.group[code] || []);
       var extra = '';
@@ -950,6 +1093,7 @@
       }
       // 테마·업종은 'ETF 로 어떻게 사나' 가 먼저다. 구성종목은 근거일 뿐이다.
       var etfPart = kind === 'group' ? groupEtfSection(code) : supplySection(row);
+      if (kind === 'us') { body.innerHTML = head + etfPart; return; }
       var holdTitle = kind === 'group'
         ? '<h3 class="ef-plan-title">구성종목</h3>' : '';
       body.innerHTML = head + etfPart + holdTitle + holdingsTable(rows, kind === 'etf') + extra;
@@ -989,6 +1133,7 @@
         renderEtfs();
         renderPick();
         renderBasket();
+        renderUs();
       });
     }
 
@@ -1043,31 +1188,43 @@
       if (e.key === 'Escape' && !$('ef-panel').hidden) { closePanel(); }
     });
 
-    function tab(on, off, viewOn, viewOff) {
-      $(on).classList.add('is-on');
-      $(on).setAttribute('aria-selected', 'true');
-      $(off).classList.remove('is-on');
-      $(off).setAttribute('aria-selected', 'false');
-      $(viewOn).hidden = false;
-      $(viewOff).hidden = true;
+    var TABS = [
+      ['ef-tab-etf', 'ef-view-etf'],
+      ['ef-tab-group', 'ef-view-group'],
+      ['ef-tab-us', 'ef-view-us']
+    ];
+    function showTab(active) {
+      TABS.forEach(function (pair) {
+        var on = pair[0] === active;
+        $(pair[0]).classList.toggle('is-on', on);
+        $(pair[0]).setAttribute('aria-selected', String(on));
+        $(pair[1]).hidden = !on;
+      });
     }
-    $('ef-tab-etf').addEventListener('click', function () {
-      tab('ef-tab-etf', 'ef-tab-group', 'ef-view-etf', 'ef-view-group');
+    TABS.forEach(function (pair) {
+      $(pair[0]).addEventListener('click', function () { showTab(pair[0]); });
     });
-    $('ef-tab-group').addEventListener('click', function () {
-      tab('ef-tab-group', 'ef-tab-etf', 'ef-view-group', 'ef-view-etf');
+
+    var usInputs = ['ef-uq', 'ef-ugrade', 'ef-ulev', 'ef-uliq', 'ef-usort'];
+    usInputs.forEach(function (id) {
+      function reset() { state.usShown = PAGE; renderUs(); }
+      $(id).addEventListener('input', reset);
+      $(id).addEventListener('change', reset);
     });
+    $('ef-umore2').addEventListener('click', function () { state.usShown += PAGE; renderUs(); });
   }
 
   Promise.all([
     fetchJson('meta'), fetchJson('etfs'), fetchJson('groups'),
-    fetchJson('backtest').catch(function () { return null; })
+    fetchJson('backtest').catch(function () { return null; }),
+    fetchJson('us').catch(function () { return null; })
   ])
     .then(function (res) {
       state.meta = res[0];
       state.etfs = res[1];
       state.groups = res[2];
       state.backtest = res[3];
+      state.us = res[4];
 
       var etfGrades = GRADE_ORDER.filter(function (g) {
         return state.etfs.some(function (r) { return r.grade === g; });
@@ -1098,6 +1255,16 @@
       renderGroups();
       renderBasket();
       if (state.basket.length) { loadCorr().then(renderBasket); }
+
+      if (state.us) {
+        fillSelect($('ef-ugrade'), GRADE_ORDER.filter(function (g) {
+          return state.us.rows.some(function (r) { return r.grade === g; });
+        }).map(function (g) { return { value: g, label: g }; }));
+        renderUs();
+      } else {
+        $('ef-us-market').innerHTML =
+          '<span class="ef-error">미국 ETF 데이터를 불러오지 못했습니다.</span>';
+      }
     })
     .catch(function (err) {
       $('ef-market').innerHTML = '<span class="ef-error">데이터를 불러오지 못했습니다 — ' +
