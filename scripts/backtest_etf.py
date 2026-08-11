@@ -69,6 +69,14 @@ STEP = HORIZON                       # 비중첩
 MIN_HISTORY = b.LOOKBACK + b.SHORT_LOOKBACK + 5
 RECENT_DAYS = 250                    # 최근 1년
 MIN_SAMPLE = 30                      # 이보다 적으면 숫자를 내지 않는다
+# **진짜 표본은 관측 수가 아니라 서로 겹치지 않는 평가 시점 수다.**
+# 같은 날짜의 ETF 들은 같은 장을 겪으므로 독립이 아니다. 보유 8주면 3.5년에
+# 평가 시점이 20회뿐이라, 관측 1,480건이어도 실제로는 20번 본 것에 가깝다.
+# 시점이 이보다 적으면 숫자를 내지 않는다.
+MIN_DATES = 8
+
+# 누적 곡선에서 매 회전마다 담는 종목 수. 관행적인 수이지 성적을 보고 고른 게 아니다.
+TOP_N = 5
 
 # 왕복 거래 비용 가정. ETF 는 증권거래세가 면제라 남는 건 위탁수수료와 스프레드다.
 # 유동성이 받쳐주는 ETF 기준으로 0.10%p 로 잡았다. 정확한 값이 아니라 **얇은
@@ -136,8 +144,9 @@ def stop_outcome(lows: list[float], closes: list[float], i: int, stop: float | N
 
 def summarize(trials: list[Trial]) -> dict | None:
     """한 무리의 평가 결과를 요약한다. 표본이 적으면 None — 없는 근거를 만들지 않는다."""
-    if len(trials) < MIN_SAMPLE:
-        return {"n": len(trials), "thin": True} if trials else None
+    dates = len({t["date"] for t in trials})
+    if len(trials) < MIN_SAMPLE or dates < MIN_DATES:
+        return {"n": len(trials), "dates": dates, "thin": True} if trials else None
     fwd = [t["fwd"] for t in trials]
     excess = [t["excess"] for t in trials if t["excess"] is not None]
     realized = [t["realized"] for t in trials if t["realized"] is not None]
@@ -146,6 +155,7 @@ def summarize(trials: list[Trial]) -> dict | None:
     median_excess = statistics.median(excess) if excess else None
     return {
         "n": len(trials),
+        "dates": dates,
         "thin": False,
         "winRate": round(wins / len(fwd), 4),
         "winLo": round(lo, 4),
@@ -185,6 +195,8 @@ def run(bars: dict, etfs: list[dict], bench_of: dict[str, str]) -> dict:
     meta_of = {e["code"]: e for e in etfs}
     trials: list[Trial] = []
     eval_dates: list[str] = []
+    # 그 시점까지의 지수만으로 국면을 판정한다. 미래를 안 본다.
+    regime_at: dict[str, str] = {}
 
     for ci in evaluation_indexes(len(calendar)):
         date = calendar[ci]
@@ -202,6 +214,11 @@ def run(bars: dict, etfs: list[dict], bench_of: dict[str, str]) -> dict:
             bench_fwd[label] = forward_return(s.closes, i)
         if bench_r20["KOSPI"] is None:
             continue
+        ki, di = kospi_at.get(date), kosdaq_at.get(date)
+        regime_at[date] = b.market_regime(
+            kospi.closes[: ki + 1] if ki is not None else [],
+            kosdaq.closes[: di + 1] if di is not None else [],
+        )["label"]
 
         # 1차: 이 날짜의 지표를 전부 구해 둔다. 해외 ETF 의 분류내 백분위를
         # 매기려면 그날의 단면 전체가 필요하다.
@@ -216,7 +233,7 @@ def run(bars: dict, etfs: list[dict], bench_of: dict[str, str]) -> dict:
                 s.highs[: i + 1], s.lows[: i + 1],
             )
             m = b.metrics_of(past)
-            if m["r20"] is None or m["r10"] is None:
+            if m["r20"] is None or m["rSwing"] is None:
                 continue
             snapshot.append((code, i, s, m))
             by_tab[meta_of[code]["tab"]].append(m["r20"])
@@ -258,6 +275,7 @@ def run(bars: dict, etfs: list[dict], bench_of: dict[str, str]) -> dict:
                 date=date, code=code, tab=etf["tab"], grade=grade, momentum=momentum,
                 fwd=fwd, excess=None if fwd_bench is None else fwd - fwd_bench,
                 stopHit=hit, realized=realized,
+                riskAdj=m["riskAdj"], benchFwd=fwd_bench,
                 # 매물대 지표도 같이 채점한다. 새로 넣은 숫자가 실제로 다음 2주와
                 # 관계가 있는지 묻지 않으면, 그럴듯해 보인다는 이유만으로 화면에
                 # 남게 된다.
@@ -266,6 +284,88 @@ def run(bars: dict, etfs: list[dict], bench_of: dict[str, str]) -> dict:
 
     recent_from = calendar[-RECENT_DAYS] if len(calendar) > RECENT_DAYS else calendar[0]
     recent = [t for t in trials if t["date"] >= recent_from]
+
+    def strategy_curve(rows: list[Trial], top_n: int = TOP_N) -> dict:
+        """'매 시점 상위 N개를 같은 금액으로 사서 보유' 를 굴린 누적 곡선.
+
+        진짜 물어야 할 질문은 '등급이 시장을 이겼나' 가 아니라 **'이걸 1년 하는
+        게 그냥 지수를 사놓는 것보다 나은가'** 다. 건당 초과수익 몇 %p 는 그
+        질문에 답하지 못한다 — 회전 횟수와 비용과 낙폭이 빠져 있기 때문이다.
+
+        고르는 규칙은 화면 정렬 기본값과 같다. 추세진행 중 위험조정 모멘텀
+        상위 N개, 같은 금액씩. 상위 5개는 관행적인 수이지 성적이 잘 나오는
+        수를 찾은 게 아니다.
+
+        비용은 회전할 때마다 뺀다. 손절을 지킨 경우와 안 지킨 경우를 둘 다 낸다.
+        """
+        by_date: dict[str, list[Trial]] = defaultdict(list)
+        for t in rows:
+            if t["grade"] == b.GRADE_TREND and t["riskAdj"] is not None:
+                by_date[t["date"]].append(t)
+        dates = sorted(by_date)
+        if len(dates) < MIN_DATES:
+            return {}
+
+        strat, strat_stop, bench, timed = [100.0], [100.0], [100.0], [100.0]
+        picks_per_date, rest_rounds = [], 0
+        for d in dates:
+            picks = sorted(by_date[d], key=lambda x: -x["riskAdj"])[:top_n]
+            if not picks:
+                strat.append(strat[-1]); strat_stop.append(strat_stop[-1])
+                bench.append(bench[-1] * (1 + (by_date[d][0]["benchFwd"] or 0)))
+                picks_per_date.append(0)
+                continue
+            raw = sum(p["fwd"] for p in picks) / len(picks) - ROUND_TRIP_COST
+            kept = sum(
+                (p["realized"] if p["realized"] is not None else p["fwd"]) for p in picks
+            ) / len(picks) - ROUND_TRIP_COST
+            bench_fwd = [p["benchFwd"] for p in picks if p["benchFwd"] is not None]
+            market = sum(bench_fwd) / len(bench_fwd) if bench_fwd else 0.0
+            strat.append(strat[-1] * (1 + raw))
+            strat_stop.append(strat_stop[-1] * (1 + kept))
+            bench.append(bench[-1] * (1 + market))
+            # 국면 필터. 화면은 '역풍이면 쉬어라' 라고 하는데 채점이 그걸 안 지키면
+            # 권하는 절차와 재는 절차가 어긋난다. 역풍인 회차는 현금으로 둔다
+            # (수익 0, 비용 0). 규칙은 이미 만들어 둔 것을 그대로 쓴다.
+            if regime_at.get(d) == "역풍":
+                timed.append(timed[-1])
+                rest_rounds += 1
+            else:
+                timed.append(timed[-1] * (1 + kept))
+            picks_per_date.append(len(picks))
+
+        def drawdown_of(curve):
+            peak, worst = curve[0], 0.0
+            for v in curve:
+                peak = max(peak, v)
+                worst = min(worst, v / peak - 1)
+            return round(worst, 4)
+
+        years = len(dates) * HORIZON / 250.0
+        def annual(curve):
+            if years <= 0 or curve[0] <= 0:
+                return None
+            return round((curve[-1] / curve[0]) ** (1 / years) - 1, 4)
+
+        return {
+            "topN": top_n,
+            "dates": dates,
+            "rounds": len(dates),
+            "years": round(years, 2),
+            "avgPicks": round(sum(picks_per_date) / len(picks_per_date), 1),
+            "restRounds": rest_rounds,
+            "strategy": [round(v, 2) for v in strat],
+            "strategyStop": [round(v, 2) for v in strat_stop],
+            "strategyTimed": [round(v, 2) for v in timed],
+            "benchmark": [round(v, 2) for v in bench],
+            "annualStrategy": annual(strat),
+            "annualStrategyStop": annual(strat_stop),
+            "annualStrategyTimed": annual(timed),
+            "annualBenchmark": annual(bench),
+            "mddStrategy": drawdown_of(strat_stop),
+            "mddStrategyTimed": drawdown_of(timed),
+            "mddBenchmark": drawdown_of(bench),
+        }
 
     def by_overhead(rows: list[Trial]) -> dict:
         """'위에 물린 물량' 구간별 성적.
@@ -307,6 +407,7 @@ def run(bars: dict, etfs: list[dict], bench_of: dict[str, str]) -> dict:
         "recentFrom": recent_from,
         "all": {"baseline": summarize(trials), "byGrade": by_grade(trials),
                 "byOverhead": by_overhead(trials)},
+        "curve": strategy_curve(trials),
         "recent": {"baseline": summarize(recent), "byGrade": by_grade(recent),
                    "byOverhead": by_overhead(recent)},
         "cost": ROUND_TRIP_COST,
@@ -319,6 +420,9 @@ def run(bars: dict, etfs: list[dict], bench_of: dict[str, str]) -> dict:
             "스프레드·세금 같은 거래 비용을 빼지 않았습니다.",
             "손절은 장중 저가가 손절선에 닿으면 거기서 체결된 것으로 봅니다. "
             "갭으로 뛰어넘으면 더 나쁘게 체결되므로 실제보다 좋게 나온 값입니다.",
+            "표에 적힌 표본 수는 관측 수이고, **실제로 독립적인 것은 겹치지 않는 "
+            "평가 시점 수**입니다. 같은 날짜의 ETF 들은 같은 장을 겪으므로 독립이 "
+            "아닙니다. 시점 수를 함께 보세요.",
             "성적이 나쁘다고 임계값을 되맞추지 않았습니다. 규칙을 고칠 때는 논리로 "
             "가설을 먼저 세우고 그다음에 채점받았습니다 — 손절을 보유기간 1σ 바깥으로 "
             "옮긴 것과 '바닥다지기' 등급을 뺀 것이 그렇게 나온 결과입니다.",
@@ -364,7 +468,7 @@ def main() -> int:
                   f"{base['medianFwd']:>+10.2%}")
         for grade, s in block["byGrade"].items():
             if s.get("thin"):
-                print(f"{grade:10s}{s['n']:>7,}   표본 부족")
+                print(f"{grade:10s}{s['n']:>7,}   표본 부족 (독립 시점 {s.get('dates', 0)}회)")
                 continue
             ex = "—" if s["medianExcess"] is None else f"{s['medianExcess']:+.2%}"
             net = "—" if s["netExcess"] is None else f"{s['netExcess']:+.2%}"
@@ -375,12 +479,25 @@ def main() -> int:
     print(f"\n{'위에 물린 물량':14s}{'표본':>7s}{'승률 (95% 구간)':>20s}{'중위 2주':>10s}{'초과':>8s}")
     for band, s in result["all"]["byOverhead"].items():
         if s.get("thin"):
-            print(f"{band:14s}{s['n']:>7,}   표본 부족")
+            print(f"{band:14s}{s['n']:>7,}   표본 부족 (독립 시점 {s.get('dates', 0)}회)")
             continue
         ex = "—" if s["medianExcess"] is None else f"{s['medianExcess']:+.2%}"
         print(f"{band:14s}{s['n']:>7,}"
               f"{s['winRate']:>9.1%} ({s['winLo']:.1%}~{s['winHi']:.1%})"
               f"{s['medianFwd']:>+10.2%}{ex:>8s}")
+
+    curve = result.get("curve") or {}
+    if curve:
+        print(f"\n[상위 {curve['topN']}개 동일가중 · {curve['rounds']}회 회전 · {curve['years']}년]")
+        print(f"  {'전략(손절 적용)':18s} 누적 {curve['strategyStop'][-1] / 100 - 1:+.1%}"
+              f"  연 {curve['annualStrategyStop']:+.2%}  최대낙폭 {curve['mddStrategy']:+.1%}")
+        print(f"  {'전략(손절 없이)':18s} 누적 {curve['strategy'][-1] / 100 - 1:+.1%}"
+              f"  연 {curve['annualStrategy']:+.2%}")
+        print(f"  {'전략(손절+국면필터)':18s} 누적 {curve['strategyTimed'][-1] / 100 - 1:+.1%}"
+              f"  연 {curve['annualStrategyTimed']:+.2%}  최대낙폭 {curve['mddStrategyTimed']:+.1%}"
+              f"  (역풍이라 쉰 회차 {curve['restRounds']}/{curve['rounds']})")
+        print(f"  {'그냥 지수 보유':18s} 누적 {curve['benchmark'][-1] / 100 - 1:+.1%}"
+              f"  연 {curve['annualBenchmark']:+.2%}  최대낙폭 {curve['mddBenchmark']:+.1%}")
 
     print(f"\n  assets/etf/backtest.json  {(OUT / 'backtest.json').stat().st_size / 1024:.0f}KB")
     return 0

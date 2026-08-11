@@ -397,6 +397,33 @@ class HighestTest(unittest.TestCase):
         self.assertIsNone(b.highest([], 20))
 
 
+class CorrelationTest(unittest.TestCase):
+    def test_같이_움직이면_1이다(self):
+        a = [0.01, -0.02, 0.03, -0.01, 0.02] * 6
+        self.assertAlmostEqual(b.correlation(a, a), 1.0, places=6)
+
+    def test_반대로_움직이면_음수다(self):
+        a = [0.01, -0.02, 0.03, -0.01, 0.02] * 6
+        self.assertAlmostEqual(b.correlation(a, [-v for v in a]), -1.0, places=6)
+
+    def test_표본이_모자라면_None이다(self):
+        self.assertIsNone(b.correlation([0.01] * 5, [0.02] * 5))
+
+    def test_한쪽이_안_움직이면_None이다(self):
+        # 분모가 0 이라 상관이 정의되지 않는다. 0 으로 두면 '분산된다' 는
+        # 거짓 신호가 된다.
+        a = [0.01, -0.02, 0.03, -0.01, 0.02] * 6
+        self.assertIsNone(b.correlation(a, [0.0] * 30))
+
+
+class DailyReturnsTest(unittest.TestCase):
+    def test_가격이_아니라_수익률을_돌려준다(self):
+        r = b.daily_returns([100.0, 110.0, 121.0], span=10)
+        self.assertEqual(len(r), 2)
+        self.assertAlmostEqual(r[0], 0.10)
+        self.assertAlmostEqual(r[1], 0.10)
+
+
 class MarketRegimeTest(unittest.TestCase):
     def test_둘_다_20일선_위면_순풍이다(self):
         up = line(100, 0.01, 25)

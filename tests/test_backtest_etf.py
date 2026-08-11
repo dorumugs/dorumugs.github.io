@@ -75,9 +75,11 @@ class StopOutcomeTest(unittest.TestCase):
 
 
 class SummarizeTest(unittest.TestCase):
-    def make(self, fwds, excess=None, stops=None):
+    def make(self, fwds, excess=None, stops=None, dates=None):
+        """관측을 만든다. 날짜를 안 주면 전부 다른 날로 흩어 놓는다."""
         return [
             bt.Trial(
+                date=(dates[i] if dates else f"2026{i:04d}"),
                 fwd=f,
                 excess=(excess[i] if excess else None),
                 stopHit=(stops[i] if stops else False),
@@ -106,6 +108,21 @@ class SummarizeTest(unittest.TestCase):
         stops = [True] * 30 + [False] * 70
         s = bt.summarize(self.make([0.01] * 100, stops=stops))
         self.assertAlmostEqual(s["stopHitRate"], 0.30)
+
+    def test_관측이_많아도_시점이_적으면_숫자를_내지_않는다(self):
+        # 진짜 표본은 관측 수가 아니라 서로 겹치지 않는 평가 시점 수다. 같은
+        # 날짜의 ETF 들은 같은 장을 겪으므로 독립이 아니다. 200건이어도 하루에
+        # 몰려 있으면 '하루치 관찰' 이다.
+        one_day = ["20260811"] * 200
+        s = bt.summarize(self.make([0.01] * 200, dates=one_day))
+        self.assertTrue(s["thin"])
+        self.assertEqual(s["dates"], 1)
+
+    def test_시점이_충분하면_통과한다(self):
+        dates = [f"202608{i % 12:02d}" for i in range(200)]
+        s = bt.summarize(self.make([0.01] * 200, dates=dates))
+        self.assertFalse(s["thin"])
+        self.assertEqual(s["dates"], 12)
 
     def test_시장초과가_없으면_None으로_둔다(self):
         s = bt.summarize(self.make([0.01] * 50))

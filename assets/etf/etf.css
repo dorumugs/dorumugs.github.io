@@ -296,3 +296,43 @@
   width: 7.5em; font-size: 1em; padding: 3px 6px;
   border: 1px solid #d5d5d5; border-radius: 5px; text-align: right;
 }
+
+/* --- 누적 곡선 ----------------------------------------------------------- */
+
+.ef-curve { margin: 0.6em 0 0.8em; }
+.ef-curve svg {
+  width: 100%; height: 200px; display: block;
+  background: #fbfbfb; border: 1px solid #eee; border-radius: 6px;
+}
+.ef-legendrow { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; }
+.ef-legend { font-size: 0.72em; color: #777; display: flex; align-items: center; gap: 4px; }
+.ef-legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+/* --- 담기 · 바구니 -------------------------------------------------------- */
+
+.ef-cardwrap { position: relative; min-width: 0; }
+.ef-cardwrap .ef-name { padding-right: 3.6em; }
+
+.ef-basket-toggle {
+  position: absolute; top: 9px; right: 9px; z-index: 2;
+  font-size: 0.68em; padding: 3px 8px; cursor: pointer;
+  border: 1px solid #d3d3d3; border-radius: 999px; background: #fff; color: #666;
+}
+.ef-basket-toggle.is-on { background: #16704a; border-color: #16704a; color: #fff; font-weight: 700; }
+
+.ef-basket { margin: 0 0 1.2em; }
+.ef-basket-names { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.ef-basket-names .ef-tag { font-size: 0.75em; padding: 4px 6px 4px 9px; }
+.ef-basket-x {
+  border: 0; background: none; cursor: pointer; color: #999;
+  font-size: 1em; padding: 0 2px; margin-left: 3px;
+}
+.ef-basket .ef-table td:last-child { text-align: right; }
+.ef-basket .ef-table td:first-child { min-width: 7em; }
+
+/* 진입 기록 복사 */
+.ef-copy {
+  font-size: 0.78em; padding: 7px 14px; cursor: pointer; margin-top: 0.9em;
+  border: 1px solid #cfd8e0; border-radius: 8px; background: #f7fafc; color: #2c3e50;
+}
+.ef-copy.is-done { background: #e9f5ee; border-color: #c2ddc9; color: #16704a; }

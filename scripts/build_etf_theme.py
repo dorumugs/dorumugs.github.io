@@ -50,10 +50,27 @@ OUT = REPO / "assets" / "etf"
 
 LOOKBACK = 20
 SHORT_LOOKBACK = 5
-# 보유 목표가 2주다. 20일은 '이 판이 대세인가' 를 보는 배경이고, 실제로 들고 갈
-# 구간과 시간축을 맞춘 건 이쪽이다. 신호의 기간과 보유 기간이 어긋나면 20일짜리
-# 흐름을 보고 들어가 10일 만에 나오는, 아귀가 안 맞는 매매가 된다.
-SWING_LOOKBACK = 10
+# 보유 목표 기간. 처음엔 2주(10 거래일)로 뒀다가 **8주(40 거래일)** 로 늘렸다.
+#
+# 왜 늘렸나. 가설을 먼저 세웠다 — 왕복 비용 0.10%p 를 10일마다 내면 얇은 우위가
+# 다 깎인다. 신호가 같다면 오래 들고 갈수록 비용을 나눠 내게 된다. 재봤더니
+# 그것보다 결과가 좋았다. '추세진행 + 물린물량 20% 미만' 기준으로
+#
+#   보유 10일  건당 초과 +0.22%  비용후 +0.12%  연 환산 +3.0%
+#   보유 20일           +0.52%         +0.42%         +5.2%
+#   보유 40일           +1.43%         +1.33%         +8.3%
+#   보유 60일           +2.23%         +2.13%         +8.9%
+#
+# 건당 초과가 기간보다 빠르게 늘었다(4배 기간에 6.5배). 비용 분산만이 아니라
+# **신호 자체가 긴 구간에서 더 잘 듣는다**는 뜻이고, 모멘텀 문헌과도 맞는다.
+#
+# 40 과 60 중 어느 쪽이 나은지는 **못 가린다** — 겹치지 않는 평가 시점이 각각
+# 21회·14회뿐이라 그 차이를 주장할 표본이 없다. 방향만 믿고 40 을 골랐다.
+#
+# 이건 임계값 튜닝이 아니다. 보유 기간은 규칙 안의 파라미터가 아니라 **투자자가
+# 정하는 조건**이라, 여러 값을 재서 고르는 게 맞다. 판정 규칙(LOOKBACK 20,
+# SHORT_LOOKBACK 5)은 그대로 뒀다 — 측정할 때도 그대로였기 때문이다.
+SWING_LOOKBACK = 40
 ATR_SPAN = 14
 # 손절폭. 2×ATR 은 하루 평균 등락의 두 배라, 평범한 출렁임에는 안 털리고
 # 추세가 깨지면 잡히는 자리다.
@@ -98,6 +115,11 @@ GROUP_ETF_EXCLUDE_TABS = {1}
 PROFILE_SPAN = 120
 PROFILE_BINS = 40
 YEAR_SPAN = 250            # 52주 고점
+
+# 후보 간 상관. 60 거래일이면 최근 국면을 반영하면서도 표본이 충분하다.
+# 상관행렬은 후보군에만 계산한다 — 1,160개 전부면 67만 쌍이라 실을 수 없다.
+CORR_SPAN = 60
+CORR_MAX_CANDIDATES = 160
 
 DOMESTIC_TABS = {1, 2, 3}
 
@@ -271,13 +293,16 @@ def atr(highs: list[float], lows: list[float], closes: list[float], span: int = 
 def stop_level(closes: list[float], atr_value: float | None, expected: float | None) -> float | None:
     """손절 가격 — 보유기간 노이즈의 **바깥**에 둔다.
 
-    처음에는 `max(최근10일 저점, 현재가 − 2×ATR)` 로 둘 중 더 가까운 쪽을 썼다.
+    처음에는 `max(최근 저점, 현재가 − 2×ATR)` 로 둘 중 더 가까운 쪽을 썼다.
     손실을 먼저 제한한다는 생각이었는데, 산수가 틀렸다.
 
       보유 H일 동안의 노이즈 크기는 하루 변동성 × √H 다. 2주면 √10 ≈ 3.16
       일간단위인데, 2×ATR 은 2 일간단위다. **2 < 3.16 이라 손절선이 노이즈
       밴드 안에 있다.** 논지가 깨져서가 아니라 평범한 출렁임에 걸린다.
-      거기에 '최근 10일 저점' 을 더 가까운 쪽으로 골랐으니 더 좁아졌다.
+      거기에 '최근 저점' 을 더 가까운 쪽으로 골랐으니 더 좁아졌다.
+
+    보유를 8주로 늘린 뒤에는 √40 ≈ 6.3 이라 손절이 훨씬 넓어진다. 같은 규칙이
+    기간을 따라 자동으로 조정되는 것이지 값을 새로 고른 게 아니다.
 
     백테스트가 이걸 그대로 보여줬다 — 2주 안에 손절이 37~60% 걸렸고, 그 바람에
     원수익이 플러스인 등급도 손절을 지키면 마이너스가 됐다.
@@ -321,11 +346,11 @@ def stop_touch_probability(stop_pct: float | None, expected: float | None) -> fl
 def expected_move(closes: list[float], days: int = SWING_LOOKBACK) -> float | None:
     """앞으로 `days` 거래일 동안 보통 이만큼 움직인다 — 관측된 변동성의 1σ.
 
-    √시간 법칙을 쓴다. 하루 변동폭이 2% 면 10일은 2%×√10 ≈ 6.3% 다. 10일이니까
-    20% 가 아니다 — 오르내림이 서로 상쇄되기 때문에 날짜의 제곱근만큼만 커진다.
+    √시간 법칙을 쓴다. 하루 변동폭이 2% 면 40일은 2%×√40 ≈ 12.6% 다. 40일이니까
+    80% 가 아니다 — 오르내림이 서로 상쇄되기 때문에 날짜의 제곱근만큼만 커진다.
 
-    **방향을 맞히는 값이 아니다.** '2주에 이 정도 폭으로 흔들리는 물건' 이라는
-    크기 감각일 뿐이다. 손절폭과 견줘 볼 잣대로 쓴다.
+    **방향을 맞히는 값이 아니다.** '보유 기간에 이 정도 폭으로 흔들리는 물건'
+    이라는 크기 감각일 뿐이다. 손절폭과 견줘 볼 잣대로 쓴다.
     """
     if len(closes) < LOOKBACK + 1:
         return None
@@ -553,6 +578,37 @@ def grade_of(
     return momentum, momentum, reasons
 
 
+def correlation(a: list[float], b_: list[float]) -> float | None:
+    """두 수익률 배열의 상관계수.
+
+    ETF 두 개를 나눠 담아도 둘이 같이 움직이면 분산이 아니다. 반도체 ETF 세 개는
+    이름만 셋이지 사실상 한 베팅이다. 그걸 숫자로 잡는다.
+
+    가격이 아니라 **일간 수익률**로 재야 한다. 가격끼리 재면 둘 다 우상향이라는
+    이유만으로 상관이 높게 나온다.
+    """
+    n = min(len(a), len(b_))
+    if n < 20:
+        return None
+    x, y = a[-n:], b_[-n:]
+    mx, my = sum(x) / n, sum(y) / n
+    sxx = sum((v - mx) ** 2 for v in x)
+    syy = sum((v - my) ** 2 for v in y)
+    if sxx <= 0 or syy <= 0:
+        return None
+    sxy = sum((u - mx) * (v - my) for u, v in zip(x, y))
+    return round(max(-1.0, min(1.0, sxy / math.sqrt(sxx * syy))), 3)
+
+
+def daily_returns(closes: list[float], span: int = CORR_SPAN) -> list[float]:
+    window = closes[-(span + 1):]
+    return [
+        window[i] / window[i - 1] - 1
+        for i in range(1, len(window))
+        if window[i - 1] > 0
+    ]
+
+
 def market_regime(kospi: list[float], kosdaq: list[float]) -> dict:
     """지금 롱을 잡아도 되는 국면인가.
 
@@ -687,7 +743,7 @@ def metrics_of(s: Series) -> dict:
     stop = stop_level(closes, atr_value, expected)
     stop_pct = None if stop is None else stop / closes[-1] - 1
     vol = annualized_vol(closes)
-    r10 = pct_return(closes, SWING_LOOKBACK)
+    r_swing = pct_return(closes, SWING_LOOKBACK)
     price = closes[-1] if closes else None
     high_year = highest(s.highs, YEAR_SPAN)
     profile = volume_profile(s.highs, s.lows, s.volumes)
@@ -709,7 +765,7 @@ def metrics_of(s: Series) -> dict:
         # 지연 로딩하는 details.json 쪽에만 넣고 여기서는 떼어낸다.
         "profile": profile,
         "r20": pct_return(closes, LOOKBACK),
-        "r10": r10,
+        "rSwing": r_swing,
         "r5": pct_return(closes, SHORT_LOOKBACK),
         "straight": straightness(closes[-(LOOKBACK + 1):]),
         "straightPrior": straightness_prior(closes),
@@ -720,11 +776,11 @@ def metrics_of(s: Series) -> dict:
         "atr": atr_value,
         "stop": None if stop is None else round(stop, 2),
         "stopPct": stop_pct,
-        "expected2w": expected,
+        "expectedSwing": expected,
         "stopProb": stop_touch_probability(stop_pct, expected),
         # 위험조정 2주 모멘텀. 변동성 100% 짜리의 +20% 와 30% 짜리의 +8% 를
         # 같은 줄에 세우려면 위험 한 단위당 얼마를 벌었는지로 봐야 한다.
-        "riskAdj": None if (r10 is None or not vol) else round(r10 / vol, 4),
+        "riskAdj": None if (r_swing is None or not vol) else round(r_swing / vol, 4),
         "bars": len(closes),
     }
 
@@ -732,7 +788,7 @@ def metrics_of(s: Series) -> dict:
 def round_metrics(m: dict) -> dict:
     out = dict(m)
     out.pop("profile", None)   # 원본 매물대는 목록에 싣지 않는다
-    for key in ("r20", "r10", "r5", "vol", "gap", "dd", "stopPct", "expected2w",
+    for key in ("r20", "rSwing", "r5", "vol", "gap", "dd", "stopPct", "expectedSwing",
                 "fromHigh52", "wallGap"):
         if out.get(key) is not None:
             out[key] = round(out[key], 5)
@@ -818,10 +874,10 @@ def main() -> int:
         markets = Counter(market.get(c) for c in codes if market.get(c))
         bench = "KOSDAQ" if markets.get("KOSDAQ", 0) > markets.get("KOSPI", 0) else "KOSPI"
 
-        r10s = [stock_swing.get(c) for c in codes]
+        r_swings = [stock_swing.get(c) for c in codes]
         overheads = [stock_overhead.get(c) for c in codes]
         median20 = median_or_none(r20s)
-        median10 = median_or_none(r10s)
+        median_swing = median_or_none(r_swings)
         median5 = median_or_none(r5s)
         breadth = breadth_of(r20s)
         straight = straightness(index)
@@ -854,9 +910,9 @@ def main() -> int:
                 "members": len(codes),
                 "valid": valid,
                 "r20": None if median20 is None else round(median20, 5),
-                "r10": None if median10 is None else round(median10, 5),
+                "rSwing": None if median_swing is None else round(median_swing, 5),
                 "r5": None if median5 is None else round(median5, 5),
-                "breadth10": (lambda x: None if x is None else round(x, 4))(breadth_of(r10s)),
+                "breadthSwing": (lambda x: None if x is None else round(x, 4))(breadth_of(r_swings)),
                 # 구성종목의 매물대 부담 중위값. 테마가 통째로 물려 있는지.
                 "overhead": (lambda x: None if x is None else round(x, 4))(median_or_none(overheads)),
                 "breadth": None if breadth is None else round(breadth, 4),
@@ -1052,6 +1108,28 @@ def main() -> int:
         # 대표 그룹이 없는 ETF(해외·채권 등)는 겹칠 상대가 없으니 그대로 둔다.
         row["primary"] = row["group"] is None or row["code"] in primary_codes
 
+    # --- 후보 간 상관 --------------------------------------------------------
+    # 분산은 개수가 아니라 상관이 정한다. 후보를 3~5개 담을 때 '사실상 같은 베팅'
+    # 인지 알려주려면 상관이 필요하다. 전 종목은 못 싣고(67만 쌍), 실제로 담을
+    # 만한 후보군에만 계산한다.
+    candidates = [
+        r for r in etf_rows
+        if r["primary"] and r["grade"] in (GRADE_TREND, GRADE_PULLBACK, GRADE_OVERHEAT)
+        and r["turnover"] and r["turnover"] >= TURNOVER_FLOOR
+    ]
+    candidates.sort(key=lambda r: -(r["turnover"] or 0))
+    candidates = candidates[:CORR_MAX_CANDIDATES]
+    corr_codes = [r["code"] for r in candidates]
+    returns_of = {c: daily_returns(series_of(bars, c).closes) for c in corr_codes}
+    corr_pairs: dict[str, float] = {}
+    for i, a in enumerate(corr_codes):
+        for b_code in corr_codes[i + 1:]:
+            value = correlation(returns_of[a], returns_of[b_code])
+            if value is not None:
+                corr_pairs[f"{a}:{b_code}"] = value
+    print(f"후보 {len(corr_codes)}개 상관 {len(corr_pairs)}쌍 (최근 {CORR_SPAN}거래일)")
+    write_json(OUT / "corr.json", {"span": CORR_SPAN, "codes": corr_codes, "pairs": corr_pairs})
+
     match_rate = matched_names / total_names if total_names else 0.0
     print(f"국내 ETF 구성종목 이름 매칭률 {match_rate:.1%} ({matched_names}/{total_names})")
     if total_names and match_rate < 0.80:
@@ -1071,6 +1149,7 @@ def main() -> int:
         "intraday": bool(state.get("bars_intraday")),
         "lookback": LOOKBACK,
         "swingLookback": SWING_LOOKBACK,
+        "swingWeeks": round(SWING_LOOKBACK / 5),
         "regime": regime,
         "primaryCount": sum(1 for r in etf_rows if r["primary"]),
         "kospi": round(benchmark["KOSPI"], 5),
@@ -1113,7 +1192,7 @@ def main() -> int:
                 "weight": weight,          # 이 ETF 안에서 해당 테마가 차지하는 비중(%)
                 "cap": row["cap"],          # 시가총액(억원)
                 "turnover": row["turnover"],
-                "r10": row["r10"],
+                "rSwing": row["rSwing"],
                 "grade": row["grade"],
                 "lev": row["lev"],
                 "partial": weight < GROUP_ETF_PARTIAL,

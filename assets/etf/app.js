@@ -24,10 +24,21 @@
     etfShown: PAGE,
     themeShown: GROUP_PAGE,
     upjongShown: GROUP_PAGE,
-    risk: 300000
+    risk: 300000,
+    basket: [],
+    corr: null,
+    corrPromise: null
   };
 
   var $ = function (id) { return document.getElementById(id); };
+
+  /* 보유 기간 라벨. meta 에서 읽어 만든다 — '2주(10일)' 을 문자열에 박아 두면
+     기간을 바꿀 때마다 화면 곳곳이 거짓말을 한다. */
+  function swingLabel() {
+    var m = state.meta || {};
+    return (m.swingWeeks || 8) + '주(' + (m.swingLookback || 40) + '일)';
+  }
+  function swingWeeks() { return (state.meta && state.meta.swingWeeks) || 8; }
 
   function fetchJson(name) {
     return fetch(BASE + '/' + name + '.json', { cache: 'no-cache' }).then(function (r) {
@@ -107,7 +118,7 @@
     return null;
   }
 
-  /* 2주 스윙에 필요한 세 숫자. 어디서 자를지, 보통 얼마나 흔들리는지, 그 손절이
+  /* 보유 기간 매매에 필요한 세 숫자. 어디서 자를지, 보통 얼마나 흔들리는지, 그 손절이
      얼마나 자주 걸릴 자리인지. 이게 없으면 '오른다' 는 정보만으로 주문을 못 낸다. */
   function swingRow(row) {
     if (row.stopPct === null || row.stopPct === undefined) { return ''; }
@@ -117,7 +128,7 @@
     var loose = row.stopProb !== null && row.stopProb !== undefined && row.stopProb < 0.28;
     return '<span class="ef-swing">' +
       '<span>손절 <em class="ef-down">' + pct(row.stopPct) + '</em></span>' +
-      '<span>2주 폭 <em>±' + (row.expected2w * 100).toFixed(1) + '%</em></span>' +
+      '<span>' + swingWeeks() + '주 폭 <em>±' + (row.expectedSwing * 100).toFixed(1) + '%</em></span>' +
       (loose ? '<span>손절 여유 <em>걸릴 확률 ' + (row.stopProb * 100).toFixed(0) + '%</em></span>' : '') +
       '</span>';
   }
@@ -136,20 +147,39 @@
      같은 값이지만, 실제로 못 빠져나오는지는 **내 주문 크기**에 달렸다. */
   function sizing(row) {
     if (!row.stopPct || row.price === null || row.price === undefined) { return null; }
+    // 금리형·판정불가에는 수량을 내지 않는다. 손절폭이 0.03% 라 위험 기반
+    // 수량이 천문학적으로 나오는데, 애초에 스윙으로 담을 물건이 아니다.
+    if (row.grade === '금리형' || row.grade === '판정불가') { return null; }
     var perShare = row.price * Math.abs(row.stopPct);
     if (perShare <= 0) { return null; }
-    var shares = Math.floor(state.risk / perShare);
-    if (shares < 1) {
-      return { shares: 0, amount: 0, tooBig: false,
+    var byRisk = Math.floor(state.risk / perShare);
+    if (byRisk < 1) {
+      return { shares: 0, amount: 0, capped: false,
                note: '한 주만 사도 손실 한도를 넘습니다. 이 종목은 지금 규모로 못 담습니다.' };
     }
-    var amount = shares * row.price;
-    var tooBig = row.turnover ? amount > row.turnover * 0.01 : false;
-    return { shares: shares, amount: amount, tooBig: tooBig, note: '' };
+    /* 유동성 상한. 손절폭이 아주 좁은 물건(머니마켓·CD금리류는 0.03% 다)에
+       위험 기반 수량만 쓰면 '10억어치 사라' 같은 답이 나온다. 산수는 맞지만
+       현실이 아니다 — 하루 거래대금의 1% 를 넘겨 담으면 넣고 빼는 데 값이
+       밀리므로, 거기서 끊는다. 어느 쪽에 걸렸는지도 같이 알려준다. */
+    var byLiquidity = row.turnover
+      ? Math.floor(row.turnover * 0.01 / row.price)
+      : byRisk;
+    var shares = Math.max(0, Math.min(byRisk, byLiquidity));
+    if (shares < 1) {
+      return { shares: 0, amount: 0, capped: true,
+               note: '하루 거래대금이 너무 적어 한 주도 감당이 안 됩니다.' };
+    }
+    return {
+      shares: shares,
+      amount: shares * row.price,
+      capped: shares < byRisk,
+      byRisk: byRisk,
+      note: ''
+    };
   }
 
   /* 고점 · 현재가 · 물린 물량. 위에 매물이 쌓여 있으면 오를 때마다 본전 찾는
-     매도가 나온다. 2주 스윙에서는 지표보다 직접적인 장애물이다. */
+     매도가 나온다. 짧은 보유에서는 지표보다 직접적인 장애물이다. */
   function supplyRow(row) {
     if (row.price === null || row.price === undefined) { return ''; }
     var heavy = row.overhead !== null && row.overhead >= 0.6;
@@ -166,8 +196,9 @@
         var s = sizing(row);
         if (!s) { return ''; }
         if (!s.shares) { return '<span class="ef-down">한도 초과 — 못 담음</span>'; }
-        return '<span>수량 <em>' + s.shares.toLocaleString() + '주</em> · 투입 <em' +
-          (s.tooBig ? ' class="ef-down"' : '') + '>' + moneyShort(s.amount) + '</em></span>';
+        return '<span>수량 <em>' + s.shares.toLocaleString() + '주</em> · 투입 <em>' +
+          moneyShort(s.amount) + '</em>' + (s.capped ? ' <i class="ef-down">유동성 상한</i>' : '') +
+          '</span>';
       })() +
       '</span>';
   }
@@ -187,10 +218,15 @@
       ? escapeHtml(row.bench) + ' 대비 <em>' + pct(row.excess) + '</em>'
       : (row.pct === null || row.pct === undefined ? '' : '같은 분류 상위 <em>' + (100 - row.pct).toFixed(0) + '%</em>');
 
-    return '<button type="button" class="ef-card" data-kind="etf" data-code="' + escapeHtml(row.code) + '">' +
+    var inBasket = state.basket.indexOf(row.code) >= 0;
+    return '<div class="ef-cardwrap">' +
+      '<button type="button" class="ef-basket-toggle' + (inBasket ? ' is-on' : '') +
+      '" data-basket="' + escapeHtml(row.code) + '" aria-pressed="' + inBasket + '">' +
+      (inBasket ? '담음 ✓' : '담기') + '</button>' +
+      '<button type="button" class="ef-card" data-kind="etf" data-code="' + escapeHtml(row.code) + '">' +
       '<span class="ef-card-top"><span class="ef-name">' + escapeHtml(row.name) + '</span></span>' +
       '<span class="ef-heads">' +
-        '<span class="ef-head"><i>2주(10일)</i><b class="' + dirClass(row.r10) + '">' + pct(row.r10) + '</b></span>' +
+        '<span class="ef-head"><i>' + swingLabel() + '</i><b class="' + dirClass(row.rSwing) + '">' + pct(row.rSwing) + '</b></span>' +
         '<span class="ef-head"><i>20일</i><b class="' + dirClass(row.r20) + '">' + pct(row.r20) + '</b></span>' +
       '</span>' +
       badge(row.grade) +
@@ -204,7 +240,7 @@
       '</span>' +
       breadthBar(row.breadth) +
       '<span class="ef-tagrow">' + tags.join('') + '</span>' +
-      '</button>';
+      '</button></div>';
   }
 
   /* 테마 265개를 카드로 늘어놓으면 훑을 수가 없다. 표로 놓고 테마·업종을
@@ -217,7 +253,7 @@
       var mark = r.etfCount ? r.etfCount + '개' : '—';
       return '<tr class="ef-row" data-kind="group" data-code="' + escapeHtml(r.key) + '" tabindex="0">' +
         '<td class="ef-rowname">' + escapeHtml(r.name) + '</td>' +
-        '<td class="' + dirClass(r.r10) + '">' + pct(r.r10) + '</td>' +
+        '<td class="' + dirClass(r.rSwing) + '">' + pct(r.rSwing) + '</td>' +
         '<td class="' + dirClass(r.r20) + '">' + pct(r.r20) + '</td>' +
         '<td>' + (r.breadth === null ? '—' : Math.round(r.breadth * 100) + '%') + '</td>' +
         '<td class="' + dirClass(r.excess) + '">' + pct(r.excess) + '</td>' +
@@ -228,9 +264,129 @@
         '<td>' + mark + '</td></tr>';
     }).join('');
     return '<div class="ef-tablewrap"><table class="ef-table ef-grouptable"><thead><tr>' +
-      '<th>이름</th><th>2주</th><th>20일</th><th>상승비율</th><th>시장대비</th>' +
+      '<th>이름</th><th>' + swingWeeks() + '주</th><th>20일</th><th>상승비율</th><th>시장대비</th>' +
       '<th>물린 물량</th><th>등급</th><th>종목</th><th>ETF</th></tr></thead><tbody>' + body +
       '</tbody></table></div>';
+  }
+
+  /* --- 바구니: 분산이 되는가 --------------------------------------------- */
+
+  function loadCorr() {
+    if (state.corr) { return Promise.resolve(state.corr); }
+    if (!state.corrPromise) {
+      state.corrPromise = fetchJson('corr').then(function (d) { state.corr = d; return d; })
+        .catch(function () { state.corr = { pairs: {} }; return state.corr; });
+    }
+    return state.corrPromise;
+  }
+
+  function corrOf(a, c) {
+    if (!state.corr || !state.corr.pairs) { return null; }
+    var p = state.corr.pairs;
+    var v = p[a + ':' + c];
+    if (v === undefined) { v = p[c + ':' + a]; }
+    return v === undefined ? null : v;
+  }
+
+  /* 분산은 개수가 아니라 상관이 정한다.
+
+     각 종목의 보유기간 변동 금액을 a_i = 투입금액 × 기대변동폭 이라 하면,
+     포트폴리오 변동 금액은 sqrt(ΣΣ a_i a_j ρ_ij) 다. 상관이 1 이면 그냥 합이고
+     (분산 효과 0), 0 이면 제곱합의 제곱근으로 줄어든다.
+
+     상관을 모르는 쌍은 **1 로 본다** — 모르면 최악을 가정하는 게 맞다.
+     분산 효과를 실제보다 크게 보여주면 안 되기 때문이다. */
+  function basketStats() {
+    var rows = state.basket
+      .map(function (c) { return state.etfs.filter(function (r) { return r.code === c; })[0]; })
+      .filter(Boolean);
+    if (!rows.length) { return null; }
+    var items = rows.map(function (r) {
+      var s = sizing(r);
+      var amount = s && s.shares ? s.amount : 0;
+      return { row: r, amount: amount, swing: amount * (r.expectedSwing || 0) };
+    });
+    var naive = items.reduce(function (a, i) { return a + i.swing; }, 0);
+    var varSum = 0;
+    for (var i = 0; i < items.length; i++) {
+      for (var j = 0; j < items.length; j++) {
+        var rho = i === j ? 1 : corrOf(items[i].row.code, items[j].row.code);
+        if (rho === null) { rho = 1; }
+        varSum += items[i].swing * items[j].swing * rho;
+      }
+    }
+    var combined = Math.sqrt(Math.max(0, varSum));
+    var worst = null;
+    for (var a = 0; a < rows.length; a++) {
+      for (var c = a + 1; c < rows.length; c++) {
+        var v = corrOf(rows[a].code, rows[c].code);
+        if (v !== null && (!worst || v > worst.v)) {
+          worst = { v: v, a: rows[a], b: rows[c] };
+        }
+      }
+    }
+    return {
+      rows: rows, items: items,
+      amount: items.reduce(function (a, i) { return a + i.amount; }, 0),
+      naive: naive, combined: combined,
+      benefit: naive > 0 ? 1 - combined / naive : 0,
+      allStopped: state.risk * rows.length,
+      worst: worst,
+      unknown: rows.length > 1 && worst === null
+    };
+  }
+
+  function renderBasket() {
+    var host = $('ef-basket');
+    if (!host) { return; }
+    var s = basketStats();
+    if (!s) {
+      host.innerHTML = '<p class="ef-note">카드의 <strong>담기</strong>를 눌러 3~5개를 모으면 ' +
+        '<strong>정말 분산이 되는지</strong> 계산해 드립니다. 반도체 ETF 세 개는 이름만 셋이지 ' +
+        '사실상 한 베팅입니다.</p>';
+      return;
+    }
+    var names = s.rows.map(function (r) {
+      return '<span class="ef-tag">' + escapeHtml(r.name) +
+        ' <button type="button" class="ef-basket-x" data-basket="' + escapeHtml(r.code) +
+        '" aria-label="빼기">✕</button></span>';
+    }).join('');
+    var warn = '';
+    if (s.worst && s.worst.v >= 0.85) {
+      warn = '<p class="ef-record-note"><strong>' + escapeHtml(s.worst.a.name) + '</strong> 과 ' +
+        '<strong>' + escapeHtml(s.worst.b.name) + '</strong> 의 상관이 ' + s.worst.v.toFixed(2) +
+        ' 입니다 — 사실상 같은 베팅이라 나눠 담은 뜻이 없습니다.</p>';
+    } else if (s.unknown) {
+      warn = '<p class="ef-record-note">상관을 모르는 조합이 있어 <strong>분산 효과를 0으로</strong> ' +
+        '잡았습니다. 후보군(거래대금 상위·추세 등급) 밖의 ETF 는 상관을 계산해 두지 않습니다.</p>';
+    }
+    host.innerHTML =
+      '<div class="ef-basket-names">' + names + '</div>' +
+      '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
+      '<th>담은 것</th><th>값</th></tr></thead><tbody>' +
+      '<tr><td>합산 투입</td><td><b>' + Math.round(s.amount).toLocaleString() + '원</b></td></tr>' +
+      '<tr><td>다 손절되면</td><td class="ef-down"><b>−' +
+        Math.round(s.allStopped).toLocaleString() + '원</b> (' + s.rows.length + '× 위험금액)</td></tr>' +
+      '<tr><td>' + swingWeeks() + '주 기대 변동폭</td><td><b>±' +
+        Math.round(s.combined).toLocaleString() + '원</b></td></tr>' +
+      '<tr><td>따로 담았다면</td><td>±' + Math.round(s.naive).toLocaleString() + '원</td></tr>' +
+      '<tr><td>분산 효과</td><td><b>' + (s.benefit * 100).toFixed(0) + '% 감소</b>' +
+        (s.worst ? ' · 가장 닮은 쌍 상관 ' + s.worst.v.toFixed(2) : '') + '</td></tr>' +
+      '</tbody></table></div>' + warn +
+      '<p class="ef-note">상관이 1 이면 합산과 같아 분산 효과가 0 이고, 낮을수록 줄어듭니다. ' +
+      '<strong>모르는 쌍은 상관 1 로 봅니다</strong> — 모르면 최악을 가정해야 분산 효과를 ' +
+      '실제보다 크게 보여주는 일이 없습니다. ' +
+      '"다 손절되면" 은 담은 것이 동시에 무너지는 경우라, 이 금액이 감당 가능한지가 먼저입니다.</p>';
+  }
+
+  function toggleBasket(code) {
+    var i = state.basket.indexOf(code);
+    if (i >= 0) { state.basket.splice(i, 1); } else {
+      if (state.basket.length >= 8) { return; }
+      state.basket.push(code);
+    }
+    try { window.localStorage.setItem('ef-basket', JSON.stringify(state.basket)); } catch (e) { /* 무시 */ }
+    loadCorr().then(function () { renderBasket(); renderEtfs(); renderPick(); });
   }
 
   /* --- 거르기와 정렬 ------------------------------------------------------ */
@@ -246,7 +402,7 @@
     var copy = rows.slice();
     if (key === 'grade') {
       copy.sort(function (a, b) {
-        return gradeRank(a.grade) - gradeRank(b.grade) || (b.riskAdj || b.r10 || -9) - (a.riskAdj || a.r10 || -9);
+        return gradeRank(a.grade) - gradeRank(b.grade) || (b.riskAdj || b.rSwing || -9) - (a.riskAdj || a.rSwing || -9);
       });
     } else if (key === 'riskAdj') {
       // 위험 한 단위당 얼마를 벌었나. 변동성이 다른 물건을 같은 줄에 세우려면
@@ -331,36 +487,12 @@
     if (!host) { return; }
     var bt = state.backtest;
     if (!bt) {
-      function overheadTable(block) {
-      if (!block || !Object.keys(block).length) { return ''; }
-      var rows = Object.keys(block).map(function (band) {
-        var s = block[band];
-        if (s.thin) {
-          return '<tr><td>' + band + '</td><td>' + s.n + '</td><td colspan="3">표본 부족</td></tr>';
-        }
-        var exCls = s.medianExcess !== null && s.medianExcess < 0 ? ' class="ef-down"' : '';
-        return '<tr><td>' + band + '</td><td>' + s.n.toLocaleString() + '</td>' +
-          '<td>' + (s.winRate * 100).toFixed(1) + '% <i>(' +
-            (s.winLo * 100).toFixed(1) + '~' + (s.winHi * 100).toFixed(1) + ')</i></td>' +
-          '<td>' + pct(s.medianFwd, 2) + '</td>' +
-          '<td' + exCls + '>' + (s.medianExcess === null ? '—' : pct(s.medianExcess, 2)) + '</td></tr>';
-      }).join('');
-      return '<h3 class="ef-plan-title">위에 물린 물량으로 나눠 보면 (전체 기간)</h3>' +
-        '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
-        '<th>위에 물린 물량</th><th>표본</th><th>승률 (95% 구간)</th><th>중위 2주</th><th>시장대비</th>' +
-        '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
-        '<p class="ef-note">등급보다 이쪽이 더 잘 갈립니다. 물린 물량이 적을수록 승률이 높고, ' +
-        '구간끼리 신뢰구간이 겹치지 않습니다. ' +
-        '<strong>다만 이 결과로 등급 규칙을 바꾸지 않았습니다</strong> — 성적을 보고 기준을 ' +
-        '되맞추면 곡선 맞추기가 됩니다. 숫자를 보여주고 정렬·필터를 드리는 데까지만 합니다.</p>';
-    }
-
-    host.innerHTML = '<p class="ef-note">검증 결과를 아직 만들지 못했습니다.</p>';
+      host.innerHTML = '<p class="ef-note">검증 결과를 아직 만들지 못했습니다.</p>';
       return;
     }
     function table(block, label) {
       var base = block.baseline;
-      var head = '<tr><th>등급</th><th>표본</th><th>승률 (95% 구간)</th><th>중위 2주</th>' +
+      var head = '<tr><th>등급</th><th>표본</th><th>승률 (95% 구간)</th><th>중위 ' + swingWeeks() + '주</th>' +
         '<th>시장대비</th><th>비용 차감 후</th><th>손절 걸림</th><th>손절 적용</th></tr>';
       var rows = Object.keys(block.byGrade).map(function (g) {
         var s = block.byGrade[g];
@@ -394,6 +526,64 @@
         '</thead><tbody>' + baseRow + rows + '</tbody></table></div>';
     }
 
+      /* 누적 곡선. 이 화면에서 가장 답하기 어려운 질문에 답하는 자리다 —
+       '이걸 계속 하는 게 그냥 지수를 사놓는 것보다 나은가'. 답이 '아니오' 여도
+       그대로 그린다. */
+    function curveBlock(c) {
+      if (!c || !c.strategy) { return ''; }
+      var lines = [
+        { key: 'strategyTimed', color: '#0b7a4b', label: '전략 + 손절 + 국면필터' },
+        { key: 'strategyStop', color: '#c0392b', label: '전략 + 손절' },
+        { key: 'benchmark', color: '#888', label: '그냥 지수 보유' }
+      ];
+      var all = lines.reduce(function (acc, l) { return acc.concat(c[l.key] || []); }, []);
+      var min = Math.min.apply(null, all), max = Math.max.apply(null, all);
+      var span = (max - min) || 1;
+      var n = c.strategy.length;
+      var paths = lines.map(function (l) {
+        var pts = (c[l.key] || []).map(function (v, i) {
+          return (i / (n - 1) * 100).toFixed(2) + ',' + (100 - (v - min) / span * 100).toFixed(2);
+        }).join(' ');
+        return '<polyline fill="none" stroke="' + l.color + '" stroke-width="1.6" ' +
+          'vector-effect="non-scaling-stroke" points="' + pts + '"></polyline>';
+      }).join('');
+      var legend = lines.map(function (l) {
+        return '<span class="ef-legend"><i style="background:' + l.color + '"></i>' + l.label + '</span>';
+      }).join('');
+
+      function row(label, key, annualKey, mddKey) {
+        var last = c[key][c[key].length - 1];
+        var cum = last / 100 - 1;
+        return '<tr><td>' + label + '</td>' +
+          '<td class="' + dirClass(cum) + '">' + pct(cum) + '</td>' +
+          '<td class="' + dirClass(c[annualKey]) + '">' + pct(c[annualKey]) + '</td>' +
+          '<td>' + (mddKey && c[mddKey] !== undefined ? pct(c[mddKey]) : '—') + '</td></tr>';
+      }
+      return '<h3 class="ef-plan-title">그냥 지수를 사놓는 것보다 나은가</h3>' +
+        '<p class="ef-note">매 회전마다 <strong>추세진행 중 위험조정 상위 ' + c.topN +
+        '개를 같은 금액으로</strong> 사서 보유하는 전략입니다. 회전할 때마다 비용을 뺐습니다. ' +
+        c.rounds + '회 회전 · ' + c.years + '년.</p>' +
+        '<div class="ef-curve"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+        paths + '</svg><div class="ef-legendrow">' + legend + '</div></div>' +
+        '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
+        '<th>방식</th><th>누적</th><th>연 환산</th><th>최대낙폭</th></tr></thead><tbody>' +
+        row('전략 + 손절 + 국면필터', 'strategyTimed', 'annualStrategyTimed', 'mddStrategyTimed') +
+        row('전략 + 손절', 'strategyStop', 'annualStrategyStop', 'mddStrategy') +
+        row('전략 (손절 없이)', 'strategy', 'annualStrategy', null) +
+        '<tr class="ef-baseline">' +
+        '<td>그냥 지수 보유</td>' +
+        '<td>' + pct(c.benchmark[c.benchmark.length - 1] / 100 - 1) + '</td>' +
+        '<td>' + pct(c.annualBenchmark) + '</td>' +
+        '<td>' + pct(c.mddBenchmark) + '</td></tr>' +
+        '</tbody></table></div>' +
+        '<p class="ef-note"><strong>수익만 보면 지수 보유가 낫습니다.</strong> ' +
+        '국면 필터를 켜면 최대낙폭이 ' + pct(c.mddStrategy) + ' → ' + pct(c.mddStrategyTimed) +
+        ' 로 줄지만 수익도 같이 줄어듭니다(역풍이라 쉰 회차 ' + c.restRounds + '/' + c.rounds + '). ' +
+        '이 화면의 값어치는 <strong>수익을 올려주는 것보다 나쁜 걸 안 사게 하고 손실 크기를 ' +
+        '묶어주는 쪽</strong>에 있다고 읽는 게 맞습니다. ' +
+        '회전이 ' + c.rounds + '회뿐이라 이 차이도 확정적이지 않습니다.</p>';
+    }
+
     function overheadTable(block) {
       if (!block || !Object.keys(block).length) { return ''; }
       var rows = Object.keys(block).map(function (band) {
@@ -410,7 +600,7 @@
       }).join('');
       return '<h3 class="ef-plan-title">위에 물린 물량으로 나눠 보면 (전체 기간)</h3>' +
         '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
-        '<th>위에 물린 물량</th><th>표본</th><th>승률 (95% 구간)</th><th>중위 2주</th><th>시장대비</th>' +
+        '<th>위에 물린 물량</th><th>표본</th><th>승률 (95% 구간)</th><th>중위 ' + swingWeeks() + '주</th><th>시장대비</th>' +
         '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
         '<p class="ef-note">등급보다 이쪽이 더 잘 갈립니다. 물린 물량이 적을수록 승률이 높고, ' +
         '구간끼리 신뢰구간이 겹치지 않습니다. ' +
@@ -426,6 +616,7 @@
       '승률 괄호는 95% 신뢰구간이고, 기준선과 구간이 겹치면 <b>구별 안 됨</b>을 붙였습니다 — ' +
       '표본이 적어 차이를 주장할 수 없다는 뜻입니다. ' +
       '비용은 왕복 ' + (bt.cost * 100).toFixed(2) + '%p 로 가정했습니다.</p>' +
+      curveBlock(bt.curve) +
       table(bt.all, '전체 기간') +
       table(bt.recent, '최근 1년') +
       overheadTable(bt.all.byOverhead) +
@@ -442,7 +633,7 @@
         '<b style="font-size:1em">장중 시세로 계산됨</b>' +
         '<span>장 마감 전에 받은 값이라 마지막 종가가 확정값이 아닙니다. 18:30 갱신 뒤 값이 바뀝니다.</span></span>'
       : '';
-    /* 시장 국면을 맨 앞에 둔다. 2주 스윙은 보유가 짧을수록 개별 테마보다 시장
+    /* 시장 국면을 맨 앞에 둔다. 보유가 짧을수록 개별 테마보다 시장
        방향이 결과를 더 많이 정한다. 테마를 고르기 전에 볼 것. */
     var reg = m.regime || {};
     var regCls = reg.label === '역풍' ? 'background:#fdf0f0;border-color:#f0d0d0;color:#8a2b2b'
@@ -499,7 +690,7 @@
 
   /* '이 테마를 살 수 있는 ETF'. 시가총액 상위 5 와 거래대금 상위 5 를 따로
      놓는다. 큰 게 곧 잘 팔리는 게 아니라서다 — 시총 1조짜리가 하루 3억밖에
-     안 거래되면 2주 스윙으로는 못 쓴다. */
+     안 거래되면 보유 기간 안에 못 빠져나온다. */
   function groupEtfTable(list, unitLabel, unit) {
     var body = list.map(function (e) {
       var lev = levLabel(e.lev);
@@ -508,11 +699,11 @@
         (e.partial ? ' <span class="ef-tag">부분 노출</span>' : '') + '</td>' +
         '<td>' + unit(e) + '</td>' +
         '<td>' + e.weight.toFixed(0) + '%</td>' +
-        '<td class="' + dirClass(e.r10) + '">' + pct(e.r10) + '</td>' +
+        '<td class="' + dirClass(e.rSwing) + '">' + pct(e.rSwing) + '</td>' +
         '<td>' + badge(e.grade) + '</td></tr>';
     }).join('');
     return '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
-      '<th>ETF</th><th>' + unitLabel + '</th><th>노출</th><th>2주</th><th>등급</th>' +
+      '<th>ETF</th><th>' + unitLabel + '</th><th>노출</th><th>' + swingWeeks() + '주</th><th>등급</th>' +
       '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
 
@@ -550,19 +741,19 @@
       '</thead><tbody>' + body + '</tbody></table></div>';
   }
 
-  /* 2주 스윙 계획. 등급만 보고는 주문을 못 낸다 — 어디서 자를지가 있어야 한다.
+  /* 매매 계획. 등급만 보고는 주문을 못 낸다 — 어디서 자를지가 있어야 한다.
      목표가를 쓰지 않는 이유는 그건 예측이기 때문이다. 대신 '보통 이만큼
      흔들린다' 는 관측치를 놓고 손절폭과 견주게 한다. */
   function tradePlan(row, kind) {
     if (kind !== 'etf' || row.stop === null || row.stop === undefined) { return ''; }
     var rows = [
       ['손절 가격', row.stop.toLocaleString() + '원 <span class="ef-down">(' + pct(row.stopPct) + ')</span>',
-        '<code>현재가 − max(2×ATR, 2주 기대 변동폭)</code>. <strong>보유기간 노이즈의 바깥</strong>에 둡니다 — ' +
+        '<code>현재가 − max(2×ATR, 보유기간 기대 변동폭)</code>. <strong>보유기간 노이즈의 바깥</strong>에 둡니다 — ' +
         '안쪽에 두면 논지가 깨져서가 아니라 평범한 출렁임에 걸립니다'],
-      ['2주 기대 변동폭', '±' + (row.expected2w * 100).toFixed(1) + '%',
-        '관측된 변동성의 1σ를 10 거래일로 환산한 값입니다. <strong>방향을 맞히는 값이 아니라</strong> 크기 감각입니다'],
+      [swingWeeks() + '주 기대 변동폭', '±' + (row.expectedSwing * 100).toFixed(1) + '%',
+        '관측된 변동성의 1σ를 보유 기간으로 환산한 값입니다. <strong>방향을 맞히는 값이 아니라</strong> 크기 감각입니다'],
       ['손절 걸릴 확률', (row.stopProb === null ? '—' : (row.stopProb * 100).toFixed(0) + '%'),
-        '방향성 없는 움직임을 가정했을 때 2주 안에 손절선을 건드릴 확률입니다(<code>2Φ(−손절폭/σ)</code>). ' +
+        '방향성 없는 움직임을 가정했을 때 보유 기간 안에 손절선을 건드릴 확률입니다(<code>2Φ(−손절폭/σ)</code>). ' +
         '아래 검증 결과의 실제 손절 적중률과 견줘 볼 수 있습니다'],
       ['하루 변동폭(ATR)', (row.atr === null ? '—' : row.atr.toLocaleString() + '원'),
         '갭까지 반영한 하루 평균 등락폭입니다']
@@ -575,16 +766,19 @@
         size.shares
           ? '잃어도 되는 금액 ' + state.risk.toLocaleString() + '원을 손절폭 ' +
             pct(row.stopPct) + ' 로 나눈 값입니다. 이렇게 잡아야 손절폭이 다른 종목에 ' +
-            '<strong>같은 금액이 아니라 같은 위험</strong>을 걸게 됩니다' +
-            (size.tooBig ? ' <strong class="ef-down">투입금액이 하루 거래대금의 1%를 넘습니다 — ' +
-              '넣고 빼는 데 값이 밀립니다</strong>' : '')
-          : '한 주만 사도 손실 한도를 넘습니다']);
+            '<strong>같은 금액이 아니라 같은 위험</strong>을 걸게 됩니다.' +
+            (size.capped
+              ? ' <strong class="ef-down">위험 기준으로는 ' + size.byRisk.toLocaleString() +
+                '주지만 하루 거래대금의 1%에서 끊었습니다</strong> — 그 이상은 넣고 빼는 데 ' +
+                '값이 밀립니다'
+              : '')
+          : size.note]);
     }
     if (row.premium !== null && row.premium !== undefined) {
       rows.push(['괴리율', pct(row.premium, 2),
-        'NAV 대비 시장가입니다. 양(+)이면 <strong>사는 순간 그만큼 얹어 주는 것</strong>이라 2주 스윙에서는 작지 않습니다']);
+        'NAV 대비 시장가입니다. 양(+)이면 <strong>사는 순간 그만큼 얹어 주는 것</strong>이라 작지 않습니다']);
     }
-    return '<h3 class="ef-plan-title">2주 스윙 계획</h3><dl class="ef-plan">' +
+    return '<h3 class="ef-plan-title">' + swingWeeks() + '주 스윙 계획</h3><dl class="ef-plan">' +
       rows.map(function (r) {
         return '<dt>' + r[0] + '</dt><dd><b>' + r[1] + '</b><span>' + r[2] + '</span></dd>';
       }).join('') + '</dl>';
@@ -608,7 +802,7 @@
         '같은 돈으로 지수를 샀을 때와 견주면 이깁니다 라고 말하기 어렵습니다.';
     }
     return '<div class="ef-record' + (warn ? ' is-warn' : '') + '">' +
-      '<b>이 등급의 과거 2주 성적</b>' +
+      '<b>이 등급의 과거 ' + swingWeeks() + '주 성적</b>' +
       '<span>표본 ' + s.n.toLocaleString() + '건 · 승률 ' + (s.winRate * 100).toFixed(1) +
       '% (95% 구간 ' + (s.winLo * 100).toFixed(1) + '~' + (s.winHi * 100).toFixed(1) + ')' +
       ' · 중위 ' + pct(s.medianFwd, 2) + '</span>' +
@@ -697,6 +891,32 @@
       }).join('') + '</dl>';
   }
 
+  /* 진입 기록. 화면이 숫자를 다 주니 옮겨 적기만 하면 되는데, 옮겨 적는 순간이
+     귀찮으면 아무도 안 한다. 한 번 눌러 클립보드로 보낸다.
+
+     진입 전에 근거와 손절을 적어 두는 것이 개인 투자자 성과를 가장 크게 바꾼다.
+     지표를 하나 더 만드는 것보다 이쪽이 낫다. */
+  function recordText(row) {
+    var s = sizing(row);
+    var m = state.meta || {};
+    var lines = [
+      '[' + prettyDate(m.baseDate) + '] ' + row.name + ' (' + row.code + ')',
+      '등급: ' + row.grade + ' · ' + swingWeeks() + '주 ' + pct(row.rSwing) + ' · 20일 ' + pct(row.r20),
+      '진입: ' + (row.price === null ? '—' : Math.round(row.price).toLocaleString() + '원'),
+      '손절: ' + (row.stop === null ? '—' : Math.round(row.stop).toLocaleString() + '원 (' + pct(row.stopPct) + ')'),
+      '수량: ' + (s && s.shares ? s.shares.toLocaleString() + '주 · ' + Math.round(s.amount).toLocaleString() + '원' : '—'),
+      '위에 물린 물량: ' + (row.overhead === null ? '—' : Math.round(row.overhead * 100) + '%'),
+      '대표 테마: ' + (row.groupName || '없음') +
+        (row.breadth === null ? '' : ' (상승비율 ' + Math.round(row.breadth * 100) + '%)'),
+      '근거: ' + row.reasons.join(' / '),
+      '시장 국면: ' + ((m.regime && m.regime.label) || '—'),
+      '청산 예정: ' + swingWeeks() + '주 뒤 또는 손절',
+      '', '실제 청산일:            청산가:            손익:',
+      '되돌아보기:'
+    ];
+    return lines.join('\n');
+  }
+
   function openPanel(kind, code) {
     var panel = $('ef-panel');
     var title = $('ef-panel-title');
@@ -709,7 +929,11 @@
     title.innerHTML = escapeHtml(row.name) + ' ' + badge(row.grade);
     var head = '<ul class="ef-why">' +
       row.reasons.map(function (r) { return '<li>' + escapeHtml(r) + '</li>'; }).join('') +
-      '</ul>' + gradeRecord(row.grade) + tradePlan(row, kind);
+      '</ul>' + gradeRecord(row.grade) + tradePlan(row, kind) +
+      (kind === 'etf'
+        ? '<button type="button" class="ef-copy" id="ef-copy" data-code="' +
+          escapeHtml(row.code) + '">진입 기록 복사</button>'
+        : '');
     body.innerHTML = head + '<p class="ef-note">구성종목을 불러오는 중…</p>';
     panel.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -764,6 +988,7 @@
         try { window.localStorage.setItem('ef-risk', String(v)); } catch (e) { /* 무시 */ }
         renderEtfs();
         renderPick();
+        renderBasket();
       });
     }
 
@@ -788,6 +1013,20 @@
     $('ef-umore').addEventListener('click', function () { state.upjongShown += GROUP_PAGE; renderGroups(); });
 
     document.addEventListener('click', function (e) {
+      var copy = e.target.closest ? e.target.closest('.ef-copy') : null;
+      if (copy) {
+        e.preventDefault();
+        var target = state.etfs.filter(function (r) { return r.code === copy.dataset.code; })[0];
+        if (target && navigator.clipboard) {
+          navigator.clipboard.writeText(recordText(target)).then(function () {
+            copy.textContent = '복사했습니다 ✓';
+            copy.classList.add('is-done');
+          });
+        }
+        return;
+      }
+      var basket = e.target.closest ? e.target.closest('[data-basket]') : null;
+      if (basket) { e.preventDefault(); e.stopPropagation(); toggleBasket(basket.dataset.basket); return; }
       var hit = e.target.closest ? e.target.closest('.ef-card, .ef-row') : null;
       if (hit) { openPanel(hit.dataset.kind, hit.dataset.code); }
     });
@@ -846,12 +1085,19 @@
         return { value: t, label: tabs[t] };
       }));
 
+      try {
+        var savedBasket = JSON.parse(window.localStorage.getItem('ef-basket') || '[]');
+        if (Array.isArray(savedBasket)) { state.basket = savedBasket.slice(0, 8); }
+      } catch (e) { state.basket = []; }
+
       wire();
       renderMarket();
       renderBacktest();
       renderPick();
       renderEtfs();
       renderGroups();
+      renderBasket();
+      if (state.basket.length) { loadCorr().then(renderBasket); }
     })
     .catch(function (err) {
       $('ef-market').innerHTML = '<span class="ef-error">데이터를 불러오지 못했습니다 — ' +
