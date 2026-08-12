@@ -51,6 +51,13 @@ if [ -f data/schools.csv.gz ]; then
   fi
 fi
 
+# 산출물이 실제로 최신인지 따로 묻는다. 수집이 조용히 깨져도 집계는 옛 원본으로
+# 성공하므로, 여기까지 왔다는 사실만으로는 데이터가 최신이라는 보장이 없다.
+if ! python3 -u scripts/check_freshness.py trades schools; then
+  BUILD_FAILED=1
+  echo "산출물이 낡았습니다 — 위의 신선도 표를 보세요." >&2
+fi
+
 if [ "$AUTO_COMMIT" != "1" ]; then
   echo "AUTO_COMMIT 이 꺼져 있어 커밋하지 않습니다."
   if [ "$BUILD_FAILED" = "1" ]; then exit 1; fi

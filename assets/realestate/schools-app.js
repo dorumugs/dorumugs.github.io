@@ -4,6 +4,7 @@ import { initSchoolLayer } from './schoolmap.js';
 import { NO_DATA, CATEGORICAL } from './palette.js';
 import { multiLineChart, legendHtml } from './charts.js';
 import { makeSortable } from './sorttable.js';
+import { showStale, LIMITS } from './freshness.js';
 
 const root = document.querySelector('.re-app');
 setBase(root.dataset.base);
@@ -584,8 +585,10 @@ async function start() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     schools = data.schools;
-    root.querySelector('.re-footnote').textContent =
+    const footnote = root.querySelector('.re-footnote');
+    footnote.textContent =
       `학교 위치: 전국초중등학교위치표준데이터 · 시세: 국토교통부 실거래가 · 갱신 ${data.generated}`;
+    showStale(footnote, data.generated, LIMITS.schools, '학군 자료');
   } catch (err) {
     root.querySelector('.re-panel-title').textContent = '학교 자료를 불러오지 못했습니다';
     return;

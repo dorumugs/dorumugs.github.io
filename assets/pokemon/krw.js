@@ -23,6 +23,39 @@
   var C = {};
   var M = {};
 
+
+  /* 자료가 낡았으면 화면이 스스로 말한다.
+
+     이 대시보드의 가장 위험한 고장은 "에러가 난다" 가 아니라 **아무 일도 안
+     일어나는 것**이다 — 크론이 멈추면 어제 파일이 그대로 남아 오늘 값인 척한다.
+     크론 쪽 검사(scripts/check_freshness.py)만으로는 부족하다. 크론이 아예 안
+     돌면 로그조차 안 생기기 때문이다.
+
+     그래서 나이를 **보는 사람의 시계로** 잰다. 빌드 때 계산해 박아 두면 크론이
+     멈추는 순간 그 숫자도 같이 멈춰서 낡음 자체가 안 보이게 된다.
+
+     realestate 쪽은 ES 모듈이라 freshness.js 를 공유하지만 여기는 클래식
+     스크립트라 각자 들고 있다(app.js·krw.js). 두 파일의 로드 순서에 기대는
+     전역을 만드느니 열 줄을 두 번 두는 쪽이 안전하다. */
+  var PK_STALE_DAYS = 5;   // 매일 갱신 + 주말·공휴일 여유
+
+  function pkShowStale(anchor, iso, what) {
+    if (!anchor || !anchor.parentNode) { return; }
+    var old = anchor.parentNode.querySelector('.pk-stale');
+    if (old) { old.remove(); }
+    var t = iso ? Date.parse(String(iso).trim()) : NaN;
+    var age = isNaN(t) ? null : Math.floor((Date.now() - t) / 86400000);
+    if (age !== null && age <= PK_STALE_DAYS) { return; }
+    var el = document.createElement('p');
+    el.className = 'pk-stale';
+    el.setAttribute('role', 'status');
+    el.textContent = age === null
+      ? what + ' 갱신 날짜를 읽지 못했습니다. 아래 시세는 지금 값이 아닐 수 있습니다.'
+      : what + '가 ' + age + '일째 그대로입니다. 자동 갱신이 멈췄거나 수집이 깨진 '
+        + '상태라, 아래 시세는 최신이 아닙니다.';
+    anchor.parentNode.insertBefore(el, anchor);
+  }
+
   function el(id) { return document.getElementById(id); }
 
   function esc(s) {
@@ -444,6 +477,7 @@
     el('krw-meta').textContent =
       '집계 ' + s.first_date + ' ~ ' + s.last_date + ' · ' + langs +
       ' · 마지막 갱신 ' + state.data.generated + '.';
+      pkShowStale(document.getElementById('krw-meta'), state.data.generated, '국내 시세');
 
     var sel = el('krw-lang');
     Object.keys(s.languages).forEach(function (k) {

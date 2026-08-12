@@ -1,4 +1,5 @@
 import { setBase, loadSummary, loadSgg } from './data.js';
+import { showStale, LIMITS } from './freshness.js';
 import { initMap } from './map.js';
 import {
   divergingColor, sequentialColor, DIVERGING, SEQUENTIAL, INK2, LINE, DOWN,
@@ -586,8 +587,10 @@ async function start() {
   repaint();
   if (state.sgg) await selectSgg(state.sgg);
 
-  root.querySelector('.re-footnote').textContent =
+  const footnote = root.querySelector('.re-footnote');
+  footnote.textContent =
     `국토교통부 실거래가 · ${summary.months[0]} ~ ${summary.months[last]} · 갱신 ${summary.generated}`;
+  showStale(footnote, summary.generated, LIMITS.trades, '실거래 자료');
 }
 
 start();

@@ -8,6 +8,7 @@
 import { initMap } from './map.js';
 import { makeSortable } from './sorttable.js';
 import { SEQUENTIAL, NO_DATA, rampColor, UP, DOWN, MUTED } from './palette.js';
+import { showStale, LIMITS } from './freshness.js';
 
 const root = document.querySelector('.re-app.is-redev');
 const base = (root.dataset.base || '/assets/realestate').replace(/\/$/, '');
@@ -504,4 +505,5 @@ els.table.addEventListener('click', (e) => {
     `준공 ${state.summary.min_age}년 이상 아파트 ${c.complexes.toLocaleString('ko-KR')}곳` +
     `(대지지분 ${c.with_land.toLocaleString('ko-KR')}곳). ` +
     `출처: 서울시 정비사업 정보몽땅 · 서울시 도시계획포털(UPIS) · 국토교통부 실거래가.`;
+  showStale(els.footnote, state.summary.generated, LIMITS.redev, '재개발 자료');
 })();
