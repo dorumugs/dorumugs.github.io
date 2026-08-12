@@ -69,6 +69,17 @@ if ! python3 -u scripts/collect_us_etf.py "${US_ARGS[@]}"; then
   echo "미국 ETF 수집이 끝까지 못 갔습니다." >&2
 fi
 
+# 미국 ETF 구성종목. 11개 발행사에서 162개를 받는다. 발행사 서버가 하루 못 버텨도
+# 캐시가 남으므로 FAILED 로 올리지 않는다 — 화면은 어제 구성종목을 그대로 쓴다.
+#
+# Invesco 만 헤드리스 크롬이 필요하다(TLS 지문 차단). NO_BROWSER=1 로 끌 수 있고,
+# 크롬이 없으면 알아서 건너뛰고 나머지 발행사는 그대로 받는다.
+HOLD_ARGS=()
+[ "${NO_BROWSER:-0}" = "1" ] && HOLD_ARGS+=(--no-browser)
+if ! python3 -u scripts/collect_us_holdings.py "${HOLD_ARGS[@]}"; then
+  echo "미국 ETF 구성종목 수집이 끝까지 못 갔습니다. 지난 캐시를 그대로 씁니다." >&2
+fi
+
 # 수집이 일부 실패해도 있는 캐시로 다시 굽는다. 어제 집계본보다 낫다.
 # 다만 캐시가 아예 없으면 집계도 못 하므로 그때는 진짜 실패다.
 if ! python3 -u scripts/build_etf_theme.py; then
