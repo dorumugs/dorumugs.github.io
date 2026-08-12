@@ -113,7 +113,15 @@ if ! git pull --rebase --autostash -q origin gh-pages; then
   echo "pull --rebase 실패. 충돌을 수동으로 정리한 뒤 push 하세요." >&2
   exit 1
 fi
-git push -q origin gh-pages
+if ! git push -q origin gh-pages; then
+  echo "push 실패 — 커밋이 로컬에만 남았습니다. 사이트는 갱신되지 않습니다." >&2
+  exit 1
+fi
+# 올라간 것이 맞는지 확인한다. push 가 조용히 아무것도 안 올리는 경우를 잡는다.
+if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/gh-pages)" ]; then
+  echo "push 뒤에도 origin/gh-pages 가 HEAD 와 다릅니다 — 사이트가 안 바뀝니다." >&2
+  exit 1
+fi
 echo "푸시 완료."
 
 [ "$FAILED" = "1" ] && exit 1

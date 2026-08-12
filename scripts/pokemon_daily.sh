@@ -150,8 +150,26 @@ git add $TARGETS
 git commit -m "$COMMIT_MSG"
 
 if [ "$AUTO_PUSH" = "1" ]; then
-  git pull --rebase
-  git push
+  export GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+
+  # --autostash 가 없으면 수집과 무관한 미스테이징 편집 하나로도 rebase 가 거부돼
+  # push 가 통째로 막힌다. 그러면 커밋은 로컬에만 남고 사이트는 조용히 멈춘다 —
+  # 로컬 파일은 최신이라 신선도 검사도 이걸 못 잡는다. 실제로 겪었다.
+  if ! git pull --rebase --autostash -q origin gh-pages; then
+    echo "pull --rebase 실패. 충돌을 수동으로 정리한 뒤 push 하세요." >&2
+    exit 1
+  fi
+  if ! git push -q origin gh-pages; then
+    echo "push 실패 — 커밋이 로컬에만 남았습니다. 사이트는 갱신되지 않습니다." >&2
+    exit 1
+  fi
+  # 올라간 것이 맞는지 눈으로 확인하지 않고 확인한다. push 가 조용히 아무것도
+  # 안 올리는 경우(브랜치 어긋남 등)를 여기서 잡는다.
+  if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/gh-pages)" ]; then
+    echo "push 뒤에도 origin/gh-pages 가 HEAD 와 다릅니다 — 사이트가 안 바뀝니다." >&2
+    exit 1
+  fi
+  echo "push 완료."
 fi
 
 echo "===== $(date '+%F %T') 포켓몬 카드 수집 종료 (FAILED=$FAILED) ====="
