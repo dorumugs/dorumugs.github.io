@@ -387,3 +387,74 @@ class CashLikeTest(unittest.TestCase):
         self.assertTrue(h._is_cash_like("Goldman Sachs Money Market Fund"))
         self.assertFalse(h._is_cash_like("NVIDIA CORP"))
         self.assertFalse(h._is_cash_like("MARKET AXESS HOLDINGS"))
+
+
+class InvescoTest(unittest.TestCase):
+    """securityTypeCode 로 가른다 — 이름 추측이 아니라."""
+
+    def test_주식형은_100퍼센트로_떨어진다(self) -> None:
+        p = h.parse_invesco(load("us_holdings_invesco_qqq.json"))
+        self.assertEqual(p["asOf"], "2026-08-10")
+        self.assertEqual(p["rows"][0]["ticker"], "NVDA")
+        total = sum(r["weight"] for r in p["rows"]) + p["cash"] + p["swap"] + p["other"]
+        self.assertAlmostEqual(total, 100.0, places=1)
+
+    def test_원자재_담보를_종목으로_안_센다(self) -> None:
+        """DBC 는 담보 MMF 가 80.2% 라, 이름만 보고 담으면 1위가 MMF 가 되고 합이 198% 다."""
+        p = h.parse_invesco(load("us_holdings_invesco_dbc.json"))
+        self.assertFalse(any(r["ticker"] == "AGPXX" for r in p["rows"]))
+        self.assertGreater(p["swap"], 100.0)  # 원자재 선물
+        total = sum(r["weight"] for r in p["rows"]) + p["cash"] + p["swap"] + p["other"]
+        self.assertAlmostEqual(total, 100.0, places=1)
+
+    def test_이름의_HTML_엔티티를_푼다(self) -> None:
+        """issuerName 에 &amp; 가 그대로 온다 — 화면에 'Government &amp; Agency' 로 찍히면 안 된다."""
+        p = h.parse_invesco(load("us_holdings_invesco_dbc.json"))
+        self.assertFalse(any("&amp;" in r["name"] for r in p["rows"]))
+
+    def test_JSON_이_아니면_빈_결과(self) -> None:
+        self.assertEqual(h.parse_invesco(b"<html>406</html>")["rows"], [])
+
+    def test_QQQ_만_티커로_조회한다(self) -> None:
+        """나머지는 티커로 부르면 500 이라 CUSIP 을 박아 뒀다."""
+        self.assertIn("idType=ticker", h.invesco_url("QQQ"))
+        self.assertIn("idType=cusip", h.invesco_url("RSP"))
+        self.assertIsNone(h.invesco_url("SPY"))
+
+
+class FirstTrustTest(unittest.TestCase):
+    def test_HTML_표에서_티커와_비중을_읽는다(self) -> None:
+        p = h.parse_firsttrust(load("us_holdings_firsttrust_cibr.html"))
+        self.assertEqual(p["asOf"], "2026-08-10")
+        self.assertEqual(p["rows"][0]["ticker"], "PANW")
+        self.assertGreater(len(p["rows"]), 30)
+
+    def test_헤더가_없으면_빈_결과(self) -> None:
+        """열 이름이 바뀌면 엉뚱한 값을 비중으로 읽느니 빈 결과가 낫다."""
+        self.assertEqual(h.parse_firsttrust(b"<table><tr><td>x</td></tr></table>")["rows"], [])
+
+
+class KraneSharesTest(unittest.TestCase):
+    def test_현지_티커를_그대로_둔다(self) -> None:
+        """텐센트는 700, 알리바바는 9988 이다 — 미국 티커로 바꾸면 다른 회사가 된다."""
+        p = h.parse_kraneshares(load("us_holdings_kraneshares_kweb.csv"))
+        self.assertEqual(p["asOf"], "2026-08-10")
+        self.assertEqual(p["rows"][0]["ticker"], "700")
+        self.assertAlmostEqual(sum(r["weight"] for r in p["rows"]) + p["cash"], 100.0, places=0)
+
+    def test_URL_은_MMDDYYYY_형식이다(self) -> None:
+        urls = h.kraneshares_urls("KWEB", date(2026, 8, 12), back=2)
+        self.assertIn("08_12_2026_kweb_holdings.csv", urls[0])
+        self.assertIn("08_10_2026_kweb_holdings.csv", urls[2])
+        self.assertEqual(h.kraneshares_urls("SPY", date(2026, 8, 12)), [])
+
+
+class PhysicalTrustTest(unittest.TestCase):
+    def test_실물_신탁은_발행사_목록에_들어_있다(self) -> None:
+        """받으려다 실패한 게 아니라 구성종목이 없는 상품이라, 화면이 구별해야 한다."""
+        for ticker in ("GLD", "GLDM", "IAU", "SLV"):
+            self.assertEqual(h.ISSUER_BY_TICKER[ticker], h.ISSUER_PHYSICAL)
+            self.assertIn(h.PHYSICAL_TRUSTS[ticker], ("금괴", "은괴"))
+
+    def test_실물_신탁은_URL_을_안_만든다(self) -> None:
+        self.assertIsNone(h.holdings_url("GLD"))

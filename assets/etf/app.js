@@ -1091,15 +1091,32 @@
      인버스 상품(SOXS·TZA·SQQQ 등)은 개별 종목을 아예 안 담는다 — rows 가
      비고 스왑이 음수로만 온다. 표를 빈 채로 그리면 "못 받았다"로 보이므로
      표를 아예 만들지 않고 설명 줄만 남긴다. */
+  /* 파생 이름 목록을 짧게 줄인다. DBC 같은 원자재 펀드는 선물이 10종을 넘어
+     한 줄이 화면을 다 먹는다 — 앞 셋만 두고 나머지는 개수로 적는다. */
+  function shortNote(note) {
+    var parts = note.split(' · ').filter(Boolean);
+    if (parts.length <= 3) { return note; }
+    return parts.slice(0, 3).join(' · ') + ' 외 ' + (parts.length - 3) + '건';
+  }
+
   function usHoldingsTable(row) {
     var entry = state.usHoldings ? state.usHoldings[row.ticker] : null;
+    /* 실물 신탁(GLD·SLV 등)은 금괴·은괴만 담는다. 받으려다 실패한 게 아니라
+       구성종목이라는 개념 자체가 없는 상품이라, "받지 못했습니다" 로 적으면
+       거짓말이 된다. 없는 것은 없다고 적는다. */
+    if (entry && entry.physical) {
+      return '<h3 class="ef-plan-title">구성종목</h3>' +
+        '<p class="ef-note">' + escapeHtml(entry.physical) + '를 그대로 보관하는 실물 신탁이라 ' +
+        '구성종목이 없습니다. 값은 ' + escapeHtml(entry.physical) + ' 시세를 그대로 따라갑니다.</p>';
+    }
     var hasData = entry && (entry.rows.length || entry.cash || entry.swap || entry.other);
     if (!hasData) {
       var issuer = (entry && entry.issuer) || issuerGuess(row.name);
       return '<h3 class="ef-plan-title">구성종목</h3>' +
         '<p class="ef-note">구성종목을 받지 못했습니다' +
         (issuer ? ' (' + escapeHtml(issuer) + ')' : '') + '. 확인된 발행사' +
-        '(Direxion·ARK·SPDR·iShares·ProShares·Vanguard·Global X)가 아니거나, ' +
+        '(Direxion·ARK·SPDR·iShares·ProShares·Vanguard·Global X·Invesco·First Trust·' +
+        'KraneShares)가 아니거나, ' +
         '발행사가 그날 파일을 아직 안 올린 경우입니다.</p>';
     }
     var title = '<h3 class="ef-plan-title">구성종목 · ' + escapeHtml(entry.issuer || '') +
@@ -1136,7 +1153,7 @@
          **측정된 수치만** 말한다. */
       var dir = swap < 0 ? '하락에 베팅하는 ' : '';
       note = '<p class="ef-note">파생(스왑·선물) ' + Math.abs(swap).toFixed(1) + '%' +
-        (entry.swapNote ? ' · ' + escapeHtml(entry.swapNote) : '') +
+        (entry.swapNote ? ' · ' + escapeHtml(shortNote(entry.swapNote)) : '') +
         ' · 현금성 ' + cash.toFixed(1) + '%' +
         (other > 0 ? ' · 기타(펀드 자체 명목가치) ' + other.toFixed(1) + '%' : '') +
         ' — ' + dir + '배수를 주식이 아니라 파생으로 만듭니다' + countTail + '.</p>';

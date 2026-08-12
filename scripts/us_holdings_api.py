@@ -1,9 +1,12 @@
 """미국 ETF 구성종목 파싱 — 순수 함수만. I/O 없음.
 
-일곱 발행사를 다룬다(유니버스 192개 중 145개). Invesco 는 모든 경로가 406 이라
-못 넣었다 — 헤드리스 크롬으로도 국가선택 스플래시에 막힌다. 확인 안 된 URL 은
-추측하지 않는다. 나머지 47개는 collect_us_holdings.py 가 "발행사 모름" 으로
-건너뛰고, 화면이 그 사실을 그대로 적는다.
+열한 발행사를 다룬다(유니버스 192개 중 162개). 확인 안 된 URL 은 추측하지
+않는다 — 나머지 30개는 collect_us_holdings.py 가 "발행사 모름" 으로 건너뛰고,
+화면이 그 사실을 그대로 적는다.
+
+실물 신탁(GLD·GLDM·IAU·SLV)은 받는 게 아니라 **없다고 적는 대상**이다. 금괴·
+은괴만 보관해 구성종목이라는 개념이 없다 — "받지 못했습니다" 로 적으면 거짓말이
+되므로 PHYSICAL_TRUSTS 로 따로 표시한다.
 
   Direxion   www.direxion.com/holdings/{TICKER}.csv                  CSV
   ARK        assets.ark-funds.com/fund-documents/funds-etf-csv/{FILE}.csv   CSV
@@ -12,6 +15,9 @@
   ProShares  accounts.profunds.com/etfdata/psdlyhld.csv               CSV(전 종목 1파일)
   Vanguard   investor.vanguard.com/.../portfolio-holding/{stock|bond} JSON
   Global X   assets.globalxetfs.com/funds/holdings/{t}_full-holdings_{YMD}.csv  CSV
+  Invesco    dng-api.invesco.com/cache/v1/.../holdings/fund            JSON(브라우저 전용)
+  FirstTrust ftportfolios.com/Retail/Etf/EtfHoldings.aspx?Ticker={T}   HTML 표
+  KraneShrs  kraneshares.com/csv/{MM_DD_YYYY}_{t}_holdings.csv         CSV
 
 ISSUER_BY_TICKER 는 data/stocks/us_universe.json.gz(2026-08-11 스냅샷)의 종목명을
 훑어 **한 번 만들고 하드코딩**했다. 이름으로 발행사를 맞추는 걸 실행 시점 정규식에
@@ -46,8 +52,11 @@ ISSUER_BY_TICKER 는 data/stocks/us_universe.json.gz(2026-08-11 스냅샷)의 �
                         실제로 요청해 200 이 오는 철자를 확인하고 아래에 박았다.
 
   SPDR 금 신탁          GLD·GLDM 은 같은 URL 패턴이 404 다 — 실물 금만 담아서
-                        '구성종목' 개념 자체가 없는 상품이다. ISSUER_BY_TICKER 에서
-                        아예 뺐다.
+                        '구성종목' 개념 자체가 없는 상품이다. 처음엔 목록에서 아예
+                        뺐는데, 그러면 화면이 "받지 못했습니다" 라고 거짓말을 한다.
+                        지금은 PHYSICAL_TRUSTS 에 넣어 요청은 안 보내되 "금괴를
+                        보관하는 실물 신탁이라 구성종목이 없다" 고 적게 한다.
+                        IAU·SLV(iShares API 가 400)도 같은 처리다.
 
   ARK 꼬리 문구          CSV 마지막 줄에 법적 고지문이 필드 수가 안 맞는 채로 한
                         줄 통째로 붙어 있다. csv.DictReader 가 그 줄을 None 값
@@ -103,6 +112,28 @@ ISSUER_BY_TICKER 는 data/stocks/us_universe.json.gz(2026-08-11 스냅샷)의 �
                         안에서 채워진 줄과 빈 줄이 섞인다(BND 상위 25줄 중 1줄,
                         VCIT 는 9줄). 채권형은 bond=True 로 티커를 통째로 버린다.
 
+  Invesco 는 TLS 로 막는다  헤더를 크롬과 똑같이 맞춰도 406 이고 curl·urllib 이
+                        똑같이 막히는데 같은 기계의 크롬은 200 이다. 헤더로 넘을 수
+                        있는 벽이 아니다 — browser_fetch.py 로만 받는다. QQQ 는
+                        거래대금 1위(2위의 6배)라 포기하기엔 너무 컸다. QQQ 만
+                        티커로 조회되고 나머지 7개는 CUSIP 이 필요하다(티커로
+                        부르면 500).
+
+  Invesco 원자재 담보     DBC 는 담보 MMF 가 80.2%, 원자재 선물이 100% 안팎이다.
+                        이름으로 가르면 종목 표 1위가 "Invesco Government & Agency
+                        Portfolio 80.2%" 가 되고 합이 198% 가 된다. securityTypeCode
+                        가 있으니 그걸 믿는다 — COM/REIT/ADR 은 종목, FUTCDTY/IFUT
+                        은 파생, MMT/SYN/CURR 은 현금이다. 그러면 8개 전부 정확히
+                        100% 로 떨어진다.
+
+  XRT 는 SPDR 인데 빠졌다  유니버스 이름이 "State Street PDR S&P Retail ETF" 라
+                        'SPDR' 로 훑을 때 안 걸렸다. URL 패턴은 같아서 목록에
+                        넣기만 하면 됐다 — 이름 기반 분류의 한계다.
+
+  First Trust 는 CSV 가 없다  공시 페이지의 HTML 표를 읽는다. 열 이름으로 헤더를
+                        찾는다 — 위치로 찾으면 열이 하나 끼는 날 엉뚱한 값을
+                        비중으로 읽는다. 못 찾으면 빈 결과가 낫다.
+
   인버스는 합이 안 맞는다  스왑 명목가치가 음수로 오는데 담보 주식·현금은 양수라,
                         부호 섞인 합이 배수와 무관해진다(SH: 주식 +87.7·현금 +34.0·
                         스왑 −100.0 → 합 +21.7, 목표 100). 여기에 임계값을 맞춰
@@ -133,10 +164,12 @@ DIREXION_TICKERS = [
 ]
 
 # GLD·GLDM(금 실물 신탁)은 뺐다 — 같은 URL 패턴이 404 다.
+# XRT 는 유니버스 이름이 "State Street PDR S&P Retail ETF" 라 'SPDR' 로 훑을 때
+# 빠졌다. 이름이 다를 뿐 같은 URL 패턴으로 200 이 온다 — 이름 기반 분류의 한계다.
 SPDR_TICKERS = [
     "BIL", "DIA", "JNK", "KRE", "MDY", "SPY", "XBI", "XHB", "XLB", "XLC",
     "XLE", "XLF", "XLI", "XLK", "XLP", "XLRE", "XLU", "XLV", "XLY", "XME",
-    "XOP",
+    "XOP", "XRT",
 ]
 
 # 티커 -> assets.ark-funds.com 파일명. 실제로 HEAD 요청해 200 을 확인했다.
@@ -190,6 +223,31 @@ GLOBALX_TICKERS = [
     "AIQ", "BOTZ", "COPX", "LIT", "QYLD", "RYLD", "SIL", "URA", "XYLD",
 ]
 
+# Invesco 는 dng-api.invesco.com 이 TLS 지문으로 curl·urllib 을 막는다(406). 헤더를
+# 아무리 맞춰도 안 되고 크롬만 통과한다 — browser_fetch.py 로 받는 이유다.
+# QQQ 만 티커로 조회되고 나머지는 CUSIP 이 필요하다(티커로 부르면 500). CUSIP 은
+# 제품 페이지가 부르는 주소에서 한 번 수확해 박았다.
+INVESCO_ID = {
+    "QQQ": ("ticker", "QQQ"),
+    "RSP": ("cusip", "46137V357"),
+    "QQQM": ("cusip", "46138G649"),
+    "PDBC": ("cusip", "46090F100"),
+    "TAN": ("cusip", "46138G706"),
+    "SPHD": ("cusip", "46138E362"),
+    "DBC": ("cusip", "46138B103"),
+    "DBA": ("cusip", "46140H106"),
+}
+
+FIRSTTRUST_TICKERS = ["CIBR", "FAN", "SKYY"]
+KRANESHARES_TICKERS = ["KWEB"]
+
+# 실물만 담아 '구성종목' 개념이 없는 상품. 받으려다 실패한 게 아니라 **애초에
+# 없는 것**이라, 화면에서 "받지 못했습니다" 가 아니라 그 사실을 적어야 한다.
+# GLD·GLDM 은 SPDR URL 패턴이 404, IAU·SLV 는 iShares API 가 400 을 준다.
+PHYSICAL_TRUSTS = {
+    "GLD": "금괴", "GLDM": "금괴", "IAU": "금괴", "SLV": "은괴",
+}
+
 ISSUER_DIREXION = "Direxion"
 ISSUER_SPDR = "SPDR"
 ISSUER_ARK = "ARK"
@@ -197,6 +255,10 @@ ISSUER_ISHARES = "iShares"
 ISSUER_PROSHARES = "ProShares"
 ISSUER_VANGUARD = "Vanguard"
 ISSUER_GLOBALX = "Global X"
+ISSUER_INVESCO = "Invesco"
+ISSUER_FIRSTTRUST = "First Trust"
+ISSUER_KRANESHARES = "KraneShares"
+ISSUER_PHYSICAL = "실물 신탁"
 
 # 티커 -> 발행사. holdings_url() 과 collect_us_holdings.py 가 여기만 본다.
 ISSUER_BY_TICKER: dict[str, str] = {
@@ -207,6 +269,10 @@ ISSUER_BY_TICKER: dict[str, str] = {
     **{t: ISSUER_PROSHARES for t in PROSHARES_TICKERS},
     **{t: ISSUER_VANGUARD for t in VANGUARD_PATH},
     **{t: ISSUER_GLOBALX for t in GLOBALX_TICKERS},
+    **{t: ISSUER_INVESCO for t in INVESCO_ID},
+    **{t: ISSUER_FIRSTTRUST for t in FIRSTTRUST_TICKERS},
+    **{t: ISSUER_KRANESHARES for t in KRANESHARES_TICKERS},
+    **{t: ISSUER_PHYSICAL for t in PHYSICAL_TRUSTS},
 }
 
 URL_DIREXION = "https://www.direxion.com/holdings/{ticker}.csv"
@@ -236,6 +302,13 @@ URL_VANGUARD = (
 # 날짜가 파일명에 박힌다. 펀드 페이지(291KB)를 긁어 링크를 찾는 대신 최근
 # 영업일부터 거슬러 올라가며 찔러 본다 — 보통 1~2번에 맞는다.
 URL_GLOBALX = "https://assets.globalxetfs.com/funds/holdings/{lower}_full-holdings_{ymd}.csv"
+URL_INVESCO = (
+    "https://dng-api.invesco.com/cache/v1/accounts/en_US/shareclasses/{ident}"
+    "/holdings/fund?idType={kind}&productType=ETF"
+)
+URL_FIRSTTRUST = "https://www.ftportfolios.com/Retail/Etf/EtfHoldings.aspx?Ticker={ticker}"
+# Global X 와 마찬가지로 날짜가 파일명에 박힌다. 형식만 MM_DD_YYYY 로 다르다.
+URL_KRANESHARES = "https://kraneshares.com/csv/{ymd}_{lower}_holdings.csv"
 
 # 응답·압축해제 크기 상한. 실측 최대는 JNK(채권 1,211종) 의 xlsx 로 원본 약 250 KB,
 # sheet1.xml 해제 후 약 6 MB 다. 여유를 20배 두되 무제한은 두지 않는다 — cron 무인
@@ -249,6 +322,16 @@ _RE_SPDR_ASOF = re.compile(r"As of\s+(\d{1,2})-([A-Za-z]{3})-(\d{4})")
 _RE_GLOBALX_ASOF = re.compile(r"as of\s+(\d{1,2}/\d{1,2}/\d{4})", re.I)
 _RE_PROSHARES_ASOF = re.compile(r"AS OF\s+(\d{1,2}/\d{1,2}/\d{4})", re.I)
 _RE_PROSHARES_RESIDUAL = re.compile(r"Net Other Assets", re.I)
+_RE_KRANE_ASOF = re.compile(r"As of\s+(\d{4}-\d{2}-\d{2})", re.I)
+_RE_FT_ASOF = re.compile(r"as of\s+(\d{1,2}/\d{1,2}/\d{4})", re.I)
+_RE_TR = re.compile(r"<tr[^>]*>(.*?)</tr>", re.S | re.I)
+_RE_TD = re.compile(r"<t[dh][^>]*>(.*?)</t[dh]>", re.S | re.I)
+_RE_TAG = re.compile(r"<[^>]+>")
+
+# Invesco securityTypeCode 분류. 이름 추측 대신 이 코드를 믿는다.
+_INVESCO_EQUITY = frozenset({"COM", "REIT", "ADR", "DRNY", "DR", "ETF", "RTS"})
+_INVESCO_DERIV = frozenset({"FUTCDTY", "IFUT"})
+_INVESCO_CASH = frozenset({"MMT", "SYN", "CURR", "CURRCOL", "UCURR"})
 
 # 티커 없는 줄을 스왑/기타/현금 셋으로 나눈다. "ICE SEMICONDUCTOR INDEX SWAP" 처럼
 # SWAP 이 박힌 줄은 진짜 토탈리턴스왑. "Semiconductor Bull 3x"·"20+ Year Treasury
@@ -303,6 +386,8 @@ def holdings_url(ticker: str) -> str | None:
     if issuer == ISSUER_VANGUARD:
         path = VANGUARD_PATH.get(ticker)
         return URL_VANGUARD.format(ticker=ticker, path=path) if path else None
+    if issuer == ISSUER_FIRSTTRUST:
+        return URL_FIRSTTRUST.format(ticker=ticker)
     return None
 
 
@@ -620,6 +705,11 @@ def parse_spdr(raw: bytes) -> dict:
     }
 
 
+def _strip_tags(cell: str) -> str:
+    """HTML 셀 하나를 글자만 남긴다."""
+    return _RE_TAG.sub("", cell).replace("&nbsp;", " ").replace("&amp;", "&").strip()
+
+
 def _to_float(text: str | None) -> float | None:
     """'1,234.56' · '2.80' · '' 을 float 로. 못 읽으면 None."""
     if text is None:
@@ -908,3 +998,164 @@ def parse_proshares_all(raw: bytes) -> dict[str, dict]:
             rows.append({"ticker": ticker, "name": name, "weight": weight})
         out[fund] = _pack(rows, cash, swap, swap_names, other, as_of, False)
     return out
+
+
+def kraneshares_urls(ticker: str, today: date, back: int = 7) -> list[str]:
+    """KraneShares 후보 URL. Global X 와 같은 방식이되 날짜 형식이 MM_DD_YYYY 다."""
+    if ticker not in KRANESHARES_TICKERS:
+        return []
+    lower = ticker.lower()
+    return [
+        URL_KRANESHARES.format(lower=lower, ymd=(today - timedelta(days=d)).strftime("%m_%d_%Y"))
+        for d in range(back + 1)
+    ]
+
+
+def invesco_url(ticker: str) -> str | None:
+    """Invesco 구성종목 URL. 브라우저로만 열린다 — browser_fetch.py 참고."""
+    ident = INVESCO_ID.get(ticker)
+    return URL_INVESCO.format(kind=ident[0], ident=ident[1]) if ident else None
+
+
+def parse_invesco(raw: bytes) -> dict:
+    """Invesco JSON. holdings[] 에 ticker·issuerName·percentageOfTotalNetAssets.
+
+    이름으로 짐작하지 않는다 — securityTypeCode 가 있다. 실측한 코드 분포는
+    COM(보통주) · REIT · ADR/DRNY/DR(예탁증서) · ETF · RTS(신주인수권) 가
+    개별 종목이고, FUTCDTY(원자재선물) · IFUT(지수선물) 이 파생,
+    MMT(MMF) · SYN(합성현금) · CURR/CURRCOL/UCURR(통화·담보) 이 현금이다.
+
+    이게 중요한 건 원자재 펀드 때문이다. DBC 는 담보 MMF 가 80.2%, 원자재 선물이
+    100% 안팎이라 이름만 보고 담으면 종목 표 1위가 "Invesco Government & Agency
+    Portfolio 80.2%" 가 되고 합이 198% 가 된다 — 원자재 ETF 를 보러 온 사람에게
+    가장 쓸모없는 화면이다. 선물은 파생 칸으로, 담보는 현금 칸으로 보낸다.
+
+    HEDGE(PDBC 의 케이맨 자펀드)는 개별 종목도 현금도 아니라 other 로 둔다.
+    """
+    try:
+        data = json.loads(raw.decode("utf-8", "replace"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return _empty()
+
+    holdings = data.get("holdings") or []
+    if not holdings:
+        return _empty()
+
+    as_of = _to_iso_date(data.get("effectiveDate") or "", "%Y-%m-%d")
+    rows: list[dict] = []
+    cash = swap = other = 0.0
+    swap_names: list[str] = []
+    for hd in holdings:
+        weight = _to_float(str(hd.get("percentageOfTotalNetAssets") or ""))
+        if weight is None:
+            continue
+        ticker = (hd.get("ticker") or "").strip()
+        # issuerName 에 &amp; 가 그대로 온다("Invesco Government &amp; Agency").
+        name = (hd.get("issuerName") or "").replace("&amp;", "&").strip()
+        code = (hd.get("securityTypeCode") or "").strip().upper()
+        if code in _INVESCO_DERIV:
+            swap += weight
+            if name not in swap_names:
+                swap_names.append(name)
+            continue
+        if code in _INVESCO_CASH or _is_cash_like(name):
+            cash += weight
+            continue
+        if code and code not in _INVESCO_EQUITY:
+            other += weight
+            continue
+        if not ticker or ticker == "-":
+            cash += weight
+            continue
+        rows.append({"ticker": ticker, "name": name, "weight": round(weight, 4)})
+
+    return _pack(rows, cash, swap, swap_names, other, as_of, False)
+
+
+def parse_kraneshares(raw: bytes) -> dict:
+    """KraneShares CSV. 1행 제목·기준일, 2행 헤더
+    (Rank,Company Name,% of Net Assets,Ticker,Identifier,Shares Held,Market Value($)).
+
+    Ticker 는 현지 코드다 — 텐센트가 700, 알리바바가 9988 로 온다. 그대로 둔다.
+    """
+    rows_all = list(csv.reader(io.StringIO(raw.decode("utf-8-sig", "replace"))))
+    head = next((i for i, r in enumerate(rows_all)
+                 if r and "% of Net Assets" in [c.strip() for c in r]), None)
+    if head is None:
+        return _empty()
+
+    cols = [c.strip() for c in rows_all[head]]
+    i_pct = cols.index("% of Net Assets")
+    i_ticker = cols.index("Ticker") if "Ticker" in cols else None
+    i_name = cols.index("Company Name") if "Company Name" in cols else None
+
+    as_of = ""
+    for r in rows_all[:head]:
+        m = _RE_KRANE_ASOF.search(",".join(r))
+        if m:
+            as_of = _to_iso_date(m.group(1), "%Y-%m-%d")
+            break
+
+    rows: list[dict] = []
+    cash = 0.0
+    for r in rows_all[head + 1:]:
+        if not r or len(r) <= i_pct:
+            continue
+        weight = _to_float(r[i_pct])
+        if weight is None:
+            continue
+        ticker = (r[i_ticker].strip() if i_ticker is not None and i_ticker < len(r) else "")
+        name = (r[i_name].strip() if i_name is not None and i_name < len(r) else "")
+        if not ticker or ticker == "-" or _is_cash_like(name):
+            cash += weight
+            continue
+        rows.append({"ticker": ticker, "name": name, "weight": round(weight, 4)})
+
+    return _pack(rows, cash, 0.0, [], 0.0, as_of, False)
+
+
+def parse_firsttrust(raw: bytes) -> dict:
+    """First Trust 는 CSV 를 안 준다 — 공시 페이지의 HTML 표를 읽는다.
+
+    열은 Security Name · Identifier · CUSIP · Classification · Shares / Quantity ·
+    Market Value · Weighting. Identifier 가 티커, Weighting 이 비중이다.
+
+    정규식으로 HTML 을 푸는 건 원래 위험하지만, 여기 표는 셀 안에 태그가 링크뿐이고
+    중첩 표가 없다. 대신 **열 이름이 바뀌면 조용히 빈 결과가 되도록** 헤더를 이름으로
+    찾는다 — 위치로 찾으면 열이 하나 끼는 날 엉뚱한 값을 비중으로 읽는다.
+    """
+    text = raw.decode("utf-8", "replace")
+    rows_html = _RE_TR.findall(text)
+    header: list[str] | None = None
+    idx: dict[str, int] = {}
+    rows: list[dict] = []
+    cash = 0.0
+    for chunk in rows_html:
+        cells = [_strip_tags(c) for c in _RE_TD.findall(chunk)]
+        if not cells:
+            continue
+        if header is None:
+            if cells[0] == "Security Name" and "Weighting" in cells:
+                header = cells
+                idx = {name: i for i, name in enumerate(cells)}
+            continue
+        if len(cells) != len(header):
+            continue
+        weight = _to_float(cells[idx["Weighting"]])
+        if weight is None:
+            continue
+        name = cells[idx["Security Name"]]
+        ticker = cells[idx.get("Identifier", 1)]
+        if not ticker or ticker == "-" or _is_cash_like(name):
+            cash += weight
+            continue
+        rows.append({"ticker": ticker, "name": name, "weight": round(weight, 4)})
+
+    if header is None:
+        return _empty()
+
+    as_of = ""
+    m = _RE_FT_ASOF.search(text)
+    if m:
+        as_of = _to_iso_date(m.group(1), "%m/%d/%Y")
+    return _pack(rows, cash, 0.0, [], 0.0, as_of, False)

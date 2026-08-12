@@ -3,9 +3,19 @@
 
 파싱은 us_holdings_api.py 가 한다. 여기는 I/O·예산·재개만 다룬다.
 
-192개 중 발행사 URL 을 확인한 건 64개(Direxion 37·SPDR 21·ARK 6)뿐이다.
-나머지는 US_HOLDINGS_API 의 ISSUER_BY_TICKER 에 없어 애초에 요청을 안 보낸다 —
-"못 받음" 이 아니라 "발행사를 모름" 이라 따로 센다.
+192개 중 발행사를 확인한 건 162개다(iShares 41·Direxion 37·SPDR 22·ProShares 19·
+Vanguard 12·Global X 9·Invesco 8·ARK 6·실물 신탁 4·First Trust 3·KraneShares 1).
+나머지 30개는 ISSUER_BY_TICKER 에 없어 애초에 요청을 안 보낸다 — "못 받음" 이
+아니라 "발행사를 모름" 이라 따로 센다.
+
+발행사마다 받는 방식이 다르다.
+
+  대부분        티커별 URL 하나(holdings_url)
+  ProShares     전 종목이 파일 하나 — 하루 1요청이면 19개가 다 온다
+  Global X·KraneShares  파일명에 날짜가 박혀 최근 영업일부터 거슬러 올라간다
+  Invesco       TLS 지문으로 urllib 을 막아 브라우저로만 받는다(browser_fetch.py).
+                --no-browser 로 끌 수 있고, 실패해도 나머지 수집은 그대로 간다
+  실물 신탁     받을 게 없다 — 요청 없이 "구성종목 없음" 을 기록한다
 
 예의상 워커를 적게 쓴다(기본 3) — 발행사 서버는 우리 트래픽을 기대하지 않는다.
 
@@ -45,12 +55,17 @@ PARSERS = {
     h.ISSUER_ARK: h.parse_ark,
     h.ISSUER_ISHARES: h.parse_ishares,
     h.ISSUER_VANGUARD: h.parse_vanguard,
+    h.ISSUER_FIRSTTRUST: h.parse_firsttrust,
 }
 
-# 티커별 URL 로 안 되는 두 발행사. main() 이 따로 처리한다.
-#   ProShares  전 종목이 파일 하나에 들어 있어 하루 한 번이면 19개가 다 온다
-#   Global X   파일명에 날짜가 박혀 최근 영업일부터 거슬러 올라가며 찾는다
-SPECIAL_ISSUERS = frozenset({h.ISSUER_PROSHARES, h.ISSUER_GLOBALX})
+# 파일명에 날짜가 박혀 최근 영업일부터 거슬러 올라가며 찾아야 하는 발행사.
+DATED_URLS = {
+    h.ISSUER_GLOBALX: (h.globalx_urls, h.parse_globalx),
+    h.ISSUER_KRANESHARES: (h.kraneshares_urls, h.parse_kraneshares),
+}
+
+# Invesco 워밍업 페이지. 이 출처의 세션을 얻어야 dng-api 가 응답한다.
+INVESCO_WARMUP = "https://www.invesco.com/us/en/home.html"
 
 
 def _fresh(entry: dict | None) -> bool:
@@ -83,19 +98,59 @@ def _finish(parsed: dict, ticker: str, name: str, issuer: str) -> dict | None:
     return parsed
 
 
-def collect_globalx(ticker: str, name: str, budget: Budget) -> dict | None:
-    """Global X 는 파일명에 날짜가 박힌다. 최근 날짜부터 200 이 나올 때까지."""
-    for url in h.globalx_urls(ticker, date.today()):
+def collect_dated(ticker: str, name: str, issuer: str, budget: Budget) -> dict | None:
+    """파일명에 날짜가 박힌 발행사. 최근 날짜부터 200 이 나올 때까지 내려간다."""
+    make_urls, parser = DATED_URLS[issuer]
+    for url in make_urls(ticker, date.today()):
         raw = fetch(url, budget, max_bytes=h.MAX_RESPONSE_BYTES)
         if raw is None:
             continue
         try:
-            parsed = h.parse_globalx(raw)
+            parsed = parser(raw)
         except Exception:  # noqa: BLE001 — 발행사 파일 포맷이 어떻게 깨질지 모른다
             continue
         if parsed["rows"]:
-            return _finish(parsed, ticker, name, h.ISSUER_GLOBALX)
+            return _finish(parsed, ticker, name, issuer)
     return None
+
+
+def collect_invesco(names: dict[str, str]) -> dict[str, dict]:
+    """Invesco 는 TLS 지문으로 막혀 브라우저로만 받는다 — browser_fetch.py 참고.
+
+    예산(Budget)에는 안 넣는다. 그 예산은 urllib 요청 수를 재는 것이고 이건
+    브라우저 세션 하나이기 때문이다. 실패하면 빈 딕셔너리라 나머지 수집은
+    그대로 굴러간다.
+    """
+    from browser_fetch import fetch_json_via_browser  # noqa: PLC0415 — 여기서만 쓴다
+
+    urls = {t: h.invesco_url(t) for t in h.INVESCO_ID}
+    urls = {t: u for t, u in urls.items() if u}
+    bodies = fetch_json_via_browser(urls, INVESCO_WARMUP)
+    out: dict[str, dict] = {}
+    for ticker, raw in bodies.items():
+        try:
+            parsed = h.parse_invesco(raw)
+        except Exception:  # noqa: BLE001
+            continue
+        done = _finish(parsed, ticker, names.get(ticker, ticker), h.ISSUER_INVESCO)
+        if done:
+            out[ticker] = done
+    return out
+
+
+def physical_entry(ticker: str) -> dict:
+    """실물 신탁(GLD·SLV 등). 받으려다 실패한 게 아니라 애초에 구성종목이 없다.
+
+    화면이 "받지 못했습니다" 라고 하면 거짓말이 된다 — 없는 걸 없다고 적어야
+    한다. rows 는 비우되 asset 에 무엇을 담는지 남겨 화면이 그대로 쓴다.
+    """
+    return {
+        "asOf": "", "rows": [], "cash": 0.0, "swap": 0.0, "swapNote": "",
+        "other": 0.0, "noTicker": False,
+        "physical": h.PHYSICAL_TRUSTS[ticker],
+        "issuer": h.ISSUER_PHYSICAL,
+        "fetchedDate": date.today().isoformat(),
+    }
 
 
 def collect_proshares(budget: Budget, universe_names: dict[str, str]) -> dict[str, dict]:
@@ -122,8 +177,10 @@ def collect_proshares(budget: Budget, universe_names: dict[str, str]) -> dict[st
 
 def collect_one(ticker: str, name: str, issuer: str, budget: Budget) -> dict | None:
     """구성종목 하나. 실패해도 예외를 밖으로 던지지 않는다 — 실행 전체를 죽이면 안 된다."""
-    if issuer == h.ISSUER_GLOBALX:
-        return collect_globalx(ticker, name, budget)
+    if issuer in DATED_URLS:
+        return collect_dated(ticker, name, issuer, budget)
+    if issuer == h.ISSUER_PHYSICAL:
+        return physical_entry(ticker)  # 받을 게 없다 — 요청도 안 한다
     url = h.holdings_url(ticker)
     if url is None:
         return None
@@ -148,6 +205,8 @@ def main() -> int:
     parser.add_argument("--max-calls", type=int, default=200)
     parser.add_argument("--workers", type=int, default=3)
     parser.add_argument("--force", action="store_true", help="캐시 무시하고 전부 다시 받기")
+    parser.add_argument("--no-browser", action="store_true",
+                        help="브라우저가 필요한 발행사(Invesco) 를 건너뛴다")
     args = parser.parse_args()
 
     universe = read_json_gz(UNIVERSE_FILE)
@@ -163,6 +222,7 @@ def main() -> int:
     no_issuer = 0
     todo: list[tuple[str, str, str]] = []  # (ticker, name, issuer)
     proshares_stale = False
+    invesco_stale = False
     for row in universe:
         ticker = row["ticker"]
         issuer = h.ISSUER_BY_TICKER.get(ticker)
@@ -174,6 +234,10 @@ def main() -> int:
         if issuer == h.ISSUER_PROSHARES:
             # 티커별로 안 받는다 — 하나라도 낡았으면 파일 하나를 받아 19개를 다 채운다.
             proshares_stale = True
+            continue
+        if issuer == h.ISSUER_INVESCO:
+            # 브라우저 세션 하나로 8개를 다 받는다.
+            invesco_stale = True
             continue
         todo.append((ticker, row["name"], issuer))
 
@@ -202,6 +266,13 @@ def main() -> int:
         fetched += len(bulk)
         failed.extend(t for t in h.PROSHARES_TICKERS if t not in bulk)
         print(f"  ProShares 일별보유 파일 1건으로 {len(bulk)}개 채움")
+
+    if invesco_stale and not args.no_browser:
+        inv = collect_invesco(names)
+        results.update(inv)
+        fetched += len(inv)
+        failed.extend(t for t in h.INVESCO_ID if t not in inv)
+        print(f"  Invesco 브라우저 세션 1건으로 {len(inv)}개 채움")
 
     cache.update(results)
     # 이번에 실패했고 캐시에도 없던 티커는 실패로 남긴다(다음 실행이 재시도).

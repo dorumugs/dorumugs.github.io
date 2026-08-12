@@ -129,7 +129,7 @@ def build_holdings(universe: list[dict]) -> dict:
                 "issuer": hapi.ISSUER_BY_TICKER[ticker],
                 "asOf": "", "rows": [], "cash": 0.0,
                 "swap": 0.0, "swapNote": "", "other": 0.0, "noTicker": False,
-                "count": 0,
+                "count": 0, "physical": "",
             }
             continue
         rows = entry.get("rows") or []
@@ -146,6 +146,9 @@ def build_holdings(universe: list[dict]) -> dict:
             # (VT 는 10,032종목 중 500줄). parse_vanguard 가 실어 보낸 totalCount
             # 를 우선 쓴다 — 안 그러면 화면이 "상위 25/500" 이라고 거짓말한다.
             "count": entry.get("totalCount") or len(rows),
+            # 실물 신탁은 담는 물건 이름(금괴·은괴)을 그대로 넘긴다 — 화면이
+            # "못 받았다" 대신 "애초에 구성종목이 없다" 고 적을 수 있어야 한다.
+            "physical": entry.get("physical", ""),
         }
     return out
 
