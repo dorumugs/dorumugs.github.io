@@ -1159,3 +1159,56 @@ def parse_firsttrust(raw: bytes) -> dict:
     if m:
         as_of = _to_iso_date(m.group(1), "%m/%d/%Y")
     return _pack(rows, cash, 0.0, [], 0.0, as_of, False)
+
+
+# --- 신선도 --------------------------------------------------------------
+# 조용한 붕괴를 막는 임계값. 발행사가 화면을 바꾸면 파서가 빈 결과를 내고,
+# 수집기는 어제 캐시를 그대로 들고 간다 — 개수만 세면 영원히 "162개 보유" 라
+# 아무도 모른다. 그래서 "있느냐" 가 아니라 "언제 받았느냐" 로 본다.
+#
+# 4일: 크론이 평일에만 도니 금요일에 받은 값이 월요일 아침까지 3일 묵는다.
+# 공휴일이 하루 끼면 4일이다. 그보다 오래면 뭔가 잘못된 것이다.
+STALE_DAYS = 4
+# 이만큼 있는 발행사가 하나도 안 신선하면 어댑터가 깨진 것으로 본다. 2개짜리
+# 발행사가 그날 서버 점검이면 우연히 0이 될 수 있어 3개부터 센다.
+ADAPTER_BROKEN_MIN_FUNDS = 3
+
+
+def days_since(iso: str, today: date) -> int | None:
+    """ISO 날짜가 며칠 지났나. 못 읽으면 None."""
+    try:
+        return (today - datetime.strptime(iso, "%Y-%m-%d").date()).days
+    except (ValueError, TypeError):
+        return None
+
+
+def freshness(cache: dict[str, dict], today: date) -> dict:
+    """발행사별 신선도. 수집기와 테스트가 같은 판정을 쓰게 하려고 여기 둔다.
+
+    돌려주는 것:
+      byIssuer  {발행사: {"total", "fresh", "stale", "oldestDays"}}
+      broken    어댑터가 깨진 것으로 보이는 발행사 목록
+      staleTickers  STALE_DAYS 를 넘긴 티커 목록
+    """
+    by_issuer: dict[str, dict] = {}
+    stale_tickers: list[str] = []
+    for ticker, entry in cache.items():
+        issuer = entry.get("issuer") or "?"
+        stat = by_issuer.setdefault(
+            issuer, {"total": 0, "fresh": 0, "stale": 0, "oldestDays": 0})
+        stat["total"] += 1
+        age = days_since(entry.get("fetchedDate") or "", today)
+        if age is None or age > STALE_DAYS:
+            stat["stale"] += 1
+            stale_tickers.append(ticker)
+        else:
+            stat["fresh"] += 1
+        if age is not None:
+            stat["oldestDays"] = max(stat["oldestDays"], age)
+
+    broken = sorted(
+        issuer for issuer, s in by_issuer.items()
+        if s["total"] >= ADAPTER_BROKEN_MIN_FUNDS and s["fresh"] == 0
+    )
+    return {"byIssuer": by_issuer, "broken": broken,
+            "staleTickers": sorted(stale_tickers)}

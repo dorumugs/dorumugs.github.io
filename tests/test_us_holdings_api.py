@@ -10,7 +10,7 @@ import io
 import pathlib
 import sys
 import unittest
-from datetime import date
+from datetime import date, timedelta
 import zipfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
@@ -458,3 +458,59 @@ class PhysicalTrustTest(unittest.TestCase):
 
     def test_실물_신탁은_URL_을_안_만든다(self) -> None:
         self.assertIsNone(h.holdings_url("GLD"))
+
+
+class FreshnessTest(unittest.TestCase):
+    """조용한 붕괴를 막는 관문.
+
+    예전 게이트는 "캐시에 있느냐" 로 절반을 봤다. 그건 이 고장을 절대 못 잡는다 —
+    발행사가 화면을 바꾸면 파서가 빈 결과를 내고 수집기는 어제 캐시를 그대로
+    들고 가서, 개수는 162개 그대로다. 오늘 전부 깨져도 통과한다.
+    """
+
+    TODAY = date(2026, 8, 12)
+
+    def _cache(self, spec: dict[str, tuple[str, int]]) -> dict[str, dict]:
+        """{티커: (발행사, 며칠 전)} 을 캐시 모양으로."""
+        out = {}
+        for ticker, (issuer, age) in spec.items():
+            out[ticker] = {
+                "issuer": issuer,
+                "fetchedDate": (self.TODAY - timedelta(days=age)).isoformat(),
+            }
+        return out
+
+    def test_발행사_하나가_통째로_낡으면_파손이다(self) -> None:
+        cache = self._cache({f"A{i}": ("iShares", 30) for i in range(41)}
+                            | {f"B{i}": ("SPDR", 0) for i in range(22)})
+        self.assertEqual(h.freshness(cache, self.TODAY)["broken"], ["iShares"])
+
+    def test_개별_종목_몇_개는_파손이_아니다(self) -> None:
+        """발행사 서버가 하루 못 버티는 건 흔하다 — 그걸로 울리면 아무도 안 본다."""
+        cache = self._cache({f"A{i}": ("iShares", 0) for i in range(38)}
+                            | {f"C{i}": ("iShares", 30) for i in range(3)})
+        report = h.freshness(cache, self.TODAY)
+        self.assertEqual(report["broken"], [])
+        self.assertEqual(len(report["staleTickers"]), 3)
+
+    def test_종목이_적은_발행사는_파손으로_안_센다(self) -> None:
+        """1~2개짜리는 우연히 0이 될 수 있다."""
+        cache = self._cache({"KWEB": ("KraneShares", 30)})
+        self.assertEqual(h.freshness(cache, self.TODAY)["broken"], [])
+
+    def test_주말을_건너도_신선하다(self) -> None:
+        """크론은 평일에만 돈다 — 금요일 자료가 월요일에 낡음으로 찍히면 안 된다."""
+        cache = self._cache({f"A{i}": ("SPDR", 3) for i in range(22)})
+        report = h.freshness(cache, self.TODAY)
+        self.assertEqual(report["broken"], [])
+        self.assertEqual(report["staleTickers"], [])
+
+    def test_날짜가_없으면_낡은_것으로_본다(self) -> None:
+        """빠진 값을 '최신' 으로 보면 그게 바로 조용한 붕괴다."""
+        cache = {f"A{i}": {"issuer": "SPDR", "fetchedDate": ""} for i in range(5)}
+        self.assertEqual(h.freshness(cache, self.TODAY)["broken"], ["SPDR"])
+
+    def test_days_since(self) -> None:
+        self.assertEqual(h.days_since("2026-08-10", self.TODAY), 2)
+        self.assertIsNone(h.days_since("", self.TODAY))
+        self.assertIsNone(h.days_since("어제", self.TODAY))

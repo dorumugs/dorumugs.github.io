@@ -77,6 +77,36 @@
     return yyyymmdd.slice(0, 4) + '-' + yyyymmdd.slice(4, 6) + '-' + yyyymmdd.slice(6);
   }
 
+  /* --- 낡음 경고 ---------------------------------------------------------
+     이 화면의 숫자는 크론이 매일 채워 준다. 크론이 멈추거나 발행사 파서가
+     깨지면 **아무 일도 일어나지 않는다** — 어제 값이 그대로 남아 오늘 값인
+     척한다. 그게 이 대시보드의 가장 위험한 고장 방식이다(로그는 아무도 안
+     읽는다). 그래서 화면이 **보는 사람의 시계로** 나이를 재서 스스로 말한다.
+
+     나이를 빌드 때 계산해 넣으면 안 된다. 크론이 멈추면 그 숫자도 같이
+     멈춰서, 낡았다는 사실 자체가 안 보이게 되기 때문이다. */
+  var STALE_DAYS = 5;          // 미국 종가는 다음 날 새벽 확정 + 주말 + 공휴일
+  var HOLDINGS_STALE_DAYS = 8; // 발행사가 파일을 늦게 올리는 날이 있다
+
+  function daysSince(iso) {
+    if (!iso) { return null; }
+    var t = String(iso).length === 8
+      ? Date.parse(iso.slice(0, 4) + '-' + iso.slice(4, 6) + '-' + iso.slice(6))
+      : Date.parse(iso);
+    if (isNaN(t)) { return null; }
+    return Math.floor((Date.now() - t) / 86400000);
+  }
+
+  function staleBanner(iso, limit, what) {
+    var age = daysSince(iso);
+    if (age === null || age <= limit) { return ''; }
+    return '<span class="ef-stat" style="flex:1 1 100%;background:#fdecea;' +
+      'border-color:#f5c6c0;color:#a3241a">' +
+      '<b style="font-size:1em">' + escapeHtml(what) + ' ' + age + '일째 그대로입니다</b>' +
+      '<span>자동 갱신이 멈췄거나 수집이 깨진 상태입니다. ' +
+      '아래 숫자는 <strong>지금 시세가 아닙니다.</strong></span></span>';
+  }
+
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -375,6 +405,7 @@
       ? 'background:#fdf0f0;border-color:#f0d0d0;color:#8a2b2b'
       : 'background:#e9f5ee;border-color:#c3e2d0;color:#16704a';
     $('ef-us-market').innerHTML =
+      staleBanner(m.baseDate, STALE_DAYS, '미국 데이터') +
       '<span class="ef-stat" style="flex:1 1 100%;' + regCls + '">' +
         '<b style="font-size:1em">시장 국면 · ' + escapeHtml(m.regime.label) + '</b>' +
         '<span>' + escapeHtml(m.regime.note) + '</span></span>' +
@@ -763,7 +794,7 @@
       '<b style="font-size:1em">시장 국면 · ' + escapeHtml(reg.label || '—') + '</b>' +
       '<span>' + escapeHtml(reg.note || '') + '</span></span>';
 
-    $('ef-market').innerHTML = warn + regime +
+    $('ef-market').innerHTML = staleBanner(m.baseDate, STALE_DAYS, '데이터') + warn + regime +
       '<span class="ef-stat"><span>기준 거래일</span><b>' + prettyDate(m.baseDate) + '</b></span>' +
       '<span class="ef-stat"><span>코스피 20일</span><b class="' + dirClass(m.kospi) + '">' + pct(m.kospi) + '</b></span>' +
       '<span class="ef-stat"><span>코스닥 20일</span><b class="' + dirClass(m.kosdaq) + '">' + pct(m.kosdaq) + '</b></span>' +
@@ -1121,6 +1152,13 @@
     }
     var title = '<h3 class="ef-plan-title">구성종목 · ' + escapeHtml(entry.issuer || '') +
       (entry.asOf ? ' · ' + prettyDate(entry.asOf) + ' 기준' : '') + '</h3>';
+    /* 발행사 하나만 파서가 깨지면 시장 바는 멀쩡하다 — 그 발행사 종목을 눌러야
+       드러난다. 그래서 표마다 따로 잰다. */
+    var holdAge = daysSince(entry.fetched);
+    if (holdAge !== null && holdAge > HOLDINGS_STALE_DAYS) {
+      title += '<p class="ef-note" style="color:#a3241a">이 구성종목은 ' + holdAge +
+        '일 전에 받은 자료입니다 — 그 뒤로 갱신되지 않았습니다.</p>';
+    }
     var countTail = entry.count > entry.rows.length
       ? ' · 상위 ' + entry.rows.length + '/' + entry.count + '종목만 놓았습니다' : '';
 

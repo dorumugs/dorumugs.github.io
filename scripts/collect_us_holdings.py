@@ -288,8 +288,47 @@ def main() -> int:
 
     write_json_gz(HOLDINGS_FILE, {t: cache[t] for t in sorted(cache)})
 
-    # 절반도 못 채웠으면 신호를 준다 — 발행사 화면이 통째로 바뀐 것일 수 있다.
-    return 1 if known and have_holdings < known * 0.5 else 0
+    return report_freshness(cache, known, skipped_browser=args.no_browser)
+
+
+def report_freshness(cache: dict[str, dict], known: int, skipped_browser: bool) -> int:
+    """신선도를 찍고 종료코드를 정한다 — 조용한 붕괴를 막는 마지막 관문.
+
+    예전 게이트는 "캐시에 있느냐" 로 절반을 봤다. 그건 이 실패를 절대 못 잡는다:
+    발행사가 화면을 바꾸면 파서가 빈 결과를 내고, 수집기는 어제 캐시를 그대로
+    들고 간다 — 개수는 162개 그대로다. **오늘 모든 어댑터가 깨져도 통과한다.**
+    그래서 개수가 아니라 날짜를 본다.
+
+    발행사 하나가 통째로 낡으면(어댑터 파손) 종료코드 1 이다. 개별 종목 몇 개가
+    낡은 건 발행사 서버 사정일 수 있어 경고만 한다.
+    """
+    report = h.freshness(cache, date.today())
+    print("  발행사별 신선도(오늘 기준):")
+    for issuer in sorted(report["byIssuer"]):
+        stat = report["byIssuer"][issuer]
+        mark = "  " if stat["fresh"] == stat["total"] else "⚠ "
+        print(f"    {mark}{issuer:12s} 최신 {stat['fresh']:3d}/{stat['total']:3d}"
+              f" · 가장 오래된 {stat['oldestDays']}일 전")
+
+    stale = report["staleTickers"]
+    if stale:
+        print(f"  {h.STALE_DAYS}일 넘게 갱신 안 된 종목 {len(stale)}개: "
+              f"{' '.join(stale[:20])}", file=sys.stderr)
+
+    broken = report["broken"]
+    if skipped_browser:
+        # --no-browser 로 일부러 건너뛴 발행사를 파손으로 셀 수는 없다.
+        broken = [b for b in broken if b != h.ISSUER_INVESCO]
+    if broken:
+        print(f"  ✖ 어댑터가 깨진 것으로 보입니다: {', '.join(broken)} — "
+              f"이 발행사는 최신 자료가 하나도 없습니다.", file=sys.stderr)
+        return 1
+
+    fresh_total = sum(s["fresh"] for s in report["byIssuer"].values())
+    if known and fresh_total < known * 0.7:
+        print(f"  ✖ 최신 자료가 {fresh_total}/{known} 개뿐입니다(70% 미만).", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

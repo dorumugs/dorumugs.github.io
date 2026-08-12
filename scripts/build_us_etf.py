@@ -129,7 +129,7 @@ def build_holdings(universe: list[dict]) -> dict:
                 "issuer": hapi.ISSUER_BY_TICKER[ticker],
                 "asOf": "", "rows": [], "cash": 0.0,
                 "swap": 0.0, "swapNote": "", "other": 0.0, "noTicker": False,
-                "count": 0, "physical": "",
+                "count": 0, "physical": "", "fetched": "",
             }
             continue
         rows = entry.get("rows") or []
@@ -149,6 +149,10 @@ def build_holdings(universe: list[dict]) -> dict:
             # 실물 신탁은 담는 물건 이름(금괴·은괴)을 그대로 넘긴다 — 화면이
             # "못 받았다" 대신 "애초에 구성종목이 없다" 고 적을 수 있어야 한다.
             "physical": entry.get("physical", ""),
+            # 받은 날짜를 그대로 넘긴다. 화면이 **보는 사람의 시계로** 나이를
+            # 재게 하려는 것이다 — 빌드 때 계산해 넣으면 크론이 멈춘 순간 그
+            # 숫자도 같이 멈춰서, 낡았다는 사실 자체가 안 보이게 된다.
+            "fetched": entry.get("fetchedDate", ""),
         }
     return out
 
