@@ -49,7 +49,7 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
       <option value="grade">등급순</option>
       <option value="riskAdj">위험 대비 2주 수익순</option>
       <option value="stopProb">손절 걸릴 확률 낮은 순</option>
-      <option value="r10">2주(10일) 수익률순</option>
+      <option value="rSwing" data-swing-label>수익률순</option>
       <option value="r20">20일 수익률순</option>
       <option value="turnover">거래대금순</option>
     </select>
@@ -76,7 +76,7 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
     <select id="ef-th-sort" aria-label="정렬">
       <option value="strip">최근 30일 빨강 많은 순</option>
       <option value="overhead">위에 물린 물량 적은 순</option>
-      <option value="r10">2주(10일) 수익률순</option>
+      <option value="rSwing" data-swing-label>수익률순</option>
       <option value="r20">20일 수익률순</option>
       <option value="breadth">상승 종목 비율순</option>
       <option value="grade">등급순</option>
@@ -102,7 +102,7 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
     <select id="ef-up-sort" aria-label="정렬">
       <option value="strip">최근 30일 빨강 많은 순</option>
       <option value="overhead">위에 물린 물량 적은 순</option>
-      <option value="r10">2주(10일) 수익률순</option>
+      <option value="rSwing" data-swing-label>수익률순</option>
       <option value="r20">20일 수익률순</option>
       <option value="breadth">상승 종목 비율순</option>
       <option value="grade">등급순</option>

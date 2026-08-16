@@ -157,6 +157,23 @@ function peakOf(code) {
   return index < 0 ? null : { value, index };
 }
 
+/* 추이 열의 정렬값 — 전 구간 변화율(%).
+   그림 열이라고 정렬에서 빼 두면 "요즘 오르는 순으로 보고 싶다" 를 할 방법이
+   없다. 선이 말하는 것을 숫자 하나로 요약해 data-sort 로 넘긴다. */
+function sparkTrend(code) {
+  const series = summary.series[state.filter][code];
+  const med = series && series.med;
+  if (!med) return null;
+  const clean = med.filter((v) => v != null);
+  if (clean.length < 2 || !(clean[0] > 0)) return null;
+  return (clean[clean.length - 1] / clean[0] - 1) * 100;
+}
+
+function trendAttr(code) {
+  const t = sparkTrend(code);
+  return t == null ? '' : ` data-sort="${t.toFixed(2)}"`;
+}
+
 function sparkline(code, index) {
   const series = summary.series[state.filter][code];
   const med = series && series.med;
@@ -243,12 +260,14 @@ function renderLanding(raw, spec, index) {
       // 그러지 않으면 고점이 지금 값보다 왼쪽에 와서 거꾸로 읽힌다.
       return `<tr class="re-list-row" data-code="${esc(code)}" tabindex="0" `
         + `role="button" aria-label="${esc(name)} 상세 보기">`
-        + `<td class="is-num is-dim">${i + 1}</td>`
+        // 순위 칸의 data-sort 는 **처음 순서**다. 이 열을 누르면 원래 순서로
+        // 돌아온다 — 정렬을 되돌릴 방법이 있어야 한다.
+        + `<td class="is-num is-dim" data-sort="${i + 1}">${i + 1}</td>`
         + `<td>${esc(name)}</td>`
         + (dupLevel
           ? metricCell + peakCell + fromPeakCell
           : levelCell + peakCell + fromPeakCell + metricCell)
-        + `<td class="is-spark">${sparkline(code, index)}</td></tr>`;
+        + `<td class="is-spark"${trendAttr(code)}>${sparkline(code, index)}</td></tr>`;
     })
     .join('');
   const since = (summary.months[0] || '').slice(0, 4);
@@ -258,11 +277,13 @@ function renderLanding(raw, spec, index) {
   const fromPeakTh = '<th class="is-num">고점 대비</th>';
   const metricTh = `<th class="is-num">${spec.label}</th>`;
   root.querySelector('.re-chart').innerHTML = rows
-    ? `<table class="re-table is-landing"><thead><tr><th></th><th>시군구</th>`
+    ? `<table class="re-table is-landing"><thead><tr>`
+      + `<th class="is-num" title="누르면 처음 순서로 돌아갑니다">순위</th><th>시군구</th>`
       + (dupLevel
         ? metricTh + peakTh + fromPeakTh
         : levelTh + peakTh + fromPeakTh + metricTh)
-      + `<th class="is-spark no-sort">추이 ${since}~</th></tr></thead><tbody>${rows}</tbody></table>`
+      + `<th class="is-spark" title="${since}년 이후 전 구간 변화율로 정렬합니다">`
+      + `추이 ${since}~</th></tr></thead><tbody>${rows}</tbody></table>`
     : '<p class="re-error">표시할 데이터가 없습니다.</p>';
   // 순위 열(0번)은 정렬 뒤 다시 매긴다 — 지금 순서를 뜻하는 칸이기 때문이다.
   makeSortable(root.querySelector('.re-chart .re-table'), { rankColumn: 0 });

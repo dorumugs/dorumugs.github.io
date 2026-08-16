@@ -88,7 +88,10 @@ export function makeSortable(table, { rankColumn = null } = {}) {
       rows.forEach((row) => {
         row.classList.remove('is-group');
         [...row.children].forEach((cell) => {
-          if (cell.dataset.sort != null && !cell.textContent.trim()) {
+          // 그림이 든 칸은 건드리지 않는다. 스파크라인 칸은 <svg> 하나뿐이라
+          // textContent 가 비어 있는데, 여기서 채우면 정렬한 순간 그래프가
+          // 숫자로 바뀌어 버린다 — 실제로 그렇게 만들었다가 잡았다.
+          if (cell.dataset.sort != null && !cell.textContent.trim() && !cell.firstElementChild) {
             cell.textContent = cell.dataset.sort;
           }
         });

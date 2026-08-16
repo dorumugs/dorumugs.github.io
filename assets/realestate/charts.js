@@ -364,10 +364,13 @@ function renderTable(root, detail, state) {
   const rows = detail.complexes
     .filter((c) => c.n >= 5 && (!min300 || (c.hh != null && c.hh >= 300)))
     .slice(0, 30);
-  const head = '<thead><tr><th class="no-sort"></th><th>단지</th><th>법정동</th>'
+  const head = '<thead><tr>'
+    + '<th class="is-num" title="누르면 처음 순서로 돌아갑니다">순위</th>'
+    + '<th>단지</th><th>법정동</th>'
     + '<th class="is-num">평당가(만원)</th><th class="is-num">세대</th>'
     + '<th class="is-num">거래</th></tr></thead>';
-  const body = rows.map((c, i) => `<tr><td class="is-num is-dim">${i + 1}</td>`
+  // 순위 칸의 data-sort 는 처음 순서다 — 이 열을 누르면 원래 순서로 돌아온다.
+  const body = rows.map((c, i) => `<tr><td class="is-num is-dim" data-sort="${i + 1}">${i + 1}</td>`
     + `<td>${esc(c.name)}</td><td class="is-dim">${esc(c.dong)}</td>`
     + `<td class="is-num">${c.med != null ? c.med.toLocaleString() : '—'}</td>`
     + `<td class="is-num is-dim">${c.hh != null ? c.hh.toLocaleString() : '—'}</td>`

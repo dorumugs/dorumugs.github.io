@@ -24,6 +24,9 @@
     etfShown: PAGE,
     themeShown: GROUP_PAGE,
     upjongShown: GROUP_PAGE,
+    // {열 key, 방향}. 드롭다운과 머리글이 같이 쓴다.
+    themeSort: { key: 'strip', dir: -1 },
+    upjongSort: { key: 'strip', dir: -1 },
     risk: 300000,
     us: null,
     usHoldings: null,
@@ -352,35 +355,191 @@
       '칸에 손을 올리면 그날 실제 비율이 나옵니다.</p>';
   }
 
+  /* --- 작은 표의 머리글 정렬 -------------------------------------------------
+
+     테마 표는 265줄에 쪽 나누기가 있어 **데이터**를 정렬해야 하지만(보이는
+     30줄만 뒤섞으면 '1등' 이 첫 페이지 안에서의 1등이 된다), 검증 결과·구성
+     종목처럼 한 번 그리고 마는 작은 표는 <tr> 을 그대로 옮기는 편이 간단하다.
+
+     규칙은 realestate/sorttable.js 와 똑같이 맞춘다 — 같은 사이트에서 표마다
+     정렬이 다르게 굴면 그게 더 나쁘다. 클래스 이름도 같이 쓴다. */
+  /* 보이는 글자로는 못 읽는 칸에 원 숫자를 실어 준다. 값이 없으면 속성을
+     아예 달지 않아 보이는 '—' 가 방향과 무관하게 뒤로 간다. */
+  function sortAttr(v) {
+    return (v === null || v === undefined || v !== v) ? '' : ' data-sort="' + v + '"';
+  }
+
+  function cellSortValue(row, index) {
+    var cell = row.children[index];
+    if (!cell) { return { n: null, s: '' }; }
+    var raw = cell.dataset && cell.dataset.sort != null ? cell.dataset.sort : cell.textContent;
+    var text = String(raw).trim();
+    // '1,234' → 1234, '+3.2%' → 3.2, '−0.5%' → -0.5, '—' → null.
+    //
+    // 단위 글자는 **일부러 벗기지 않는다.** moneyShort 가 조·억·만을 섞어 쓰기
+    // 때문에 '1.2조' 에서 숫자만 뽑으면 1.2 가 되어 '900억' 보다 작아진다.
+    // 단위가 붙는 칸은 data-sort 로 원 숫자를 실어 보내는 게 유일하게 맞는
+    // 방법이고, 안 실어 보낸 칸은 글자 순으로 정렬돼 눈에 띄게 이상해진다 —
+    // 조용히 틀린 순서를 보여주는 것보다 낫다.
+    var cleaned = text.replace(/[,\s%+]/g, '').replace(/[−–]/g, '-');
+    var n = /^-?\d+(\.\d+)?$/.test(cleaned) ? Number(cleaned) : null;
+    return { n: n, s: text };
+  }
+
+  function makeSortable(table) {
+    if (!table) { return; }
+    var head = table.querySelector('thead tr');
+    var body = table.querySelector('tbody');
+    if (!head || !body || body.querySelectorAll('tr').length < 2) { return; }
+    var headers = Array.prototype.slice.call(head.children);
+    headers.forEach(function (th, index) {
+      if (th.classList.contains('no-sort') || !th.textContent.trim()) { return; }
+      th.classList.add('is-sortable');
+      th.setAttribute('role', 'button');
+      th.setAttribute('tabindex', '0');
+      if (!th.hasAttribute('aria-sort')) { th.setAttribute('aria-sort', 'none'); }
+      function run() {
+        // 처음 누르면 큰 값부터. 이 표들은 대부분 '높은 쪽' 이 관심사다.
+        var dir = th.getAttribute('aria-sort') === 'descending' ? 1 : -1;
+        var rows = Array.prototype.slice.call(body.querySelectorAll('tr'));
+        rows.sort(function (a, b) {
+          var va = cellSortValue(a, index);
+          var vb = cellSortValue(b, index);
+          // 값이 없는 줄은 방향과 무관하게 뒤로. 오름차순에서 '—' 가 1등이 되면
+          // 표를 잘못 읽는다.
+          if (va.n !== null && vb.n !== null) { return (va.n - vb.n) * dir; }
+          if (va.n !== null) { return -1; }
+          if (vb.n !== null) { return 1; }
+          if (!va.s) { return 1; }
+          if (!vb.s) { return -1; }
+          return va.s.localeCompare(vb.s, 'ko') * dir;
+        });
+        rows.forEach(function (row) { body.appendChild(row); });
+        headers.forEach(function (other) {
+          other.setAttribute('aria-sort', 'none');
+          other.classList.remove('is-asc', 'is-desc');
+        });
+        th.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+        th.classList.add(dir === 1 ? 'is-asc' : 'is-desc');
+      }
+      th.addEventListener('click', run);
+      th.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); run(); }
+      });
+    });
+  }
+
+  /* 컨테이너 안의 표를 전부 정렬 가능하게. 패널·검증 결과처럼 여러 표가 한
+     덩어리로 그려지는 자리에서 쓴다. */
+  function makeAllSortable(host) {
+    if (!host) { return; }
+    host.querySelectorAll('table').forEach(makeSortable);
+  }
+
+  /* 표의 열 정의를 한 곳에 모은다.
+
+     머리글 문자열과 셀 문자열을 따로 쓰면 열을 하나 끼워 넣을 때 둘 중 하나를
+     빠뜨려 표가 통째로 어긋난다(실제로 스트립 열을 옮기다 한 번 겪었다).
+     여기서 한 항목이 머리글·셀·정렬값을 다 들고 있으므로 어긋날 수가 없다.
+
+       label  머리글. 보유 기간·스트립 길이가 meta 에서 오므로 함수다
+       cell   그 줄의 <td>
+       value  정렬에 쓸 값. null 은 방향과 무관하게 항상 뒤로 간다
+       asc    기본 방향이 오름차순인 열 (물린 물량·등급처럼 작을수록 좋은 것) */
+  var GROUP_COLS = [
+    { key: 'name', label: function () { return '이름'; },
+      cell: function (r) { return '<td class="ef-rowname">' + escapeHtml(r.name) + '</td>'; },
+      value: function (r) { return r.name; }, text: true, asc: true },
+    // 스트립을 이름 바로 옆에 둔다. 맨 오른쪽에 두면 390px 에서 아홉 칸을
+    // 옆으로 밀어야 보인다 — 정렬 기준으로 쓰는 것이 화면 밖에 있으면 안 된다.
+    { key: 'strip', label: function () { return '최근 ' + stripSpan() + '일'; },
+      cell: function (r) { return '<td class="ef-stripcell">' + stripSvg(r.strip) + '</td>'; },
+      value: function (r) { return r.strip ? stripRed(r) : null; } },
+    { key: 'rSwing', label: function () { return swingWeeks() + '주'; },
+      cell: function (r) { return '<td class="' + dirClass(r.rSwing) + '">' + pct(r.rSwing) + '</td>'; },
+      value: function (r) { return r.rSwing; } },
+    { key: 'r20', label: function () { return '20일'; },
+      cell: function (r) { return '<td class="' + dirClass(r.r20) + '">' + pct(r.r20) + '</td>'; },
+      value: function (r) { return r.r20; } },
+    { key: 'breadth', label: function () { return '상승비율'; },
+      cell: function (r) {
+        return '<td>' + (r.breadth === null ? '—' : Math.round(r.breadth * 100) + '%') + '</td>';
+      },
+      value: function (r) { return r.breadth; } },
+    { key: 'excess', label: function () { return '시장대비'; },
+      cell: function (r) { return '<td class="' + dirClass(r.excess) + '">' + pct(r.excess) + '</td>'; },
+      value: function (r) { return r.excess; } },
+    { key: 'overhead', label: function () { return '물린 물량'; },
+      cell: function (r) {
+        return '<td' + (r.overhead !== null && r.overhead >= 0.6 ? ' class="ef-down"' : '') + '>' +
+          (r.overhead === null ? '—' : Math.round(r.overhead * 100) + '%') + '</td>';
+      },
+      value: function (r) { return r.overhead; }, asc: true },
+    { key: 'grade', label: function () { return '등급'; },
+      cell: function (r) { return '<td>' + badge(r.grade) + '</td>'; },
+      value: function (r) { return gradeRank(r.grade); }, asc: true },
+    { key: 'members', label: function () { return '종목'; },
+      cell: function (r) { return '<td>' + r.members + '</td>'; },
+      value: function (r) { return r.members; } },
+    { key: 'etfCount', label: function () { return 'ETF'; },
+      cell: function (r) { return '<td>' + (r.etfCount ? r.etfCount + '개' : '—') + '</td>'; },
+      value: function (r) { return r.etfCount; } }
+  ];
+
+  var GROUP_COL_BY_KEY = {};
+  GROUP_COLS.forEach(function (c) { GROUP_COL_BY_KEY[c.key] = c; });
+
+  function stripSpan() { return (state.meta && state.meta.stripSpan) || 30; }
+
+  /* 열 하나로 줄세운다. 목록이 265개고 화면에는 30개만 나오므로 **데이터를**
+     정렬해야 한다 — 보이는 <tr> 만 뒤섞으면 "1등" 이 첫 페이지 안에서의 1등이
+     된다. 값이 없는 줄은 방향과 무관하게 뒤로 보낸다. */
+  function sortGroupRows(rows, sort) {
+    var col = GROUP_COL_BY_KEY[sort.key] || GROUP_COL_BY_KEY.strip;
+    var dir = sort.dir;
+    return rows.slice().sort(function (a, b) {
+      var va = col.value(a);
+      var vb = col.value(b);
+      var na = va === null || va === undefined;
+      var nb = vb === null || vb === undefined;
+      if (na && nb) { return 0; }
+      if (na) { return 1; }
+      if (nb) { return -1; }
+      // 한글은 기본 비교로는 순서가 틀린다.
+      if (col.text) { return String(va).localeCompare(String(vb), 'ko') * dir; }
+      return (va - vb) * dir || 0;
+    });
+  }
+
+  function defaultDir(key) {
+    var col = GROUP_COL_BY_KEY[key];
+    return col && col.asc ? 1 : -1;
+  }
+
   /* 테마 265개를 카드로 늘어놓으면 훑을 수가 없다. 표로 놓는다.
-     390px 에서는 자체 스크롤 안에서만 옆으로 넘친다. */
-  function groupTable(rows, shown) {
+     390px 에서는 자체 스크롤 안에서만 옆으로 넘친다.
+
+     머리글은 **전부** 누를 수 있다. 열을 실었다는 건 그 값으로 비교하라는
+     뜻인데 정렬이 안 되면 265줄에서는 눈으로 훑는 것 말고 쓸 방법이 없다. */
+  function groupTable(rows, shown, sort) {
     if (!rows.length) {
       return '<p class="ef-note">조건에 맞는 항목이 없습니다.</p>';
     }
+    var head = GROUP_COLS.map(function (c) {
+      var on = c.key === sort.key;
+      var dirName = sort.dir < 0 ? 'descending' : 'ascending';
+      return '<th class="is-sortable' + (on ? (sort.dir < 0 ? ' is-desc' : ' is-asc') : '') +
+        '" data-col="' + c.key + '" role="button" tabindex="0" aria-sort="' +
+        (on ? dirName : 'none') + '">' + escapeHtml(c.label()) + '</th>';
+    }).join('');
     var body = rows.slice(0, shown).map(function (r) {
-      var mark = r.etfCount ? r.etfCount + '개' : '—';
-      return '<tr class="ef-row" data-kind="group" data-code="' + escapeHtml(r.key) + '" tabindex="0">' +
-        '<td class="ef-rowname">' + escapeHtml(r.name) + '</td>' +
-        // 스트립을 이름 바로 옆에 둔다. 맨 오른쪽에 두면 390px 에서 아홉 칸을
-        // 옆으로 밀어야 보인다 — 정렬 기준으로 쓰는 것이 화면 밖에 있으면 안 된다.
-        '<td class="ef-stripcell">' + stripSvg(r.strip) + '</td>' +
-        '<td class="' + dirClass(r.rSwing) + '">' + pct(r.rSwing) + '</td>' +
-        '<td class="' + dirClass(r.r20) + '">' + pct(r.r20) + '</td>' +
-        '<td>' + (r.breadth === null ? '—' : Math.round(r.breadth * 100) + '%') + '</td>' +
-        '<td class="' + dirClass(r.excess) + '">' + pct(r.excess) + '</td>' +
-        '<td' + (r.overhead !== null && r.overhead >= 0.6 ? ' class="ef-down"' : '') + '>' +
-          (r.overhead === null ? '—' : Math.round(r.overhead * 100) + '%') + '</td>' +
-        '<td>' + badge(r.grade) + '</td>' +
-        '<td>' + r.members + '</td>' +
-        '<td>' + mark + '</td></tr>';
+      return '<tr class="ef-row" data-kind="group" data-code="' + escapeHtml(r.key) +
+        '" tabindex="0">' +
+        GROUP_COLS.map(function (c) { return c.cell(r); }).join('') +
+        '</tr>';
     }).join('');
     return '<div class="ef-tablewrap"><table class="ef-table ef-grouptable"><thead><tr>' +
-      '<th>이름</th>' +
-      '<th>최근 ' + ((state.meta && state.meta.stripSpan) || 30) + '일</th>' +
-      '<th>' + swingWeeks() + '주</th><th>20일</th><th>상승비율</th><th>시장대비</th>' +
-      '<th>물린 물량</th><th>등급</th><th>종목</th><th>ETF</th>' +
-      '</tr></thead><tbody>' + body + '</tbody></table></div>';
+      head + '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
 
   /* --- 미국 ETF ----------------------------------------------------------- */
@@ -609,6 +768,7 @@
       '<strong>모르는 쌍은 상관 1 로 봅니다</strong> — 모르면 최악을 가정해야 분산 효과를 ' +
       '실제보다 크게 보여주는 일이 없습니다. ' +
       '"다 손절되면" 은 담은 것이 동시에 무너지는 경우라, 이 금액이 감당 가능한지가 먼저입니다.</p>';
+    makeAllSortable(host);
   }
 
   function toggleBasket(code) {
@@ -688,12 +848,12 @@
     theme: {
       q: 'ef-th-q', grade: 'ef-th-grade', sort: 'ef-th-sort', buyable: 'ef-th-buyable',
       table: 'ef-th-table', count: 'ef-th-count', more: 'ef-th-more',
-      legend: 'ef-th-legend', shown: 'themeShown', label: '테마'
+      legend: 'ef-th-legend', shown: 'themeShown', sortState: 'themeSort', label: '테마'
     },
     upjong: {
       q: 'ef-up-q', grade: 'ef-up-grade', sort: 'ef-up-sort', buyable: 'ef-up-buyable',
       table: 'ef-up-table', count: 'ef-up-count', more: 'ef-up-more',
-      legend: 'ef-up-legend', shown: 'upjongShown', label: '업종'
+      legend: 'ef-up-legend', shown: 'upjongShown', sortState: 'upjongSort', label: '업종'
     }
   };
 
@@ -702,13 +862,30 @@
     var q = $(v.q).value.trim().toLowerCase();
     var grade = $(v.grade).value;
     var buyableOnly = $(v.buyable).checked;
-    return sortRows(state.groups.filter(function (r) {
+    return sortGroupRows(state.groups.filter(function (r) {
       if (r.type !== type) { return false; }
       if (q && r.name.toLowerCase().indexOf(q) < 0) { return false; }
       if (grade && r.grade !== grade) { return false; }
       if (buyableOnly && !r.etfCount) { return false; }
       return true;
-    }), $(v.sort).value);
+    }), state[v.sortState]);
+  }
+
+  /* 드롭다운과 머리글은 **같은 상태**를 쓴다. 둘이 각자 상태를 들면 열을
+     눌러 정렬해 놓고도 드롭다운은 딴 소리를 하게 되고, 표가 거짓말을 한다. */
+  function setGroupSort(type, key, flip) {
+    var v = GROUP_VIEWS[type];
+    var cur = state[v.sortState];
+    if (!GROUP_COL_BY_KEY[key]) { return; }
+    state[v.sortState] = (flip && cur.key === key)
+      ? { key: key, dir: -cur.dir }
+      : { key: key, dir: defaultDir(key) };
+    // 드롭다운에 없는 열(이름·종목 수 등)로 정렬하면 고를 것이 없으므로 비운다.
+    var select = $(v.sort);
+    select.value = key;
+    if (select.value !== key) { select.value = ''; }
+    state[v.shown] = GROUP_PAGE;
+    renderGroup(type);
   }
 
   /* --- 그리기 ------------------------------------------------------------ */
@@ -727,7 +904,7 @@
     var v = GROUP_VIEWS[type];
     var rows = filteredGroups(type);
     var shown = Math.min(state[v.shown], rows.length);
-    $(v.table).innerHTML = groupTable(rows, shown);
+    $(v.table).innerHTML = groupTable(rows, shown, state[v.sortState]);
     $(v.count).textContent = rows.length
       ? v.label + ' ' + rows.length + '개 중 ' + shown + '개 표시'
       : '조건에 맞는 ' + v.label + '이 없습니다.';
@@ -764,9 +941,11 @@
         var netCls = s.netExcess !== null && s.netExcess < 0 ? ' class="ef-down"' : '';
         // 기준선과 승률 구간이 겹치면 '차이가 있다' 고 말할 수 없다.
         var overlaps = base && !base.thin && s.winLo <= base.winHi && s.winHi >= base.winLo;
-        return '<tr><td>' + badge(g) + (overlaps ? '<span class="ef-tag">구별 안 됨</span>' : '') + '</td>' +
+        // 등급 배지와 신뢰구간이 붙은 승률은 보이는 글자로 정렬하면 틀린다.
+        return '<tr><td' + sortAttr(gradeRank(g)) + '>' + badge(g) +
+            (overlaps ? '<span class="ef-tag">구별 안 됨</span>' : '') + '</td>' +
           '<td>' + s.n.toLocaleString() + '</td>' +
-          '<td>' + (s.winRate * 100).toFixed(1) + '% <i>(' +
+          '<td' + sortAttr(s.winRate) + '>' + (s.winRate * 100).toFixed(1) + '% <i>(' +
             (s.winLo * 100).toFixed(1) + '~' + (s.winHi * 100).toFixed(1) + ')</i></td>' +
           '<td>' + pct(s.medianFwd, 2) + '</td>' +
           '<td' + exCls + '>' + (s.medianExcess === null ? '—' : pct(s.medianExcess, 2)) + '</td>' +
@@ -775,7 +954,8 @@
           '<td' + realCls + '><b>' + pct(s.medianRealized, 2) + '</b></td></tr>';
       }).join('');
       var baseRow = base && !base.thin
-        ? '<tr class="ef-baseline"><td>기준선(전체)</td><td>' + base.n.toLocaleString() + '</td><td>' +
+        ? '<tr class="ef-baseline"><td>기준선(전체)</td><td>' + base.n.toLocaleString() + '</td>' +
+          '<td' + sortAttr(base.winRate) + '>' +
           (base.winRate * 100).toFixed(1) + '% <i>(' + (base.winLo * 100).toFixed(1) + '~' +
           (base.winHi * 100).toFixed(1) + ')</i></td><td>' + pct(base.medianFwd, 2) +
           '</td><td>—</td><td>—</td><td>' + (base.stopHitRate * 100).toFixed(1) + '%</td><td>—</td></tr>'
@@ -883,6 +1063,7 @@
       '<ul class="ef-why">' + bt.limits.map(function (l) {
         return '<li>' + escapeHtml(l) + '</li>';
       }).join('') + '</ul>';
+    makeAllSortable(host);
   }
 
   function renderMarket() {
@@ -950,16 +1131,18 @@
   /* '이 테마를 살 수 있는 ETF'. 시가총액 상위 5 와 거래대금 상위 5 를 따로
      놓는다. 큰 게 곧 잘 팔리는 게 아니라서다 — 시총 1조짜리가 하루 3억밖에
      안 거래되면 보유 기간 안에 못 빠져나온다. */
-  function groupEtfTable(list, unitLabel, unit) {
+  function groupEtfTable(list, unitLabel, unit, rawUnit) {
     var body = list.map(function (e) {
       var lev = levLabel(e.lev);
+      // 단위가 붙는 칸(억·조)과 등급 배지는 보이는 글자로 정렬하면 순서가
+      // 틀린다. 원 숫자를 data-sort 로 같이 보낸다.
       return '<tr><td>' + escapeHtml(e.name) +
         (lev ? ' <span class="ef-tag is-warn">' + lev + '</span>' : '') +
         (e.partial ? ' <span class="ef-tag">부분 노출</span>' : '') + '</td>' +
-        '<td>' + unit(e) + '</td>' +
+        '<td' + sortAttr(rawUnit(e)) + '>' + unit(e) + '</td>' +
         '<td>' + e.weight.toFixed(0) + '%</td>' +
-        '<td class="' + dirClass(e.rSwing) + '">' + pct(e.rSwing) + '</td>' +
-        '<td>' + badge(e.grade) + '</td></tr>';
+        '<td class="' + dirClass(e.rSwing) + '"' + sortAttr(e.rSwing) + '>' + pct(e.rSwing) + '</td>' +
+        '<td' + sortAttr(gradeRank(e.grade)) + '>' + badge(e.grade) + '</td></tr>';
     }).join('');
     return '<div class="ef-tablewrap"><table class="ef-table"><thead><tr>' +
       '<th>ETF</th><th>' + unitLabel + '</th><th>노출</th><th>' + swingWeeks() + '주</th><th>등급</th>' +
@@ -976,11 +1159,11 @@
     return '<h3 class="ef-plan-title">이 테마를 살 수 있는 ETF · 시가총액 상위</h3>' +
       groupEtfTable(d.byCap, '시가총액', function (e) {
         return e.cap ? e.cap.toLocaleString() + '억' : '—';
-      }) +
+      }, function (e) { return e.cap; }) +
       '<h3 class="ef-plan-title">거래대금 상위</h3>' +
       groupEtfTable(d.byTurnover, '20일 중앙', function (e) {
         return moneyShort(e.turnover);
-      }) +
+      }, function (e) { return e.turnover; }) +
       '<p class="ef-note">노출 ' + d.total + '개 중 상위 5개씩입니다. ' +
       '<strong>노출</strong>은 그 ETF 자산에서 이 테마가 차지하는 비중이라, ' +
       '낮으면 테마가 올라도 ETF 는 덜 움직입니다. ' +
@@ -993,8 +1176,11 @@
     var head = '<tr><th>종목</th>' + (weightHeader ? '<th>비중</th>' : '') + '<th>20일</th></tr>';
     var body = rows.map(function (r) {
       return '<tr><td>' + escapeHtml(r.name) + '</td>' +
-        (weightHeader ? '<td>' + (r.weight === undefined ? '—' : r.weight.toFixed(1) + '%') + '</td>' : '') +
-        '<td class="' + dirClass(r.r20) + '">' + pct(r.r20) + '</td></tr>';
+        (weightHeader
+          ? '<td' + sortAttr(r.weight) + '>' +
+            (r.weight === undefined ? '—' : r.weight.toFixed(1) + '%') + '</td>'
+          : '') +
+        '<td class="' + dirClass(r.r20) + '"' + sortAttr(r.r20) + '>' + pct(r.r20) + '</td></tr>';
     }).join('');
     return '<div class="ef-tablewrap"><table class="ef-table"><thead>' + head +
       '</thead><tbody>' + body + '</tbody></table></div>';
@@ -1352,6 +1538,7 @@
 
     if (kind === 'us') {
       body.innerHTML = head + supplySection(row) + usHoldingsTable(row);
+      makeAllSortable(body);
       return;
     }
     loadDetails().then(function (d) {
@@ -1366,10 +1553,11 @@
       }
       // 테마·업종은 'ETF 로 어떻게 사나' 가 먼저다. 구성종목은 근거일 뿐이다.
       var etfPart = kind === 'group' ? groupEtfSection(code) : supplySection(row);
-      if (kind === 'us') { body.innerHTML = head + etfPart; return; }
+      if (kind === 'us') { body.innerHTML = head + etfPart; makeAllSortable(body); return; }
       var holdTitle = kind === 'group'
         ? '<h3 class="ef-plan-title">구성종목</h3>' : '';
       body.innerHTML = head + etfPart + holdTitle + holdingsTable(rows, kind === 'etf') + extra;
+      makeAllSortable(body);
     }).catch(function () {
       body.innerHTML += '<p class="ef-error">구성종목을 불러오지 못했습니다.</p>';
     });
@@ -1421,13 +1609,29 @@
         state[v.shown] = GROUP_PAGE;
         renderGroup(type);
       }
-      ['q', 'grade', 'sort', 'buyable'].forEach(function (field) {
+      ['q', 'grade', 'buyable'].forEach(function (field) {
         $(v[field]).addEventListener('input', reset);
         $(v[field]).addEventListener('change', reset);
+      });
+      // 드롭다운은 머리글과 같은 상태를 쓴다. flip 없이 그 열의 기본 방향으로.
+      $(v.sort).addEventListener('change', function () {
+        setGroupSort(type, $(v.sort).value, false);
       });
       $(v.more).addEventListener('click', function () {
         state[v.shown] += GROUP_PAGE;
         renderGroup(type);
+      });
+      // 표는 필터가 바뀔 때마다 다시 그려지므로 머리글에 직접 붙이면 핸들러가
+      // 날아간다. 컨테이너에 한 번만 위임해 둔다.
+      var host = $(v.table);
+      host.addEventListener('click', function (e) {
+        var th = e.target.closest ? e.target.closest('th[data-col]') : null;
+        if (th) { setGroupSort(type, th.dataset.col, true); }
+      });
+      host.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') { return; }
+        var th = e.target.closest ? e.target.closest('th[data-col]') : null;
+        if (th) { e.preventDefault(); setGroupSort(type, th.dataset.col, true); }
       });
     });
 
@@ -1530,6 +1734,14 @@
         var savedBasket = JSON.parse(window.localStorage.getItem('ef-basket') || '[]');
         if (Array.isArray(savedBasket)) { state.basket = savedBasket.slice(0, 8); }
       } catch (e) { state.basket = []; }
+
+      // 정렬 드롭다운의 '수익률순' 라벨. 보유 기간은 meta 에서 오므로 HTML 에
+      // 박아 두면 기간을 바꿀 때마다 화면이 거짓말을 한다 — 실제로 보유를
+      // 8주로 늘린 뒤에도 '2주(10일) 수익률순' 이 남아 있었고, 값도 없는
+      // 필드(r10)를 가리켜 고르면 아무 일도 안 일어났다.
+      document.querySelectorAll('[data-swing-label]').forEach(function (opt) {
+        opt.textContent = swingLabel() + ' 수익률순';
+      });
 
       wire();
       renderMarket();
