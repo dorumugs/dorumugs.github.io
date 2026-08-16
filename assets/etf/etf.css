@@ -258,12 +258,35 @@
 }
 .ef-tbl-title .ef-count { font-weight: 400; margin: 0 0 0 6px; }
 
-/* 265개를 훑어야 하므로 줄 높이를 줄이고, 이름 칸만 넉넉히 준다. */
-.ef-grouptable { min-width: 560px; }
+/* 265개를 훑어야 하므로 줄 높이를 줄이고, 이름 칸만 넉넉히 준다.
+   스트립 열(119px)이 붙으면서 최소 폭을 그만큼 늘렸다. 표는 .ef-tablewrap
+   안에서만 옆으로 넘치므로 페이지 자체는 390px 에서도 안 넘친다. */
+.ef-grouptable { min-width: 700px; }
 .ef-grouptable td { padding: 7px 8px; }
+/* 남는 폭은 전부 이름 칸이 먹는다. 안 그러면 마지막 열이 늘어나면서 머리글이
+   칸에서 멀찍이 떨어져 어느 열인지 안 보인다. */
 .ef-grouptable .ef-rowname {
-  font-weight: 600; color: #222; min-width: 9em; max-width: 14em;
+  font-weight: 600; color: #222; min-width: 9em; max-width: 14em; width: 99%;
 }
+/* 폭 스트립. 날짜별 '오른 구성종목 비율' 을 왼쪽(과거)→오른쪽(최근)으로. */
+.ef-stripcell { padding-right: 10px !important; white-space: nowrap; }
+.ef-strip { display: block; }
+.ef-strip .ef-cell.is-up { fill: #c0392b; }    /* 70% 이상 — 국내 관행대로 상승이 빨강 */
+.ef-strip .ef-cell.is-down { fill: #2471c4; }  /* 30% 이하 */
+.ef-strip .ef-cell.is-flat { fill: #d6dce2; }  /* 그 사이 — 애매한 날은 색을 안 준다 */
+.ef-strip .ef-cell.is-none { fill: #f2f2f2; }  /* 표본 부족 */
+.ef-muted { color: #bbb; }
+
+.ef-striplegend .ef-note { margin-top: 0.6em; }
+.ef-legend-swatch {
+  display: inline-block; width: 9px; height: 9px; border-radius: 2px;
+  vertical-align: -1px; margin-right: 2px;
+}
+.ef-legend-swatch.is-up { background: #c0392b; }
+.ef-legend-swatch.is-down { background: #2471c4; }
+.ef-legend-swatch.is-flat { background: #d6dce2; }
+.ef-legend-swatch.is-none { background: #f2f2f2; border: 1px solid #e2e2e2; }
+
 .ef-row { cursor: pointer; }
 .ef-row:hover td { background: #f6f9fc; }
 .ef-row:focus-visible { outline: 2px solid #2c3e50; outline-offset: -2px; }

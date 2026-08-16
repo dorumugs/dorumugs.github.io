@@ -5,7 +5,10 @@ permalink: /dashboard/etf-theme/
 classes: wide
 author_profile: false
 toc: false
-description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안 실제로 오르고 있는지를 구성종목 중위 수익률과 상승 종목 비율로 판정하고, 그 흐름을 살 수 있는 ETF 1,160개로 연결합니다. 판정 조건을 전부 공개하고 매일 자동 갱신합니다."
+header:
+  image: /assets/images/etf-theme/header.svg
+  teaser: /assets/images/etf-theme/header.svg
+description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안 실제로 오르고 있는지를 구성종목 중위 수익률과 상승 종목 비율로 판정하고, 최근 30 거래일 중 이 판이 통째로 움직인 날을 색띠로 보여줍니다. 그 흐름을 살 수 있는 ETF 1,160개로 연결하고, 판정 조건을 전부 공개하며 매일 자동 갱신합니다."
 ---
 
 <link rel="stylesheet" href="{{ '/assets/etf/etf.css' | relative_url }}?v={{ site.time | date: '%s' }}">
@@ -16,7 +19,8 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
 
   <div class="ef-tabs" role="tablist" aria-label="보기 고르기">
     <button type="button" id="ef-tab-etf" class="is-on" role="tab" aria-selected="true" aria-controls="ef-view-etf">ETF</button>
-    <button type="button" id="ef-tab-group" role="tab" aria-selected="false" aria-controls="ef-view-group">테마 · 업종</button>
+    <button type="button" id="ef-tab-theme" role="tab" aria-selected="false" aria-controls="ef-view-theme">테마</button>
+    <button type="button" id="ef-tab-upjong" role="tab" aria-selected="false" aria-controls="ef-view-upjong">업종</button>
     <button type="button" id="ef-tab-us" role="tab" aria-selected="false" aria-controls="ef-view-us">미국 ETF</button>
   </div>
 
@@ -64,30 +68,55 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
 
 </section>
 
-<section id="ef-view-group" role="tabpanel" aria-labelledby="ef-tab-group" hidden markdown="0">
+<section id="ef-view-theme" role="tabpanel" aria-labelledby="ef-tab-theme" hidden markdown="0">
 
   <div class="ef-filters">
-    <input type="search" id="ef-gq" placeholder="테마·업종 이름으로 검색 — 2차전지, 반도체" autocomplete="off" aria-label="테마 검색">
-    <select id="ef-ggrade" aria-label="등급 거르기"><option value="">등급 전체</option></select>
-    <select id="ef-gsort" aria-label="정렬">
+    <input type="search" id="ef-th-q" placeholder="테마 이름으로 검색 — 2차전지, 원자력" autocomplete="off" aria-label="테마 검색">
+    <select id="ef-th-grade" aria-label="등급 거르기"><option value="">등급 전체</option></select>
+    <select id="ef-th-sort" aria-label="정렬">
+      <option value="strip">최근 30일 빨강 많은 순</option>
       <option value="overhead">위에 물린 물량 적은 순</option>
       <option value="r10">2주(10일) 수익률순</option>
       <option value="r20">20일 수익률순</option>
       <option value="breadth">상승 종목 비율순</option>
       <option value="grade">등급순</option>
     </select>
-    <label class="ef-check"><input type="checkbox" id="ef-gbuyable"> ETF 로 살 수 있는 것만</label>
+    <label class="ef-check"><input type="checkbox" id="ef-th-buyable"> ETF 로 살 수 있는 것만</label>
   </div>
+
+  <div class="ef-striplegend" id="ef-th-legend"></div>
 
   <p class="ef-note" style="margin-top:0">줄을 누르면 <strong>그 테마를 살 수 있는 ETF</strong>를 시가총액 상위 5개·거래대금 상위 5개로 보여줍니다.</p>
 
-  <h3 class="ef-tbl-title">테마 <span class="ef-count" id="ef-tcount"></span></h3>
-  <div id="ef-theme-table"></div>
-  <p class="ef-more"><button type="button" id="ef-tmore" hidden>테마 더 보기</button></p>
+  <p class="ef-count" id="ef-th-count"></p>
+  <div id="ef-th-table"></div>
+  <p class="ef-more"><button type="button" id="ef-th-more" hidden>테마 더 보기</button></p>
 
-  <h3 class="ef-tbl-title">업종 <span class="ef-count" id="ef-ucount"></span></h3>
-  <div id="ef-upjong-table"></div>
-  <p class="ef-more"><button type="button" id="ef-umore" hidden>업종 더 보기</button></p>
+</section>
+
+<section id="ef-view-upjong" role="tabpanel" aria-labelledby="ef-tab-upjong" hidden markdown="0">
+
+  <div class="ef-filters">
+    <input type="search" id="ef-up-q" placeholder="업종 이름으로 검색 — 반도체, 은행" autocomplete="off" aria-label="업종 검색">
+    <select id="ef-up-grade" aria-label="등급 거르기"><option value="">등급 전체</option></select>
+    <select id="ef-up-sort" aria-label="정렬">
+      <option value="strip">최근 30일 빨강 많은 순</option>
+      <option value="overhead">위에 물린 물량 적은 순</option>
+      <option value="r10">2주(10일) 수익률순</option>
+      <option value="r20">20일 수익률순</option>
+      <option value="breadth">상승 종목 비율순</option>
+      <option value="grade">등급순</option>
+    </select>
+    <label class="ef-check"><input type="checkbox" id="ef-up-buyable"> ETF 로 살 수 있는 것만</label>
+  </div>
+
+  <div class="ef-striplegend" id="ef-up-legend"></div>
+
+  <p class="ef-note" style="margin-top:0">업종은 거래소 분류라 테마보다 넓고 겹치지 않습니다. 줄을 누르면 <strong>그 업종을 살 수 있는 ETF</strong>가 나옵니다.</p>
+
+  <p class="ef-count" id="ef-up-count"></p>
+  <div id="ef-up-table"></div>
+  <p class="ef-more"><button type="button" id="ef-up-more" hidden>업종 더 보기</button></p>
 
 </section>
 
@@ -96,22 +125,22 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
   <div class="ef-market" id="ef-us-market" aria-live="polite"></div>
 
   <div class="ef-filters">
-    <input type="search" id="ef-uq" placeholder="티커나 이름으로 검색 — TQQQ, SOXL, semiconductor" autocomplete="off" aria-label="미국 ETF 검색">
-    <select id="ef-ugrade" aria-label="등급 거르기"><option value="">등급 전체</option></select>
-    <select id="ef-ulev" aria-label="배수 거르기">
+    <input type="search" id="ef-us-q" placeholder="티커나 이름으로 검색 — TQQQ, SOXL, semiconductor" autocomplete="off" aria-label="미국 ETF 검색">
+    <select id="ef-us-grade" aria-label="등급 거르기"><option value="">등급 전체</option></select>
+    <select id="ef-us-lev" aria-label="배수 거르기">
       <option value="">배수 전체</option>
       <option value="1">1배만</option>
       <option value="lev">레버리지만</option>
       <option value="lev3">3배만</option>
       <option value="inv">인버스만</option>
     </select>
-    <select id="ef-uliq" aria-label="거래대금 하한">
+    <select id="ef-us-liq" aria-label="거래대금 하한">
       <option value="0">거래대금 전체</option>
       <option value="500000000" selected>5억 이상</option>
       <option value="10000000000">100억 이상</option>
       <option value="100000000000">1000억 이상</option>
     </select>
-    <select id="ef-usort" aria-label="정렬">
+    <select id="ef-us-sort" aria-label="정렬">
       <option value="grade">등급순</option>
       <option value="riskAdj">위험 대비 수익순</option>
       <option value="overhead">위에 물린 물량 적은 순</option>
@@ -121,9 +150,9 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
     </select>
   </div>
 
-  <p class="ef-count" id="ef-ucount"></p>
-  <div class="ef-grid" id="ef-ulist"></div>
-  <p class="ef-more"><button type="button" id="ef-umore2" hidden>더 보기</button></p>
+  <p class="ef-count" id="ef-us-count"></p>
+  <div class="ef-grid" id="ef-us-list"></div>
+  <p class="ef-more"><button type="button" id="ef-us-more" hidden>더 보기</button></p>
 
 </section>
 
@@ -350,6 +379,40 @@ ETF는 담고 있는 자산의 가치(NAV)가 정해져 있는데 시장가는 �
 반도체 ETF 열 개를 다 사는 사람은 없습니다 — 사실상 같은 베팅이니까요. 기본값은 대표 테마마다
 **20일 중앙 거래대금이 가장 큰 하나**만 보여줍니다. 유동성으로 고르는 이유는 2주 안에 나와야
 하기 때문입니다. 체크를 풀면 전부 나옵니다.
+
+## 최근 30일 — 언제부터 몰렸나
+
+테마·업종 표 맨 오른쪽에 색띠가 있습니다. **최근 30 거래일 동안 날마다 구성종목 중 몇
+%가 전일보다 올랐는지**를 왼쪽(과거)에서 오른쪽(최근)으로 늘어놓은 것입니다.
+
+| 칸 색 | 그날 오른 구성종목 |
+|---|---|
+| 빨강 | 70% 이상 — 이 판이 통째로 움직인 날 |
+| 파랑 | 30% 이하 — 통째로 밀린 날 |
+| 회색 | 그 사이 — 방향이 갈린 날 |
+| 빈칸 | 그날 값을 만들 종목이 3개가 안 됨 |
+
+**왜 이 띠가 필요한가.** 상승 비율은 한 숫자라 *언제부터* 그랬는지를 못 말합니다. 20일
+내내 꾸준히 올라 64%인 테마와, 18일 죽어 있다가 이틀 급등해 64%가 된 테마가 표에서
+똑같이 보입니다. 스윙 진입 시점을 정할 때 이 둘은 전혀 다른 물건입니다. 오른쪽 끝에
+빨강이 몰려 있으면 지금 붙은 것이고, 왼쪽에만 몰려 있으면 이미 지나간 판입니다.
+
+가운데를 회색으로 비워 둔 이유는, 55% 같은 애매한 날까지 색을 주면 **진짜 몰린 날이
+안 보이기** 때문입니다. 칸에 손을 올리면 그날 실제 비율이 나옵니다.
+
+**한계가 셋 있습니다.**
+
+**종가만 봅니다.** 장중에 아무리 밀렸어도 종가가 전일보다 높으면 빨강입니다.
+
+**동일가중입니다.** 시가총액 1위가 −5%여도 나머지 아홉이 +0.1%면 90%로 찍힙니다.
+*얼마나* 올랐는지가 아니라 **몇 개가** 올랐는지를 재는 지표입니다. 폭과 수익률을
+같이 봐야 하는 이유입니다.
+
+**구성종목 수가 제각각입니다.** 5종목 테마의 80%와 60종목 테마의 80%는 신뢰도가
+다릅니다. 표에 종목 수를 나란히 둔 이유입니다.
+
+70%·30%도 검증된 값이 아니라 논리로 정한 출발점입니다 — 이 화면의 다른 임계값과
+같습니다.
 
 ## 나머지 지표
 

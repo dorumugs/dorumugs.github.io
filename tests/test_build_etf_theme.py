@@ -450,6 +450,51 @@ class PercentileTest(unittest.TestCase):
         self.assertEqual(b.percentile_rank(10, []), 0.0)
 
 
+class DailyBreadthTest(unittest.TestCase):
+    """날짜별 상승 종목 비율 — 스트립의 원값."""
+
+    CAL = ["20260810", "20260811", "20260812"]
+
+    def test_길이는_달력보다_하나_짧다(self):
+        # 첫날은 전일이 없어 상승·하락을 못 가른다.
+        members = [{d: 100.0 for d in self.CAL} for _ in range(5)]
+        self.assertEqual(len(b.daily_breadth(self.CAL, members)), 2)
+
+    def test_오른_종목_비율을_정수_퍼센트로_돌려준다(self):
+        up = {"20260810": 100.0, "20260811": 110.0, "20260812": 120.0}
+        down = {"20260810": 100.0, "20260811": 90.0, "20260812": 80.0}
+        members = [up, up, up, down]
+        self.assertEqual(b.daily_breadth(self.CAL, members), [75, 75])
+
+    def test_보합은_오른_것이_아니다(self):
+        # 제자리인 날은 상승이 아니다. 안 그러면 거래정지 종목이 폭을 부풀린다.
+        flat = {d: 100.0 for d in self.CAL}
+        up = {"20260810": 100.0, "20260811": 110.0, "20260812": 120.0}
+        members = [flat, flat, flat, up]
+        self.assertEqual(b.daily_breadth(self.CAL, members), [25, 25])
+
+    def test_양쪽_종가가_다_있는_종목만_분모에_넣는다(self):
+        up = {"20260810": 100.0, "20260811": 110.0, "20260812": 120.0}
+        # 11일에 상장한 종목. 11일 칸에서는 전일이 없어 분모에서 빠지고,
+        # 12일 칸부터 센다.
+        late = {"20260811": 100.0, "20260812": 90.0}
+        members = [up, up, up, late]
+        self.assertEqual(b.daily_breadth(self.CAL, members), [100, 75])
+
+    def test_유효_종목이_모자라면_None이다(self):
+        # 2종목 중 2종목이 올랐다고 '100% 대세' 라고 칠할 수는 없다.
+        up = {"20260810": 100.0, "20260811": 110.0, "20260812": 120.0}
+        self.assertEqual(b.daily_breadth(self.CAL, [up, up]), [None, None])
+
+    def test_구성종목이_없으면_전부_None이다(self):
+        self.assertEqual(b.daily_breadth(self.CAL, []), [None, None])
+
+    def test_0이하_종가는_분모에서_뺀다(self):
+        up = {"20260810": 100.0, "20260811": 110.0, "20260812": 120.0}
+        bad = {"20260810": 0.0, "20260811": 0.0, "20260812": 0.0}
+        self.assertEqual(b.daily_breadth(self.CAL, [up, up, up, bad]), [100, 100])
+
+
 class StockHoldingTest(unittest.TestCase):
     def test_종목이_아닌_줄을_걸러낸다(self):
         # 이걸 분모에 넣으면 파서가 멀쩡해도 매칭률이 낮게 나온다.

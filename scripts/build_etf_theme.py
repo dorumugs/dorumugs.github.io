@@ -80,6 +80,20 @@ SPARK_POINTS = 21
 # 스파크라인용 21일로는 모자라 26일이 필요하다.
 CALENDAR_POINTS = LOOKBACK + SHORT_LOOKBACK + 1
 
+# 폭 스트립. 날짜별 '오른 구성종목 비율' 을 30 거래일치 늘어놓는다.
+#
+# 20일 상승 비율은 한 숫자라 **언제부터** 대세였는지를 못 말한다. 20일 내내
+# 꾸준히 올라 64% 인 테마와 18일 죽어 있다가 이틀 급등해 64% 가 된 테마가
+# 화면에서 똑같이 보인다. 스윙 진입 시점을 정할 때 이 둘은 다른 물건이다.
+#
+# 이 배열은 등급 계산에 **쓰지 않는다.** 달력도 따로 만든다 — CALENDAR_POINTS
+# 를 늘리면 group_index 가 길어지고 그게 straightness 를 거쳐 등급을 조용히
+# 바꾼다. 판정 규칙은 건드리지 않는다.
+STRIP_SPAN = 30
+# 그날 양쪽 종가가 다 있는 종목이 이보다 적으면 비율을 내지 않는다.
+# 2종목 중 2종목이 올랐다고 '100% 대세' 라고 칠할 수는 없다.
+STRIP_MIN_VALID = 3
+
 # --- 판정 임계값 ------------------------------------------------------------
 # 검증된 최적값이 아니라 합리적 출발점이다. 근거는 _dev/specs 문서에 적어 뒀다.
 BREADTH_OK = 0.60          # 구성종목 60% 이상이 올라야 '대세'
@@ -477,6 +491,44 @@ def breadth_of(returns: list[float | None]) -> float | None:
     return sum(1 for r in clean if r > 0) / len(clean)
 
 
+def daily_breadth(
+    calendar: list[str],
+    closes_by_date: list[dict],
+    min_valid: int = STRIP_MIN_VALID,
+) -> list[int | None]:
+    """날짜별 '전일보다 오른 구성종목 비율' — 정수 퍼센트 0~100.
+
+    돌려주는 길이는 `len(calendar) - 1` 이다. 첫날은 전일이 없어 상승·하락을
+    가를 수 없다.
+
+    세 가지를 지킨다.
+
+      양쪽 종가가 다 있는 종목만 분모  거래정지·상장 전은 빠진다. 안 빼면
+                                       가만히 있는 종목이 '안 오른 쪽' 으로
+                                       세어져 폭이 낮게 나온다
+      보합은 오른 것이 아니다           제자리인 날은 상승이 아니다
+      유효 종목이 모자라면 None         비율을 낼 표본이 없다는 뜻이고,
+                                       화면에서는 빈칸으로 그린다
+
+    **임계값은 여기서 적용하지 않는다.** 70/30 은 화면 쪽 상수다. 원값을
+    실어야 칸마다 실제 비율을 보여줄 수 있고, 기준을 바꿔도 다시 굽지 않는다.
+    """
+    out: list[int | None] = []
+    for i in range(1, len(calendar)):
+        today, yesterday = calendar[i], calendar[i - 1]
+        up = 0
+        valid = 0
+        for prices in closes_by_date:
+            a, b_ = prices.get(yesterday), prices.get(today)
+            if not a or not b_ or a <= 0 or b_ <= 0:
+                continue
+            valid += 1
+            if b_ > a:
+                up += 1
+        out.append(round(100 * up / valid) if valid >= min_valid else None)
+    return out
+
+
 def group_index(calendar: list[str], closes_by_date: list[dict]) -> list[float]:
     """구성종목 일간수익률의 **중위값**을 누적곱한 지수. 시작을 100 으로 둔다.
 
@@ -815,6 +867,11 @@ def main() -> int:
         print("KOSPI 일봉이 없습니다. 거래일 달력을 만들 수 없습니다.", file=sys.stderr)
         return 1
 
+    # 스트립 달력은 **따로** 만든다. calendar 를 늘리면 group_index 가 길어지고
+    # 그게 straightness 를 거쳐 등급을 바꾼다. 표시용 지표가 판정 규칙을
+    # 건드리게 두면 안 된다.
+    strip_calendar = kospi.dates[-(STRIP_SPAN + 1):]
+
     kosdaq = series_of(bars, "KOSDAQ")
     benchmark = {
         "KOSPI": pct_return(kospi.closes, LOOKBACK) or 0.0,
@@ -917,6 +974,8 @@ def main() -> int:
                 "overhead": (lambda x: None if x is None else round(x, 4))(median_or_none(overheads)),
                 "breadth": None if breadth is None else round(breadth, 4),
                 "straight": straight,
+                # 날짜별 상승 종목 비율 30칸(과거→최근). 화면에서 색띠로 그린다.
+                "strip": daily_breadth(strip_calendar, closes_by_date),
                 "bench": bench,
                 "excess": None if excess is None else round(excess, 5),
                 "grade": grade,
@@ -1148,6 +1207,9 @@ def main() -> int:
         # 않고 화면에 알린다.
         "intraday": bool(state.get("bars_intraday")),
         "lookback": LOOKBACK,
+        "stripSpan": STRIP_SPAN,
+        # 스트립 30칸이 각각 어느 거래일인지. 화면 툴팁에 쓴다.
+        "stripDates": strip_calendar[1:],
         "swingLookback": SWING_LOOKBACK,
         "swingWeeks": round(SWING_LOOKBACK / 5),
         "regime": regime,
@@ -1169,6 +1231,9 @@ def main() -> int:
             "vol": VOL_FLOOR,
             "turnover": TURNOVER_FLOOR,
             "overheat": OVERHEAT_R20,
+            # 스트립 색 경계. 계산이 아니라 화면 표시용이라 여기에만 둔다.
+            "stripUp": 0.70,
+            "stripDown": 0.30,
         },
     }
 

@@ -276,8 +276,84 @@
       '</button></div>';
   }
 
-  /* 테마 265개를 카드로 늘어놓으면 훑을 수가 없다. 표로 놓고 테마·업종을
-     따로 세운다. 390px 에서는 자체 스크롤 안에서만 옆으로 넘친다. */
+  /* --- 폭 스트립 ----------------------------------------------------------
+
+     20일 상승 비율은 한 숫자라 **언제부터** 대세였는지를 못 말한다. 20일 내내
+     꾸준히 올라 64% 인 테마와, 18일 죽어 있다가 이틀 급등해 64% 가 된 테마가
+     화면에서 똑같이 보인다. 날짜별로 늘어놓으면 그 차이가 눈으로 갈린다.
+
+     칸 3px + 간격 1px 로 30칸이면 119px 다. 표가 이미 자체 가로 스크롤을
+     가지고 있으므로 페이지는 안 넘친다. */
+  var STRIP_CELL = 3;
+  var STRIP_GAP = 1;
+  var STRIP_H = 14;
+
+  function stripThresholds() {
+    var t = (state.meta && state.meta.thresholds) || {};
+    return {
+      up: (t.stripUp === undefined ? 0.70 : t.stripUp) * 100,
+      down: (t.stripDown === undefined ? 0.30 : t.stripDown) * 100
+    };
+  }
+
+  /* 국내 관행대로 오르면 빨강이다. 가운데 구간을 회색으로 비워 두는 이유는,
+     55% 같은 애매한 날까지 색을 주면 '진짜 몰린 날' 이 안 보이기 때문이다. */
+  function stripClass(v) {
+    if (v === null || v === undefined) { return 'is-none'; }
+    var t = stripThresholds();
+    if (v >= t.up) { return 'is-up'; }
+    if (v <= t.down) { return 'is-down'; }
+    return 'is-flat';
+  }
+
+  function stripRed(row) {
+    var t = stripThresholds();
+    return (row.strip || []).reduce(function (n, v) {
+      return n + (v !== null && v >= t.up ? 1 : 0);
+    }, 0);
+  }
+
+  function shortDate(yyyymmdd) {
+    if (!yyyymmdd || yyyymmdd.length !== 8) { return yyyymmdd || ''; }
+    return parseInt(yyyymmdd.slice(4, 6), 10) + '/' + parseInt(yyyymmdd.slice(6), 10);
+  }
+
+  function stripSvg(strip) {
+    if (!strip || !strip.length) { return '<span class="ef-muted">—</span>'; }
+    var dates = (state.meta && state.meta.stripDates) || [];
+    var w = strip.length * (STRIP_CELL + STRIP_GAP) - STRIP_GAP;
+    var cells = strip.map(function (v, i) {
+      var title = (dates[i] ? shortDate(dates[i]) + ' · ' : '') +
+        (v === null ? '표본 부족' : '상승 ' + v + '%');
+      return '<rect class="ef-cell ' + stripClass(v) + '" x="' + i * (STRIP_CELL + STRIP_GAP) +
+        '" y="0" width="' + STRIP_CELL + '" height="' + STRIP_H + '" rx="1">' +
+        '<title>' + escapeHtml(title) + '</title></rect>';
+    }).join('');
+    return '<svg class="ef-strip" width="' + w + '" height="' + STRIP_H +
+      '" viewBox="0 0 ' + w + ' ' + STRIP_H + '" role="img" aria-label="최근 ' +
+      strip.length + ' 거래일 중 구성종목 70% 이상이 오른 날 ' + stripRed({ strip: strip }) +
+      '일">' + cells + '</svg>';
+  }
+
+  /* 색이 무슨 뜻인지 표 위에 적어 둔다. 범례 없는 히트맵은 장식이다. */
+  function stripLegend() {
+    var m = state.meta || {};
+    var d = m.stripDates || [];
+    var t = stripThresholds();
+    if (!d.length) { return ''; }
+    return '<p class="ef-note">' +
+      '<strong>최근 ' + (m.stripSpan || d.length) + ' 거래일</strong> (' + shortDate(d[0]) +
+      ' ~ ' + shortDate(d[d.length - 1]) + ') 동안 <strong>날마다 구성종목 중 몇 %가 ' +
+      '전일보다 올랐는지</strong>를 왼쪽(과거)에서 오른쪽(최근)으로 늘어놓았습니다. ' +
+      '<span class="ef-legend-swatch is-up"></span> ' + t.up + '% 이상 · ' +
+      '<span class="ef-legend-swatch is-down"></span> ' + t.down + '% 이하 · ' +
+      '<span class="ef-legend-swatch is-flat"></span> 그 사이 · ' +
+      '<span class="ef-legend-swatch is-none"></span> 표본 부족. ' +
+      '칸에 손을 올리면 그날 실제 비율이 나옵니다.</p>';
+  }
+
+  /* 테마 265개를 카드로 늘어놓으면 훑을 수가 없다. 표로 놓는다.
+     390px 에서는 자체 스크롤 안에서만 옆으로 넘친다. */
   function groupTable(rows, shown) {
     if (!rows.length) {
       return '<p class="ef-note">조건에 맞는 항목이 없습니다.</p>';
@@ -286,6 +362,9 @@
       var mark = r.etfCount ? r.etfCount + '개' : '—';
       return '<tr class="ef-row" data-kind="group" data-code="' + escapeHtml(r.key) + '" tabindex="0">' +
         '<td class="ef-rowname">' + escapeHtml(r.name) + '</td>' +
+        // 스트립을 이름 바로 옆에 둔다. 맨 오른쪽에 두면 390px 에서 아홉 칸을
+        // 옆으로 밀어야 보인다 — 정렬 기준으로 쓰는 것이 화면 밖에 있으면 안 된다.
+        '<td class="ef-stripcell">' + stripSvg(r.strip) + '</td>' +
         '<td class="' + dirClass(r.rSwing) + '">' + pct(r.rSwing) + '</td>' +
         '<td class="' + dirClass(r.r20) + '">' + pct(r.r20) + '</td>' +
         '<td>' + (r.breadth === null ? '—' : Math.round(r.breadth * 100) + '%') + '</td>' +
@@ -297,9 +376,11 @@
         '<td>' + mark + '</td></tr>';
     }).join('');
     return '<div class="ef-tablewrap"><table class="ef-table ef-grouptable"><thead><tr>' +
-      '<th>이름</th><th>' + swingWeeks() + '주</th><th>20일</th><th>상승비율</th><th>시장대비</th>' +
-      '<th>물린 물량</th><th>등급</th><th>종목</th><th>ETF</th></tr></thead><tbody>' + body +
-      '</tbody></table></div>';
+      '<th>이름</th>' +
+      '<th>최근 ' + ((state.meta && state.meta.stripSpan) || 30) + '일</th>' +
+      '<th>' + swingWeeks() + '주</th><th>20일</th><th>상승비율</th><th>시장대비</th>' +
+      '<th>물린 물량</th><th>등급</th><th>종목</th><th>ETF</th>' +
+      '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
 
   /* --- 미국 ETF ----------------------------------------------------------- */
@@ -374,10 +455,10 @@
 
   function filteredUs() {
     if (!state.us) { return []; }
-    var q = $('ef-uq').value.trim().toLowerCase();
-    var grade = $('ef-ugrade').value;
-    var lev = $('ef-ulev').value;
-    var liq = parseFloat($('ef-uliq').value) || 0;
+    var q = $('ef-us-q').value.trim().toLowerCase();
+    var grade = $('ef-us-grade').value;
+    var lev = $('ef-us-lev').value;
+    var liq = parseFloat($('ef-us-liq').value) || 0;
     return sortRows(state.us.rows.filter(function (r) {
       if (q && r.name.toLowerCase().indexOf(q) < 0 && r.ticker.toLowerCase().indexOf(q) < 0) { return false; }
       if (grade && r.grade !== grade) { return false; }
@@ -387,18 +468,18 @@
       if (lev === 'inv' && r.lev >= 0) { return false; }
       if (liq && (r.turnoverKrw === null || r.turnoverKrw < liq)) { return false; }
       return true;
-    }), $('ef-usort').value);
+    }), $('ef-us-sort').value);
   }
 
   function renderUs() {
     if (!state.us) { return; }
     var rows = filteredUs();
     var shown = rows.slice(0, state.usShown);
-    $('ef-ulist').innerHTML = shown.map(usCard).join('');
-    $('ef-ucount').textContent = rows.length
+    $('ef-us-list').innerHTML = shown.map(usCard).join('');
+    $('ef-us-count').textContent = rows.length
       ? '미국 ETF ' + rows.length + '개 중 ' + shown.length + '개 표시'
       : '조건에 맞는 ETF 가 없습니다.';
-    $('ef-umore2').hidden = shown.length >= rows.length;
+    $('ef-us-more').hidden = shown.length >= rows.length;
 
     var m = state.us.meta;
     var regCls = m.regime.label === '역풍'
@@ -564,6 +645,13 @@
       copy.sort(function (a, b) { return (a.stopProb === null ? 9 : a.stopProb) - (b.stopProb === null ? 9 : b.stopProb); });
     } else if (key === 'breadth') {
       copy.sort(function (a, b) { return (b.breadth || -1) - (a.breadth || -1); });
+    } else if (key === 'strip') {
+      // 최근 30일 중 '구성종목 70% 이상이 오른 날' 이 많은 순. 265개를 눈으로
+      // 훑어 뜨거운 테마를 찾을 수는 없으니 정렬을 붙인다. 같으면 최근 폭으로
+      // 가른다 — 한 달 전에 몰렸던 것과 지금 몰리는 것은 다르다.
+      copy.sort(function (a, b) {
+        return stripRed(b) - stripRed(a) || (b.breadth || -1) - (a.breadth || -1);
+      });
     } else if (key === 'overhead') {
       // 위에 물린 물량이 적은 쪽부터. 검증에서 이 구간의 승률이 가장 높았다.
       copy.sort(function (a, b) { return (a.overhead === null ? 9 : a.overhead) - (b.overhead === null ? 9 : b.overhead); });
@@ -594,17 +682,33 @@
     }), $('ef-sort').value);
   }
 
+  /* 테마와 업종은 탭이 다르다. 265개 테마와 79개 업종은 성격도 개수도 달라서
+     한 화면에 겹쳐 두면 어느 쪽을 보고 있는지 잊는다. 필터·정렬도 각자 갖는다. */
+  var GROUP_VIEWS = {
+    theme: {
+      q: 'ef-th-q', grade: 'ef-th-grade', sort: 'ef-th-sort', buyable: 'ef-th-buyable',
+      table: 'ef-th-table', count: 'ef-th-count', more: 'ef-th-more',
+      legend: 'ef-th-legend', shown: 'themeShown', label: '테마'
+    },
+    upjong: {
+      q: 'ef-up-q', grade: 'ef-up-grade', sort: 'ef-up-sort', buyable: 'ef-up-buyable',
+      table: 'ef-up-table', count: 'ef-up-count', more: 'ef-up-more',
+      legend: 'ef-up-legend', shown: 'upjongShown', label: '업종'
+    }
+  };
+
   function filteredGroups(type) {
-    var q = $('ef-gq').value.trim().toLowerCase();
-    var grade = $('ef-ggrade').value;
-    var buyableOnly = $('ef-gbuyable').checked;
+    var v = GROUP_VIEWS[type];
+    var q = $(v.q).value.trim().toLowerCase();
+    var grade = $(v.grade).value;
+    var buyableOnly = $(v.buyable).checked;
     return sortRows(state.groups.filter(function (r) {
       if (r.type !== type) { return false; }
       if (q && r.name.toLowerCase().indexOf(q) < 0) { return false; }
       if (grade && r.grade !== grade) { return false; }
       if (buyableOnly && !r.etfCount) { return false; }
       return true;
-    }), $('ef-gsort').value);
+    }), $(v.sort).value);
   }
 
   /* --- 그리기 ------------------------------------------------------------ */
@@ -619,16 +723,20 @@
     $('ef-more').hidden = shown.length >= rows.length;
   }
 
+  function renderGroup(type) {
+    var v = GROUP_VIEWS[type];
+    var rows = filteredGroups(type);
+    var shown = Math.min(state[v.shown], rows.length);
+    $(v.table).innerHTML = groupTable(rows, shown);
+    $(v.count).textContent = rows.length
+      ? v.label + ' ' + rows.length + '개 중 ' + shown + '개 표시'
+      : '조건에 맞는 ' + v.label + '이 없습니다.';
+    $(v.more).hidden = shown >= rows.length;
+    $(v.legend).innerHTML = stripLegend();
+  }
+
   function renderGroups() {
-    [['theme', 'ef-theme-table', 'ef-tcount', 'ef-tmore', 'themeShown'],
-     ['upjong', 'ef-upjong-table', 'ef-ucount', 'ef-umore', 'upjongShown']
-    ].forEach(function (cfg) {
-      var rows = filteredGroups(cfg[0]);
-      var shown = Math.min(state[cfg[4]], rows.length);
-      $(cfg[1]).innerHTML = groupTable(rows, shown);
-      $(cfg[2]).textContent = rows.length ? shown + ' / ' + rows.length + '개' : '0개';
-      $(cfg[3]).hidden = shown >= rows.length;
-    });
+    Object.keys(GROUP_VIEWS).forEach(renderGroup);
   }
 
   /* 성적표. 규칙을 자랑하는 자리가 아니라 규칙이 얼마나 못 미더운지 보여주는
@@ -1307,20 +1415,23 @@
       $(id).addEventListener('input', function () { state.etfShown = PAGE; renderEtfs(); });
       $(id).addEventListener('change', function () { state.etfShown = PAGE; renderEtfs(); });
     });
-    var groupInputs = ['ef-gq', 'ef-ggrade', 'ef-gsort', 'ef-gbuyable'];
-    groupInputs.forEach(function (id) {
+    Object.keys(GROUP_VIEWS).forEach(function (type) {
+      var v = GROUP_VIEWS[type];
       function reset() {
-        state.themeShown = GROUP_PAGE;
-        state.upjongShown = GROUP_PAGE;
-        renderGroups();
+        state[v.shown] = GROUP_PAGE;
+        renderGroup(type);
       }
-      $(id).addEventListener('input', reset);
-      $(id).addEventListener('change', reset);
+      ['q', 'grade', 'sort', 'buyable'].forEach(function (field) {
+        $(v[field]).addEventListener('input', reset);
+        $(v[field]).addEventListener('change', reset);
+      });
+      $(v.more).addEventListener('click', function () {
+        state[v.shown] += GROUP_PAGE;
+        renderGroup(type);
+      });
     });
 
     $('ef-more').addEventListener('click', function () { state.etfShown += PAGE; renderEtfs(); });
-    $('ef-tmore').addEventListener('click', function () { state.themeShown += GROUP_PAGE; renderGroups(); });
-    $('ef-umore').addEventListener('click', function () { state.upjongShown += GROUP_PAGE; renderGroups(); });
 
     document.addEventListener('click', function (e) {
       var copy = e.target.closest ? e.target.closest('.ef-copy') : null;
@@ -1355,7 +1466,8 @@
 
     var TABS = [
       ['ef-tab-etf', 'ef-view-etf'],
-      ['ef-tab-group', 'ef-view-group'],
+      ['ef-tab-theme', 'ef-view-theme'],
+      ['ef-tab-upjong', 'ef-view-upjong'],
       ['ef-tab-us', 'ef-view-us']
     ];
     function showTab(active) {
@@ -1370,13 +1482,13 @@
       $(pair[0]).addEventListener('click', function () { showTab(pair[0]); });
     });
 
-    var usInputs = ['ef-uq', 'ef-ugrade', 'ef-ulev', 'ef-uliq', 'ef-usort'];
+    var usInputs = ['ef-us-q', 'ef-us-grade', 'ef-us-lev', 'ef-us-liq', 'ef-us-sort'];
     usInputs.forEach(function (id) {
       function reset() { state.usShown = PAGE; renderUs(); }
       $(id).addEventListener('input', reset);
       $(id).addEventListener('change', reset);
     });
-    $('ef-umore2').addEventListener('click', function () { state.usShown += PAGE; renderUs(); });
+    $('ef-us-more').addEventListener('click', function () { state.usShown += PAGE; renderUs(); });
   }
 
   Promise.all([
@@ -1398,10 +1510,15 @@
       });
       fillSelect($('ef-grade'), etfGrades.map(function (g) { return { value: g, label: g }; }));
 
-      var groupGrades = GRADE_ORDER.filter(function (g) {
-        return state.groups.some(function (r) { return r.grade === g; });
+      // 등급 목록은 탭마다 따로 채운다. 테마에만 있는 등급을 업종 거르개에
+      // 띄우면 고르는 순간 빈 표가 나온다.
+      Object.keys(GROUP_VIEWS).forEach(function (type) {
+        var grades = GRADE_ORDER.filter(function (g) {
+          return state.groups.some(function (r) { return r.type === type && r.grade === g; });
+        });
+        fillSelect($(GROUP_VIEWS[type].grade),
+          grades.map(function (g) { return { value: g, label: g }; }));
       });
-      fillSelect($('ef-ggrade'), groupGrades.map(function (g) { return { value: g, label: g }; }));
 
       var tabs = {};
       state.etfs.forEach(function (r) { tabs[r.tab] = r.tabName; });
@@ -1424,7 +1541,7 @@
       if (state.basket.length) { loadCorr().then(renderBasket); }
 
       if (state.us) {
-        fillSelect($('ef-ugrade'), GRADE_ORDER.filter(function (g) {
+        fillSelect($('ef-us-grade'), GRADE_ORDER.filter(function (g) {
           return state.us.rows.some(function (r) { return r.grade === g; });
         }).map(function (g) { return { value: g, label: g }; }));
         renderUs();
