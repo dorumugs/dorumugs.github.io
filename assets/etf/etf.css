@@ -309,10 +309,19 @@
 .ef-legend-swatch.is-down { background: #2471c4; }
 .ef-legend-swatch.is-flat { background: #d6dce2; }
 .ef-legend-swatch.is-none { background: #f2f2f2; border: 1px solid #e2e2e2; }
+.ef-legend-swatch.is-hot { background: #fdf2f0; border: 1px solid #f0d6d0; }
 
 .ef-row { cursor: pointer; }
 .ef-row:hover td { background: #f6f9fc; }
 .ef-row:focus-visible { outline: 2px solid #2c3e50; outline-offset: -2px; }
+
+/* 최근 3 거래일 연속으로 구성종목 70% 이상이 오른 줄.
+   아주 연하게만 칠한다 — 265줄 중 몇 줄을 눈에 띄게 하려는 것이지 숫자를
+   읽기 어렵게 만들려는 게 아니다. 색만으로 뜻이 전해지지 않도록 줄에 title 을
+   달고 스트립 aria-label 에도 넣어 뒀다.
+   :hover 규칙과 특이도가 같아 순서로 이기고, 호버는 한 단계 더 진하게 둔다. */
+.ef-row.is-hot td { background: #fdf2f0; }
+.ef-row.is-hot:hover td { background: #f9e4e0; }
 
 /* 표 안의 배지·딱지는 줄 높이를 밀지 않게 줄인다. */
 .ef-table .ef-badge { font-size: 0.9em; padding: 1px 6px; }

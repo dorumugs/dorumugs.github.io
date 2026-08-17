@@ -316,12 +316,29 @@
     }, 0);
   }
 
+  /* 최근 며칠이 연달아 빨강인지를 볼 때 쓰는 창.
+     3일로 잡은 이유는 하루는 소음이고 5일이면 이미 20일 지표가 잡아내기
+     때문이다. '지금 막 붙었다' 를 보는 자리다. */
+  var HOT_DAYS = 3;
+
+  /* 스트립 끝 HOT_DAYS 칸이 **모두** 빨강인가.
+     끝에서부터 보는 이유는 왼쪽(과거)에 몰린 빨강은 이미 지나간 판이라서다.
+     칸 하나라도 회색·파랑이거나 표본이 없으면 아니다. */
+  function isHot(row) {
+    var strip = row.strip;
+    if (!strip || strip.length < HOT_DAYS) { return false; }
+    var t = stripThresholds();
+    return strip.slice(-HOT_DAYS).every(function (v) {
+      return v !== null && v >= t.up;
+    });
+  }
+
   function shortDate(yyyymmdd) {
     if (!yyyymmdd || yyyymmdd.length !== 8) { return yyyymmdd || ''; }
     return parseInt(yyyymmdd.slice(4, 6), 10) + '/' + parseInt(yyyymmdd.slice(6), 10);
   }
 
-  function stripSvg(strip) {
+  function stripSvg(strip, hot) {
     if (!strip || !strip.length) { return '<span class="ef-muted">—</span>'; }
     var dates = (state.meta && state.meta.stripDates) || [];
     var w = strip.length * (STRIP_CELL + STRIP_GAP) - STRIP_GAP;
@@ -334,8 +351,9 @@
     }).join('');
     return '<svg class="ef-strip" width="' + w + '" height="' + STRIP_H +
       '" viewBox="0 0 ' + w + ' ' + STRIP_H + '" role="img" aria-label="최근 ' +
-      strip.length + ' 거래일 중 구성종목 70% 이상이 오른 날 ' + stripRed({ strip: strip }) +
-      '일">' + cells + '</svg>';
+      strip.length + ' 거래일 중 구성종목 ' + stripThresholds().up + '% 이상이 오른 날 ' +
+      stripRed({ strip: strip }) + '일' +
+      (hot ? ', 최근 ' + HOT_DAYS + '일 연속 상승' : '') + '">' + cells + '</svg>';
   }
 
   /* 색이 무슨 뜻인지 표 위에 적어 둔다. 범례 없는 히트맵은 장식이다. */
@@ -352,7 +370,9 @@
       '<span class="ef-legend-swatch is-down"></span> ' + t.down + '% 이하 · ' +
       '<span class="ef-legend-swatch is-flat"></span> 그 사이 · ' +
       '<span class="ef-legend-swatch is-none"></span> 표본 부족. ' +
-      '칸에 손을 올리면 그날 실제 비율이 나옵니다.</p>';
+      '칸에 손을 올리면 그날 실제 비율이 나옵니다. ' +
+      '<span class="ef-legend-swatch is-hot"></span> <strong>끝 ' + HOT_DAYS +
+      '칸이 모두 빨강인 줄</strong>은 배경을 칠했습니다 — 지금 막 붙은 판입니다.</p>';
   }
 
   /* --- 작은 표의 머리글 정렬 -------------------------------------------------
@@ -453,7 +473,9 @@
     // 스트립을 이름 바로 옆에 둔다. 맨 오른쪽에 두면 390px 에서 아홉 칸을
     // 옆으로 밀어야 보인다 — 정렬 기준으로 쓰는 것이 화면 밖에 있으면 안 된다.
     { key: 'strip', label: function () { return '최근 ' + stripSpan() + '일'; },
-      cell: function (r) { return '<td class="ef-stripcell">' + stripSvg(r.strip) + '</td>'; },
+      cell: function (r) {
+        return '<td class="ef-stripcell">' + stripSvg(r.strip, isHot(r)) + '</td>';
+      },
       value: function (r) { return r.strip ? stripRed(r) : null; } },
     { key: 'rSwing', label: function () { return swingWeeks() + '주'; },
       cell: function (r) { return '<td class="' + dirClass(r.rSwing) + '">' + pct(r.rSwing) + '</td>'; },
@@ -533,8 +555,13 @@
         (on ? dirName : 'none') + '">' + escapeHtml(c.label()) + '</th>';
     }).join('');
     var body = rows.slice(0, shown).map(function (r) {
-      return '<tr class="ef-row" data-kind="group" data-code="' + escapeHtml(r.key) +
-        '" tabindex="0">' +
+      // 최근 3일 연속으로 판이 통째로 오른 줄은 배경을 연하게 칠한다. 색만으로
+      // 뜻이 전해지지 않도록 title 을 같이 달고, 스트립 aria-label 에도 넣는다.
+      var hot = isHot(r);
+      return '<tr class="ef-row' + (hot ? ' is-hot' : '') + '" data-kind="group" data-code="' +
+        escapeHtml(r.key) + '" tabindex="0"' +
+        (hot ? ' title="최근 ' + HOT_DAYS + ' 거래일 연속 구성종목 ' +
+          stripThresholds().up + '% 이상 상승"' : '') + '>' +
         GROUP_COLS.map(function (c) { return c.cell(r); }).join('') +
         '</tr>';
     }).join('');
