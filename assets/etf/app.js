@@ -874,12 +874,12 @@
   var GROUP_VIEWS = {
     theme: {
       q: 'ef-th-q', grade: 'ef-th-grade', sort: 'ef-th-sort', buyable: 'ef-th-buyable',
-      table: 'ef-th-table', count: 'ef-th-count', more: 'ef-th-more',
+      hot: 'ef-th-hot', table: 'ef-th-table', count: 'ef-th-count', more: 'ef-th-more',
       legend: 'ef-th-legend', shown: 'themeShown', sortState: 'themeSort', label: '테마'
     },
     upjong: {
       q: 'ef-up-q', grade: 'ef-up-grade', sort: 'ef-up-sort', buyable: 'ef-up-buyable',
-      table: 'ef-up-table', count: 'ef-up-count', more: 'ef-up-more',
+      hot: 'ef-up-hot', table: 'ef-up-table', count: 'ef-up-count', more: 'ef-up-more',
       legend: 'ef-up-legend', shown: 'upjongShown', sortState: 'upjongSort', label: '업종'
     }
   };
@@ -889,11 +889,13 @@
     var q = $(v.q).value.trim().toLowerCase();
     var grade = $(v.grade).value;
     var buyableOnly = $(v.buyable).checked;
+    var hotOnly = $(v.hot).checked;
     return sortGroupRows(state.groups.filter(function (r) {
       if (r.type !== type) { return false; }
       if (q && r.name.toLowerCase().indexOf(q) < 0) { return false; }
       if (grade && r.grade !== grade) { return false; }
       if (buyableOnly && !r.etfCount) { return false; }
+      if (hotOnly && !isHot(r)) { return false; }
       return true;
     }), state[v.sortState]);
   }
@@ -932,6 +934,14 @@
     var rows = filteredGroups(type);
     var shown = Math.min(state[v.shown], rows.length);
     $(v.table).innerHTML = groupTable(rows, shown, state[v.sortState]);
+    // 빈 결과가 고장처럼 보이면 안 된다. '3일 연속' 은 업종에서 며칠씩 하나도
+    // 안 걸리는 게 정상이라, 걸러서 0개인지 원래 0개인지를 말해 준다.
+    if (!rows.length && $(v.hot).checked) {
+      $(v.table).innerHTML = '<p class="ef-note">최근 ' + HOT_DAYS +
+        ' 거래일 내내 구성종목 ' + stripThresholds().up + '% 이상이 오른 ' + v.label +
+        '이 오늘은 없습니다. 드문 일이 아닙니다 — 특히 ' +
+        '업종은 테마보다 넓어서 잘 안 걸립니다. 체크를 풀면 전부 나옵니다.</p>';
+    }
     $(v.count).textContent = rows.length
       ? v.label + ' ' + rows.length + '개 중 ' + shown + '개 표시'
       : '조건에 맞는 ' + v.label + '이 없습니다.';
@@ -1636,7 +1646,7 @@
         state[v.shown] = GROUP_PAGE;
         renderGroup(type);
       }
-      ['q', 'grade', 'buyable'].forEach(function (field) {
+      ['q', 'grade', 'buyable', 'hot'].forEach(function (field) {
         $(v[field]).addEventListener('input', reset);
         $(v[field]).addEventListener('change', reset);
       });
@@ -1768,6 +1778,11 @@
       // 필드(r10)를 가리켜 고르면 아무 일도 안 일어났다.
       document.querySelectorAll('[data-swing-label]').forEach(function (opt) {
         opt.textContent = swingLabel() + ' 수익률순';
+      });
+      // 같은 이유로 '3일' 도 HTML 에 박아 두지 않는다. HOT_DAYS 를 바꾸면
+      // 체크박스 글자가 따라와야 한다.
+      document.querySelectorAll('[data-hot-label]').forEach(function (el) {
+        el.textContent = '최근 ' + HOT_DAYS + '일 연속 상승만';
       });
 
       wire();

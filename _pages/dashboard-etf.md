@@ -82,6 +82,7 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
       <option value="grade">등급순</option>
     </select>
     <label class="ef-check"><input type="checkbox" id="ef-th-buyable"> ETF 로 살 수 있는 것만</label>
+    <label class="ef-check"><input type="checkbox" id="ef-th-hot"> <span data-hot-label>최근 3일 연속 상승만</span></label>
   </div>
 
   <div class="ef-striplegend" id="ef-th-legend"></div>
@@ -108,6 +109,7 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
       <option value="grade">등급순</option>
     </select>
     <label class="ef-check"><input type="checkbox" id="ef-up-buyable"> ETF 로 살 수 있는 것만</label>
+    <label class="ef-check"><input type="checkbox" id="ef-up-hot"> <span data-hot-label>최근 3일 연속 상승만</span></label>
   </div>
 
   <div class="ef-striplegend" id="ef-up-legend"></div>
