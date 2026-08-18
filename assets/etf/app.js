@@ -1234,6 +1234,57 @@
     makeAllSortable(host);
   }
 
+  /* 검증 결과 서술을 **데이터에서** 만든다.
+
+     여기 있던 문장들은 원래 숫자를 글에 박아 둔 것이었는데, 채점이 매일 다시
+     돌면서 조용히 틀린 값이 됐다(추세진행 +0.24%p 라고 적혀 있었지만 실제로는
+     +1.02%p 였다). 글이 데이터를 따라오게 만드는 것 말고는 고칠 방법이 없다.
+
+     성적이 나쁘게 나와도 그대로 쓴다 — 그게 이 절의 존재 이유다. */
+  function renderBacktestNotes() {
+    var host = $('ef-btnotes');
+    if (!host) { return; }
+    var bt = state.backtest;
+    if (!bt || !bt.all) {
+      host.innerHTML = '<p class="ef-note">검증 결과를 아직 만들지 못했습니다.</p>';
+      return;
+    }
+    var block = bt.all;
+    var base = block.baseline;
+    var lines = [];
+    // 판정 규칙이 있는 세 등급만 다룬다. 약세·유동성부족·금리형은 '막는 사유'
+    // 라서 성적을 논할 대상이 아니다.
+    ['눌림매수', '추세진행', '과열주의'].forEach(function (g) {
+      var s = block.byGrade[g];
+      if (!s) { return; }
+      if (s.thin) {
+        lines.push('<li><strong>' + escapeHtml(g) + '</strong> 는 표본이 ' + s.n +
+          '건뿐이라 숫자를 내지 않습니다. 없는 게 아니라 <strong>말할 수 없는</strong> 것입니다.</li>');
+        return;
+      }
+      var overlaps = base && !base.thin && s.winLo <= base.winHi && s.winHi >= base.winLo;
+      var net = s.netExcess;
+      var verdict = net === null ? '시장과 견줄 수 없습니다'
+        : (net > 0 ? '비용을 빼고도 시장을 <strong>이깁니다</strong>'
+                   : '비용을 빼면 시장을 <strong>못 이깁니다</strong>');
+      lines.push('<li><strong>' + escapeHtml(g) + '</strong> — 표본 ' + s.n.toLocaleString() +
+        '건, 승률 ' + (s.winRate * 100).toFixed(1) + '%' +
+        (base && !base.thin ? '(기준선 ' + (base.winRate * 100).toFixed(1) + '%)' : '') +
+        ', 중위 ' + pct(s.medianFwd, 2) +
+        (net === null ? '' : ', 시장 대비 ' + pct(s.medianExcess, 2) +
+          ' · 비용 차감 후 ' + pct(net, 2)) +
+        '. ' + verdict + '.' +
+        (overlaps ? ' 다만 승률 구간이 기준선과 겹쳐 <strong>차이를 주장할 수 없습니다</strong>.' : '') +
+        '</li>');
+    });
+    var evalNote = '겹치지 않는 평가 시점은 ' + bt.evalDates + '회뿐입니다 — 표에 적힌 관측 ' +
+      bt.trials.toLocaleString() + '건은 같은 날짜의 ETF 들을 따로 센 것이라 서로 독립이 아닙니다. ' +
+      '<strong>시점 수를 기준으로 읽으세요.</strong>';
+    host.innerHTML = '<ul class="ef-why">' + lines.join('') + '</ul>' +
+      '<p class="ef-note">' + evalNote + ' 기준 ' + prettyDate(bt.asOf) +
+      ' · 보유 ' + bt.horizon + ' 거래일 · 왕복 비용 ' + (bt.cost * 100).toFixed(2) + '%p 가정.</p>';
+  }
+
   function renderMarket() {
     var m = state.meta;
     var warn = m.intraday
@@ -1945,10 +1996,14 @@
       document.querySelectorAll('[data-hot-label]').forEach(function (el) {
         el.textContent = '최근 ' + HOT_DAYS + '일 연속 상승만';
       });
+      document.querySelectorAll('[data-swing-risk-label]').forEach(function (opt) {
+        opt.textContent = '위험 대비 ' + swingWeeks() + '주 수익순';
+      });
 
       wire();
       renderMarket();
       renderBacktest();
+      renderBacktestNotes();
       renderPick();
       renderEtfs();
       renderGroups();
