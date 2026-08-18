@@ -22,6 +22,7 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
     <button type="button" id="ef-tab-theme" role="tab" aria-selected="false" aria-controls="ef-view-theme">테마</button>
     <button type="button" id="ef-tab-upjong" role="tab" aria-selected="false" aria-controls="ef-view-upjong">업종</button>
     <button type="button" id="ef-tab-us" role="tab" aria-selected="false" aria-controls="ef-view-us">미국 ETF</button>
+    <button type="button" id="ef-tab-us3" role="tab" aria-selected="false" aria-controls="ef-view-us3">미국 3배</button>
   </div>
 
 <section id="ef-view-etf" role="tabpanel" aria-labelledby="ef-tab-etf" markdown="0">
@@ -158,6 +159,30 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
 
 </section>
 
+<section id="ef-view-us3" role="tabpanel" aria-labelledby="ef-tab-us3" hidden markdown="0">
+
+  <div class="ef-filters">
+    <input type="search" id="ef-u3-q" placeholder="티커나 이름으로 검색 — SOXL, 반도체" autocomplete="off" aria-label="3배 ETF 검색">
+    <select id="ef-u3-grade" aria-label="등급 거르기"><option value="">등급 전체</option></select>
+    <select id="ef-u3-sort" aria-label="정렬">
+      <option value="strip">최근 30일 빨강 많은 순</option>
+      <option value="rSwing">달러 수익률순</option>
+      <option value="rSwingKrw">원화 수익률순</option>
+      <option value="r20">20일 수익률순</option>
+      <option value="overhead">위에 물린 물량 적은 순</option>
+      <option value="turnoverKrw">거래대금순</option>
+      <option value="grade">등급순</option>
+    </select>
+    <label class="ef-check"><input type="checkbox" id="ef-u3-hot"> <span data-hot-label>최근 3일 연속 상승만</span></label>
+  </div>
+
+  <div class="ef-striplegend" id="ef-u3-legend"></div>
+
+  <p class="ef-count" id="ef-u3-count"></p>
+  <div id="ef-u3-table"></div>
+
+</section>
+
   <div class="ef-panel" id="ef-panel" hidden role="dialog" aria-modal="true" aria-labelledby="ef-panel-title">
     <div class="ef-panel-inner">
       <button type="button" class="ef-panel-close" id="ef-panel-close" aria-label="닫기">✕</button>
@@ -167,6 +192,31 @@ description: "국내 테마 265개와 업종 79개가 최근 20 거래일 동안
   </div>
 
 </div>
+
+## 미국 3배 탭 — 여기만 폭을 잽니다
+
+미국 ETF 는 원래 **상승 비율(폭)을 확인할 수 없었습니다.** 국내 테마와 연결이 없어서
+"구성종목 중 몇 %가 올랐나"를 셀 수가 없었거든요. 3배 탭에서는 그걸 직접 잽니다 —
+발행사가 공시한 **보유 종목의 일봉을 따로 받아서** 국내 테마와 똑같이 계산합니다.
+같은 잣대를 써야 두 탭의 빨강이 같은 뜻이 됩니다.
+
+**불(Bull) 3배 15개만 있습니다.** 인버스 3배(SQQQ·SOXS·SPXU 등 9개)는 스왑만 들고
+있어 구성종목이 0개입니다. 설령 짝이 되는 불 ETF 의 종목을 빌려 온다 해도, 인버스에서
+"구성종목 70% 상승"은 그 ETF 가 **내린다**는 뜻이라 색이 거꾸로 읽힙니다. 이 화면
+전체가 "오르는 걸 산다"는 전제 위에 있으니 아예 뺐습니다. 기존 **미국 ETF** 탭에서는
+그대로 보입니다.
+
+**셋은 폭을 못 냅니다.** `TMF`·`TNA`·`YINN` 은 보유 종목이 1개뿐이라(사실상 스왑)
+**확인 불가**로 표시합니다. 빈칸으로 두면 "오른 날이 없다"로 읽히기 때문에 글자로
+적습니다.
+
+**표본 크기가 제각각입니다.** `SPXL`·`UPRO` 는 500종목, `SOXL` 은 30종목, `UDOW` 는
+30종목입니다. 같은 70%라도 500개 중 350개와 30개 중 21개는 신뢰도가 다릅니다. 표에
+**보유** 열을 같이 둔 이유입니다.
+
+**3배는 임계값이 세 배입니다.** 기초자산이 8.3%만 올라도 25%가 되므로, 1배와 같은
+잣대를 대면 늘 "과열"로 찍힙니다. 등급 판정에서 배수만큼 늘려 봅니다. 대신 손절폭도
+그만큼 벌어지니 **수량을 그만큼 줄여야** 같은 위험이 됩니다.
 
 ## 미국 ETF는 다르게 읽어야 합니다
 

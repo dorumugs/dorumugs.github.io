@@ -37,6 +37,10 @@ OUT = REPO / "assets" / "etf"
 
 BARS_FILE = DATA / "us_bars.csv.gz"
 HOLDINGS_FILE = DATA / "us_holdings.json.gz"
+# 3배 불 ETF 구성종목의 일봉. collect_us_stocks.py 가 채운다. 없으면 폭 없이
+# 나머지는 그대로 굽는다 — 새 수집이 아직 안 돈 날에 화면 전체가 죽으면 안 된다.
+STOCK_BARS_FILE = DATA / "us_stock_bars.csv.gz"
+STOCK_UNIVERSE_FILE = DATA / "us_stock_universe.json.gz"
 INDEX_KEY = "SPX"
 HOLDINGS_TOP_N = 25
 
@@ -101,6 +105,47 @@ def fx_return(fx: dict[str, float], dates: list[str], span: int) -> float | None
     if not now or not past:
         return None
     return now / past - 1
+
+
+def load_stock_bars() -> dict[str, dict[str, list]]:
+    """구성종목 일봉. 아직 안 받았으면 빈 dict — 폭 없이 나머지는 그대로 굽는다."""
+    bars: dict[str, dict[str, list]] = {}
+    if not STOCK_BARS_FILE.exists():
+        return bars
+    try:
+        with gzip.open(STOCK_BARS_FILE, "rt", encoding="utf-8", newline="") as fh:
+            for row in csv.DictReader(fh):
+                bars.setdefault(row["symbol"], {})[row["date"]] = float(row["close"])
+    except (OSError, csv.Error, ValueError, KeyError):
+        return {}
+    return bars
+
+
+def lev3_bull_tickers(rows: list[dict]) -> list[str]:
+    """폭을 잴 3배 ETF — **불 계열만**.
+
+    베어 3배(SQQQ·SOXS·SPXU 등 9개)는 스왑만 들고 있어 구성종목이 0개다.
+    설령 짝이 되는 불 ETF 의 종목을 빌려 온다 해도, 인버스에서 '구성종목 70%
+    상승' 은 그 ETF 가 **내린다**는 뜻이라 색이 거꾸로 읽힌다. 이 화면 전체가
+    '오르는 걸 산다' 는 전제 위에 있으므로 아예 뺀다.
+    """
+    return [r["ticker"] for r in rows if (r.get("lev") or 1) >= 3]
+
+
+def holding_tickers(holdings: dict, tickers: list[str]) -> list[str]:
+    """주어진 ETF 들이 들고 있는 개별 종목 티커 (정규화·중복 제거·정렬)."""
+    import naver_us_api as us  # noqa: PLC0415 — 수집 파서와 공유하는 표기 규칙
+
+    out: set[str] = set()
+    for t in tickers:
+        for row in (holdings.get(t) or {}).get("rows") or []:
+            code = us.normalize_ticker(row.get("ticker"))
+            # 발행사 파일에는 '2200963' 같은 내부 식별자가 티커 칸에 섞여 온다.
+            # 자동완성에 물어도 안 나오고, 안 걸러내면 '못 찾음' 목록에 매일
+            # 쌓여서 진짜 파손 신호를 덮는다.
+            if code and code[0].isalpha():
+                out.add(code)
+    return sorted(out)
 
 
 def build_holdings(universe: list[dict]) -> dict:
@@ -186,6 +231,31 @@ def main() -> int:
                  else "S&P500 이 20일선 아래입니다. 규모를 줄이거나 쉬는 것을 먼저 고려하세요."),
     }
 
+    # --- 3배 불 ETF 의 폭 -----------------------------------------------------
+    # 구성종목 일봉으로 '이 판이 통째로 오르는가' 를 날짜별로 잰다. 국내 테마와
+    # 같은 계산(build_etf_theme.daily_breadth)을 그대로 쓴다 — 잣대가 화면마다
+    # 다르면 두 탭의 빨강이 다른 뜻이 된다.
+    holdings_cache = b.read_json_gz(HOLDINGS_FILE) or {}
+    stock_bars = load_stock_bars()
+    stock_universe = b.read_json_gz(STOCK_UNIVERSE_FILE) or []
+    code_of = {r["ticker"]: r["code"] for r in stock_universe}
+    strip_calendar = index.dates[-(b.STRIP_SPAN + 1):]
+
+    def strip_for(ticker: str) -> list | None:
+        """그 ETF 구성종목의 날짜별 상승 비율. 잴 수 없으면 None.
+
+        None 과 [] 를 구분한다 — None 은 '확인 불가'(스왑만 들었거나 일봉이
+        아직 없다)이고, 화면은 그걸 빈칸이 아니라 문구로 알려야 한다.
+        """
+        names = holding_tickers(holdings_cache, [ticker])
+        series = [
+            {d: c for d, c in stock_bars[code_of[t]].items()}
+            for t in names if t in code_of and code_of[t] in stock_bars
+        ]
+        if len(series) < b.STRIP_MIN_VALID:
+            return None
+        return b.daily_breadth(strip_calendar, series)
+
     rows = []
     for item in universe:
         code = item["code"]
@@ -229,6 +299,9 @@ def main() -> int:
                           else round((1 + r_swing) * (1 + fx_move) - 1, 5)),
             "premium": None,     # 네이버가 해외 ETF NAV 를 주지 않는다
             "breadth": None,
+            # 3배 불에만 있다. 나머지는 null — 화면이 '없음' 과 '0' 을 구별한다.
+            "strip": strip_for(item["ticker"]) if lev >= 3 else None,
+            "holdCount": len((holdings_cache.get(item["ticker"]) or {}).get("rows") or []),
             "spark": b.spark(s.closes),
         }
         row.update(b.round_metrics(m))
@@ -250,6 +323,13 @@ def main() -> int:
         "swingLookback": b.SWING_LOOKBACK,
         "swingWeeks": round(b.SWING_LOOKBACK / 5),
         "grades": dict(grades),
+        "stripSpan": b.STRIP_SPAN,
+        "stripDates": strip_calendar[1:],
+        # 국내 화면과 같은 경계를 쓴다. 두 탭의 빨강이 다른 뜻이면 안 된다.
+        "thresholds": {"stripUp": 0.70, "stripDown": 0.30},
+        "lev3": sum(1 for r in rows if r["lev"] >= 3),
+        "lev3Strip": sum(1 for r in rows if r["lev"] >= 3 and r["strip"]),
+        "stockCount": len(stock_bars),
     }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "us.json").write_text(
@@ -267,6 +347,11 @@ def main() -> int:
     lev3 = sum(1 for r in rows if abs(r["lev"]) >= 3)
     print(f"미국 ETF {len(rows)}개 · 기준 {base_date} · 환율 {rate:,.2f}원 ({max(fx)})")
     print(f"  S&P500 20일 {bench_r20:+.2%} · 국면 {regime['label']} · 3배 레버리지 {lev3}개")
+    print(f"  3배 불 {meta['lev3']}개 중 폭 계산 {meta['lev3Strip']}개 "
+          f"(구성종목 일봉 {meta['stockCount']}종목)")
+    if meta["lev3"] and not meta["lev3Strip"]:
+        print("  3배 불의 폭을 하나도 못 냈습니다 — collect_us_stocks.py 를 확인하세요.",
+              file=sys.stderr)
     print("  등급: " + ", ".join(f"{g} {grades[g]}" for g in b.GRADE_ORDER if grades.get(g)))
     print(f"  assets/etf/us.json  {(OUT / 'us.json').stat().st_size / 1024:.0f}KB")
     print(f"  구성종목 {have}/{len(holdings)}개 발행사 확인 종목 중 보유 · "

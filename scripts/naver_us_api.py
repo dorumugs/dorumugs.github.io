@@ -41,6 +41,18 @@ def parse_seed(text: str) -> list[str]:
     return out
 
 
+def normalize_ticker(ticker: str | None) -> str:
+    """발행사 표기를 네이버가 찾을 수 있는 표기로 맞춘다.
+
+    클래스가 나뉜 주식을 발행사는 'BRK/B' 로 적지만 네이버 자동완성은
+    'BRK.B' 로만 찾는다. 안 바꾸면 그 종목이 통째로 폭 계산에서 빠지는데,
+    조용히 빠지기 때문에 폭이 낮게 나오는 이유를 못 찾게 된다.
+    """
+    if not ticker:
+        return ""
+    return str(ticker).strip().upper().replace("/", ".")
+
+
 def parse_autocomplete(raw: bytes, ticker: str) -> dict | None:
     """자동완성 응답에서 그 티커에 정확히 맞는 미국 종목 하나를 고른다.
 

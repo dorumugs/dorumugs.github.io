@@ -27,6 +27,7 @@
     // {열 key, 방향}. 드롭다운과 머리글이 같이 쓴다.
     themeSort: { key: 'strip', dir: -1 },
     upjongSort: { key: 'strip', dir: -1 },
+    us3Sort: { key: 'strip', dir: -1 },
     risk: 300000,
     us: null,
     usHoldings: null,
@@ -338,9 +339,11 @@
     return parseInt(yyyymmdd.slice(4, 6), 10) + '/' + parseInt(yyyymmdd.slice(6), 10);
   }
 
-  function stripSvg(strip, hot) {
+  function stripSvg(strip, hot, stripDates) {
     if (!strip || !strip.length) { return '<span class="ef-muted">—</span>'; }
-    var dates = (state.meta && state.meta.stripDates) || [];
+    // 미국 거래일 달력은 국내와 다르다. 툴팁 날짜를 국내 것으로 쓰면 칸마다
+    // 틀린 날짜를 말하게 된다.
+    var dates = stripDates || (state.meta && state.meta.stripDates) || [];
     var w = strip.length * (STRIP_CELL + STRIP_GAP) - STRIP_GAP;
     var cells = strip.map(function (v, i) {
       var title = (dates[i] ? shortDate(dates[i]) + ' · ' : '') +
@@ -357,8 +360,10 @@
   }
 
   /* 색이 무슨 뜻인지 표 위에 적어 둔다. 범례 없는 히트맵은 장식이다. */
-  function stripLegend() {
-    var m = state.meta || {};
+  function stripLegend(meta) {
+    // 미국은 거래일 달력이 다르다(추수감사절·추석). 범례에 국내 날짜를 쓰면
+    // 그 자체가 거짓말이 되므로 탭마다 자기 meta 를 넘긴다.
+    var m = meta || state.meta || {};
     var d = m.stripDates || [];
     var t = stripThresholds();
     if (!d.length) { return ''; }
@@ -511,13 +516,75 @@
   var GROUP_COL_BY_KEY = {};
   GROUP_COLS.forEach(function (c) { GROUP_COL_BY_KEY[c.key] = c; });
 
+  /* 미국 3배 레버리지. 카드가 아니라 표로 놓는 이유는 국내 테마와 **같은
+     것을 재기** 때문이다 — 구성종목 중 몇 %가 올랐나를 나란히 보려면 같은
+     모양이어야 한다.
+
+     인버스 3배는 여기 없다. 스왑만 들어 구성종목이 0개이고, 인버스에서
+     '구성종목 70% 상승' 은 그 ETF 가 **내린다**는 뜻이라 색이 거꾸로 읽힌다.
+     기존 '미국 ETF' 탭에서는 그대로 보인다. */
+  var US3_COLS = [
+    { key: 'ticker', label: function () { return '티커'; },
+      cell: function (r) {
+        return '<td class="ef-rowname"><b class="ef-ticker">' + escapeHtml(r.ticker) +
+          '</b><i>' + escapeHtml(r.name) + '</i></td>';
+      },
+      value: function (r) { return r.ticker; }, text: true, asc: true },
+    { key: 'strip', label: function () { return '최근 ' + stripSpan() + '일'; },
+      cell: function (r) {
+        if (!r.strip) {
+          // 못 그리는 것과 '오른 날이 없는 것' 은 전혀 다르다. 빈칸으로 두면
+          // 후자로 읽히므로 이유를 적는다.
+          return '<td class="ef-stripcell"><span class="ef-muted" title="스왑만 들고 있어 ' +
+            '구성종목이 없습니다">확인 불가</span></td>';
+        }
+        return '<td class="ef-stripcell">' +
+          stripSvg(r.strip, isHot(r), state.us && state.us.meta.stripDates) + '</td>';
+      },
+      value: function (r) { return r.strip ? stripRed(r) : null; } },
+    { key: 'rSwing', label: function () { return swingWeeks() + '주 달러'; },
+      cell: function (r) { return '<td class="' + dirClass(r.rSwing) + '">' + pct(r.rSwing) + '</td>'; },
+      value: function (r) { return r.rSwing; } },
+    { key: 'rSwingKrw', label: function () { return swingWeeks() + '주 원화'; },
+      cell: function (r) {
+        return '<td class="' + dirClass(r.rSwingKrw) + '">' + pct(r.rSwingKrw) + '</td>';
+      },
+      value: function (r) { return r.rSwingKrw; } },
+    { key: 'r20', label: function () { return '20일'; },
+      cell: function (r) { return '<td class="' + dirClass(r.r20) + '">' + pct(r.r20) + '</td>'; },
+      value: function (r) { return r.r20; } },
+    { key: 'overhead', label: function () { return '물린 물량'; },
+      cell: function (r) {
+        return '<td' + (r.overhead !== null && r.overhead >= 0.6 ? ' class="ef-down"' : '') + '>' +
+          (r.overhead === null ? '—' : Math.round(r.overhead * 100) + '%') + '</td>';
+      },
+      value: function (r) { return r.overhead; }, asc: true },
+    { key: 'grade', label: function () { return '등급'; },
+      cell: function (r) { return '<td>' + badge(r.grade) + '</td>'; },
+      value: function (r) { return gradeRank(r.grade); }, asc: true },
+    { key: 'turnoverKrw', label: function () { return '거래대금'; },
+      cell: function (r) {
+        return '<td' + sortAttr(r.turnoverKrw) + '>' + moneyShort(r.turnoverKrw) + '</td>';
+      },
+      value: function (r) { return r.turnoverKrw; } },
+    { key: 'holdCount', label: function () { return '보유'; },
+      cell: function (r) {
+        return '<td>' + (r.holdCount ? r.holdCount.toLocaleString() : '—') + '</td>';
+      },
+      value: function (r) { return r.holdCount || null; } }
+  ];
+
+  var US3_COL_BY_KEY = {};
+  US3_COLS.forEach(function (c) { US3_COL_BY_KEY[c.key] = c; });
+
   function stripSpan() { return (state.meta && state.meta.stripSpan) || 30; }
 
   /* 열 하나로 줄세운다. 목록이 265개고 화면에는 30개만 나오므로 **데이터를**
      정렬해야 한다 — 보이는 <tr> 만 뒤섞으면 "1등" 이 첫 페이지 안에서의 1등이
      된다. 값이 없는 줄은 방향과 무관하게 뒤로 보낸다. */
-  function sortGroupRows(rows, sort) {
-    var col = GROUP_COL_BY_KEY[sort.key] || GROUP_COL_BY_KEY.strip;
+  function sortGroupRows(rows, sort, byKey) {
+    var cols = byKey || GROUP_COL_BY_KEY;
+    var col = cols[sort.key] || cols.strip;
     var dir = sort.dir;
     return rows.slice().sort(function (a, b) {
       var va = col.value(a);
@@ -533,8 +600,8 @@
     });
   }
 
-  function defaultDir(key) {
-    var col = GROUP_COL_BY_KEY[key];
+  function defaultDir(key, byKey) {
+    var col = (byKey || GROUP_COL_BY_KEY)[key];
     return col && col.asc ? 1 : -1;
   }
 
@@ -543,11 +610,12 @@
 
      머리글은 **전부** 누를 수 있다. 열을 실었다는 건 그 값으로 비교하라는
      뜻인데 정렬이 안 되면 265줄에서는 눈으로 훑는 것 말고 쓸 방법이 없다. */
-  function groupTable(rows, shown, sort) {
+  function groupTable(rows, shown, sort, cols, extraClass) {
+    var COLS = cols || GROUP_COLS;
     if (!rows.length) {
       return '<p class="ef-note">조건에 맞는 항목이 없습니다.</p>';
     }
-    var head = GROUP_COLS.map(function (c) {
+    var head = COLS.map(function (c) {
       var on = c.key === sort.key;
       var dirName = sort.dir < 0 ? 'descending' : 'ascending';
       return '<th class="is-sortable' + (on ? (sort.dir < 0 ? ' is-desc' : ' is-asc') : '') +
@@ -558,14 +626,15 @@
       // 최근 3일 연속으로 판이 통째로 오른 줄은 배경을 연하게 칠한다. 색만으로
       // 뜻이 전해지지 않도록 title 을 같이 달고, 스트립 aria-label 에도 넣는다.
       var hot = isHot(r);
-      return '<tr class="ef-row' + (hot ? ' is-hot' : '') + '" data-kind="group" data-code="' +
-        escapeHtml(r.key) + '" tabindex="0"' +
+      return '<tr class="ef-row' + (hot ? ' is-hot' : '') + '" data-kind="' +
+        (r.key ? 'group' : 'us') + '" data-code="' + escapeHtml(r.key || r.code) + '" tabindex="0"' +
         (hot ? ' title="최근 ' + HOT_DAYS + ' 거래일 연속 구성종목 ' +
           stripThresholds().up + '% 이상 상승"' : '') + '>' +
-        GROUP_COLS.map(function (c) { return c.cell(r); }).join('') +
+        COLS.map(function (c) { return c.cell(r); }).join('') +
         '</tr>';
     }).join('');
-    return '<div class="ef-tablewrap"><table class="ef-table ef-grouptable"><thead><tr>' +
+    return '<div class="ef-tablewrap"><table class="ef-table ef-grouptable' +
+      (extraClass ? ' ' + extraClass : '') + '"><thead><tr>' +
       head + '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
 
@@ -951,6 +1020,68 @@
 
   function renderGroups() {
     Object.keys(GROUP_VIEWS).forEach(renderGroup);
+  }
+
+  /* --- 미국 3배 ------------------------------------------------------------ */
+
+  function lev3Rows() {
+    if (!state.us) { return []; }
+    // 불 3배만. abs() 를 쓰면 인버스가 섞이는데, 그쪽은 구성종목이 없어
+    // 폭 자체가 성립하지 않는다.
+    return state.us.rows.filter(function (r) { return (r.lev || 1) >= 3; });
+  }
+
+  function filteredUs3() {
+    var q = $('ef-u3-q').value.trim().toLowerCase();
+    var grade = $('ef-u3-grade').value;
+    var hotOnly = $('ef-u3-hot').checked;
+    return sortGroupRows(lev3Rows().filter(function (r) {
+      if (q && r.name.toLowerCase().indexOf(q) < 0 && r.ticker.toLowerCase().indexOf(q) < 0) {
+        return false;
+      }
+      if (grade && r.grade !== grade) { return false; }
+      if (hotOnly && !isHot(r)) { return false; }
+      return true;
+    }), state.us3Sort, US3_COL_BY_KEY);
+  }
+
+  function renderUs3() {
+    if (!$('ef-u3-table')) { return; }
+    if (!state.us) {
+      $('ef-u3-table').innerHTML =
+        '<p class="ef-error">미국 ETF 데이터를 불러오지 못했습니다.</p>';
+      return;
+    }
+    var rows = filteredUs3();
+    var all = lev3Rows().length;
+    $('ef-u3-table').innerHTML =
+      groupTable(rows, rows.length, state.us3Sort, US3_COLS, 'ef-us3table');
+    if (!rows.length && $('ef-u3-hot').checked) {
+      $('ef-u3-table').innerHTML = '<p class="ef-note">최근 ' + HOT_DAYS +
+        ' 거래일 내내 구성종목 ' + stripThresholds().up + '% 이상이 오른 3배 ETF 가 ' +
+        '오늘은 없습니다. 드문 일이 아닙니다 — 후보가 15개뿐이라 며칠씩 하나도 ' +
+        '안 걸립니다. 체크를 풀면 전부 나옵니다.</p>';
+    }
+    $('ef-u3-count').textContent = rows.length
+      ? '3배 ' + all + '개 중 ' + rows.length + '개 표시'
+      : '조건에 맞는 3배 ETF 가 없습니다.';
+    $('ef-u3-legend').innerHTML = stripLegend(state.us.meta) + us3Note();
+  }
+
+  /* 이 탭이 무엇을 재는지, 그리고 무엇을 못 재는지. */
+  function us3Note() {
+    var m = state.meta_us || (state.us && state.us.meta) || {};
+    var noStrip = lev3Rows().filter(function (r) { return !r.strip; })
+      .map(function (r) { return r.ticker; });
+    return '<p class="ef-note">' +
+      '<strong>불(Bull) 3배만</strong> 있습니다. 인버스 3배(SQQQ·SOXS 등)는 스왑만 들고 있어 ' +
+      '구성종목이 0개고, 인버스에서 "구성종목 70% 상승"은 그 ETF 가 <strong>내린다</strong>는 ' +
+      '뜻이라 색이 거꾸로 읽힙니다. 기존 <strong>미국 ETF</strong> 탭에서는 그대로 보입니다. ' +
+      (noStrip.length ? '<strong>' + noStrip.join(' · ') + '</strong> 는 보유 종목이 1개뿐이라 ' +
+        '(사실상 스왑) 폭을 낼 수 없어 <strong>확인 불가</strong>입니다. ' : '') +
+      '폭은 발행사가 공시한 <strong>전체 보유 종목</strong>으로 잽니다 — SPXL·UPRO 는 500종목, ' +
+      'SOXL 은 30종목이라 같은 70%라도 표본 크기가 다릅니다. 보유 열을 같이 보세요. ' +
+      '3배는 임계값을 배수만큼 늘려 판정하므로 등급의 과열선이 1배의 세 배입니다.</p>';
   }
 
   /* 성적표. 규칙을 자랑하는 자리가 아니라 규칙이 얼마나 못 미더운지 보여주는
@@ -1705,11 +1836,41 @@
       if (e.key === 'Escape' && !$('ef-panel').hidden) { closePanel(); }
     });
 
+    // 미국 3배: 드롭다운·머리글·체크박스가 모두 같은 상태를 쓴다.
+    function setUs3Sort(key, flip) {
+      if (!US3_COL_BY_KEY[key]) { return; }
+      var cur = state.us3Sort;
+      state.us3Sort = (flip && cur.key === key)
+        ? { key: key, dir: -cur.dir }
+        : { key: key, dir: defaultDir(key, US3_COL_BY_KEY) };
+      var select = $('ef-u3-sort');
+      select.value = key;
+      if (select.value !== key) { select.value = ''; }
+      renderUs3();
+    }
+    ['ef-u3-q', 'ef-u3-grade', 'ef-u3-hot'].forEach(function (id) {
+      $(id).addEventListener('input', renderUs3);
+      $(id).addEventListener('change', renderUs3);
+    });
+    $('ef-u3-sort').addEventListener('change', function () {
+      setUs3Sort($('ef-u3-sort').value, false);
+    });
+    $('ef-u3-table').addEventListener('click', function (e) {
+      var th = e.target.closest ? e.target.closest('th[data-col]') : null;
+      if (th) { setUs3Sort(th.dataset.col, true); }
+    });
+    $('ef-u3-table').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') { return; }
+      var th = e.target.closest ? e.target.closest('th[data-col]') : null;
+      if (th) { e.preventDefault(); setUs3Sort(th.dataset.col, true); }
+    });
+
     var TABS = [
       ['ef-tab-etf', 'ef-view-etf'],
       ['ef-tab-theme', 'ef-view-theme'],
       ['ef-tab-upjong', 'ef-view-upjong'],
-      ['ef-tab-us', 'ef-view-us']
+      ['ef-tab-us', 'ef-view-us'],
+      ['ef-tab-us3', 'ef-view-us3']
     ];
     function showTab(active) {
       TABS.forEach(function (pair) {
@@ -1798,7 +1959,13 @@
         fillSelect($('ef-us-grade'), GRADE_ORDER.filter(function (g) {
           return state.us.rows.some(function (r) { return r.grade === g; });
         }).map(function (g) { return { value: g, label: g }; }));
+        // 3배에만 있는 등급으로 목록을 채운다. 없는 등급을 띄우면 고르는
+        // 순간 빈 표가 나온다.
+        fillSelect($('ef-u3-grade'), GRADE_ORDER.filter(function (g) {
+          return lev3Rows().some(function (r) { return r.grade === g; });
+        }).map(function (g) { return { value: g, label: g }; }));
         renderUs();
+        renderUs3();
       } else {
         $('ef-us-market').innerHTML =
           '<span class="ef-error">미국 ETF 데이터를 불러오지 못했습니다.</span>';

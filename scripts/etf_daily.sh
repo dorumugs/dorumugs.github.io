@@ -84,6 +84,15 @@ if ! python3 -u scripts/collect_us_holdings.py "${HOLD_ARGS[@]}"; then
   echo "미국 ETF 구성종목이 낡았습니다 — 위의 발행사별 신선도를 보세요." >&2
 fi
 
+# 3배 불 ETF 구성종목(약 900종목)의 일봉. 이게 있어야 '구성종목 중 몇 %가
+# 올랐나' 를 잰다 — ETF 가 오른 건 결과지 원인이 아니다.
+#
+# 실패해도 FAILED 로 세지 않는다. 이건 3배 탭의 색띠 하나만 못 그리게 할 뿐이고,
+# 나머지 화면은 그대로 돈다. 구성종목 수집(위)이 낡은 것과는 무게가 다르다.
+if ! python3 -u scripts/collect_us_stocks.py; then
+  echo "미국 3배 구성종목 일봉 수집이 끝까지 못 갔습니다 — 3배 탭의 폭이 낡습니다." >&2
+fi
+
 # 수집이 일부 실패해도 있는 캐시로 다시 굽는다. 어제 집계본보다 낫다.
 # 다만 캐시가 아예 없으면 집계도 못 하므로 그때는 진짜 실패다.
 if ! python3 -u scripts/build_etf_theme.py; then
