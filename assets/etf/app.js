@@ -534,9 +534,12 @@
       cell: function (r) {
         if (!r.strip) {
           // 못 그리는 것과 '오른 날이 없는 것' 은 전혀 다르다. 빈칸으로 두면
-          // 후자로 읽히므로 이유를 적는다.
-          return '<td class="ef-stripcell"><span class="ef-muted" title="스왑만 들고 있어 ' +
-            '구성종목이 없습니다">확인 불가</span></td>';
+          // 후자로 읽히므로 이유를 적는다. 이유는 집계가 실어 보낸 값을 쓴다 —
+          // 여기 한 줄로 뭉뚱그렸다가 "스왑만 들고 있어 구성종목이 없습니다"
+          // 라고 **틀린 말**을 한 적이 있다(셋 다 ETF 를 하나씩 들고 있었다).
+          return '<td class="ef-stripcell"><span class="ef-muted"' +
+            (r.stripWhy ? ' title="' + escapeHtml(r.stripWhy) + '"' : '') +
+            '>확인 불가</span></td>';
         }
         return '<td class="ef-stripcell">' +
           stripSvg(r.strip, isHot(r), state.us && state.us.meta.stripDates) + '</td>';
@@ -1070,15 +1073,16 @@
 
   /* 이 탭이 무엇을 재는지, 그리고 무엇을 못 재는지. */
   function us3Note() {
-    var m = state.meta_us || (state.us && state.us.meta) || {};
-    var noStrip = lev3Rows().filter(function (r) { return !r.strip; })
-      .map(function (r) { return r.ticker; });
+    var noStrip = lev3Rows().filter(function (r) { return !r.strip; });
     return '<p class="ef-note">' +
       '<strong>불(Bull) 3배만</strong> 있습니다. 인버스 3배(SQQQ·SOXS 등)는 스왑만 들고 있어 ' +
       '구성종목이 0개고, 인버스에서 "구성종목 70% 상승"은 그 ETF 가 <strong>내린다</strong>는 ' +
       '뜻이라 색이 거꾸로 읽힙니다. 기존 <strong>미국 ETF</strong> 탭에서는 그대로 보입니다. ' +
-      (noStrip.length ? '<strong>' + noStrip.join(' · ') + '</strong> 는 보유 종목이 1개뿐이라 ' +
-        '(사실상 스왑) 폭을 낼 수 없어 <strong>확인 불가</strong>입니다. ' : '') +
+      (noStrip.length ? '<strong>확인 불가</strong> ' + noStrip.length + '개 — ' +
+        noStrip.map(function (r) {
+          return '<strong>' + escapeHtml(r.ticker) + '</strong> ' +
+            escapeHtml(r.stripWhy || '이유 미상');
+        }).join(' · ') + '. ' : '') +
       '폭은 발행사가 공시한 <strong>전체 보유 종목</strong>으로 잽니다 — SPXL·UPRO 는 500종목, ' +
       'SOXL 은 30종목이라 같은 70%라도 표본 크기가 다릅니다. 보유 열을 같이 보세요. ' +
       '3배는 임계값을 배수만큼 늘려 판정하므로 등급의 과열선이 1배의 세 배입니다.</p>';

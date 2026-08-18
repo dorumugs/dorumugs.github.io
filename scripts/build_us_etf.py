@@ -240,21 +240,43 @@ def main() -> int:
     stock_universe = b.read_json_gz(STOCK_UNIVERSE_FILE) or []
     code_of = {r["ticker"]: r["code"] for r in stock_universe}
     strip_calendar = index.dates[-(b.STRIP_SPAN + 1):]
+    # 보유가 'ETF 하나' 인지 가려내려면 우리 우주의 ETF 목록이 필요하다.
+    etf_tickers = {r["ticker"] for r in universe}
 
-    def strip_for(ticker: str) -> list | None:
-        """그 ETF 구성종목의 날짜별 상승 비율. 잴 수 없으면 None.
+    def strip_for(ticker: str) -> tuple[list | None, str]:
+        """그 ETF 구성종목의 날짜별 상승 비율과, 못 낼 때의 **이유**.
 
-        None 과 [] 를 구분한다 — None 은 '확인 불가'(스왑만 들었거나 일봉이
-        아직 없다)이고, 화면은 그걸 빈칸이 아니라 문구로 알려야 한다.
+        None 과 [] 를 구분한다 — None 은 '확인 불가' 이고, 화면은 그걸 빈칸이
+        아니라 문구로 알려야 한다.
+
+        이유를 같이 돌려주는 까닭이 있다. 처음에는 화면에 "스왑만 들고 있어
+        구성종목이 없습니다" 라고 한 줄로 적었는데 **사실이 아니었다** —
+        TMF·TNA·YINN 은 각각 TLT·IWM·FXI 를 하나씩 들고 있다. 못 재는 진짜
+        이유는 셋 다 다르다. 한 문장으로 뭉뚱그리면 '데이터가 없다' 와
+        '우리가 안 봤다' 가 구별되지 않는다.
         """
+        rows = (holdings_cache.get(ticker) or {}).get("rows") or []
+        if not rows:
+            return None, "스왑만 들고 있어 구성종목이 없습니다"
+
         names = holding_tickers(holdings_cache, [ticker])
+        if not names:
+            # TLT 의 국채, FXI 의 홍콩 티커처럼 미국 시세로 못 받는 것들.
+            return None, f"보유 {len(rows)}종목에 받을 수 있는 미국 티커가 없습니다"
+
+        # 다른 ETF 하나만 들고 있는 경우(스왑 상대가 ETF). 그 ETF 안까지
+        # 들여다보지 않는다 — 안 보는 것이지 없는 것이 아니라고 적는다.
+        if len(names) == 1 and names[0] in etf_tickers:
+            return None, f"{names[0]} 한 종목만 들고 있습니다 — 그 ETF 안까지는 보지 않습니다"
+
         series = [
             {d: c for d, c in stock_bars[code_of[t]].items()}
             for t in names if t in code_of and code_of[t] in stock_bars
         ]
         if len(series) < b.STRIP_MIN_VALID:
-            return None
-        return b.daily_breadth(strip_calendar, series)
+            return None, (f"보유 {len(names)}종목 중 일봉을 받은 것이 "
+                          f"{len(series)}개뿐입니다")
+        return b.daily_breadth(strip_calendar, series), ""
 
     rows = []
     for item in universe:
@@ -300,10 +322,13 @@ def main() -> int:
             "premium": None,     # 네이버가 해외 ETF NAV 를 주지 않는다
             "breadth": None,
             # 3배 불에만 있다. 나머지는 null — 화면이 '없음' 과 '0' 을 구별한다.
-            "strip": strip_for(item["ticker"]) if lev >= 3 else None,
+            "strip": None,      # 아래에서 채운다
+            "stripWhy": "",     # 못 잴 때의 이유
             "holdCount": len((holdings_cache.get(item["ticker"]) or {}).get("rows") or []),
             "spark": b.spark(s.closes),
         }
+        if lev >= 3:
+            row["strip"], row["stripWhy"] = strip_for(item["ticker"])
         row.update(b.round_metrics(m))
         rows.append(row)
 
