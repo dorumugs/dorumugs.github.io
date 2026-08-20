@@ -1,0 +1,11 @@
+{%- assign c = include.current -%}
+<div class="notice--info">
+  <p><strong>🧠 내부문서 RAG 챗봇 — Hermes·Codex·ES·Redis (전체 5편)</strong></p>
+  <ol>
+    <li>{% if c == "1" %}<strong>아키텍처 검증 — 이 구성, 논리적으로 맞나</strong> ← <em>지금 글</em>{% else %}<a href="/coding/내부문서_RAG챗봇_아키텍처검증_전체그림/">아키텍처 검증 — 이 구성, 논리적으로 맞나</a>{% endif %}</li>
+    <li>{% if c == "2" %}<strong>Q&amp;A 굽기 — 커버리지와 정지 조건</strong> ← <em>지금 글</em>{% else %}<a href="/coding/내부문서_RAG챗봇_QA생성_커버리지_정지조건/">Q&amp;A 굽기 — 커버리지와 정지 조건</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>신뢰도 게이트 — 그라운드니스와 골든셋</strong> ← <em>지금 글</em>{% else %}<a href="/coding/내부문서_RAG챗봇_신뢰도게이트_그라운드니스_골든셋/">신뢰도 게이트 — 그라운드니스와 골든셋</a>{% endif %}</li>
+    <li>{% if c == "4" %}<strong>서빙 경로 — ES 하이브리드 검색과 Redis 3단 게이트</strong> ← <em>지금 글</em>{% else %}<a href="/coding/내부문서_RAG챗봇_ES하이브리드검색_Redis3단게이트/">서빙 경로 — ES 하이브리드 검색과 Redis 3단 게이트</a>{% endif %}</li>
+    <li>{% if c == "5" %}<strong>운영 — 재구축 가능한 캐시, GPU 비용, 모니터링</strong> ← <em>지금 글</em>{% else %}<a href="/coding/내부문서_RAG챗봇_운영_비용_재구축_모니터링/">운영 — 재구축 가능한 캐시, GPU 비용, 모니터링</a>{% endif %}</li>
+  </ol>
+</div>

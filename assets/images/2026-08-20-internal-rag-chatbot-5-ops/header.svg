@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="내부문서 RAG 챗봇 운영 - S3 단방향 적재와 재구축, GPU 층 분리와 모니터링 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5b21b6"/>
+      <stop offset="0.5" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">운영 — <tspan fill="#c4b5fd">다 날아가도 30분</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">모든 상태는 S3 의 JSONL 하나에서 다시 만들어진다</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#1e1233" stroke="#5b21b6" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#c4b5fd">S3 단방향</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">집에서 나가기만</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#231539" stroke="#7c3aed" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#a78bfa">별칭 전환</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">무중단 재색인</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#28193f" stroke="#a78bfa" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#ddd6fe">경로별 지표</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">평균은 거짓말한다</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · GPU 층 분리 · 롤백은 초 단위로 · 시리즈 마무리</text>
+</svg>

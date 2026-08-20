@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="내부문서 RAG 챗봇 Q&amp;A 생성 - 청킹에서 중복 억제, 커버리지 기반 정지까지 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b45309"/>
+      <stop offset="0.5" stop-color="#d97706"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">Q&amp;A 굽기 — <tspan fill="#fbbf24">커버리지와 정지 조건</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">개수를 세지 말고 커버리지를 세면, 멈출 때가 저절로 정해진다</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#2b1d0a" stroke="#b45309" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#fcd34d">조항 단위 청킹</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">출처가 제15조 2항</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#2f2109" stroke="#d97706" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#fbbf24">2단 중복 억제</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">MinHash → 임베딩</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#33260c" stroke="#f59e0b" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#fde68a">신규율로 정지</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">광맥이 끝나면 멈춤</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · Hermes + Codex 배치, 예산 상한과 재개까지</text>
+</svg>
