@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="내부문서 RAG 챗봇 2차 채점 - 8.5점에서 9.4점으로, 즉답 게이트 이중화와 근거 생존 확인 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#065f46"/>
+      <stop offset="0.5" stop-color="#059669"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">2차 채점 — <tspan fill="#6ee7b7">8.5 에서 9.4 로</tspan></text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">채점표는 그대로 두고, “부탁”으로 남겨둔 자리만 구조로 바꿨다</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#0c2620" stroke="#065f46" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#6ee7b7">게이트 이중화</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">두 자로 각각 잰다</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#0d2c25" stroke="#059669" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#34d399">근거 생존</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">죽으면 즉답도 멈춤</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#0f322a" stroke="#34d399" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#a7f3d0">임계값 6 → 1</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">나머지는 골든셋이</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · 10점은 못 산다 — 그 이유까지 적어둔 마지막 편</text>
+</svg>
