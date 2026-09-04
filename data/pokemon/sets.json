@@ -293,7 +293,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.982,
+  "coverage": 0.973,
   "card_count": 111
  },
  "ex8": {
@@ -355,7 +355,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9892,
+  "coverage": 0.9785,
   "card_count": 93
  },
  "tk-ex-m": {
@@ -1231,7 +1231,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.8605,
+  "coverage": 0.9845,
   "card_count": 258
  },
  "sma": {
