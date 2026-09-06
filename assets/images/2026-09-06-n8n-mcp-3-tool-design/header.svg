@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="에이전트가 실제로 잘 쓰는 MCP 도구 설계 3편 배너">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#1b2942"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6d28d9"/>
+      <stop offset="0.5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#d8b4fe"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">에이전트가 <tspan fill="#c4b5fd">진짜로 쓰는</tspan> 도구 설계</text>
+  <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">이름 · 설명 · 입력 스키마 · 출력 토큰 예산 · 고칠 수 있는 오류</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="236" width="250" height="118" rx="16" fill="#211538" stroke="#6d28d9" stroke-width="3"/>
+    <text x="215" y="288" font-size="24" font-weight="800" fill="#c4b5fd">고르게 만든다</text>
+    <text x="215" y="320" font-size="16" font-weight="500" fill="#cbd5e1">이름과 설명이 라우터</text>
+    <rect x="475" y="236" width="250" height="118" rx="16" fill="#1d1d33" stroke="#6264a7" stroke-width="3"/>
+    <text x="600" y="288" font-size="24" font-weight="800" fill="#b3b4e6">틀리게 못 부른다</text>
+    <text x="600" y="320" font-size="16" font-weight="500" fill="#cbd5e1">스키마로 좁힌다</text>
+    <rect x="860" y="236" width="250" height="118" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="985" y="288" font-size="24" font-weight="800" fill="#7dd3a8">스스로 고친다</text>
+    <text x="985" y="320" font-size="16" font-weight="500" fill="#cbd5e1">오류에 다음 수를 담는다</text>
+  </g>
+
+  <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · (3/5) 도구는 API 가 아니라 프롬프트다</text>
+</svg>
