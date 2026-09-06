@@ -2,10 +2,10 @@
  "base": "USD",
  "rates": {
   "USD": 1.0,
-  "KRW": 1348.9904,
-  "EUR": 0.861117,
-  "JPY": 156.1566
+  "KRW": 1349.8375,
+  "EUR": 0.861064,
+  "JPY": 156.1729
  },
- "date": "05 Sep 2026",
+ "date": "06 Sep 2026",
  "source": "open.er-api.com"
 }
