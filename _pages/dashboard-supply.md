@@ -28,6 +28,8 @@ description: "시도 16곳의 아파트 착공을 2011년부터 월별로 쌓고
       <button type="button" data-metric="mavg" aria-pressed="false">12개월 이동합계</button>
       <button type="button" data-metric="units" aria-pressed="false">월별 착공 호수</button>
     </div>
+    <dl class="sp-defs"></dl>
+
     <div class="sp-picks" role="group" aria-label="시도 고르기">불러오는 중…</div>
   </div>
 
@@ -36,6 +38,7 @@ description: "시도 16곳의 아파트 착공을 2011년부터 월별로 쌓고
   <p class="sp-note"></p>
 
   <div class="sp-cards"></div>
+  <p class="sp-cards-foot"></p>
 
   <h2>이 화면이 하지 않는 것</h2>
 
