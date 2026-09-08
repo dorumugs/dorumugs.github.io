@@ -66,6 +66,22 @@ description: "데이터로 보는 대시보드를 모았습니다. 국토교통�
     <span class="rh-go">열어보기 →</span>
   </a>
 
+  <a class="rh-card is-live" href="{{ '/dashboard/supply/' | relative_url }}">
+    <span class="rh-badge">쓸 수 있음</span>
+    <h2 class="rh-title">아파트 착공 × 금리</h2>
+    <p class="rh-desc">
+      시도 <strong>16곳</strong>의 아파트 착공을 2011년부터 월별로 쌓았습니다.
+      착공은 준공보다 <strong>2~3년 앞서므로</strong>, 지금의 착공이 미래 입주물량의
+      예고편입니다. 한국은행 금리를 같은 x축 아래 칸에 나란히 놓았습니다.
+    </p>
+    <ul class="rh-points">
+      <li>각 시도의 평년(2011~2019) 대비 지수로 서울과 대구를 같은 축에서 비교</li>
+      <li>12개월 이동합계 · 월별 원계열 · 기준금리 · 주택담보대출 금리</li>
+      <li>이중 Y축을 쓰지 않습니다 — 눈금으로 상관을 만들어낼 수 있어서</li>
+    </ul>
+    <span class="rh-go">열어보기 →</span>
+  </a>
+
   <div class="rh-card is-planned">
     <span class="rh-badge">구상 중</span>
     <h2 class="rh-title">입지 분석</h2>

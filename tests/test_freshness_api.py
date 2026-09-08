@@ -71,8 +71,15 @@ class StaleTest(unittest.TestCase):
 
 class LimitsTest(unittest.TestCase):
     def test_대시보드마다_한계가_있다(self) -> None:
-        for name in ("trades", "schools", "redev", "pokemon"):
+        for name in ("trades", "schools", "redev", "pokemon", "supply"):
             self.assertIn(name, f.BUILD_LIMITS)
 
     def test_매월_도는_학군은_더_넉넉하다(self) -> None:
         self.assertGreater(f.BUILD_LIMITS["schools"], f.BUILD_LIMITS["trades"])
+
+    def test_월_2회_도는_착공은_더_넉넉하다(self) -> None:
+        self.assertGreater(f.BUILD_LIMITS["supply"], f.BUILD_LIMITS["trades"])
+
+    def test_착공은_발표_시차만큼_뒤처져도_된다(self) -> None:
+        """통계누리 발표 시차가 약 1.5개월이라 실거래보다 한 달 더 준다."""
+        self.assertGreater(f.MONTH_LAG_LIMITS["supply"], f.MONTH_LAG_LIMITS["trades"])

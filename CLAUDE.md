@@ -28,13 +28,14 @@
 
 ## 부동산 데이터 파이프라인
 
-`/real-estate/` 아래 도구 셋이 붙어 있고, 전부 크론으로 자동 갱신됩니다.
+`/dashboard/` 아래 도구가 붙어 있고, 전부 크론으로 자동 갱신됩니다.
 
 | 페이지 | 내용 |
 |---|---|
-| `/real-estate/trades/` | 실거래 대시보드 — 서울·경기 72개 시군구, 435만 건 |
-| `/real-estate/schools/` | 학군 지도 — 사립초·사립중·국제중·특목고 |
-| `/real-estate/redevelopment/` | 재개발·재건축 — 대지지분·진행단계·단계별 프리미엄 |
+| `/dashboard/real-estate/trades/` | 실거래 대시보드 — 서울·경기 72개 시군구, 435만 건 |
+| `/dashboard/real-estate/schools/` | 학군 지도 — 사립초·사립중·국제중·특목고 |
+| `/dashboard/real-estate/redevelopment/` | 재개발·재건축 — 대지지분·진행단계·단계별 프리미엄 |
+| `/dashboard/supply/` | 착공과 금리 — 시도별 아파트 착공 평년 지수 · 기준금리 · 주담대 |
 
 설계 문서는 `_dev/specs/` 에 있습니다. 재개발 쪽을 건드린다면
 `_dev/specs/2026-07-31-redevelopment-design.md` 를 먼저 읽으세요 — 데이터 출처,
@@ -69,6 +70,7 @@ pytest 는 없습니다. 표준 `unittest` 만 씁니다. 외부 응답은 `test
 | `VWORLD_API_KEY` | 브이월드 지적도·용도지역 | `.env` (gitignore 됨) |
 | `NEIS_API_KEY`, `SCHOOLINFO_API_KEY`, `ODCLOUD_APT_INFO_API_KEY` | 학교 | `.env` |
 | `LAW_OC` | 법제처 조례 | 없으면 `test` 로 동작 |
+| `ECOS_API_KEY` | 한국은행 ECOS 금리 | `.env` (없으면 `collect_supply.py` 가 종료코드 1) |
 
 활용신청은 **서비스마다 따로**입니다. 같은 키라도 실거래는 되고 건축물대장은
 403 일 수 있습니다. 일일 한도도 서비스마다 따로 잡힙니다.
@@ -76,18 +78,21 @@ pytest 는 없습니다. 표준 `unittest` 만 씁니다. 외부 응답은 `test
 ### 크론
 
 ```
-30 4 * * *   daily.sh            실거래 (+ 대시보드·학교 집계)
-10 6 * * *   redev_daily.sh      재개발·재건축
-40 4 3 * *   schools_monthly.sh  학군
+30 4 * * *     daily.sh            실거래 (+ 대시보드·학교 집계)
+10 6 * * *     redev_daily.sh      재개발·재건축
+30 7 * * *     pokemon_daily.sh    포켓몬 카드 시세
+30 18 * * 1-5  etf_daily.sh        ETF 테마 모멘텀
+40 4 3 * *     schools_monthly.sh  학군
+20 5 5,25 * *  supply_monthly.sh   착공·금리
 ```
 
-셋 다 앞에 `flock -w 7200 ~/.cache/realestate.lock` 이 붙습니다. **반드시 유지하세요.**
-셋 다 `git commit` / `pull --rebase` / `push` 를 해서 겹쳐 돌면 한쪽 커밋이 유실됩니다.
+전부 앞에 `flock -w 7200 ~/.cache/realestate.lock` 이 붙습니다. **반드시 유지하세요.**
+전부 `git commit` / `pull --rebase` / `push` 를 해서 겹쳐 돌면 한쪽 커밋이 유실됩니다.
 
 `redev_daily.sh` 는 날짜를 보고 스스로 갈라집니다 — 매일 연립다세대 실거래,
 월요일 정비사업 추진경과, 매월 5일 건축물대장·브이월드·조례·정비구역.
 
-로그: `~/.cache/realestate-{collect,redev,schools}.log`
+로그: `~/.cache/realestate-{collect,redev,pokemon,etf,schools,supply}.log`
 
 수동 실행은 `AUTO_COMMIT` 없이 (커밋하지 않음):
 

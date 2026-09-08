@@ -23,6 +23,8 @@ export const LIMITS = {
   trades: 5,
   schools: 45,
   redev: 5,
+  /* 월 2회 도는 월간 통계라 하루 이틀 늦는 건 정상이다. */
+  supply: 40,
 };
 
 export function daysSince(iso) {

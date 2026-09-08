@@ -53,6 +53,8 @@ TARGETS: dict[str, tuple[str, str, tuple | None]] = {
               ("month", ["latest_month"])),
     "pokemon": ("assets/pokemon/meta.json", "포켓몬 카드",
                 ("english", ["fx", "date"])),
+    "supply": ("assets/realestate/supply.json", "착공 × 금리",
+               ("month", ["latest_month"])),
 }
 
 

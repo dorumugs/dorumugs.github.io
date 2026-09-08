@@ -44,6 +44,8 @@ BUILD_LIMITS: dict[str, int] = {
     "schools": 40,
     "redev": 3,
     "pokemon": 3,
+    # 월 2회(5·25일) 도는 월간 통계다. 40일이면 두 번 연속 걸러도 잡힌다.
+    "supply": 40,
 }
 
 # 데이터 날짜(YYYY-MM)가 이번 달로부터 몇 달까지 뒤처져도 되나.
@@ -53,6 +55,8 @@ BUILD_LIMITS: dict[str, int] = {
 MONTH_LAG_LIMITS: dict[str, int] = {
     "trades": 1,
     "redev": 1,
+    # 통계누리 착공 발표 시차가 약 1.5개월이다. 1 로 두면 매달 초에 헛경보가 난다.
+    "supply": 2,
 }
 
 # 영어 월 이름. 포켓몬 환율이 "11 Aug 2026" 으로 온다. %b 로 파싱하면 크론의

@@ -1,0 +1,154 @@
+/* 착공 × 금리 대시보드. dashboard.css 의 --re-* 토큰을 그대로 쓴다.
+
+   390px 에서 가로로 넘치지 않는 게 조건이다 — 칩 줄은 wrap 하고, 차트는
+   viewBox 로 줄어들며, 카드는 auto-fit 으로 접힌다. */
+
+.re-app.is-supply { margin: 0 0 2rem; }
+
+.sp-controls { margin: 0 0 0.9rem; }
+
+.sp-metric {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.6rem;
+}
+
+.sp-metric button,
+.sp-chip {
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  padding: 0.34rem 0.6rem;
+  border: 1px solid var(--re-grid, #e3e5e7);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--re-ink2, #646769);
+  cursor: pointer;
+}
+
+.sp-metric button.is-on,
+.sp-chip.is-on {
+  background: var(--re-ink, #3d4144);
+  border-color: var(--re-ink, #3d4144);
+  color: #fff;
+}
+
+.sp-chip[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 넷을 다 골랐을 때 나머지 칩을 숨기지 않는다 — 사라지면 왜 안 눌리는지 모른다.
+   대신 눌러도 반응하지 않는다는 걸 흐리게 알린다. */
+.sp-chip[data-full] { opacity: 0.5; }
+
+.sp-picks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.sp-picks-label,
+.sp-always {
+  font-size: 0.74rem;
+  color: var(--re-muted, #7a8288);
+}
+
+.sp-picks-label b { color: var(--re-ink, #3d4144); }
+
+.sp-always { flex-basis: 100%; }
+
+.sp-chart { margin: 0.2rem 0 0.4rem; }
+.sp-chart svg { display: block; width: 100%; height: auto; }
+
+.sp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.7rem;
+  font-size: 0.74rem;
+  color: var(--re-ink2, #646769);
+}
+
+.sp-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+
+.sp-legend i {
+  width: 0.7rem;
+  height: 0.18rem;
+  border-radius: 999px;
+}
+
+.sp-legend-sep {
+  width: 100%;
+  height: 0;
+}
+
+.sp-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--re-muted, #7a8288);
+}
+
+.sp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.sp-card {
+  position: relative;
+  padding: 0.55rem 0.6rem 0.55rem 0.85rem;
+  border: 1px solid var(--re-grid, #e3e5e7);
+  border-radius: 0.4rem;
+  background: #fff;
+}
+
+.sp-card-dot {
+  position: absolute;
+  left: 0.35rem;
+  top: 0.6rem;
+  width: 0.22rem;
+  height: 1.4rem;
+  border-radius: 999px;
+}
+
+.sp-card-name {
+  font-size: 0.74rem;
+  color: var(--re-muted, #7a8288);
+}
+
+.sp-card-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--re-ink, #3d4144);
+  /* 긴 숫자가 좁은 카드를 밀어내지 않게 한다. */
+  overflow-wrap: anywhere;
+}
+
+.sp-card-value span {
+  margin-left: 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--re-muted, #7a8288);
+}
+
+.sp-card.is-meta { background: #fafbfc; }
+
+.sp-limits {
+  margin: 1.2rem 0 0;
+  padding: 0 0 0 1.1rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--re-ink2, #646769);
+}
+
+.sp-error { color: #d03b3b; font-size: 0.85rem; }
+
+@media (max-width: 480px) {
+  .sp-metric button, .sp-chip { font-size: 0.74rem; padding: 0.3rem 0.5rem; }
+  .sp-cards { grid-template-columns: repeat(auto-fit, minmax(6.2rem, 1fr)); }
+}

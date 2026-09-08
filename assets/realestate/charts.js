@@ -381,3 +381,125 @@ function renderTable(root, detail, state) {
     : `${head}<tbody><tr><td colspan="6">최근 12개월 거래 5건 이상 단지가 없습니다.</td></tr></tbody>`;
   makeSortable(table, { rankColumn: 0 });
 }
+
+// x축을 공유하는 상하 2단 패널. 착공 대시보드(/dashboard/supply/)가 쓴다.
+//
+// 왜 이중 Y축이 아닌가 — 이중축은 두 축의 눈금을 어떻게 잡느냐로 상관관계를
+// 있어 보이게도 없어 보이게도 만들 수 있다. 눈금을 고르는 순간 만든 사람이
+// 결론을 정하는 셈이다. x축만 공유하는 2단 패널은 시점 대응을 그대로 읽히게
+// 하면서 그 조작 여지가 없고, 착공 라인이 금리 라인에 눌려 납작해지지도 않는다.
+//
+// multiLineChart 와 나누지 않고 따로 둔 이유는 축이 둘이라 좌표계가 다르기
+// 때문이다. niceTicks 는 공유한다.
+//
+// panels: [{ label, series: [{ label, color, values, muted }], decimals, unit }]
+// partialFrom: 이 인덱스부터 점선(잠정치). null 이면 전부 실선.
+export function multiLinePanel(months, panels, { partialFrom = null, heights = [170, 110] } = {}) {
+  const n = months.length;
+  const total = heights.reduce((a, b) => a + b, 0);
+  const iw = W - PAD_L - PAD_R;
+  const X = (i) => PAD_L + (n > 1 ? (i / (n - 1)) * iw : iw / 2);
+
+  const label = esc(panels.map((p) => p.label).join(' · '));
+  const parts = [`<svg viewBox="0 0 ${W} ${total}" font-family="system-ui,-apple-system,sans-serif" `
+    + `role="img" aria-label="${label} 추이">`];
+
+  let top = 0;
+  panels.forEach((panel, pi) => {
+    const isLast = pi === panels.length - 1;
+    const ph = heights[pi];
+    const ih = ph - PAD_T - (isLast ? PAD_B : 8);
+    const values = panel.series.flatMap((s) => s.values.filter((v) => v != null));
+    const decimals = panel.decimals ?? 0;
+    const fmt = (v) => (decimals > 0 ? v.toFixed(decimals) : Math.round(v).toLocaleString());
+
+    if (!values.length) {
+      parts.push(`<text x="${W / 2}" y="${(top + ph / 2).toFixed(1)}" text-anchor="middle" `
+        + `font-size="12" fill="${MUTED}">자료 없음</text>`);
+      top += ph;
+      return;
+    }
+    // 지수는 100 이 기준이라 0 부터 그려야 배율이 눈에 들어온다. 금리도 마찬가지로
+    // 0 부터다 — 잘라 그리면 작은 등락이 절벽처럼 보인다.
+    const max = Math.max(...values) * 1.12;
+    const Y = (v) => top + PAD_T + (1 - v / max) * ih;
+
+    for (const t of niceTicks(max)) {
+      parts.push(`<line x1="${PAD_L}" y1="${Y(t).toFixed(1)}" x2="${W - PAD_R}" `
+        + `y2="${Y(t).toFixed(1)}" stroke="${GRID}" stroke-width="1"/>`);
+      parts.push(`<text x="${PAD_L - 6}" y="${(Y(t) + 3.5).toFixed(1)}" text-anchor="end" `
+        + `font-size="9" fill="${MUTED}">${fmt(t)}</text>`);
+    }
+    parts.push(`<text x="${PAD_L - 6}" y="${(top + PAD_T - 3).toFixed(1)}" text-anchor="end" `
+      + `font-size="8.5" fill="${MUTED}">${esc(panel.unit || '')}</text>`);
+    parts.push(`<text x="${PAD_L + 2}" y="${(top + PAD_T + 10).toFixed(1)}" `
+      + `font-size="10.5" font-weight="600" fill="${INK}">${esc(panel.label)}</text>`);
+
+    // 지수 패널의 평년선(100). 어디가 평년인지 눈금 숫자만으로는 안 읽힌다.
+    if (panel.reference != null && panel.reference <= max) {
+      parts.push(`<line x1="${PAD_L}" y1="${Y(panel.reference).toFixed(1)}" x2="${W - PAD_R}" `
+        + `y2="${Y(panel.reference).toFixed(1)}" stroke="${AXIS}" stroke-width="1" `
+        + `stroke-dasharray="4 3"/>`);
+    }
+
+    parts.push(`<line x1="${PAD_L}" y1="${Y(0).toFixed(1)}" x2="${W - PAD_R}" `
+      + `y2="${Y(0).toFixed(1)}" stroke="${AXIS}" stroke-width="1"/>`);
+
+    // 전국 배경선을 먼저 깔고 선택 지역을 그 위에 그린다. 순서가 바뀌면 배경선이
+    // 선택 지역을 덮는다.
+    const ordered = [...panel.series].sort((a, b) => (a.muted ? 0 : 1) - (b.muted ? 0 : 1));
+    ordered.forEach((s) => {
+      const width = s.muted ? 1.5 : 2;
+      const draw = (points, dashed) => {
+        if (points.length < 2) return;
+        parts.push(`<polyline points="${points.join(' ')}" fill="none" stroke="${s.color}" `
+          + `stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"`
+          + `${dashed ? ' stroke-dasharray="4 3"' : ''}${s.muted ? ' opacity="0.75"' : ''}/>`);
+      };
+      // 잠정 구간은 점선으로 나눈다. 경계 지점을 양쪽에 모두 넣어야 선이 붙는다.
+      let run = [];
+      let dashed = false;
+      s.values.forEach((v, i) => {
+        const nowDashed = partialFrom != null && i >= partialFrom;
+        if (v == null) { draw(run, dashed); run = []; dashed = nowDashed; return; }
+        const point = `${X(i).toFixed(1)},${Y(v).toFixed(1)}`;
+        if (nowDashed !== dashed && run.length) {
+          run.push(point);
+          draw(run, dashed);
+          run = [point];
+          dashed = nowDashed;
+          return;
+        }
+        dashed = nowDashed;
+        run.push(point);
+      });
+      draw(run, dashed);
+
+      let lastIdx = -1;
+      for (let i = n - 1; i >= 0; i -= 1) if (s.values[i] != null) { lastIdx = i; break; }
+      if (lastIdx >= 0 && !s.muted) {
+        parts.push(`<circle cx="${X(lastIdx).toFixed(1)}" cy="${Y(s.values[lastIdx]).toFixed(1)}" `
+          + `r="3.5" fill="${s.color}" stroke="${SURFACE}" stroke-width="2"/>`);
+      }
+    });
+
+    if (isLast) {
+      for (let i = 0; i < n; i += 1) {
+        if (!months[i].endsWith('-01') || Number(months[i].slice(0, 4)) % 3 !== 0) continue;
+        parts.push(`<text x="${X(i).toFixed(1)}" y="${(total - 6).toFixed(1)}" `
+          + `text-anchor="middle" font-size="9" fill="${MUTED}">${months[i].slice(0, 4)}</text>`);
+      }
+    }
+    top += ph;
+  });
+
+  // 잠정 시작 경계는 두 패널을 관통해야 "여기서부터 값이 바뀐다"가 읽힌다.
+  if (partialFrom != null && partialFrom >= 0 && partialFrom < n) {
+    parts.push(`<line x1="${X(partialFrom).toFixed(1)}" y1="${PAD_T}" `
+      + `x2="${X(partialFrom).toFixed(1)}" y2="${(total - PAD_B).toFixed(1)}" `
+      + `stroke="${MUTED}" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>`);
+  }
+
+  parts.push('</svg>');
+  return parts.join('');
+}
