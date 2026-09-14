@@ -1202,9 +1202,9 @@
   "name": "Team Up",
   "release_date": "2019-01-31",
   "era": "모던",
-  "included": true,
-  "reason": "",
-  "coverage": 0.9439,
+  "included": false,
+  "reason": "가격 커버리지 47% < 80%",
+  "coverage": 0.4694,
   "card_count": 196
  },
  "det1": {
