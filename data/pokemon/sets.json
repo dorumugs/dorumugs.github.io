@@ -302,7 +302,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9815,
+  "coverage": 0.9907,
   "card_count": 108
  },
  "ex9": {
@@ -1940,5 +1940,22 @@
   "reason": "",
   "coverage": 1.0,
   "card_count": 30
+ },
+ "30th": {
+  "name": "30th Celebration",
+  "release_date": "2026-09-16",
+  "era": "최신",
+  "included": false,
+  "reason": "가격 커버리지 0% < 80%",
+  "coverage": 0.0,
+  "card_count": 158
+ },
+ "30th-c": {
+  "name": "30th Classic Collection",
+  "release_date": "2026-09-16",
+  "era": "최신",
+  "included": false,
+  "reason": "이름 프리필터 제외",
+  "coverage": null
  }
 }
