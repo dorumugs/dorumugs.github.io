@@ -570,5 +570,16 @@ revert 커밋 메시지에 "이 규칙은 이런 결과를 내서 물렀다"를 
 막는 대신 **빨리 찾고 깨끗하게 무르는 쪽**에 투자하는 게
 전사 리포트를 에이전트에게 넘길 수 있는 유일한 길이라고 생각해요.
 
-Hermes 셋업 자체가 궁금하시면 [Docker Compose 셋업 글](/coding/Hermes_Agent_Docker_셋업/)과
-[Discord 연동 트러블슈팅](/coding/Hermes_Agent_Discord_NoneType_트러블슈팅/)에 정리해뒀습니다.
+Hermes 자체를 다루는 글은 따로 정리해뒀습니다.
+이 글이 **무엇을 맡길까**였다면, 아래는 **무엇 위에 맡길까**에 해당해요.
+
+| 글 | 이 글과 이어지는 곳 |
+|---|---|
+| [Docker Compose 셋업](/coding/Hermes_Agent_Docker_셋업/) | 띄우기 |
+| [Discord 'NoneType' 트러블슈팅](/coding/Hermes_Agent_Discord_NoneType_트러블슈팅/) | 붙이고 고치기 |
+| [프로필로 역할별 쪼개 쓰기](/coding/Hermes_Agent_프로필_멀티_인스턴스_운영/) | **4장** 시각별 격리 |
+| [Google Workspace 안전 연동](/coding/Hermes_Google_Workspace_안전연동/) | 입력 데이터 붙이기 |
+| [Hermes 자체를 Git 으로 형상관리](/coding/Hermes_자체_Git_형상관리/) | **5장** 되감기의 대상 |
+
+특히 마지막 글이 이 글 5장의 전제입니다.
+에이전트 자체가 형상관리 밖에 있으면, `git bisect` 가 짚어주는 커밋은 절반만 진실이에요.
