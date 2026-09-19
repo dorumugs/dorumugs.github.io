@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Hermes 에게 전사 리포트를 맡기는 구조 배너 — 저장소, 다중 시각, git 되감기">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1726"/>
+      <stop offset="1" stop-color="#231b2f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="0.5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f0abfc"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="back" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#f0abfc"/>
+    </marker>
+    <style>.ko { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; }</style>
+  </defs>
+
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
+
+  <text class="ko" x="80" y="108" font-size="44" font-weight="800" fill="#f8fafc">Hermes 에게 <tspan fill="#a78bfa">전사 리포트</tspan>를 맡기려면</text>
+  <text class="ko" x="82" y="150" font-size="22" font-weight="500" fill="#94a3b8">프롬프트가 아니라 저장소로 · 한 명이 아니라 위원회로 · 망가지면 되감기로</text>
+
+  <g class="ko" text-anchor="middle">
+    <rect x="90"  y="226" width="250" height="112" rx="16" fill="#171b2e" stroke="#4f46e5" stroke-width="3"/>
+    <text x="215" y="274" font-size="23" font-weight="800" fill="#a5b4fc">입력을 저장소로</text>
+    <text x="215" y="306" font-size="16" font-weight="500" fill="#cbd5e1">지시문 · 스킬 · 메모리 · 데이터</text>
+
+    <rect x="475" y="226" width="250" height="112" rx="16" fill="#11291f" stroke="#217346" stroke-width="3"/>
+    <text x="600" y="274" font-size="23" font-weight="800" fill="#7dd3a8">다중 시각</text>
+    <text x="600" y="306" font-size="16" font-weight="500" fill="#cbd5e1">분석 · 리스크 · 준법 · 반대편</text>
+
+    <rect x="860" y="226" width="250" height="112" rx="16" fill="#2a1730" stroke="#a21caf" stroke-width="3"/>
+    <text x="985" y="274" font-size="23" font-weight="800" fill="#f0abfc">git 으로 되감기</text>
+    <text x="985" y="306" font-size="16" font-weight="500" fill="#cbd5e1">bisect · revert · 재발 방지</text>
+  </g>
+
+  <line x1="345" y1="282" x2="468" y2="282" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="730" y1="282" x2="853" y2="282" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M985 348 L985 372 L215 372 L215 346" fill="none" stroke="#f0abfc" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#back)"/>
+
+  <text class="ko" x="80" y="404" font-size="17" fill="#64748b">KayserDocs · 오염은 사고가 아니라 전제다</text>
+</svg>
