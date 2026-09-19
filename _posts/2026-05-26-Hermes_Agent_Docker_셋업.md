@@ -471,9 +471,10 @@ docker compose exec hermes /opt/hermes/.venv/bin/hermes auth list
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 Hermes에서 n8n webhook 을 직접 호출해서 workflow 트리거 거는 부분을 정리해볼게요.
+다음 글에서는 이렇게 띄운 봇이 며칠 뒤 `'NoneType' object is not iterable` 을 뱉으며 죽기 시작한 이슈를 추적해볼게요.
+제 설정 실수가 아니라 알려진 버그였고, Docker 환경에서는 `hermes update` 한 줄로 안 끝나는 게 함정이었습니다.
 
 ---
 
-**다음 글 →** [(2/2) Hermes Agent + Discord 'NoneType' 트러블슈팅](/coding/Hermes_Agent_Discord_NoneType_트러블슈팅/)
+**다음 글 →** [(2/3) Hermes Agent + Discord 'NoneType' 트러블슈팅](/coding/Hermes_Agent_Discord_NoneType_트러블슈팅/)
 

@@ -285,9 +285,10 @@ ChatGPT 구독을 그대로 쓰는 매력은 잠깐 포기하지만, **자동화
 
 
 일단 오늘은 여기까지.....   
-다음 글에서는 이런 자동화 봇이 또 조용히 죽었을 때 빠르게 눈치챌 수 있도록, **헬스체크 + Discord 알람** 을 어떻게 묶었는지 정리해볼게요.
+다음 글에서는 인스턴스가 하나뿐이라 블로그 작업과 데이터 작업, 실험이 전부 한 통에 섞이던 문제를 **`hermes profile`** 로 가르는 방법을 정리해볼게요.
+설정·키·기억·세션·스킬·크론을 프로필마다 따로 두는 기능입니다.
 
 ---
 
-**← 이전 글:** [(1/2) Hermes Agent Docker Compose 셋업](/coding/Hermes_Agent_Docker_셋업/)
+**← 이전 글:** [(1/3) Hermes Agent Docker Compose 셋업](/coding/Hermes_Agent_Docker_셋업/) ｜ **다음 글 →:** [(3/3) Hermes Agent 프로필 — 에이전트 한 대를 역할별로 쪼개 쓰기](/coding/Hermes_Agent_프로필_멀티_인스턴스_운영/)
 
