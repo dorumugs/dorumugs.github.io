@@ -67,7 +67,7 @@ Hermes 에이전트한테 "이 시트에 이번 주 실적 붙여줘" 라고 말
 
 여기가 이 글에서 제일 중요한 부분이에요.
 
-`SKILL.md` 는 3단계에서 이렇게 시키라고 적혀 있습니다 — 필요한 서비스만 골라 동의 화면을 좁히라고요.
+`SKILL.md` 의 3단계에는 이렇게 하라고 적혀 있습니다 — 필요한 서비스만 골라 동의 화면을 좁히라고요.
 
 ```shell
 python setup.py --auth-url --services calendar,drive,sheets,docs --format json

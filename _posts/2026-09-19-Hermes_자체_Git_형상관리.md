@@ -9,7 +9,7 @@ toc: true
 header:
   image: /assets/images/2026-09-19-hermes-git-config/header.svg
   teaser: /assets/images/2026-09-19-hermes-git-config/header.svg
-description: "에이전트 설정 디렉토리를 Git 에 올리는 건 단순해 보이지만, 632MB 안에 되돌릴 가치가 있는 건 7.2MB 뿐이고 나머지엔 토큰이 섞여 있습니다. 화이트리스트 .gitignore 와 clean 필터를 실제 디렉토리에 돌려 검증한 기록이에요."
+description: "에이전트 설정 디렉토리를 Git 에 올리는 건 단순해 보이지만, 632MB 안에 되돌릴 가치가 있는 건 7.2MB뿐이고 나머지엔 토큰이 섞여 있습니다. 화이트리스트 .gitignore 와 clean 필터를 실제 디렉토리에 돌려 검증한 기록이에요."
 series: hermes-app-connect
 series_order: 2
 series_title: "🔗 Hermes 붙이기 — 구글과 깃"
@@ -25,7 +25,7 @@ series_title: "🔗 Hermes 붙이기 — 구글과 깃"
 
 그런데 이 디렉토리는 백업하기가 묘하게 까다롭습니다.
 
-> 632MB 인데 되돌릴 가치가 있는 건 **7.2MB** 뿐이고,
+> 632MB 인데 되돌릴 가치가 있는 건 **7.2MB**뿐이고,
 > 나머지 안에는 **토큰과 자격증명이 섞여** 있습니다.
 > 통째로 올리면 저장소가 터지고, 대충 올리면 비밀이 샙니다.
 
@@ -270,6 +270,7 @@ docker exec hermes head -3 /opt/data/skills/.bundled_manifest
 
 > 🚨 **`.bundled_manifest` 는 완전한 목록이 아닙니다.**
 > 58개만 등재돼 있는데 실제로는 105개가 깔려 있어요.
+> 1절 동기화 로그의 `87 total bundled` 와도 안 맞습니다 — 세 숫자가 서로 다릅니다.
 > 이걸로 자동 분류하면 **남의 스킬 47개를 "내 것" 이라고 커밋합니다.**
 > 파일 이름이 그럴듯하다고 신뢰의 근거로 삼으면 안 되는 사례예요.
 
@@ -430,7 +431,7 @@ docker exec hermes rm -rf /tmp/hgit /tmp/hermes.ignore
 
 ## 9. `config.yaml` 의 한 줄만 가리기 — clean 필터
 
-5장에서 미뤄둔 문제를 풉니다. 파일은 추적하고 싶은데 260줄만 위험한 상황이요.
+5장에서 미뤄둔 문제를 풉니다. 파일은 추적하고 싶은데 260줄만 위험한 상황이죠.
 
 Git 에는 **clean 필터**가 있어요. 스테이징할 때 내용을 한 번 거쳐가게 하는 기능입니다.
 
@@ -548,7 +549,7 @@ docker exec -u hermes hermes git -C /opt/data log --oneline -1
 
 ## 11. pre-commit 훅 — 눈검사를 자동화
 
-10장의 검사를 매번 손으로 하면 언젠가 거릅니다. 훅으로 박아두세요.
+10장의 검사를 매번 손으로 하면 언젠가는 빼먹습니다. 훅으로 박아두세요.
 
 ```shell
 docker exec -u hermes hermes sh -c 'cat > /opt/data/.git/hooks/pre-commit <<"HOOK"

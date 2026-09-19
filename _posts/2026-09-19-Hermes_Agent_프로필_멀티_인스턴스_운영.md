@@ -283,11 +283,13 @@ cat /opt/data/.local/bin/blogdemo
 exec /opt/hermes/bin/hermes -p blogdemo "$@"
 ```
 
-생성 위치는 항상 `~/.local/bin` 입니다.
-이 디렉토리가 `PATH` 에 없으면 `blogdemo: command not found` 가 나요.
+생성 위치는 항상 `$HOME/.local/bin` 입니다.
+위 출력이 `/opt/data/.local/bin` 인 건 이 컨테이너의 `HOME` 이 `/opt/data` 라서예요. 같은 경로입니다.
+이 디렉토리가 `PATH` 에 없으면 `blogdemo: command not found` 가 납니다.
 `create` 가 "Wrapper created" 라고 말해줘도 **PATH 는 대신 고쳐주지 않습니다.**
 
 이름을 따로 주고 싶으면 `--name` 을 씁니다.
+아래 `blogdemo2` 는 4절에서 복제로 만드는 프로필이에요. 8절에서 이 래퍼가 어떻게 고아가 되는지 다시 나옵니다.
 
 ```shell
 hermes profile alias blogdemo2 --name bd2
@@ -789,7 +791,7 @@ numbers, '-' or '_', starting with a letter or number, up to 64 characters
 
 
 
-## 11. 제가 쓰는 구성
+## 11. 권장 구성
 
 참고삼아, 지금 굴려볼 만하다고 생각하는 구성을 적어둡니다.
 
