@@ -18,7 +18,7 @@
   <rect width="1200" height="420" fill="url(#bg)"/>
   <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
 
-  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">Hermes NoneType 트러블슈팅 <tspan fill="#f0abfc">(2/2)</tspan></text>
+  <text class="ko" x="80" y="112" font-size="46" font-weight="800" fill="#f8fafc">Hermes NoneType 트러블슈팅 <tspan fill="#f0abfc">(2/3)</tspan></text>
   <text class="ko" x="82" y="156" font-size="23" font-weight="500" fill="#94a3b8">'NoneType' object is not iterable — 알려진 버그, 최신 이미지로 해결</text>
 
   <g class="ko" text-anchor="middle">

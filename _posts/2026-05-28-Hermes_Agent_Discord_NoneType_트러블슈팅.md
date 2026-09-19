@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(2/2) Hermes Agent + Discord: 'NoneType' object is not iterable 트러블슈팅"
+title:  "(2/3) Hermes Agent + Discord: 'NoneType' object is not iterable 트러블슈팅"
 date: 2026-05-28 21:11:00 +0900
 description: "Discord에 연결한 Hermes Agent가 메시지/크론 작업마다 'NoneType' object is not iterable 로 죽던 이슈를 추적하고, Docker 환경에서 최신 이미지로 갈아끼워서 해결한 과정을 정리했어요."
 categories: coding
@@ -152,6 +152,7 @@ hermes update
 **컨테이너 이름이 `hermes-agent` 가 아니라 `hermes` 입니다.**   
 지난 셋업 글에서 compose service 이름을 `hermes` 로 잡아둔 결과예요. 
 
+{% raw %}
 ```shell
 docker ps --format '{{.Names}}'
 # hermes
@@ -159,6 +160,7 @@ docker ps --format '{{.Names}}'
 # prefect-server
 # ...
 ```
+{% endraw %}
 
 이걸 모르고 `docker exec -it hermes-agent ...` 를 치면 그대로 `No such container` 로 떨어집니다.   
 이름 맞춰서 들어가도 — **컨테이너 안에서 돌리는 `hermes update` 는 Docker 환경에서 의미가 없어요**. 

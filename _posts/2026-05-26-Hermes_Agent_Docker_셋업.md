@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(1/2) Hermes Agent Docker Compose 셋업"
+title:  "(1/3) Hermes Agent Docker Compose 셋업"
 date: 2026-05-26 22:44:00 +0900
 description: "Docker Compose로 Hermes Agent를 띄우고 OpenAI Codex OAuth와 Discord 봇까지 연결하는 셋업 과정을 정리한 글이에요."
 categories: coding
@@ -12,7 +12,7 @@ header:
   teaser: /assets/images/2026-05-26-hermes-agent-docker/header.svg
 series: hermes-agent
 series_order: 1
-series_title: "🤖 Hermes Agent 셋업 ~ 트러블슈팅 시리즈"
+series_title: "🤖 Hermes Agent 셋업 ~ 운영 시리즈"
 ---
 
 
@@ -61,10 +61,12 @@ docker network create data-pipeline-net
 
 이미 같은 네트워크에 어떤 친구들이 붙어있는지 궁금하면 inspect로 확인할 수 있어요. (선택)
 
+{% raw %}
 ```shell
 docker network inspect data-pipeline-net \
   --format '{{range .Containers}}{{.Name}}{{"\n"}}{{end}}'
 ```
+{% endraw %}
 
 <br>
 
