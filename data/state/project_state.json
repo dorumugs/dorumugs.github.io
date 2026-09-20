@@ -270,6 +270,21 @@
    "fetched": "2026-08-17",
    "stage": "사업시행자지정"
   },
+  "KUKMOA1": {
+   "events": 2,
+   "fetched": "2026-09-21",
+   "stage": "조합설립인가"
+  },
+  "KUKMOA2": {
+   "events": 2,
+   "fetched": "2026-09-21",
+   "stage": "조합설립인가"
+  },
+  "KUKMOA3": {
+   "events": 2,
+   "fetched": "2026-09-21",
+   "stage": "조합설립인가"
+  },
   "KuIRZHu0": {
    "events": 156,
    "fetched": "2026-08-17",
@@ -481,9 +496,9 @@
    "stage": "사업시행인가"
   },
   "W5kW3PVi": {
-   "events": 123,
-   "fetched": "2026-08-24",
-   "stage": "착공"
+   "events": 128,
+   "fetched": "2026-09-21",
+   "stage": "준공인가"
   },
   "W8N045i7": {
    "events": 38,
@@ -911,9 +926,9 @@
    "stage": "조합해산"
   },
   "bukgajua6": {
-   "events": 48,
-   "fetched": "2026-09-14",
-   "stage": "조합설립인가"
+   "events": 52,
+   "fetched": "2026-09-21",
+   "stage": "사업시행인가"
   },
   "bulgwang": {
    "events": 0,
@@ -995,6 +1010,11 @@
    "fetched": "2026-09-14",
    "stage": "조합설립인가"
   },
+  "changdong04": {
+   "events": 0,
+   "fetched": "2026-09-21",
+   "stage": "추진위원회승인"
+  },
   "changdong4": {
    "events": 6,
    "fetched": "2026-09-14",
@@ -1047,137 +1067,137 @@
   },
   "cheongpa2": {
    "events": 3,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cheongryangri": {
-   "events": 2,
-   "fetched": "2026-07-31",
+   "events": 6,
+   "fetched": "2026-09-21",
    "stage": "추진위원회승인"
   },
   "cheonho110": {
    "events": 2,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cheonho14566": {
    "events": 11,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cheonho3": {
    "events": 157,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "분양"
   },
   "cheonho31": {
    "events": 2,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "추진위원회승인"
   },
   "cheonho337": {
    "events": 8,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "사업시행자지정"
   },
   "cheonho397-419": {
    "events": 10,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cheonho532-2": {
    "events": 10,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cheonhoA1-2": {
    "events": 13,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cheonhowoosung": {
    "events": 21,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "관리처분인가"
   },
   "cheonwang3": {
-   "events": 2,
-   "fetched": "2026-07-31",
+   "events": 12,
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "chowon": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "안전진단"
   },
   "chunho1": {
    "events": 96,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "준공인가"
   },
   "chunho1garo": {
    "events": 18,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "chunho2": {
    "events": 131,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합해산"
   },
   "chunho8": {
    "events": 13,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cleanup43-9": {
-   "events": 18,
-   "fetched": "2026-07-31",
+   "events": 20,
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "cool0914": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "착공"
   },
   "cp1apt": {
-   "events": 34,
-   "fetched": "2026-07-31",
+   "events": 36,
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "croval68": {
    "events": 17,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "착공"
   },
   "cxD5SseR": {
    "events": 77,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "이전고시"
   },
   "cy_moa": {
    "events": 6,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "사업시행인가"
   },
   "dH49599v": {
-   "events": 49,
-   "fetched": "2026-07-31",
+   "events": 51,
+   "fetched": "2026-09-21",
    "stage": "사업시행인가"
   },
   "daebang": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "추진위원회승인"
   },
   "daebang391": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합원 모집신고"
   },
   "daech2": {
    "events": 72,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "이전고시"
   },
   "daegeun": {
@@ -1192,67 +1212,67 @@
   },
   "daegwang": {
    "events": 10,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "daegyo": {
    "events": 30,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "관리처분인가"
   },
   "daejo59-1": {
    "events": 10,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "daejoa3": {
-   "events": 6,
-   "fetched": "2026-07-31",
+   "events": 8,
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "daelim": {
    "events": 42,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "daelim-3": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": ""
   },
   "daemyungsambo": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "관리처분인가"
   },
   "daerim": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "정비계획 수립"
   },
   "dam877": {
    "events": 2,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합설립인가"
   },
   "danggok": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합원 모집신고"
   },
   "dangsan1": {
-   "events": 2,
-   "fetched": "2026-07-31",
+   "events": 6,
+   "fetched": "2026-09-21",
    "stage": "추진위원회승인"
   },
   "dap952": {
    "events": 22,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "사업시행인가"
   },
   "dapsimni14": {
    "events": 134,
-   "fetched": "2026-07-31",
+   "fetched": "2026-09-21",
    "stage": "조합해산"
   },
   "dayun0807": {
@@ -1279,6 +1299,11 @@
    "events": 8,
    "fetched": "2026-07-31",
    "stage": "조합설립인가"
+  },
+  "df2fd32": {
+   "events": 0,
+   "fetched": "2026-09-21",
+   "stage": "정비계획 수립"
   },
   "dhahrry": {
    "events": 3,
@@ -1614,6 +1639,11 @@
    "events": 0,
    "fetched": "2026-07-31",
    "stage": "조합원 모집신고"
+  },
+  "gaemi981": {
+   "events": 0,
+   "fetched": "2026-09-21",
+   "stage": "조합설립인가"
   },
   "gaenari6": {
    "events": 90,
@@ -2510,6 +2540,11 @@
    "fetched": "2026-07-31",
    "stage": "조합설립인가"
   },
+  "jayang921": {
+   "events": 4,
+   "fetched": "2026-09-21",
+   "stage": "조합설립인가"
+  },
   "jayangapt": {
    "events": 34,
    "fetched": "2026-07-31",
@@ -3050,6 +3085,11 @@
    "fetched": "2026-07-31",
    "stage": "조합설립인가"
   },
+  "moa2-1": {
+   "events": 2,
+   "fetched": "2026-09-21",
+   "stage": "조합설립인가"
+  },
   "moa637": {
    "events": 0,
    "fetched": "2026-09-14",
@@ -3156,9 +3196,9 @@
    "stage": "조합청산"
   },
   "moonsarang136": {
-   "events": 104,
-   "fetched": "2026-07-31",
-   "stage": "이전고시"
+   "events": 108,
+   "fetched": "2026-09-21",
+   "stage": "조합해산"
   },
   "mrdapt2": {
    "events": 84,
