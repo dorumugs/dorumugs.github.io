@@ -2,7 +2,7 @@
 # 전국 Airbnb 밀집 지도 데이터를 갱신한다. cron 에서 부르는 진입점.
 #
 #   crontab -e
-#   0 3 * * 0,3 flock -w 7200 ~/.cache/realestate.lock env AUTO_COMMIT=1 AUTO_PUSH=1 /home/dorumugs/Projects/dorumugs.github.io/scripts/airbnb_weekly.sh >> /home/dorumugs/.cache/realestate-airbnb.log 2>&1
+#   0 21 * * 0,3 flock -w 7200 ~/.cache/realestate.lock env AUTO_COMMIT=1 AUTO_PUSH=1 /home/dorumugs/Projects/dorumugs.github.io/scripts/airbnb_weekly.sh >> /home/dorumugs/.cache/realestate-airbnb.log 2>&1
 #
 # **flock 은 반드시 유지한다.** daily.sh · redev_daily.sh · schools_monthly.sh ·
 # supply_monthly.sh 와 같은 락을 공유한다. 전부 git commit / pull --rebase / push
@@ -19,6 +19,9 @@
 #   그때는 전국 사각형 하나로 시작해 규슈까지 훑었으니 지금은 이보다 적게 든다.
 #   3,000콜을 주 2회(일·수) 돌면 한 바퀴가 대략 일주일이다 — 화면의 "낡음"
 #   경고 기준(assets/realestate/freshness.js 의 airbnb: 16일)과 맞춰 둔 값이다.
+#
+#   21시에 도는 이유: 3,000콜이면 락을 100분쯤 잡는다. 새벽에 돌리면
+#   04:30 daily.sh(실거래 9,000콜)가 그만큼 밀린다.
 #
 # 수집 예절 — 성능 조정 항목이 아니다
 #   요청 간격 2초는 collect_airbnb.py 에 박혀 있다. MAX_CALLS 를 키우면 한 번에

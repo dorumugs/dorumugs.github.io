@@ -272,7 +272,6 @@ def main() -> int:
                       else state.get("updated")) or state.get("updated"),
         "complete": complete,
         "source": "airbnb.co.kr 지도검색",
-        "pass_in_progress": len(state.get("frontier") or []) > 0,
     })
 
     meta = result["meta"]

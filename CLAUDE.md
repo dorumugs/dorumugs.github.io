@@ -92,7 +92,7 @@ Airbnb 수집은 인증이 없습니다 — 로그인 없이 보이는 공개 �
 30 18 * * 1-5  etf_daily.sh        ETF 테마 모멘텀
 40 4 3 * *     schools_monthly.sh  학군
 20 5 5,25 * *  supply_monthly.sh   착공·금리
-0 3 * * 0,3    airbnb_weekly.sh    Airbnb 밀집도
+0 21 * * 0,3   airbnb_weekly.sh    Airbnb 밀집도
 ```
 
 전부 앞에 `flock -w 7200 ~/.cache/realestate.lock` 이 붙습니다. **반드시 유지하세요.**

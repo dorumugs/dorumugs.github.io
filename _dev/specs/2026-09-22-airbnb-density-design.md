@@ -247,10 +247,12 @@ pop bbox
 ## 6. 크론
 
 ```
-0 3 * * 0   airbnb_weekly.sh
+0 21 * * 0,3   airbnb_weekly.sh
 ```
 
-일요일 새벽. `flock -w 7200 ~/.cache/realestate.lock` 을 반드시 붙인다 —
+일·수 21시. 새벽이 아닌 이유는 3,000콜이면 락을 100분쯤 잡기 때문이다 —
+04:30 daily.sh(실거래 9,000콜)를 그만큼 밀어낸다.
+`flock -w 7200 ~/.cache/realestate.lock` 을 반드시 붙인다 —
 다른 수집기와 겹쳐 돌면 커밋이 유실된다. 로그는
 `~/.cache/realestate-airbnb.log`.
 
