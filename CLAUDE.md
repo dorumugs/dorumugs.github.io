@@ -36,10 +36,16 @@
 | `/dashboard/real-estate/schools/` | 학군 지도 — 사립초·사립중·국제중·특목고 |
 | `/dashboard/real-estate/redevelopment/` | 재개발·재건축 — 대지지분·진행단계·단계별 프리미엄 |
 | `/dashboard/supply/` | 착공과 금리 — 시도별 아파트 착공 평년 지수 · 기준금리 · 주담대 |
+| `/dashboard/airbnb/` | 전국 Airbnb 밀집 지도 — 256개 시군구 밀도 · 500m 격자 · 시군구별 숙소 점 |
 
 설계 문서는 `_dev/specs/` 에 있습니다. 재개발 쪽을 건드린다면
 `_dev/specs/2026-07-31-redevelopment-design.md` 를 먼저 읽으세요 — 데이터 출처,
 조인 키, 검증 방식, 그동안 밟은 지뢰가 정리돼 있습니다.
+
+Airbnb 쪽은 `_dev/specs/2026-09-22-airbnb-density-design.md` 입니다. 공식 API 가
+아니라 검색 화면을 읽으므로, 상한·빈 bbox·결과 변동 같은 실측값이 거기 다
+적혀 있습니다. **수집 예절(2초 간격·예산 상한·공개 범위)은 성능 조정 항목이
+아니라 지켜야 할 선입니다.**
 
 ### 구조 규칙
 
@@ -72,6 +78,8 @@ pytest 는 없습니다. 표준 `unittest` 만 씁니다. 외부 응답은 `test
 | `LAW_OC` | 법제처 조례 | 없으면 `test` 로 동작 |
 | `ECOS_API_KEY` | 한국은행 ECOS 금리 | `.env` (없으면 `collect_supply.py` 가 종료코드 1) |
 
+Airbnb 수집은 인증이 없습니다 — 로그인 없이 보이는 공개 검색 화면만 읽습니다.
+
 활용신청은 **서비스마다 따로**입니다. 같은 키라도 실거래는 되고 건축물대장은
 403 일 수 있습니다. 일일 한도도 서비스마다 따로 잡힙니다.
 
@@ -84,6 +92,7 @@ pytest 는 없습니다. 표준 `unittest` 만 씁니다. 외부 응답은 `test
 30 18 * * 1-5  etf_daily.sh        ETF 테마 모멘텀
 40 4 3 * *     schools_monthly.sh  학군
 20 5 5,25 * *  supply_monthly.sh   착공·금리
+0 3 * * 0,3    airbnb_weekly.sh    Airbnb 밀집도
 ```
 
 전부 앞에 `flock -w 7200 ~/.cache/realestate.lock` 이 붙습니다. **반드시 유지하세요.**
@@ -92,7 +101,16 @@ pytest 는 없습니다. 표준 `unittest` 만 씁니다. 외부 응답은 `test
 `redev_daily.sh` 는 날짜를 보고 스스로 갈라집니다 — 매일 연립다세대 실거래,
 월요일 정비사업 추진경과, 매월 5일 건축물대장·브이월드·조례·정비구역.
 
-로그: `~/.cache/realestate-{collect,redev,pokemon,etf,schools,supply}.log`
+`airbnb_weekly.sh` 는 한 번에 전국을 못 끝냅니다. `MAX_CALLS`(기본 3000, 약
+100분) 로 예산을 끊고 못 끝낸 bbox 를 `data/airbnb/state.json.gz` 에 남겨 다음
+실행이 이어받습니다. 실측으로 전국 한 바퀴가 5,481콜 · 숙소 59,265곳이라
+주 2회(일·수)면 대략 일주일에 한 바퀴입니다.
+
+**새 바퀴를 도는 동안에도 화면에는 지난 바퀴 결과가 그대로 남습니다** —
+모으는 중인 것은 `pending`, 화면에 나가는 확정본은 `points` 로 갈라 둡니다.
+이걸 합치면 새 바퀴 내내 지도가 반쯤 빈 채로 보입니다.
+
+로그: `~/.cache/realestate-{collect,redev,pokemon,etf,schools,supply,airbnb}.log`
 
 수동 실행은 `AUTO_COMMIT` 없이 (커밋하지 않음):
 
@@ -126,6 +144,8 @@ docker run --rm -v "$PWD":/srv/jekyll -v /tmp/gemhome:/gemhome -w /srv/jekyll \
 - `_layouts/`, `_includes/`, `_sass/`, `docs/`, `CHANGELOG.md`, `README.md` 의 테마 절 — minimal-mistakes 원본.
 - `assets/` — 테마 원본입니다. **단, 아래는 이 저장소가 직접 만든 것이라 수정해도 됩니다.**
   - `assets/realestate/` (대시보드 소스와 집계 JSON)
+  - `_includes/realestate/` (대시보드용 지도 SVG — `map.svg` 서울·경기,
+    `map_kr.svg` 전국. 둘 다 `build_geo.py` 가 만듭니다. 손으로 고치지 마세요)
   - `assets/images/real-estate-*/` (배너)
 - `_config.yml` — 사이트 전역 설정. 변경 전에 반드시 의도/영향 확인.
 - `.github/`, `Gemfile`, `package.json`, `Rakefile` — 빌드/배포 파이프라인.

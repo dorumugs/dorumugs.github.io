@@ -55,6 +55,8 @@ TARGETS: dict[str, tuple[str, str, tuple | None]] = {
                 ("english", ["fx", "date"])),
     "supply": ("assets/realestate/supply.json", "착공 × 금리",
                ("month", ["latest_month"])),
+    # 스냅샷이라 '데이터 날짜' 가 따로 없다 — 집계일이 곧 수집일이다.
+    "airbnb": ("assets/realestate/airbnb.json", "Airbnb 밀집도", None),
 }
 
 

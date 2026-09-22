@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import math
 import sys
@@ -23,7 +24,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import regions  # noqa: E402
 
 GEO_DIR = ROOT / "data" / "geo"
-GEO_FILE = GEO_DIR / "sgg_seoul_gyeonggi.geojson"
+GEO_FILE = GEO_DIR / "sgg_seoul_gyeonggi.geojson.gz"
 SVG_FILE = ROOT / "_includes" / "realestate" / "map.svg"
 PROJECTION_FILE = GEO_DIR / "projection.json"
 
@@ -37,15 +38,19 @@ Ring = list[list[float]]
 Point = tuple[float, float]
 
 
-def merge_sgg(features: list[dict]) -> dict[str, list[Ring]]:
+def merge_sgg(features: list[dict],
+              sido: tuple[str, ...] | None = SIDO) -> dict[str, list[Ring]]:
     """행정동 feature 목록을 시군구 5자리로 묶는다. 외곽 링만 남긴다.
 
-    구멍(내부 링)은 시군구 경계에서는 의미가 없어 버린다. 시도 11/41 밖은 제외.
+    구멍(내부 링)은 시군구 경계에서는 의미가 없어 버린다.
+
+    `sido` 기본값은 서울·경기다 — 커밋된 `map.svg` 를 그대로 재현해야 하므로
+    바꾸지 말 것. 전국 지도를 만들 때만 `None` 을 준다.
     """
     out: dict[str, list[Ring]] = {}
     for f in features:
         props = f.get("properties") or {}
-        if props.get("sido") not in SIDO:
+        if sido is not None and props.get("sido") not in sido:
             continue
         code = props.get("sgg")
         geom = f.get("geometry")
@@ -60,6 +65,22 @@ def merge_sgg(features: list[dict]) -> dict[str, list[Ring]]:
         for poly in polygons:
             if poly and poly[0]:
                 out.setdefault(code, []).append(poly[0])
+    return out
+
+
+def sgg_names(features: list[dict]) -> dict[str, str]:
+    """GeoJSON 에서 시군구 이름을 뽑는다.
+
+    전국에는 `regions.py`(서울·경기 전용 코드표)가 없어서 데이터에 실려 온
+    `sggnm` 을 쓴다. 서울·경기 기본 빌드는 이 함수를 쓰지 않는다 — `sggnm` 은
+    '수원시장안구' 처럼 공백이 없어서 커밋된 지도의 '수원시 장안구' 와 다르다.
+    """
+    out: dict[str, str] = {}
+    for f in features:
+        props = f.get("properties") or {}
+        code = props.get("sgg")
+        if code and code not in out:
+            out[code] = (props.get("sggnm") or "").strip() or code
     return out
 
 
@@ -247,12 +268,15 @@ def project(rings: dict[str, list[Ring]], width: float) -> tuple[dict[str, list[
     return out, p["width"], p["height"]
 
 
+DEFAULT_LABEL = "서울·경기 시군구 지도"
+
+
 def to_svg(projected: dict[str, list[list[Point]]], names: dict[str, str],
-           width: float, height: float) -> str:
+           width: float, height: float, label: str = DEFAULT_LABEL) -> str:
     """시군구별 path 하나씩. 색은 넣지 않는다 — 런타임에 JS 가 fill 을 칠한다."""
     lines = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width:.0f} {height:.0f}" '
-        'class="re-map" role="img" aria-label="서울·경기 시군구 지도">'
+        f'class="re-map" role="img" aria-label="{label}">'
     ]
     for code in sorted(projected):
         d = "".join(
@@ -294,21 +318,53 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--eps", type=float, default=0.05,
                         help="단순화 강도. 서울 뷰 기준으로 정한다")
     parser.add_argument("--min-area", type=float, default=4.0)
+    parser.add_argument("--sido", default=",".join(SIDO),
+                        help="쉼표로 구분한 시도 코드, 또는 'all'. 기본은 서울·경기")
+    parser.add_argument("--suffix", default="",
+                        help="산출물 이름 뒤에 붙일 꼬리표. 전국은 '_kr'")
+    parser.add_argument("--label", default=DEFAULT_LABEL,
+                        help="SVG 의 aria-label. 스크린리더가 읽는다")
+    parser.add_argument("--max-bytes", type=int, default=MAX_SVG_BYTES,
+                        help="SVG 바이트 예산")
     return parser
+
+
+def outputs(suffix: str) -> tuple[Path, Path, Path]:
+    """(SVG, projection, geojson) 경로. 꼬리표가 없으면 기존 이름 그대로."""
+    if not suffix:
+        return SVG_FILE, PROJECTION_FILE, GEO_FILE
+    return (SVG_FILE.with_name(f"map{suffix}.svg"),
+            GEO_DIR / f"projection{suffix}.json",
+            GEO_DIR / f"sgg{suffix}.geojson.gz")
 
 
 def main() -> int:
     args = build_parser().parse_args()
 
-    data = json.loads(Path(args.input).read_text(encoding="utf-8"))
-    merged = merge_sgg(data["features"])
+    nationwide = args.sido.strip().lower() == "all"
+    sido = None if nationwide else tuple(s.strip() for s in args.sido.split(",") if s.strip())
 
-    expected = {code: name for code, name in regions.sgg_codes()}
-    if set(merged) != set(expected):
-        missing = sorted(set(expected) - set(merged))
-        extra = sorted(set(merged) - set(expected))
-        print(f"시군구 불일치. 누락={missing} 잉여={extra}", file=sys.stderr)
+    data = json.loads(Path(args.input).read_text(encoding="utf-8"))
+    merged = merge_sgg(data["features"], sido=sido)
+    if not merged:
+        print(f"시도 {args.sido} 에 해당하는 행정동이 없습니다.", file=sys.stderr)
         return 1
+
+    # 서울·경기 기본 빌드는 수집기의 코드표와 정확히 맞아야 한다 — 실거래
+    # 대시보드가 같은 시군구 집합을 쓰기 때문이다. 전국에는 그 코드표가 없어서
+    # GeoJSON 의 코드·이름을 그대로 신뢰한다.
+    if sido == SIDO:
+        expected = {code: name for code, name in regions.sgg_codes()}
+        if set(merged) != set(expected):
+            missing = sorted(set(expected) - set(merged))
+            extra = sorted(set(merged) - set(expected))
+            print(f"시군구 불일치. 누락={missing} 잉여={extra}", file=sys.stderr)
+            return 1
+        names = {code: name.split(" ")[-1] if code.startswith("11") else
+                 " ".join(name.split(" ")[1:]) for code, name in expected.items()}
+    else:
+        names = {code: name for code, name in sgg_names(data["features"]).items()
+                 if code in merged}
 
     # 투영·단순화 전에 원본 위경도 상태에서 행정동 경계를 시군구 외곽으로 합친다.
     dissolved = {code: dissolve(rings) for code, rings in merged.items()}
@@ -322,17 +378,16 @@ def main() -> int:
         print(f"단순화 후 비어버린 시군구={empty}. eps 를 낮추세요.", file=sys.stderr)
         return 1
 
-    names = {code: name.split(" ")[-1] if code.startswith("11") else
-             " ".join(name.split(" ")[1:]) for code, name in expected.items()}
+    svg_file, projection_file, geo_file = outputs(args.suffix)
 
-    svg = to_svg(projected, names, w, h)
-    if len(svg.encode("utf-8")) > MAX_SVG_BYTES:
-        print(f"SVG 가 예산({MAX_SVG_BYTES}B)을 넘었습니다: {len(svg.encode('utf-8'))}B",
-              file=sys.stderr)
+    svg = to_svg(projected, names, w, h, label=args.label)
+    if len(svg.encode("utf-8")) > args.max_bytes:
+        print(f"SVG 가 예산({args.max_bytes}B)을 넘었습니다: {len(svg.encode('utf-8'))}B. "
+              "--eps 를 올리거나 --max-bytes 를 조정하세요.", file=sys.stderr)
         return 1
 
     GEO_DIR.mkdir(parents=True, exist_ok=True)
-    SVG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    svg_file.parent.mkdir(parents=True, exist_ok=True)
 
     geo = {
         "type": "FeatureCollection",
@@ -345,11 +400,16 @@ def main() -> int:
             for code in sorted(merged)
         ],
     }
-    GEO_FILE.write_text(
-        json.dumps(geo, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
-        encoding="utf-8")
-    SVG_FILE.write_text(svg, encoding="utf-8")
-    PROJECTION_FILE.write_text(
+    # gzip 으로 쓴다. 전국본은 날것으로 6.1MB 라 저장소에서 가장 큰 파일이
+    # 되는데, git 히스토리는 되돌릴 수 없다(압축하면 1.6MB). mtime 을 0 으로
+    # 고정해 내용이 같으면 바이트도 같게 만든다 — 안 그러면 다시 만들 때마다
+    # 새 blob 이 쌓인다.
+    body = (json.dumps(geo, ensure_ascii=False, sort_keys=True,
+                       separators=(",", ":")) + "\n").encode("utf-8")
+    with gzip.GzipFile(geo_file, "wb", compresslevel=9, mtime=0) as f:
+        f.write(body)
+    svg_file.write_text(svg, encoding="utf-8")
+    projection_file.write_text(
         json.dumps(params, sort_keys=True, separators=(",", ":")) + "\n",
         encoding="utf-8")
 

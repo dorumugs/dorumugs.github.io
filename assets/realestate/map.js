@@ -4,6 +4,14 @@ import { NO_DATA } from './palette.js';
 const VIEW_PREFIX = { seoul: '11', gyeonggi: '41', all: '' };
 const PAD = 10;
 
+// 뷰 이름을 시군구 코드 접두사로 바꾼다. 위 세 이름 말고도 시도 코드를 그대로
+// 받는다 — 전국 지도(map_kr.svg)는 시도가 16개라 이름을 일일이 적을 수 없다.
+// 'all' 과 빈 값은 전부를 뜻한다.
+function prefixOf(view) {
+  if (view in VIEW_PREFIX) return VIEW_PREFIX[view];
+  return /^\d+$/.test(view) ? view : '';
+}
+
 function boundsOf(paths) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of paths) {
@@ -109,7 +117,7 @@ export function initMap(root, { onSelect, onHover = () => {}, interactive = true
       }
     },
     setView(view) {
-      const prefix = VIEW_PREFIX[view] ?? '';
+      const prefix = prefixOf(view);
       const shown = paths.filter((p) => p.dataset.sgg.startsWith(prefix));
       const visible = new Set(shown);
       for (const p of paths) {
@@ -131,7 +139,7 @@ export function initMap(root, { onSelect, onHover = () => {}, interactive = true
       return byCode.get(code)?.dataset.name || code;
     },
     codesIn(view) {
-      const prefix = VIEW_PREFIX[view] ?? '';
+      const prefix = prefixOf(view);
       return paths.map((p) => p.dataset.sgg).filter((c) => c.startsWith(prefix));
     },
     // 시군구 코드로 호버 상태를 프로그램적으로 건다 — 랭킹 표의 행을 마우스로

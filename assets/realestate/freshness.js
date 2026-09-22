@@ -25,6 +25,8 @@ export const LIMITS = {
   redev: 5,
   /* 월 2회 도는 월간 통계라 하루 이틀 늦는 건 정상이다. */
   supply: 40,
+  /* 주 1회 도는데 한 바퀴에 며칠이 걸린다. 2주까지는 정상으로 본다. */
+  airbnb: 16,
 };
 
 export function daysSince(iso) {

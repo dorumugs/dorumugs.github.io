@@ -1,0 +1,53 @@
+/* 전국 Airbnb 밀집 지도에만 있는 것. 공통 레이아웃은 dashboard.css 가 준다.
+
+   여기 있는 건 딱 두 가지다 — SVG 지도 위에 정확히 겹쳐야 하는 캔버스 점
+   레이어, 그리고 전국 지도라 세로로 길어진 지도 상자의 높이 제한. */
+
+/* 캔버스는 SVG 와 같은 상자를 덮는다. 위치 기준은 .re-map-wrap(position:relative).
+   pointer-events 를 끄는 이유는 그 아래 SVG path 의 클릭·호버가 그대로 살아야
+   하기 때문이다 — 점은 보여주기만 하고, 고르는 건 시군구다. */
+.re-app.is-airbnb .re-map-wrap { position: relative; }
+.re-app.is-airbnb canvas.re-points {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 전국 지도는 세로로 길다(viewBox 1000x935). 폭을 꽉 채우면 데스크톱에서
+   지도만으로 화면 한 장을 넘겨 버려, 옆 패널과 아래 표가 함께 안 보인다.
+   높이를 묶고 가운데 정렬한다. SVG 는 preserveAspectRatio 기본값(meet)이라
+   높이를 줄이면 폭도 따라 줄어 비율은 유지된다. */
+.re-app.is-airbnb svg.re-map {
+  max-height: 68vh;
+  margin: 0 auto;
+}
+
+/* 툴팁 위로 뜨는 범례·팁이 캔버스에 가리지 않게 한다. */
+.re-app.is-airbnb .re-tip { z-index: 4; }
+
+.re-app.is-airbnb .re-panel-note {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--re-muted);
+  margin: 10px 0 0;
+}
+
+/* 점 레이어를 끄는 토글이 눌려 있지 않을 때도 무엇인지 읽히도록. */
+.re-app.is-airbnb .re-filters { gap: 10px; align-items: center; }
+
+@media (max-width: 720px) {
+  /* 모바일에서는 지도 아래로 패널이 내려오므로 지도에 세로를 더 준다. */
+  .re-app.is-airbnb svg.re-map { max-height: none; }
+}
+
+/* 점 레이어를 켜면 시군구 색칠이 한 걸음 물러선다.
+
+   둘 다 밀집도를 말하는데 둘 다 진하면 서로 묻힌다 — 실측으로 파란 색칠 위에
+   파란 점을 찍으니 점이 안 보였고, 점을 주황으로 바꾸니 이번엔 화면이 너무
+   시끄러웠다. 점이 켜져 있을 때는 색칠을 바탕으로 낮춘다. */
+.re-app.is-airbnb.has-points svg.re-map path[data-sgg] { fill-opacity: 0.4; }
+.re-app.is-airbnb.has-points svg.re-map path[data-sgg].is-hover,
+.re-app.is-airbnb.has-points svg.re-map path[data-sgg].is-selected { fill-opacity: 0.75; }

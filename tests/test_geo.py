@@ -198,3 +198,64 @@ class TestAgainstRealSource(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSidoFilter(unittest.TestCase):
+    """전국 지도를 만들려면 시도 필터가 인자여야 한다. 기본값은 바뀌면 안 된다."""
+
+    SQUARE = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]
+
+    def features(self) -> list[dict]:
+        return [
+            _feature("11110", "종로구", self.SQUARE),
+            _feature("41111", "수원시장안구", self.SQUARE),
+            _feature("50110", "제주시", self.SQUARE),
+        ]
+
+    def test_default_keeps_only_seoul_and_gyeonggi(self) -> None:
+        """기본 동작이 바뀌면 커밋된 map.svg 가 조용히 달라진다."""
+        merged = build_geo.merge_sgg(self.features())
+        self.assertEqual(set(merged), {"11110", "41111"})
+
+    def test_none_keeps_every_sido(self) -> None:
+        merged = build_geo.merge_sgg(self.features(), sido=None)
+        self.assertEqual(set(merged), {"11110", "41111", "50110"})
+
+    def test_explicit_sido_narrows_to_it(self) -> None:
+        merged = build_geo.merge_sgg(self.features(), sido=("50",))
+        self.assertEqual(set(merged), {"50110"})
+
+
+class TestSggNames(unittest.TestCase):
+    """전국에는 서울·경기 코드표(regions)가 없다. 이름을 GeoJSON 에서 뽑는다."""
+
+    SQUARE = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]
+
+    def test_reads_the_short_name_from_the_feature(self) -> None:
+        names = build_geo.sgg_names([_feature("50110", "제주시", self.SQUARE)])
+        self.assertEqual(names, {"50110": "제주시"})
+
+    def test_one_name_per_sgg_even_with_many_dong(self) -> None:
+        feats = [_feature("11110", "종로구", self.SQUARE) for _ in range(5)]
+        self.assertEqual(build_geo.sgg_names(feats), {"11110": "종로구"})
+
+    def test_missing_name_falls_back_to_the_code(self) -> None:
+        """이름이 비어도 시군구를 지도에서 떨어뜨리지 않는다."""
+        feat = _feature("99999", "", self.SQUARE)
+        self.assertEqual(build_geo.sgg_names([feat]), {"99999": "99999"})
+
+
+class TestSvgLabel(unittest.TestCase):
+    """전국 지도에 '서울·경기' 라고 적히면 스크린리더가 틀린 말을 읽는다."""
+
+    SQUARE = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]
+
+    def svg(self, **kwargs) -> str:
+        projected = {"11110": [[(0.0, 0.0), (1.0, 0.0), (1.0, 1.0)]]}
+        return build_geo.to_svg(projected, {"11110": "종로구"}, 10.0, 10.0, **kwargs)
+
+    def test_default_label_unchanged(self) -> None:
+        self.assertIn('aria-label="서울·경기 시군구 지도"', self.svg())
+
+    def test_label_can_be_set(self) -> None:
+        self.assertIn('aria-label="전국 시군구 지도"', self.svg(label="전국 시군구 지도"))
