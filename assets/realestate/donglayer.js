@@ -16,9 +16,11 @@
 
 const NS = 'http://www.w3.org/2000/svg';
 
-// 이름을 띄울 최소 크기(화면 px). 이보다 작게 보이는 동은 이름을 숨긴다 —
-// 안 그러면 좁은 동들의 이름이 서로 겹쳐 아무것도 못 읽는다.
-const LABEL_MIN_PX = 44;
+// 이름을 띄울 최소 크기(화면 px). 글자가 들어갈 자리조차 없는 조각을 거른다.
+// 44 로 뒀더니 섬이 흩어진 옹진군은 이름이 0개, 여수시는 27개 중 1개만 떠서
+// 지도에서 방향을 잡을 수 없었다(실측). 겹침은 아래에서 따로 거르므로 여기는
+// 느슨해도 된다.
+const LABEL_MIN_PX = 26;
 const LABEL_PX = 11;
 
 export function initDongLayer(root, { onSelect = () => {} } = {}) {
@@ -48,6 +50,30 @@ export function initDongLayer(root, { onSelect = () => {} } = {}) {
     root.classList.remove('has-dong');
   }
 
+  /** 이름을 놓을 자리와 크기를 정한다 — **가장 큰 조각** 기준.
+
+      동 전체의 경계 상자를 쓰면 섬을 가진 동에서 이름이 바다 한가운데로
+      간다. 울릉읍은 울릉도와 독도를 함께 가져서, 상자 중심이 두 섬 사이
+      바다가 되고 이름이 화면 밖(실측 x=1954, 지도 오른쪽 끝 964)으로 잘려
+      아예 안 보였다. 신안군·옹진군·여수시처럼 섬이 많은 곳도 같다.
+
+      크기 판정도 이 조각으로 한다 — 본섬이 작은데 멀리 떨어진 섬 때문에
+      상자만 커져서 이름이 뜨는 일을 막는다. */
+  function mainPart(d, path) {
+    const subs = (d || '').split('M').filter((s) => s.trim()).map((s) => `M${s}`);
+    if (subs.length <= 1) return path.getBBox();
+    const probe = document.createElementNS(NS, 'path');
+    layer.appendChild(probe);
+    let best = null;
+    for (const sub of subs) {
+      probe.setAttribute('d', sub);
+      const box = probe.getBBox();
+      if (!best || box.width * box.height > best.width * best.height) best = box;
+    }
+    layer.removeChild(probe);
+    return best || path.getBBox();
+  }
+
   /** 이름 SVG 를 지도 SVG 와 같은 자리·같은 viewBox 로 맞춘다. */
   function syncLabels() {
     const s = svg.getBoundingClientRect();
@@ -75,14 +101,24 @@ export function initDongLayer(root, { onSelect = () => {} } = {}) {
     syncLabels();
     labels.setAttribute('font-size', `${LABEL_PX * unit}`);
 
-    // 큰 동부터 자리를 잡고, 이미 놓인 이름과 겹치는 것은 접는다. 안 그러면
-    // 좁은 동이 몰린 곳에서 이름이 서로 포개져 '리동공덕동' 처럼 읽힌다.
+    // **숙소가 많은 동부터** 자리를 잡고, 이미 놓인 이름과 겹치는 것은 접는다.
+    // 넓이 순으로 했더니 이 화면에서 정작 궁금한 동(작지만 숙소가 몰린 곳)의
+    // 이름이 넓은 이웃에게 밀렸다. 겹침을 안 거르면 좁은 동이 몰린 곳에서
+    // 이름이 포개져 '리동공덕동' 처럼 읽힌다.
+    // 지금 보이는 범위. 화면 밖 동은 이름을 접는다 — 안 그러면 멀리 떨어진
+    // 섬의 이름이 자리(겹침 판정)를 차지해 정작 화면 안 이름을 밀어낸다.
+    const view = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+    const inView = view.length === 4 && view.every((n) => Number.isFinite(n))
+      ? (b) => !(b.x + b.width < view[0] || b.x > view[0] + view[2]
+        || b.y + b.height < view[1] || b.y > view[1] + view[3])
+      : () => true;
+
     const placed = [];
-    const order = [...items].sort(
-      (a, b) => b.box.width * b.box.height - a.box.width * a.box.height);
+    const order = [...items].sort((a, b) => (b.count - a.count)
+      || (b.box.width * b.box.height - a.box.width * a.box.height));
     for (const item of order) {
       const wide = Math.max(item.box.width, item.box.height) * scale;
-      if (wide < LABEL_MIN_PX) {
+      if (wide < LABEL_MIN_PX || !inView(item.box)) {
         item.label.style.display = 'none';
         continue;
       }
@@ -116,7 +152,7 @@ export function initDongLayer(root, { onSelect = () => {} } = {}) {
         });
         layer.appendChild(path);
 
-        const box = path.getBBox();
+        const box = mainPart(row.d, path);
         const label = document.createElementNS(NS, 'text');
         // 이름은 지도 SVG 가 아니라 캔버스 위 오버레이에 들어간다.
         label.setAttribute('class', 're-dong-name');
@@ -127,7 +163,8 @@ export function initDongLayer(root, { onSelect = () => {} } = {}) {
         label.textContent = row.name;
         labels.appendChild(label);
 
-        items.push({ code: row.code, name: row.name, path, label, box });
+        items.push({ code: row.code, name: row.name, count: row.count || 0,
+                     path, label, box });
       }
       root.classList.add('has-dong');
       rescale();
