@@ -17,6 +17,7 @@ description: "에어비앤비 지도검색을 전국 격자로 훑어 모은 숙
       <button class="re-tab is-on" data-metric="density" role="tab" aria-selected="true">면적당 밀도</button>
       <button class="re-tab" data-metric="count" role="tab" aria-selected="false">숙소 수</button>
     </div>
+    <div class="re-legend"></div>
     <div class="re-filters">
       <label class="re-field">
         <span class="re-field-label">지역</span>
@@ -30,7 +31,6 @@ description: "에어비앤비 지도검색을 전국 격자로 훑어 모은 숙
     <div class="re-map-wrap">
       {% include realestate/map_kr.svg %}
       <canvas class="re-points" aria-hidden="true"></canvas>
-      <div class="re-legend"></div>
       <div class="re-tip" role="status" hidden></div>
     </div>
     <div class="re-panel">
@@ -40,11 +40,11 @@ description: "에어비앤비 지도검색을 전국 격자로 훑어 모은 숙
       </div>
       <div class="re-kpis"></div>
       <p class="re-panel-note"></p>
+      <h3 class="re-section-title">시군구 랭킹</h3>
+      <div class="re-table-wrap"><table class="re-table"></table></div>
     </div>
   </div>
 
-  <h3 class="re-section-title">시군구 랭킹</h3>
-  <div class="re-table-wrap"><table class="re-table"></table></div>
   <p class="re-footnote"></p>
 </div>
 

@@ -16,17 +16,61 @@
   z-index: 2;
 }
 
-/* 전국 지도는 세로로 길다(viewBox 1000x935). 폭을 꽉 채우면 데스크톱에서
-   지도만으로 화면 한 장을 넘겨 버려, 옆 패널과 아래 표가 함께 안 보인다.
-   높이를 묶고 가운데 정렬한다. SVG 는 preserveAspectRatio 기본값(meet)이라
-   높이를 줄이면 폭도 따라 줄어 비율은 유지된다. */
+/* 지도가 주인공이다.
+
+   이 화면에서 읽을 것은 "어디에 몰려 있나" 이고 그건 지도에만 있다. 표는
+   지도에서 본 것을 숫자로 확인하는 보조라, 아래에 전폭으로 깔면 가진 정보에
+   비해 자리를 너무 많이 먹는다. 그래서 표를 오른쪽 열로 올리고 지도에 폭을
+   더 준다.
+
+   SVG 는 preserveAspectRatio 기본값(meet)이라 높이를 묶으면 폭도 따라 줄어
+   비율이 유지된다. 전국 지도는 세로로 길어서(viewBox 1000x935) 높이를 안
+   묶으면 지도만으로 화면 한 장을 넘긴다. */
+.re-app.is-airbnb .re-body {
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+  align-items: stretch;
+}
 .re-app.is-airbnb svg.re-map {
-  max-height: 68vh;
+  max-height: 84vh;
   margin: 0 auto;
 }
 
-/* 툴팁 위로 뜨는 범례·팁이 캔버스에 가리지 않게 한다. */
+/* 오른쪽 열. 지도와 같은 높이 안에 머무르고, 표가 길면 표만 안에서 스크롤한다
+   — 그러지 않으면 50행짜리 표가 열을 늘려 지도 옆이 허옇게 빈다. */
+.re-app.is-airbnb .re-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 84vh;
+  min-height: 0;
+}
+.re-app.is-airbnb .re-panel .re-table-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* 스크롤해도 어느 열인지 보이게 머리글을 고정한다. */
+.re-app.is-airbnb .re-panel .re-table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
+}
+.re-app.is-airbnb .re-panel .re-section-title { margin-bottom: 4px; }
+
+/* 좁아진 열에 맞춰 KPI 타일을 줄인다. 20px 숫자 셋을 그대로 두면 줄바꿈된다. */
+.re-app.is-airbnb .re-kpis { gap: 6px; }
+.re-app.is-airbnb .re-kpi { padding: 7px 8px; }
+.re-app.is-airbnb .re-kpi-value { font-size: 15px; }
+.re-app.is-airbnb .re-kpi-value small { font-size: 10px; margin-left: 1px; }
+
+/* 팁이 캔버스에 가리지 않게 한다. */
 .re-app.is-airbnb .re-tip { z-index: 4; }
+
+/* 범례는 지도 아래가 아니라 컨트롤 줄에 둔다. 지도를 84vh 로 키우자 지도
+   아래에 있던 범례가 화면 밖(실측 1179px, 뷰포트 1000px)으로 밀려서, 색이
+   무엇을 뜻하는지 보려면 스크롤해야 했다. */
+.re-app.is-airbnb .re-controls .re-legend { margin-top: 0; }
 
 .re-app.is-airbnb .re-panel-note {
   font-size: 12.5px;
@@ -39,8 +83,24 @@
 .re-app.is-airbnb .re-filters { gap: 10px; align-items: center; }
 
 @media (max-width: 720px) {
-  /* 모바일에서는 지도 아래로 패널이 내려오므로 지도에 세로를 더 준다. */
+  /* 모바일에서는 한 칸으로 쌓인다(dashboard.css). 지도에 세로를 다 주고,
+     높이를 묶어 둔 것들을 푼다 — 좁은 화면에서 상자 안 스크롤은 페이지
+     스크롤과 엉켜 손가락이 어디를 잡았는지 알 수 없게 된다. */
+  /* dashboard.css 의 `.re-body { grid-template-columns: 1fr }` 는 특이도가
+     낮아(0,1,0) 위의 `.re-app.is-airbnb .re-body`(0,3,0) 를 못 이긴다 —
+     그대로 두면 390px 에서도 2열이 유지돼 지도가 219px 로 쪼그라든다. */
+  .re-app.is-airbnb .re-body { grid-template-columns: 1fr; }
   .re-app.is-airbnb svg.re-map { max-height: none; }
+  .re-app.is-airbnb .re-panel { max-height: none; display: block; }
+  .re-app.is-airbnb .re-panel .re-table-wrap { overflow-y: visible; }
+  .re-app.is-airbnb .re-panel .re-table-wrap thead th { position: static; }
+
+  /* KPI 는 가로 3칸을 유지한다. dashboard.css 는 좁은 화면에서 1칸으로 쌓는데
+     (값이 긴 실거래 화면 기준이다), 여기 값은 '55,086건 / 256개 / 0.55건/km²'
+     로 짧아서 쌓으면 160px 넘게 세로를 먹고 표가 지도에서 멀어진다. */
+  .re-app.is-airbnb .re-kpis { grid-template-columns: repeat(3, 1fr); }
+  .re-app.is-airbnb .re-kpi { padding: 7px 8px; }
+  .re-app.is-airbnb .re-kpi-value { font-size: 15px; }
 }
 
 /* 점 레이어를 켜면 시군구 색칠이 한 걸음 물러선다.

@@ -339,14 +339,14 @@ function drawTable() {
     ? `시군구 랭킹 · 전국 ${fmt(all.length, 0)}개 중 상위 ${TOP_N}개`
     : `시군구 랭킹 · ${fmt(all.length, 0)}개`;
   const table = root.querySelector('.re-table');
+  // 면적 열은 뺐다. 오른쪽 열이 좁고, 면적은 Airbnb 가 아니라 행정구역의
+  // 성질이라 여기서 자리를 살 만한 정보가 아니다 — 밀도에 이미 들어 있다.
   table.innerHTML =
-    '<thead><tr><th>시군구</th><th>숙소 수</th><th>면적</th>'
-    + '<th>면적당 밀도</th></tr></thead><tbody>'
+    '<thead><tr><th>시군구</th><th>숙소</th><th>건/km²</th></tr></thead><tbody>'
     + rows.map((r) => (
       `<tr data-code="${esc(r.code)}"><td>${esc(sggLabel(r.code))}</td>`
       + `<td>${fmt(r.count, 0)}</td>`
-      + `<td data-sort="${r.area_km2}">${fmt(r.area_km2, 0)} km²</td>`
-      + `<td data-sort="${r.density}">${fmt(r.density, 2)}</td></tr>`
+      + `<td data-sort="${r.density}">${fmt(r.density, 1)}</td></tr>`
     )).join('')
     + '</tbody>';
   makeSortable(table);
