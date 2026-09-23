@@ -271,6 +271,78 @@ def project(rings: dict[str, list[Ring]], width: float) -> tuple[dict[str, list[
 DEFAULT_LABEL = "서울·경기 시군구 지도"
 
 
+def to_xy(lon: float, lat: float, params: dict) -> Point:
+    """projection.json 파라미터 하나로 점을 투영한다. project() 와 같은 식이다.
+
+    지도 위에 나중에 얹는 것들(학교 점, 행정동 경계)은 반드시 이 함수를 거쳐야
+    한다 — 각자 계산하면 경계 데이터나 --eps 를 갱신할 때 조용히 어긋난다.
+    """
+    return (
+        (lon - params["min_lon"]) * params["k"] / params["span_x"] * params["width"],
+        (params["max_lat"] - lat) / params["span_y"] * params["height"],
+    )
+
+
+def _ring_area(ring: list[Point]) -> float:
+    return abs(sum(ring[i][0] * ring[i - 1][1] - ring[i - 1][0] * ring[i][1]
+                   for i in range(len(ring)))) / 2
+
+
+def dong_paths(features: list[dict], params: dict, eps: float,
+               min_area: float) -> dict[str, list[dict]]:
+    """행정동을 시군구별로 묶어 SVG path 문자열로 낸다.
+
+    좌표계는 `params` 가 가리키는 지도(전국이면 map_kr.svg)와 같다. 그래야
+    같은 viewBox 에 그대로 얹힌다.
+
+    **동 하나가 통째로 사라지는 일은 없다.** `min_area` 로 자투리 섬은 버리되,
+    그러다 남는 게 없으면 가장 큰 링 하나는 남긴다 — 동이 빠지면 그 구에
+    구멍이 뚫리고, 화면에서는 '그런 동이 없다' 로 읽힌다.
+    """
+    out: dict[str, list[dict]] = {}
+    for feature in features:
+        props = feature.get("properties") or {}
+        sgg = props.get("sgg")
+        geometry = feature.get("geometry") or {}
+        # Polygon 과 MultiPolygon 을 둘 다 받는다. 전국 3,558개 중 울릉군 서면
+        # 하나만 Polygon 인데, MultiPolygon 만 받으면 그 동이 조용히 사라진다
+        # (실제로 사라졌다). merge_sgg 도 같은 이유로 둘 다 받는다.
+        if geometry.get("type") == "Polygon":
+            polygons = [geometry.get("coordinates") or []]
+        elif geometry.get("type") == "MultiPolygon":
+            polygons = geometry.get("coordinates") or []
+        else:
+            continue
+        if not sgg:
+            continue
+        rings: list[list[Point]] = []
+        for polygon in polygons:
+            if not polygon or not polygon[0]:
+                continue
+            raw = [to_xy(pt[0], pt[1], params) for pt in polygon[0]]
+            simple = rdp(raw, eps)
+            # 단순화가 링을 못 쓰게 뭉갰으면 원본을 쓴다. 아주 작은 동에서
+            # 일어나는데, 버리면 그 동이 지도에서 통째로 사라진다.
+            if len(simple) < 3:
+                simple = raw
+            if len(simple) >= 3:
+                rings.append(simple)
+        if not rings:
+            continue
+        kept = [r for r in rings if _ring_area(r) >= min_area]
+        if not kept:
+            kept = [max(rings, key=_ring_area)]
+        name = (props.get("adm_nm") or "").split()
+        out.setdefault(sgg, []).append({
+            "code": props.get("adm_cd2") or "",
+            "name": name[-1] if name else (props.get("adm_cd2") or ""),
+            "d": "".join("M" + " ".join(f"{x:.1f},{y:.1f}" for x, y in r) + "Z"
+                         for r in kept),
+        })
+    return {sgg: sorted(items, key=lambda d: d["code"])
+            for sgg, items in sorted(out.items())}
+
+
 def to_svg(projected: dict[str, list[list[Point]]], names: dict[str, str],
            width: float, height: float, label: str = DEFAULT_LABEL) -> str:
     """시군구별 path 하나씩. 색은 넣지 않는다 — 런타임에 JS 가 fill 을 칠한다."""
@@ -326,6 +398,13 @@ def build_parser() -> argparse.ArgumentParser:
                         help="SVG 의 aria-label. 스크린리더가 읽는다")
     parser.add_argument("--max-bytes", type=int, default=MAX_SVG_BYTES,
                         help="SVG 바이트 예산")
+    parser.add_argument("--dong", type=Path, metavar="DIR",
+                        help="행정동 경계를 시군구별 JSON 으로 이 디렉터리에 낸다. "
+                             "지도와 같은 좌표계라 같은 viewBox 에 그대로 얹힌다")
+    # 0.05 사용자 단위는 약 21m 다. 시군구 하나로 20배쯤 확대했을 때 화면에서
+    # 1px 이라 눈에 띄지 않으면서, 시군구당 중위 9.4KB 로 가볍다(실측).
+    parser.add_argument("--dong-eps", type=float, default=0.05)
+    parser.add_argument("--dong-min-area", type=float, default=0.05)
     return parser
 
 
@@ -409,6 +488,38 @@ def main() -> int:
     with gzip.GzipFile(geo_file, "wb", compresslevel=9, mtime=0) as f:
         f.write(body)
     svg_file.write_text(svg, encoding="utf-8")
+    if args.dong:
+        dong = dong_paths(data["features"], params, args.dong_eps, args.dong_min_area)
+        dong = {code: items for code, items in dong.items() if code in merged}
+        args.dong.mkdir(parents=True, exist_ok=True)
+        written = 0
+        for code, items in dong.items():
+            body = json.dumps({"sgg": code, "dong": items},
+                              ensure_ascii=False, sort_keys=True,
+                              separators=(",", ":")) + "\n"
+            path = args.dong / f"{code}.json"
+            data_bytes = body.encode("utf-8")
+            if not path.exists() or path.read_bytes() != data_bytes:
+                path.write_bytes(data_bytes)
+                written += 1
+        missing = sorted(set(merged) - set(dong))
+        if missing:
+            print(f"행정동이 없는 시군구={missing}", file=sys.stderr)
+            return 1
+        # 입력의 동 수와 산출물의 동 수를 대조한다. 하나가 조용히 빠지면 그
+        # 구에 구멍이 뚫리는데, 화면에서는 '그런 동이 없다' 로 읽힌다 —
+        # 실제로 울릉군 서면이 geometry 종류 때문에 빠진 적이 있다.
+        wanted = sum(1 for f in data["features"]
+                     if (f.get("properties") or {}).get("sgg") in merged)
+        got = sum(len(v) for v in dong.values())
+        if got != wanted:
+            print(f"행정동 수가 맞지 않습니다: 입력 {wanted} → 산출 {got}",
+                  file=sys.stderr)
+            return 1
+        total = sum(len((args.dong / f"{code}.json").read_bytes()) for code in dong)
+        print(f"행정동 {sum(len(v) for v in dong.values())}개, 시군구 {len(dong)}개, "
+              f"{total / 1024:.0f}KB (갱신 {written})")
+
     projection_file.write_text(
         json.dumps(params, sort_keys=True, separators=(",", ":")) + "\n",
         encoding="utf-8")

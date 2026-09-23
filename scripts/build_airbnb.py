@@ -29,6 +29,7 @@ import argparse
 import gzip
 import json
 import math
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -38,6 +39,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import airbnb_api as api  # noqa: E402
 import build_dashboard  # noqa: E402
+# 투영 공식은 build_geo 한 곳에만 둔다 — 두 곳에서 각자 계산하면 경계 데이터나
+# --eps 를 갱신할 때 지도와 점이 조용히 어긋난다.
+import build_geo  # noqa: E402
 import upis_api  # noqa: E402
 
 STATE_FILE = ROOT / "data" / "airbnb" / "state.json.gz"
@@ -45,6 +49,8 @@ GEO_FILE = ROOT / "data" / "geo" / "sgg_kr.geojson.gz"
 PROJECTION_FILE = ROOT / "data" / "geo" / "projection_kr.json"
 OUT_FILE = ROOT / "assets" / "realestate" / "airbnb.json"
 POINTS_DIR = ROOT / "assets" / "realestate" / "airbnb"
+# 행정동 경계. build_geo.py --dong 이 만든다. 여기에 숙소 수를 얹어 준다.
+DONG_DIR = ROOT / "assets" / "realestate" / "dong"
 
 # 격자 한 칸. 0.005도는 위도로 약 550m, 경도로 약 460m(위도 37도)다.
 GRID = 0.005
@@ -205,6 +211,57 @@ def aggregate(points, areas: list[dict], grid: float = GRID,
     }
 
 
+_SUBPATH = re.compile(r"M([^MZ]+)Z")
+_POINT = re.compile(r"(-?[\d.]+),(-?[\d.]+)")
+
+
+def path_rings(d: str) -> list[list[tuple[float, float]]]:
+    """SVG path 문자열을 링 목록으로 되읽는다.
+
+    동 경계는 화면에 그대로 쓰는 path 로 저장돼 있다. 원본 GeoJSON 을 다시
+    읽지 않고 **그려지는 다각형** 으로 세는 이유는, 그래야 화면에 보이는 모양과
+    숫자가 같은 것을 가리키기 때문이다(단순화 차이로 어긋나지 않는다).
+    """
+    out = []
+    for body in _SUBPATH.findall(d or ""):
+        ring = [(float(x), float(y)) for x, y in _POINT.findall(body)]
+        if len(ring) >= 3:
+            out.append(ring)
+    return out
+
+
+def count_by_dong(points_xy, dong: list[dict]) -> tuple[dict[str, int], int]:
+    """SVG 좌표를 동에 배정한다. (동코드별 개수, 어디에도 안 든 개수).
+
+    안 든 좌표를 가까운 동에 밀어 넣지 않는다 — 경계 단순화 때문에 가장자리
+    좌표가 빠지는 건데, 아무 데나 넣으면 그 동 숫자가 조용히 부풀어 오른다.
+    """
+    shapes = []
+    for item in dong:
+        rings = path_rings(item.get("d", ""))
+        if not rings:
+            continue
+        xs = [p[0] for r in rings for p in r]
+        ys = [p[1] for r in rings for p in r]
+        shapes.append((item["code"], rings, (min(xs), min(ys), max(xs), max(ys))))
+
+    counts = {item["code"]: 0 for item in dong}
+    outside = 0
+    for x, y in points_xy:
+        hit = None
+        for code, rings, (x0, y0, x1, y1) in shapes:
+            if not (x0 <= x <= x1 and y0 <= y <= y1):
+                continue
+            if any(upis_api._point_in_ring(x, y, r) for r in rings):  # noqa: SLF001
+                hit = code
+                break
+        if hit is None:
+            outside += 1
+        else:
+            counts[hit] += 1
+    return counts, outside
+
+
 def load_state(path: Path) -> dict:
     with gzip.open(path, "rb") as f:
         return json.loads(f.read().decode("utf-8"))
@@ -237,6 +294,8 @@ def main() -> int:
     parser.add_argument("--geo", type=Path, default=GEO_FILE)
     parser.add_argument("--projection", type=Path, default=PROJECTION_FILE)
     parser.add_argument("--grid", type=float, default=GRID)
+    parser.add_argument("--dong", type=Path, default=DONG_DIR,
+                        help="행정동 경계 디렉터리. 여기에 숙소 수를 얹는다")
     parser.add_argument("--generated", default=date.today().isoformat())
     parser.add_argument("--dry-run", action="store_true", help="파일을 쓰지 않는다")
     args = parser.parse_args()
@@ -306,7 +365,39 @@ def main() -> int:
             stale += 1
     print(f"{POINTS_DIR.relative_to(ROOT)}/ 시군구 {len(groups)}개 "
           f"(갱신 {written}, 삭제 {stale})")
+
+    write_dong_counts(groups, result["projection"], args.dong)
     return 0
+
+
+def write_dong_counts(groups: dict[str, list[list[float]]], projection: dict,
+                      dong_dir: Path) -> None:
+    """동 경계 파일에 숙소 수를 얹는다.
+
+    경계는 `build_geo.py --dong` 이 만들어 두고, 여기서는 `count` 만 채운다.
+    경계가 없으면 조용히 건너뛴다 — 지도 데이터를 아직 안 만든 저장소에서도
+    실거래 쪽 집계는 돌아야 하기 때문이다.
+    """
+    if not dong_dir.exists():
+        print(f"{dong_dir.relative_to(ROOT)} 가 없어 동별 집계를 건너뜁니다 "
+              "(build_geo.py --dong 을 돌리세요).")
+        return
+
+    touched = outside_total = dong_total = 0
+    for path in sorted(dong_dir.glob("*.json")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        dong = payload.get("dong") or []
+        points = groups.get(payload.get("sgg"), [])
+        xy = [build_geo.to_xy(lng, lat, projection) for lat, lng in points]
+        counts, outside = count_by_dong(xy, dong)
+        for item in dong:
+            item["count"] = counts.get(item["code"], 0)
+        outside_total += outside
+        dong_total += sum(counts.values())
+        if build_dashboard.write_json(path, payload):
+            touched += 1
+    print(f"{dong_dir.relative_to(ROOT)}/ 행정동 배정 {dong_total:,}건, "
+          f"경계 밖 {outside_total:,}건 (갱신 {touched})")
 
 
 if __name__ == "__main__":

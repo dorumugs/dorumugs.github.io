@@ -36,7 +36,7 @@
 | `/dashboard/real-estate/schools/` | 학군 지도 — 사립초·사립중·국제중·특목고 |
 | `/dashboard/real-estate/redevelopment/` | 재개발·재건축 — 대지지분·진행단계·단계별 프리미엄 |
 | `/dashboard/supply/` | 착공과 금리 — 시도별 아파트 착공 평년 지수 · 기준금리 · 주담대 |
-| `/dashboard/airbnb/` | 전국 Airbnb 밀집 지도 — 256개 시군구 밀도 · 500m 격자 · 시군구별 숙소 점 |
+| `/dashboard/airbnb/` | 전국 Airbnb 밀집 지도 — 256개 시군구 밀도 · 500m 격자 · 시군구별 숙소 점 · 행정동 3,558개 경계와 동별 랭킹 |
 
 설계 문서는 `_dev/specs/` 에 있습니다. 재개발 쪽을 건드린다면
 `_dev/specs/2026-07-31-redevelopment-design.md` 를 먼저 읽으세요 — 데이터 출처,
@@ -143,7 +143,8 @@ docker run --rm -v "$PWD":/srv/jekyll -v /tmp/gemhome:/gemhome -w /srv/jekyll \
 
 - `_layouts/`, `_includes/`, `_sass/`, `docs/`, `CHANGELOG.md`, `README.md` 의 테마 절 — minimal-mistakes 원본.
 - `assets/` — 테마 원본입니다. **단, 아래는 이 저장소가 직접 만든 것이라 수정해도 됩니다.**
-  - `assets/realestate/` (대시보드 소스와 집계 JSON)
+  - `assets/realestate/` (대시보드 소스와 집계 JSON. `dong/` 은 `build_geo.py --dong`
+    이 만든 행정동 경계에 `build_airbnb.py` 가 숙소 수를 얹은 것입니다 — 손으로 고치지 마세요)
   - `_includes/realestate/` (대시보드용 지도 SVG — `map.svg` 서울·경기,
     `map_kr.svg` 전국. 둘 다 `build_geo.py` 가 만듭니다. 손으로 고치지 마세요)
   - `assets/images/real-estate-*/` (배너)

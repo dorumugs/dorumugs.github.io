@@ -245,3 +245,69 @@ class WeakMeta(unittest.TestCase):
         flags = {(lat, lng): w for lat, lng, _, w in result["grid"]}
         self.assertEqual(flags[build_airbnb.api.snap(0.505, 0.505, 0.005)], 1)
         self.assertEqual(flags[build_airbnb.api.snap(0.1, 0.1, 0.005)], 0)
+
+
+class PathRings(unittest.TestCase):
+    """동 경계는 화면에 쓰는 SVG path 로 저장돼 있다. 세려면 되읽어야 한다.
+
+    일부러 원본 GeoJSON 이 아니라 **그려지는 다각형**으로 센다 — 그래야 화면에
+    보이는 모양과 숫자가 같은 것을 가리킨다.
+    """
+
+    def test_reads_one_subpath(self):
+        rings = build_airbnb.path_rings("M1.0,2.0 3.0,4.0 5.0,6.0Z")
+        self.assertEqual(rings, [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]])
+
+    def test_reads_several_subpaths(self):
+        rings = build_airbnb.path_rings("M0,0 1,0 1,1Z" "M5,5 6,5 6,6Z")
+        self.assertEqual(len(rings), 2)
+        self.assertEqual(rings[1][0], (5.0, 5.0))
+
+    def test_handles_negative_coordinates(self):
+        rings = build_airbnb.path_rings("M-1.5,-2.5 0,0 1,1Z")
+        self.assertEqual(rings[0][0], (-1.5, -2.5))
+
+    def test_drops_degenerate_subpaths(self):
+        self.assertEqual(build_airbnb.path_rings("M1,1 2,2Z"), [])
+
+    def test_empty_path_is_no_rings(self):
+        self.assertEqual(build_airbnb.path_rings(""), [])
+
+
+class DongCounts(unittest.TestCase):
+    """좌표를 동에 배정한다. 좌표계는 지도와 같은 SVG 사용자 좌표다."""
+
+    # 나란한 정사각형 둘
+    LEFT = "M0,0 10,0 10,10 0,10Z"
+    RIGHT = "M10,0 20,0 20,10 10,10Z"
+
+    def dong(self):
+        return [{"code": "a", "name": "왼동", "d": self.LEFT},
+                {"code": "b", "name": "오른동", "d": self.RIGHT}]
+
+    def test_counts_points_into_the_dong_that_holds_them(self):
+        counts, outside = build_airbnb.count_by_dong(
+            [(2.0, 2.0), (3.0, 3.0), (15.0, 5.0)], self.dong())
+        self.assertEqual(counts["a"], 2)
+        self.assertEqual(counts["b"], 1)
+        self.assertEqual(outside, 0)
+
+    def test_points_in_no_dong_are_counted_separately(self):
+        """경계 단순화 때문에 가장자리 좌표가 어느 동에도 안 들 수 있다.
+        아무 동에나 밀어 넣으면 그 동 숫자가 부풀어 오른다."""
+        counts, outside = build_airbnb.count_by_dong([(50.0, 50.0)], self.dong())
+        self.assertEqual(outside, 1)
+        self.assertEqual(sum(counts.values()), 0)
+
+    def test_every_dong_appears_even_with_no_points(self):
+        counts, _ = build_airbnb.count_by_dong([(2.0, 2.0)], self.dong())
+        self.assertEqual(counts["b"], 0)
+
+    def test_a_point_is_counted_once(self):
+        """두 동이 경계를 공유하면 한 좌표가 양쪽에 들 수 있다."""
+        counts, outside = build_airbnb.count_by_dong([(10.0, 5.0)], self.dong())
+        self.assertEqual(sum(counts.values()) + outside, 1)
+
+    def test_no_dong_means_everything_is_outside(self):
+        counts, outside = build_airbnb.count_by_dong([(1.0, 1.0)], [])
+        self.assertEqual((counts, outside), ({}, 1))

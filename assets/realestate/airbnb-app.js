@@ -11,6 +11,7 @@
 
 import { initMap } from './map.js';
 import { initPointLayer } from './pointlayer.js';
+import { initDongLayer } from './donglayer.js';
 import { SEQUENTIAL, NO_DATA } from './palette.js';
 import { makeSortable } from './sorttable.js';
 import { showStale, LIMITS } from './freshness.js';
@@ -18,10 +19,13 @@ import { showStale, LIMITS } from './freshness.js';
 const root = document.querySelector('.re-app');
 const BASE = root.dataset.base.replace(/\/$/, '');
 
-const state = { metric: 'density', region: '', sgg: null, layer: true };
+const state = { metric: 'density', region: '', sgg: null, dong: null, layer: true };
 let data = null;      // airbnb.json
 let map = null;
 let layer = null;
+let dongLayer = null;
+let dongRows = [];          // 지금 화면의 시군구가 가진 행정동
+const dongCache = new Map();
 let loadSeq = 0;      // 구를 고를 때마다 올라간다 — 뒤늦게 온 응답을 버리는 데 쓴다
 const pointCache = new Map();
 
@@ -162,8 +166,17 @@ function drawLegend(breaks, metric) {
 // 화면에서 한 칸이 최소 이만큼은 되도록 칸을 묶어 그린다.
 const MIN_CELL_PX = 5;
 
-// 시군구 확대의 바닥(SVG 사용자 단위). 1 단위가 약 430m 이므로 40 은 약 17km다.
-const MIN_VIEW = 40;
+// 시군구 확대의 바닥(SVG 사용자 단위). 1 단위가 약 430m 다.
+//
+// 이 바닥이 있는 이유는 시군구 경계가 eps 0.5(약 215m)로 단순화돼 있어서다.
+// 다만 확대하면 그 구 안에는 훨씬 고운 행정동 경계(eps 0.05)가 얹히므로,
+// 각져 보이는 건 이웃 구뿐이다 — 그래서 22 까지 내려도 주인공은 멀쩡하다.
+// 40 으로 두었더니 마포구가 화면의 30% 밖에 안 됐다(실측).
+const MIN_VIEW = 22;
+
+// 행정동 확대의 바닥. 동 경계는 eps 0.05(약 21m)로 훨씬 곱게 단순화돼 있어
+// 시군구보다 더 들어가도 각져 보이지 않는다. 8 단위는 약 3.4km다.
+const MIN_DONG_VIEW = 8;
 
 /** 격자를 `factor` 배 굵은 칸으로 다시 묶는다. 개수는 더해진다. */
 function binGrid(rows, factor) {
@@ -223,6 +236,19 @@ function refreshLayer() {
   layer.showGrid(binGrid(gridFor(state.region), binFactor()));
 }
 
+async function loadDong(code) {
+  if (!dongCache.has(code)) {
+    dongCache.set(code, fetch(`${BASE}/dong/${code}.json`, { cache: 'no-cache' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((body) => body.dong || [])
+      .catch((err) => { dongCache.delete(code); throw err; }));
+  }
+  return dongCache.get(code);
+}
+
 async function loadPoints(code) {
   if (pointCache.has(code)) return pointCache.get(code);
   const res = await fetch(`${BASE}/airbnb/${code}.json`, { cache: 'no-cache' });
@@ -266,31 +292,29 @@ async function selectSgg(code) {
   if (!entry) return;
   const seq = ++loadSeq;
   state.sgg = code;
+  state.dong = null;
 
   // 그 시군구로 확대한다. 전국 축척에서는 구 하나의 숙소가 몇 픽셀로 뭉개져
   // 아무것도 안 보인다(실측: 제주시 671곳이 캔버스 잉크 127px).
   // 이웃 구는 숨기지 않는다 — 한 구만 떠 있으면 어디인지 알 수 없다.
-  // MIN_VIEW 는 확대의 바닥이다. map_kr.svg 는 eps 0.5 로 단순화돼 있어
-  // (약 215m) 더 들어가면 경계가 각진 다각형으로 보인다 — 서울 중구는 바닥이
-  // 없으면 52배까지 들어가 오차가 화면에서 23px 이 된다. 40 이면 10px 안쪽이다.
+  // 확대의 바닥은 MIN_VIEW 가 정한다(그 상수의 주석 참고).
   map.focus(code, { minWidth: MIN_VIEW });
   map.setSelected(code);
-  root.querySelector('.re-panel-title').textContent = sggLabel(code);
-  const back = root.querySelector('.re-back-btn');
-  // 시군구를 고르면 그 시도로 확대되므로, 돌아가는 곳은 전국이 아니라 그
-  // 시도다. 문구가 '전체로' 면 전국으로 가는 줄 안다.
-  back.textContent = `← ${regionLabel()} 전체`;
-  back.hidden = false;
-
-  const rank = Object.entries(data.sgg)
-    .sort((a, b) => b[1].count - a[1].count)
-    .findIndex(([c]) => c === code) + 1;
-  root.querySelector('.re-kpis').innerHTML = kpis([
-    ['숙소', fmt(entry.count, 0), '건'],
-    ['면적당', fmt(entry.density, 2), '건/km²'],
-    ['전국 순위', fmt(rank, 0), '위'],
-  ]);
+  showSggPanel(code);
   const note = root.querySelector('.re-panel-note');
+
+  // 행정동 경계는 숙소가 없는 구에도 있다 — 경계와 이름은 보여줘야 한다.
+  loadDong(code).then((rows) => {
+    if (seq !== loadSeq) return;
+    dongRows = rows;
+    dongLayer.show(rows);
+    drawTable();
+  }).catch(() => {
+    if (seq !== loadSeq) return;
+    dongRows = [];
+    dongLayer.clear();
+  });
+
   // 숙소가 없는 시군구는 좌표 파일 자체가 만들어지지 않는다(build_airbnb.py 가
   // 빈 파일을 쓰지 않는다). 받으러 가면 404 를 맞고 오류 문구가 뜬다.
   if (!entry.count) {
@@ -303,7 +327,7 @@ async function selectSgg(code) {
     const rows = await loadPoints(code);
     if (seq !== loadSeq) return;
     note.textContent = `${sggLabel(code)} 숙소 ${fmt(rows.length, 0)}곳을 점으로 찍었습니다.`
-      + ' 위치는 에어비앤비가 공개하는 근사 좌표입니다.';
+      + ' 동을 누르면 그 동으로 더 들어갑니다.';
     refreshLayer();
   } catch (err) {
     if (seq !== loadSeq) return;
@@ -311,12 +335,80 @@ async function selectSgg(code) {
   }
 }
 
-function clearSgg() {
+/** 행정동 하나로 한 번 더 확대한다. */
+function selectDong(code) {
+  const box = dongLayer.boxOf(code);
+  if (!box) return;
+  state.dong = code;
+  dongLayer.setSelected(code);
+  map.focusBox(box, { minWidth: MIN_DONG_VIEW });
+  showDongPanel(code);
+  drawTable();
+}
+
+function showDongPanel(code) {
+  const row = dongRows.find((d) => d.code === code);
+  if (!row) return;
+  const sorted = [...dongRows].sort((a, b) => (b.count || 0) - (a.count || 0));
+  const rank = sorted.findIndex((d) => d.code === code) + 1;
+  const total = sorted.reduce((s, d) => s + (d.count || 0), 0);
+  const share = total > 0 ? (row.count || 0) / total * 100 : 0;
+  root.querySelector('.re-panel-title').textContent =
+    `${sggLabel(state.sgg)} ${row.name}`;
+  // KPI 도 동 숫자로 바꾼다. 시군구 숫자를 남겨 두면 제목은 서교동인데
+  // 숫자는 마포구인 화면이 된다(실측으로 그랬다).
+  root.querySelector('.re-kpis').innerHTML = kpis([
+    ['숙소', fmt(row.count || 0, 0), '건'],
+    [`${sggLabel(state.sgg)} 안 비중`, fmt(share, 1), '%'],
+    [`${sggLabel(state.sgg)} 안 순위`, fmt(rank, 0), `위 / ${fmt(dongRows.length, 0)}`],
+  ]);
+  root.querySelector('.re-panel-note').textContent =
+    `${row.name} 숙소 ${fmt(row.count || 0, 0)}곳을 점으로 찍었습니다.`;
+  root.querySelector('.re-back-btn').textContent = `← ${sggLabel(state.sgg)} 전체`;
+}
+
+/** 시군구 패널(제목·KPI·설명·뒤로 문구)을 그린다. */
+function showSggPanel(code) {
+  const entry = data.sgg[code];
+  if (!entry) return;
+  const rank = Object.entries(data.sgg)
+    .sort((a, b) => b[1].count - a[1].count)
+    .findIndex(([c]) => c === code) + 1;
+  root.querySelector('.re-panel-title').textContent = sggLabel(code);
+  root.querySelector('.re-kpis').innerHTML = kpis([
+    ['숙소', fmt(entry.count, 0), '건'],
+    ['면적당', fmt(entry.density, 2), '건/km²'],
+    ['전국 순위', fmt(rank, 0), '위'],
+  ]);
+  root.querySelector('.re-back-btn').textContent = `← ${regionLabel()} 전체`;
+  root.querySelector('.re-back-btn').hidden = false;
+}
+
+/** 한 단계만 물러난다: 동 → 시군구 → 지금 보던 범위. */
+function goBack() {
+  if (state.dong) {
+    state.dong = null;
+    dongLayer.setSelected(null);
+    map.focus(state.sgg, { minWidth: MIN_VIEW });
+    showSggPanel(state.sgg);
+    const entry = data.sgg[state.sgg];
+    root.querySelector('.re-panel-note').textContent = entry && entry.count
+      ? `${sggLabel(state.sgg)} 숙소 ${fmt(entry.count, 0)}곳을 점으로 찍었습니다.`
+        + ' 동을 누르면 그 동으로 더 들어갑니다.'
+      : `${sggLabel(state.sgg)}에서는 숙소를 찾지 못했습니다.`;
+    drawTable();
+    return;
+  }
   ++loadSeq;
   state.sgg = null;
+  dongRows = [];
+  dongLayer.clear();
   map.setSelected(null);
   map.setView(state.region || 'all', { animate: true });
   showOverview();
+  // 표를 시군구 랭킹으로 되돌린다. 이걸 빼면 전국으로 나왔는데도 직전 구의
+  // 동별 표가 그대로 남는다(실측으로 16행이 남았다).
+  drawTable();
   refreshLayer();
 }
 
@@ -328,6 +420,9 @@ function clearSgg() {
 const TOP_N = 50;
 
 function drawTable() {
+  // 시군구를 고른 동안에는 그 구의 **동별 랭킹**을 보여준다. "어느 동이
+  // 밀집인가" 가 이 화면에서 다음으로 묻게 되는 것이라서다.
+  if (state.sgg && dongRows.length) { drawDongTable(); return; }
   const codes = map.codesIn(state.region || 'all').filter((c) => data.sgg[c]);
   const all = codes.map((c) => ({ code: c, ...data.sgg[c] }))
     .sort((a, b) => b.count - a.count);
@@ -347,6 +442,24 @@ function drawTable() {
       + `<td>${fmt(r.count, 0)}</td>`
       + `<td data-sort="${r.density}">${fmt(r.density, 1)}</td></tr>`
     )).join('')
+    + '</tbody>';
+  makeSortable(table);
+}
+
+function drawDongTable() {
+  const rows = [...dongRows].sort((a, b) => (b.count || 0) - (a.count || 0));
+  const total = rows.reduce((s, r) => s + (r.count || 0), 0);
+  root.querySelector('.re-section-title').textContent =
+    `${sggLabel(state.sgg)} 동별 랭킹 · ${fmt(rows.length, 0)}개`;
+  const table = root.querySelector('.re-table');
+  table.innerHTML =
+    '<thead><tr><th>행정동</th><th>숙소</th><th>비중</th></tr></thead><tbody>'
+    + rows.map((r) => {
+      const share = total > 0 ? (r.count || 0) / total * 100 : 0;
+      return `<tr data-dong="${esc(r.code)}"${r.code === state.dong ? ' class="is-on"' : ''}>`
+        + `<td>${esc(r.name)}</td><td>${fmt(r.count || 0, 0)}</td>`
+        + `<td data-sort="${share}">${fmt(share, 1)}%</td></tr>`;
+    }).join('')
     + '</tbody>';
   makeSortable(table);
 }
@@ -390,11 +503,13 @@ function wire() {
     refreshLayer();
   });
 
-  root.querySelector('.re-back-btn').addEventListener('click', clearSgg);
+  root.querySelector('.re-back-btn').addEventListener('click', goBack);
 
   root.querySelector('.re-table').addEventListener('click', (e) => {
-    const tr = e.target.closest('tr[data-code]');
-    if (tr) selectSgg(tr.dataset.code);
+    const sgg = e.target.closest('tr[data-code]');
+    if (sgg) { selectSgg(sgg.dataset.code); return; }
+    const dong = e.target.closest('tr[data-dong]');
+    if (dong) selectDong(dong.dataset.dong);
   });
 }
 
@@ -435,11 +550,15 @@ async function main() {
     onSelect: (code) => selectSgg(code),
     // 움직이는 중에는 그리기만(싸다), 멈추면 축척에 맞춰 격자를 다시 묶는다.
     onView: (settled) => {
+      // 동 이름·선 굵기는 사용자 단위라 확대하면 같이 커진다. 매 프레임
+      // 되돌려야 글자가 화면을 덮지 않는다(싼 작업이다).
+      if (dongLayer) dongLayer.rescale();
       if (!layer) return;
       if (settled) refreshLayer(); else layer.redraw();
     },
   });
   layer = initPointLayer(root, data.projection);
+  dongLayer = initDongLayer(root, { onSelect: selectDong });
   wire();
   // 첫 그림은 움직이지 않는다 — 열자마자 지도가 스스로 움직이면 놀란다.
   setRegion('', { animate: false });

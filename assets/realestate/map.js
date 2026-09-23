@@ -171,16 +171,22 @@ export function initMap(root, {
     // 단순화해 둔 것이라, 무한정 확대하면 그 오차가 화면에서 각진 다각형으로
     // 드러난다 — 작은 구일수록 심하다. 호출부가 자기 지도의 단순화 강도에
     // 맞춰 정한다. 0 이면 바닥 없음.
-    focus(code, { pad = 0.45, animate = true, minWidth = 0 } = {}) {
+    focus(code, opts = {}) {
       const path = byCode.get(code);
       if (!path) return;
       for (const p of paths) p.style.display = '';
-      const b = path.getBBox();
+      this.focusBox(path.getBBox(), opts);
+    },
+
+    // 임의의 상자로 확대한다. 행정동처럼 이 모듈이 모르는 도형도 같은 규칙
+    // (비율 고정·확대 바닥·애니메이션)으로 확대하기 위해 열어 둔다.
+    focusBox(b, { pad = 0.45, animate = true, minWidth = 0 } = {}) {
+      if (!b || !(b.width >= 0)) return;
       const margin = Math.max(b.width, b.height) * pad;
       let w = Math.max(b.width + margin * 2, minWidth);
-      let h = b.height + margin * 2;
+      let h = Math.max(b.height + margin * 2, minWidth * (baseAspect || 1));
       const aspect = baseAspect || h / w;
-      // 비율을 맞추되 구가 잘리지 않도록 **넓히는 쪽으로만** 맞춘다.
+      // 비율을 맞추되 도형이 잘리지 않도록 **넓히는 쪽으로만** 맞춘다.
       if (h / w < aspect) h = w * aspect; else w = h / aspect;
       const cx = b.x + b.width / 2;
       const cy = b.y + b.height / 2;
@@ -194,6 +200,17 @@ export function initMap(root, {
         codes === null || codes === undefined ? [] : Array.isArray(codes) ? codes : [codes],
       );
       for (const [code, path] of byCode) path.classList.toggle('is-selected', next.has(code));
+    },
+    // 화면 1px 이 SVG 사용자 단위로 얼마인가. 확대해도 굵기·글자 크기를
+    // 화면 기준으로 유지해야 하는 레이어가 쓴다.
+    unitsPerPixel() {
+      const ctm = svg.getScreenCTM();
+      const scale = ctm ? Math.abs(ctm.a) : 0;
+      return scale > 0 ? 1 / scale : 1;
+    },
+    // 행정동 레이어처럼 지도 위에 얹는 것이 쓸 SVG 요소.
+    svgEl() {
+      return svg;
     },
     nameOf(code) {
       return byCode.get(code)?.dataset.name || code;

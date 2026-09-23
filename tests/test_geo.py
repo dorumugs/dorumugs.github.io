@@ -259,3 +259,118 @@ class TestSvgLabel(unittest.TestCase):
 
     def test_label_can_be_set(self) -> None:
         self.assertIn('aria-label="전국 시군구 지도"', self.svg(label="전국 시군구 지도"))
+
+
+class TestToXy(unittest.TestCase):
+    """행정동 경로는 map_kr.svg 와 **같은 좌표계**여야 한다.
+
+    따로 계산하면 같은 지도 위에 얹었을 때 조용히 어긋난다 — 이미
+    projection_params 주석이 같은 이유로 경고하고 있다.
+    """
+
+    RING = [[126.0, 37.0], [127.0, 37.0], [127.0, 38.0], [126.0, 38.0]]
+
+    def test_matches_project_exactly(self) -> None:
+        rings = {"11110": [self.RING]}
+        params = build_geo.projection_params(rings, 1000.0)
+        projected, _, _ = build_geo.project(rings, 1000.0)
+        for want, pt in zip(projected["11110"][0], self.RING):
+            got = build_geo.to_xy(pt[0], pt[1], params)
+            self.assertAlmostEqual(got[0], want[0], places=9)
+            self.assertAlmostEqual(got[1], want[1], places=9)
+
+
+class TestDongPaths(unittest.TestCase):
+    """행정동을 시군구별로 묶어 SVG path 로 낸다."""
+
+    BIG = [[126.90, 37.50], [127.00, 37.50], [127.00, 37.60], [126.90, 37.60]]
+    SMALL = [[126.80, 37.40], [126.81, 37.40], [126.81, 37.41], [126.80, 37.41]]
+    OTHER = [[126.20, 33.40], [126.60, 33.40], [126.60, 33.60], [126.20, 33.60]]
+
+    def feature(self, sgg: str, code: str, name: str, *rings) -> dict:
+        return {
+            "properties": {"sgg": sgg, "adm_cd2": code, "adm_nm": name},
+            "geometry": {"type": "MultiPolygon", "coordinates": [[r] for r in rings]},
+        }
+
+    def params(self) -> dict:
+        return build_geo.projection_params({"x": [self.BIG, self.SMALL, self.OTHER]}, 1000.0)
+
+    def test_groups_by_sgg(self) -> None:
+        feats = [self.feature("11110", "1", "서울특별시 종로구 사직동", self.BIG),
+                 self.feature("11110", "2", "서울특별시 종로구 삼청동", self.SMALL),
+                 self.feature("50110", "3", "제주특별자치도 제주시 일도동", self.OTHER)]
+        out = build_geo.dong_paths(feats, self.params(), eps=0.0, min_area=0.0)
+        self.assertEqual(set(out), {"11110", "50110"})
+        self.assertEqual(len(out["11110"]), 2)
+
+    def test_name_is_the_last_segment(self) -> None:
+        feats = [self.feature("11110", "1", "서울특별시 종로구 사직동", self.BIG)]
+        out = build_geo.dong_paths(feats, self.params(), eps=0.0, min_area=0.0)
+        self.assertEqual(out["11110"][0]["name"], "사직동")
+
+    def test_carries_the_admin_code(self) -> None:
+        feats = [self.feature("11110", "1144061500", "서울 마포구 서교동", self.BIG)]
+        out = build_geo.dong_paths(feats, self.params(), eps=0.0, min_area=0.0)
+        self.assertEqual(out["11110"][0]["code"], "1144061500")
+
+    def test_path_is_a_closed_svg_subpath(self) -> None:
+        feats = [self.feature("11110", "1", "가 나 다동", self.BIG)]
+        d = build_geo.dong_paths(feats, self.params(), eps=0.0, min_area=0.0)["11110"][0]["d"]
+        self.assertTrue(d.startswith("M"))
+        self.assertTrue(d.endswith("Z"))
+
+    def test_multipolygon_becomes_several_subpaths(self) -> None:
+        feats = [self.feature("11110", "1", "가 나 다동", self.BIG, self.SMALL)]
+        d = build_geo.dong_paths(feats, self.params(), eps=0.0, min_area=0.0)["11110"][0]["d"]
+        self.assertEqual(d.count("M"), 2)
+
+    def test_coordinates_match_the_shared_projection(self) -> None:
+        feats = [self.feature("11110", "1", "가 나 다동", self.BIG)]
+        params = self.params()
+        d = build_geo.dong_paths(feats, params, eps=0.0, min_area=0.0)["11110"][0]["d"]
+        first = d[1:].split(" ")[0]
+        want = build_geo.to_xy(self.BIG[0][0], self.BIG[0][1], params)
+        self.assertEqual(first, f"{want[0]:.1f},{want[1]:.1f}")
+
+    def test_a_small_dong_is_never_dropped_entirely(self) -> None:
+        """단순화로 동 하나가 통째로 사라지면 그 구에 구멍이 뚫린다 —
+        화면에서는 '그런 동이 없다' 로 읽힌다."""
+        feats = [self.feature("11110", "1", "가 나 작은동", self.SMALL)]
+        out = build_geo.dong_paths(feats, self.params(), eps=50.0, min_area=1e9)
+        self.assertEqual(len(out["11110"]), 1)
+        self.assertTrue(out["11110"][0]["d"])
+
+    def test_tiny_extra_islands_are_dropped_but_the_main_ring_stays(self) -> None:
+        feats = [self.feature("11110", "1", "가 나 다동", self.BIG, self.SMALL)]
+        out = build_geo.dong_paths(feats, self.params(), eps=0.0, min_area=500.0)
+        self.assertEqual(out["11110"][0]["d"].count("M"), 1)
+
+    def test_plain_polygon_geometry_is_kept(self) -> None:
+        """실측: 울릉군 서면 하나만 MultiPolygon 이 아니라 Polygon 이다.
+        MultiPolygon 만 받으면 그 동이 조용히 사라진다(실제로 사라졌다).
+        merge_sgg 는 이미 둘 다 받는다."""
+        feat = {"properties": {"sgg": "47940", "adm_cd2": "4794031000",
+                               "adm_nm": "경상북도 울릉군 서면"},
+                "geometry": {"type": "Polygon", "coordinates": [self.BIG]}}
+        out = build_geo.dong_paths([feat], self.params(), eps=0.0, min_area=0.0)
+        self.assertEqual(len(out["47940"]), 1)
+        self.assertEqual(out["47940"][0]["name"], "서면")
+
+    def test_unknown_geometry_is_skipped(self) -> None:
+        feat = {"properties": {"sgg": "11110", "adm_cd2": "1", "adm_nm": "가 나 다동"},
+                "geometry": {"type": "Point", "coordinates": [126.9, 37.5]}}
+        self.assertEqual(build_geo.dong_paths([feat], self.params(), 0.0, 0.0), {})
+
+    def test_features_without_a_sgg_are_skipped(self) -> None:
+        bad = {"properties": {"adm_cd2": "1", "adm_nm": "가 나 다동"},
+               "geometry": {"type": "MultiPolygon", "coordinates": [[self.BIG]]}}
+        self.assertEqual(build_geo.dong_paths([bad], self.params(), 0.0, 0.0), {})
+
+    def test_output_is_ordered_so_the_file_is_reproducible(self) -> None:
+        feats = [self.feature("11110", "2", "가 나 나동", self.SMALL),
+                 self.feature("11110", "1", "가 나 가동", self.BIG)]
+        a = build_geo.dong_paths(feats, self.params(), 0.0, 0.0)
+        b = build_geo.dong_paths(list(reversed(feats)), self.params(), 0.0, 0.0)
+        self.assertEqual([d["code"] for d in a["11110"]],
+                         [d["code"] for d in b["11110"]])
