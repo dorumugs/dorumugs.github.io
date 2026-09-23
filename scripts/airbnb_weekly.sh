@@ -80,7 +80,15 @@ fi
 
 # 손으로 쓴 소스(airbnb-app.js/airbnb.css 등)가 섞이지 않도록 이 크론이 만드는
 # 경로만 스테이징한다. 다른 크론과 겹치는 경로가 없다.
-TARGETS="data/airbnb assets/realestate/airbnb.json assets/realestate/airbnb"
+#
+# **build_airbnb.py 가 쓰는 곳을 하나도 빠뜨리지 말 것.** assets/realestate/dong
+# 이 빠져 있던 적이 있는데, 그러면 두 가지가 한꺼번에 망가진다 — 동별 숫자가
+# 영영 갱신되지 않고, 커밋 안 된 파일이 작업트리에 쌓여 다른 크론의
+# `pull --rebase --autostash` 가 충돌한다.
+# dong/ 에는 경계(build_geo.py --dong)와 숙소 수(build_airbnb.py)가 함께 있다.
+# 크론은 숫자만 바꾸지만, 경계를 다시 만들고 커밋하지 않았다면 그것도 함께
+# 딸려 간다 — 둘 다 생성물이라 문제는 아니다.
+TARGETS="data/airbnb assets/realestate/airbnb.json assets/realestate/airbnb assets/realestate/dong"
 
 # shellcheck disable=SC2086
 if [ -z "$(git status --porcelain $TARGETS)" ]; then
