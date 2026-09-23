@@ -64,6 +64,15 @@
 .re-app.is-airbnb .re-kpi-value { font-size: 15px; }
 .re-app.is-airbnb .re-kpi-value small { font-size: 10px; margin-left: 1px; }
 
+/* 경계선 굵기를 확대율과 무관하게 화면 픽셀로 고정한다.
+
+   dashboard.css 의 stroke-width 는 SVG 사용자 단위다. 다른 대시보드는 확대
+   폭이 좁아 문제가 없지만, 이 화면은 시군구 하나로 31~53배까지 들어간다 —
+   그러면 선택 표시(stroke-width 2.5)가 화면에서 68px 짜리 검은 띠가 되어
+   그 구의 색칠도 숙소 점도 통째로 덮는다(실측). 흰 경계선(1)도 도로처럼
+   두꺼워진다. non-scaling-stroke 는 확대해도 선을 1px 로 유지한다. */
+.re-app.is-airbnb svg.re-map path { vector-effect: non-scaling-stroke; }
+
 /* 팁이 캔버스에 가리지 않게 한다. */
 .re-app.is-airbnb .re-tip { z-index: 4; }
 

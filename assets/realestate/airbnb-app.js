@@ -162,6 +162,9 @@ function drawLegend(breaks, metric) {
 // 화면에서 한 칸이 최소 이만큼은 되도록 칸을 묶어 그린다.
 const MIN_CELL_PX = 5;
 
+// 시군구 확대의 바닥(SVG 사용자 단위). 1 단위가 약 430m 이므로 40 은 약 17km다.
+const MIN_VIEW = 40;
+
 /** 격자를 `factor` 배 굵은 칸으로 다시 묶는다. 개수는 더해진다. */
 function binGrid(rows, factor) {
   if (factor <= 1) return rows;
@@ -262,20 +265,15 @@ async function selectSgg(code) {
   const entry = data.sgg[code];
   if (!entry) return;
   const seq = ++loadSeq;
-
-  // 전국 축척에서는 시군구 하나의 숙소가 몇 픽셀로 뭉개진다(실측: 제주시
-  // 671곳이 잉크 127px). 고른 구가 속한 시도로 먼저 확대한다.
-  const sido = code.slice(0, 2);
-  if (state.region !== sido) {
-    state.region = sido;
-    const select = root.querySelector('.re-region');
-    if (select) select.value = sido;
-    map.setView(sido);
-    paint();
-    drawTable();
-  }
-
   state.sgg = code;
+
+  // 그 시군구로 확대한다. 전국 축척에서는 구 하나의 숙소가 몇 픽셀로 뭉개져
+  // 아무것도 안 보인다(실측: 제주시 671곳이 캔버스 잉크 127px).
+  // 이웃 구는 숨기지 않는다 — 한 구만 떠 있으면 어디인지 알 수 없다.
+  // MIN_VIEW 는 확대의 바닥이다. map_kr.svg 는 eps 0.5 로 단순화돼 있어
+  // (약 215m) 더 들어가면 경계가 각진 다각형으로 보인다 — 서울 중구는 바닥이
+  // 없으면 52배까지 들어가 오차가 화면에서 23px 이 된다. 40 이면 10px 안쪽이다.
+  map.focus(code, { minWidth: MIN_VIEW });
   map.setSelected(code);
   root.querySelector('.re-panel-title').textContent = sggLabel(code);
   const back = root.querySelector('.re-back-btn');
@@ -317,6 +315,7 @@ function clearSgg() {
   ++loadSeq;
   state.sgg = null;
   map.setSelected(null);
+  map.setView(state.region || 'all', { animate: true });
   showOverview();
   refreshLayer();
 }
@@ -354,11 +353,11 @@ function drawTable() {
 
 /* ---------- 조립 ---------- */
 
-function setRegion(value) {
+function setRegion(value, { animate = true } = {}) {
   state.region = value;
   state.sgg = null;
   map.setSelected(null);
-  map.setView(value || 'all');
+  map.setView(value || 'all', { animate });
   paint();
   drawTable();
   showOverview();
@@ -429,10 +428,21 @@ async function main() {
   }
 
   buildDupeNames();
-  map = initMap(root, { onSelect: (code) => selectSgg(code) });
+  // onView 는 viewBox 가 바뀔 때마다(확대 애니메이션 매 프레임 포함) 불린다.
+  // 캔버스는 SVG 의 화면 행렬로 좌표를 옮기므로 여기서 다시 그려야 점이
+  // 지도와 함께 움직인다.
+  map = initMap(root, {
+    onSelect: (code) => selectSgg(code),
+    // 움직이는 중에는 그리기만(싸다), 멈추면 축척에 맞춰 격자를 다시 묶는다.
+    onView: (settled) => {
+      if (!layer) return;
+      if (settled) refreshLayer(); else layer.redraw();
+    },
+  });
   layer = initPointLayer(root, data.projection);
   wire();
-  setRegion('');
+  // 첫 그림은 움직이지 않는다 — 열자마자 지도가 스스로 움직이면 놀란다.
+  setRegion('', { animate: false });
   drawTable();
   footnote();
   showStale(root.querySelector('.re-footnote'), data.meta.collected, LIMITS.airbnb,
