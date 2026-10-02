@@ -346,7 +346,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9825,
+  "coverage": 0.9912,
   "card_count": 114
  },
  "ex12": {
@@ -530,7 +530,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.911,
+  "coverage": 0.9384,
   "card_count": 146
  },
  "pop8": {
@@ -1443,7 +1443,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 0.9815,
+  "coverage": 1.0,
   "card_count": 216
  },
  "swsh10.5": {
