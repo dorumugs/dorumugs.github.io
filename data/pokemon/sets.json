@@ -1248,8 +1248,8 @@
   "release_date": "2019-08-23",
   "era": "모던",
   "included": false,
-  "reason": "가격 커버리지 78% < 80%",
-  "coverage": 0.7826,
+  "reason": "가격 커버리지 72% < 80%",
+  "coverage": 0.7246,
   "card_count": 69
  },
  "2019sm": {
@@ -1443,7 +1443,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 1.0,
+  "coverage": 0.9815,
   "card_count": 216
  },
  "swsh10.5": {
@@ -1725,7 +1725,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 1.0,
+  "coverage": 0.9789,
   "card_count": 190
  },
  "A3": {
@@ -1929,7 +1929,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 1.0,
+  "coverage": 0.8667,
   "card_count": 30
  },
  "swsh12tg": {
