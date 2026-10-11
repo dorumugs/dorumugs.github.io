@@ -790,7 +790,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.913,
+  "coverage": 0.8913,
   "card_count": 138
  },
  "bw9": {
@@ -1204,7 +1204,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9439,
+  "coverage": 0.9286,
   "card_count": 196
  },
  "det1": {
