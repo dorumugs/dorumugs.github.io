@@ -790,7 +790,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.8913,
+  "coverage": 0.913,
   "card_count": 138
  },
  "bw9": {
@@ -1195,7 +1195,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9746,
+  "coverage": 0.9661,
   "card_count": 236
  },
  "sm9": {
@@ -1204,7 +1204,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9286,
+  "coverage": 0.9439,
   "card_count": 196
  },
  "det1": {
@@ -1222,7 +1222,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9615,
+  "coverage": 0.9487,
   "card_count": 234
  },
  "sm11": {
@@ -1354,7 +1354,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 1.0,
+  "coverage": 0.9452,
   "card_count": 73
  },
  "swsh5": {
@@ -1592,7 +1592,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 1.0,
+  "coverage": 0.985,
   "card_count": 266
  },
  "sv04.5": {
