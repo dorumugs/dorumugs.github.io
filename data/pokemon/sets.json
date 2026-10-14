@@ -494,7 +494,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.947,
+  "coverage": 0.9167,
   "card_count": 132
  },
  "dp4": {
@@ -1839,7 +1839,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 0.9692,
+  "coverage": 1.0,
   "card_count": 130
  },
  "B1a": {
