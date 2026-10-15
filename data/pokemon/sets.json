@@ -355,7 +355,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9892,
+  "coverage": 0.9785,
   "card_count": 93
  },
  "tk-ex-m": {
@@ -494,7 +494,7 @@
   "era": "클래식",
   "included": true,
   "reason": "",
-  "coverage": 0.9167,
+  "coverage": 0.947,
   "card_count": 132
  },
  "dp4": {
@@ -808,7 +808,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.8952,
+  "coverage": 0.8667,
   "card_count": 105
  },
  "xyp": {
