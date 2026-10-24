@@ -1151,7 +1151,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9711,
+  "coverage": 0.9653,
   "card_count": 173
  },
  "sm6": {
@@ -1178,7 +1178,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9615,
+  "coverage": 0.9103,
   "card_count": 78
  },
  "2018sm": {
