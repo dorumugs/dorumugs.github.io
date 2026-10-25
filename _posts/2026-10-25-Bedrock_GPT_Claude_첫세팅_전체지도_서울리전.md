@@ -21,7 +21,7 @@ series_title: "🔐 AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅"
 
 "Bedrock 에서 ChatGPT 써도 돼요?" 요즘 제일 많이 받는 질문이에요. 짧게 답하면 **ChatGPT 앱이 들어오는 건 아니고, ChatGPT 를 만드는 회사의 GPT 모델을 API 로 부를 수 있어요.** 2026년 4월 AWS 와 OpenAI 가 손을 잡은 뒤로 6월에 GPT-5.5, 7월에 GPT-5.6, 9월에 GPT-6 Astra 가 Bedrock 에 올라왔어요. 같은 계정에서 Claude Opus 5.5 도 부를 수 있고요.
 
-문제는 첫 호출까지 가는 길이에요. 콘솔의 "Model access" 페이지는 사라졌고, 엔드포인트는 두 개로 갈라졌고, **서울 리전에서는 최신 모델 대부분이 'Global' 라우팅으로만 열려요.** 이걸 모르고 들어가면 코드는 맞는데 `AccessDeniedException` 이나 `ValidationException` 만 보게 됩니다.
+문제는 첫 호출까지 가는 길이에요. 콘솔의 "Model access" 페이지는 사라졌고, 엔드포인트는 두 개로 갈라졌고, **서울 리전에서는 최신 모델 대부분을 'Global' 라우팅으로만 부를 수 있어요.** 이걸 모르고 들어가면 코드는 맞는데 `AccessDeniedException` 이나 `ValidationException` 만 보게 됩니다.
 
 처음 세팅하는 사람은 대개 이 길에서 한참 헤매요. 세팅하다 보면 보안을 먼저 챙길지, 개발 편의를 먼저 챙길지, 운영 비용을 먼저 볼지 계속 저울질하게 돼요. 이 시리즈에는 그렇게 따져보고 정한 기본값을 적었고, 어느 쪽으로 정할지 오래 고민한 부분은 각 편 끝에 따로 모아뒀어요.
 
@@ -31,7 +31,7 @@ series_title: "🔐 AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅"
 > - "ChatGPT on Bedrock" 의 정확한 의미 — 되는 것과 안 되는 것
 > - 엔드포인트 두 개: `bedrock-runtime` vs `bedrock-mantle`
 > - 모델 ID 읽는 법 — 접두어 `global.` · `us.` · 없음
-> - 서울 리전 지도 — 어떤 모델이 어떤 방식으로 열리나
+> - 서울 리전에서 모델별로 쓸 수 있는 호출 방식
 > - Global 라우팅이 데이터 경계에 뜻하는 것 (과장도 축소도 없이)
 > - 세팅하면서 고민한 것들과 제가 정한 기본값
 
@@ -124,7 +124,7 @@ Bedrock 의 모델 ID 는 앞에 무엇이 붙느냐에 따라 **요청이 어�
 - **Geo** 는 `us.`·`eu.`·`jp.`·`au.` 같은 지역 안에서만 돌려요. 데이터 레지던시 요건이 있을 때 AWS 가 권하는 방식이에요.
 - **Global** 은 전 세계에서 여유 있는 리전으로 보내요. 가용성이 가장 좋고 **가격도 가장 싸요.** Claude 와 GPT-6 Astra 모두 In-Region·Geo 가 Global 보다 **10% 비싸요.**
 
-> ⚠️ 접두어 없이 부르면 되는 줄 알았는데 `on-demand throughput isn't supported` 라는 400 이 나와요. "이 모델은 이 리전에서 In-Region 으로는 안 열린다, 추론 프로필(`global.` 등)로 다시 불러라" 라는 뜻이에요. 첫날 가장 많이 보는 에러예요.
+> ⚠️ 접두어 없이 부르면 되는 줄 알았는데 `on-demand throughput isn't supported` 라는 400 이 나와요. "이 모델은 이 리전에서 In-Region 으로는 못 부르니, 추론 프로필(`global.` 등)로 다시 불러라" 라는 뜻이에요. 첫날 가장 많이 보는 에러예요.
 
 <br>
 
@@ -132,9 +132,9 @@ Bedrock 의 모델 ID 는 앞에 무엇이 붙느냐에 따라 **요청이 어�
 
 
 
-## 4. 서울 리전 지도
+## 4. 서울 리전에서 쓸 수 있는 모델
 
-이제 서울(`ap-northeast-2`)에서 호출했을 때 무엇이 어떻게 열리는지 볼게요. `bedrock-runtime` 기준이고, 각 모델의 AWS 모델 카드에서 옮겼어요.
+이제 서울(`ap-northeast-2`)에서 호출할 때 모델마다 어떤 방식으로 부를 수 있는지 볼게요. `bedrock-runtime` 기준이고, 각 모델의 AWS 모델 카드에서 옮겼어요.
 
 | 모델 | In-Region | Geo | Global |
 |---|---|---|---|
@@ -146,12 +146,12 @@ Bedrock 의 모델 ID 는 앞에 무엇이 붙느냐에 따라 **요청이 어�
 
 여기서 두 가지가 눈에 띄어요.
 
-1. **최신 모델은 서울에서 Global 로만 열려요.** Opus 5.5·Sonnet 5.5·Haiku 5.5·GPT-6 Astra 모두 그래요. 서울에서 쓰려면 모델 ID 가 반드시 `global.` 로 시작해야 합니다.
+1. **최신 모델은 서울에서 Global 로만 부를 수 있어요.** Opus 5.5·Sonnet 5.5·Haiku 5.5·GPT-6 Astra 모두 그래요. 서울에서 쓰려면 모델 ID 가 반드시 `global.` 로 시작해야 합니다.
 2. **서울에는 아시아 Geo 프로필이 없어요.** Opus 5.5 의 Geo 프로필은 `us.`·`eu.`·`jp.`·`au.` 네 개뿐이에요. `jp.` 는 도쿄·오사카에서 호출할 때만 쓸 수 있어서 서울 출발로는 못 써요. 옛 글에서 보던 `apac.` 은 이 모델들에 없어요.
 
-GPT-5.6 계열은 출시 때 미국 리전(`us-east-1`·`us-east-2`·`us-west-2`)에만 있었고, 8월에 `bedrock-runtime` 과 Global CRIS(교차 리전 추론)가 추가됐어요. 다만 서울 출발 Global 이 열렸는지는 이번에 공식 표로 확인하지 못했어요. 그래서 이 시리즈의 GPT 예제는 **서울에서 Global 로 열린 것이 확인된 GPT-6 Astra** 로 씁니다.
+GPT-5.6 계열은 출시 때 미국 리전(`us-east-1`·`us-east-2`·`us-west-2`)에만 있었고, 8월에 `bedrock-runtime` 과 Global CRIS(교차 리전 추론)가 추가됐어요. 다만 서울에서 Global 로 부를 수 있는지는 이번에 공식 표로 확인하지 못했어요. 그래서 이 시리즈의 GPT 예제는 **서울에서 Global 호출이 확인된 GPT-6 Astra** 로 씁니다.
 
-> 💡 **표를 믿지 말고 계정에 물어보세요.** 리전 지원은 수시로 바뀌어요. 첫날 아래 명령 하나로 "내 계정·서울에서 지금 열려 있는 프로필" 을 확인하는 습관을 들이면 위 표가 낡아도 문제가 없어요.
+> 💡 **표를 믿지 말고 계정에 물어보세요.** 리전 지원은 수시로 바뀌어요. 첫날 아래 명령 하나로 "내 계정이 서울에서 지금 쓸 수 있는 프로필" 을 확인하는 습관을 들이면 위 표가 낡아도 문제가 없어요.
 
 ```shell
 aws bedrock list-inference-profiles \
