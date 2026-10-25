@@ -700,6 +700,11 @@
    "fetched": "2026-09-07",
    "stage": "착공"
   },
+  "bandoapt": {
+   "events": 0,
+   "fetched": "2026-10-26",
+   "stage": "정비구역지정"
+  },
   "bangbae-samho": {
    "events": 11,
    "fetched": "2026-09-07",
@@ -1054,6 +1059,11 @@
    "events": 0,
    "fetched": "2026-09-14",
    "stage": "정비계획 수립"
+  },
+  "chdong19": {
+   "events": 0,
+   "fetched": "2026-10-26",
+   "stage": "추진위원회승인"
   },
   "cheong7": {
    "events": 92,
@@ -1572,8 +1582,8 @@
   },
   "eungam755": {
    "events": 0,
-   "fetched": "2026-10-05",
-   "stage": "정비구역지정"
+   "fetched": "2026-10-26",
+   "stage": "조합설립인가"
   },
   "eungama": {
    "events": 0,
@@ -2207,12 +2217,12 @@
   },
   "hongeun9331": {
    "events": 2,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "hongjae": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "정비계획 수립"
   },
   "hongjae322": {
@@ -2222,182 +2232,182 @@
   },
   "hongje267": {
    "events": 8,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "추진위원회승인"
   },
   "hongjedong238": {
    "events": 10,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "hongsilapt": {
-   "events": 136,
-   "fetched": "2026-07-31",
+   "events": 140,
+   "fetched": "2026-10-26",
    "stage": "준공인가"
   },
   "hp93vzk4": {
    "events": 124,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "분양"
   },
   "hs4apt": {
-   "events": 57,
-   "fetched": "2026-07-31",
+   "events": 58,
+   "fetched": "2026-10-26",
    "stage": "준공인가"
   },
   "hsapt294": {
    "events": 8,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "hsuck9": {
-   "events": 69,
-   "fetched": "2026-07-31",
+   "events": 72,
+   "fetched": "2026-10-26",
    "stage": "착공"
   },
   "huam01": {
    "events": 25,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "추진위원회승인"
   },
   "hwagok2-2": {
-   "events": 4,
-   "fetched": "2026-07-31",
+   "events": 6,
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "hwagok2-4": {
-   "events": 4,
-   "fetched": "2026-07-31",
+   "events": 6,
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "hwagok6dong": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": ""
   },
   "hwagok_a1": {
-   "events": 2,
-   "fetched": "2026-07-31",
+   "events": 6,
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "hwanghak-chunggye": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "철거 및 착공"
   },
   "hwanghak1010": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합원 모집신고"
   },
   "hwayangdongmojin": {
    "events": 19,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합해산"
   },
   "hwigyeong1": {
    "events": 69,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합해산"
   },
   "hwikyung2": {
    "events": 81,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합해산"
   },
   "hwikyung3": {
    "events": 153,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "준공인가"
   },
   "hyeondae": {
    "events": 44,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "관리처분인가"
   },
   "hyochang5": {
    "events": 85,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합청산"
   },
   "hyosung": {
-   "events": 20,
-   "fetched": "2026-07-31",
+   "events": 22,
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "hyundai": {
-   "events": 39,
-   "fetched": "2026-07-31",
+   "events": 22,
+   "fetched": "2026-10-26",
    "stage": "사업시행인가"
   },
   "hyundail220": {
    "events": 32,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "착공"
   },
   "hyundaivilla": {
    "events": 9,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "추진위원회승인"
   },
   "hyunjeodong": {
-   "events": 6,
-   "fetched": "2026-07-31",
+   "events": 8,
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "i4XX3BfD": {
    "events": 58,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합해산"
   },
   "ichon-station": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "정비계획 수립"
   },
   "ichondong1": {
-   "events": 23,
-   "fetched": "2026-07-31",
+   "events": 24,
+   "fetched": "2026-10-26",
    "stage": "추진위원회승인"
   },
   "idtf7icb": {
    "events": 60,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "관리처분인가"
   },
   "ig316600": {
-   "events": 0,
-   "fetched": "2026-07-31",
+   "events": 1,
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "ihwaapt": {
    "events": 8,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합설립인가"
   },
   "ij3VI4A4": {
    "events": 77,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합해산"
   },
   "ijm7459": {
    "events": 83,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "이전고시"
   },
   "ilwongaepohs": {
    "events": 43,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "관리처분인가"
   },
   "imgwang3": {
    "events": 6,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "추진위원회승인"
   },
   "in814VyA": {
    "events": 70,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "조합청산"
   },
   "isu1004": {
@@ -2407,12 +2417,12 @@
   },
   "isu777": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": ""
   },
   "iw14v164": {
    "events": 87,
-   "fetched": "2026-07-31",
+   "fetched": "2026-10-26",
    "stage": "관리처분인가"
   },
   "iyeyCW3b": {
@@ -2822,8 +2832,8 @@
   },
   "k60hG0Ds": {
    "events": 106,
-   "fetched": "2026-07-31",
-   "stage": "분양"
+   "fetched": "2026-10-26",
+   "stage": "부분준공인가"
   },
   "kabc412": {
    "events": 48,
@@ -3792,8 +3802,8 @@
   },
   "sageun293": {
    "events": 2,
-   "fetched": "2026-10-05",
-   "stage": "조합설립인가"
+   "fetched": "2026-10-26",
+   "stage": "정비구역지정"
   },
   "samgak-mansion": {
    "events": 5,
@@ -4445,6 +4455,11 @@
    "fetched": "2026-07-31",
    "stage": "관리처분인가"
   },
+  "sindolim28": {
+   "events": 0,
+   "fetched": "2026-10-26",
+   "stage": "추진위원회승인"
+  },
   "sindonga85": {
    "events": 48,
    "fetched": "2026-07-31",
@@ -4641,9 +4656,9 @@
    "stage": "안전진단"
   },
   "sns619": {
-   "events": 12,
-   "fetched": "2026-07-31",
-   "stage": "조합설립인가"
+   "events": 20,
+   "fetched": "2026-10-26",
+   "stage": "관리처분인가"
   },
   "songjeongyeok": {
    "events": 0,
@@ -5089,6 +5104,11 @@
    "events": 0,
    "fetched": "2026-07-31",
    "stage": "추진위원회승인"
+  },
+  "yongsancp3": {
+   "events": 0,
+   "fetched": "2026-10-26",
+   "stage": "정비계획 수립"
   },
   "youcheonjohap": {
    "events": 2,
