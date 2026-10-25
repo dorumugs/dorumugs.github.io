@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(1/4) AWS Bedrock 으로 OpenAI GPT·Claude 쓰기 — 전체 지도와 서울 리전의 현실"
+title:  "(1/4) AWS Bedrock 으로 OpenAI GPT·Claude 쓰기 — 서울 리전에서 먼저 알아둘 것"
 date: 2026-10-25 09:00:00 +0900
 categories: coding
 tag: [Bedrock, AWS, OpenAI, GPT, ChatGPT, Claude, 서울리전, CrossRegionInference, 데이터경계, 초기세팅]

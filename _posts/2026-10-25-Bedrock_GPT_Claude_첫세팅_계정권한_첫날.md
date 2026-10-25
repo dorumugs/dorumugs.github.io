@@ -528,5 +528,5 @@ gpt-oss 같은 오픈 웨이트 모델은 아예 Marketplace 상품 번호가 �
 
 ---
 
-**← 이전 글:** [(1/4) 전체 지도와 서울 리전의 현실](/coding/Bedrock_GPT_Claude_첫세팅_전체지도_서울리전/)  
+**← 이전 글:** [(1/4) 서울 리전에서 먼저 알아둘 것](/coding/Bedrock_GPT_Claude_첫세팅_전체지도_서울리전/)  
 **다음 글 →:** [(3/4) Claude 붙이기 — Converse·Anthropic SDK·Claude Code](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/)

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Bedrock 으로 OpenAI GPT·Claude 쓰기 — 전체 지도와 서울 리전 배너">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Bedrock 으로 OpenAI GPT·Claude 쓰기 — 서울 리전에서 먼저 알아둘 것 배너">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0e1726"/>
@@ -18,7 +18,7 @@
   <rect width="1200" height="420" fill="url(#bg)"/>
   <rect x="0" y="0" width="1200" height="6" fill="url(#accent)"/>
 
-  <text class="ko" x="80" y="104" font-size="40" font-weight="800" fill="#f8fafc">Bedrock 첫 세팅 <tspan fill="#5ec6d6">전체 지도</tspan></text>
+  <text class="ko" x="80" y="104" font-size="40" font-weight="800" fill="#f8fafc">Bedrock 첫 세팅 <tspan fill="#5ec6d6">먼저 알아둘 것</tspan></text>
   <text class="ko" x="82" y="148" font-size="22" font-weight="500" fill="#94a3b8">ChatGPT 앱이 아니라 GPT 모델 API. 서울에선 global. 로 불러요.</text>
 
   <g class="ko" text-anchor="middle">
