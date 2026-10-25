@@ -1,0 +1,10 @@
+{%- assign c = include.current -%}
+<div class="notice--info">
+  <p><strong>🔐 AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅 4부작</strong> — 2026년 하반기부터 Bedrock 하나로 OpenAI 의 GPT 와 Anthropic 의 Claude 를 같이 부를 수 있게 됐어요. 그런데 첫 호출까지 가는 길에는 서울 리전의 Global 전용 제약, 엔드포인트 두 개, 자동 구독, 장기 API 키 같은 지뢰가 깔려 있어요. 이 시리즈는 <strong>기획자·보안·개발자·클라우드 인프라 네 관점이 서로 비판하며 합의한 기본값</strong>으로 그 길을 정리해요. 전체 지도와 데이터 경계(1편), 첫날 계정·권한·예산(2편), Claude 붙이기와 Claude Code(3편), GPT 붙이기와 Codex·비용 함정(4편)까지 이어집니다. 전체 4편.</p>
+  <ol>
+    <li>{% if c == "1" %}<strong>전체 지도 — 무엇이 되고, 서울 리전에선 어떻게 도나</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_전체지도_서울리전/">전체 지도 — 무엇이 되고, 서울 리전에선 어떻게 도나</a>{% endif %}</li>
+    <li>{% if c == "2" %}<strong>첫날 계정·권한 — 모델 액세스, 장기 키 차단, 예산</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/">첫날 계정·권한 — 모델 액세스, 장기 키 차단, 예산</a>{% endif %}</li>
+    <li>{% if c == "3" %}<strong>Claude 붙이기 — Converse·Anthropic SDK·Claude Code</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/">Claude 붙이기 — Converse·Anthropic SDK·Claude Code</a>{% endif %}</li>
+    <li>{% if c == "4" %}<strong>OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_GPT_호출_Codex_비용/">OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정</a>{% endif %}</li>
+  </ol>
+</div>
