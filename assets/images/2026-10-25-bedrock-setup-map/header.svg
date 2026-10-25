@@ -39,5 +39,5 @@
   <line x1="345" y1="295" x2="468" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
   <line x1="730" y1="295" x2="853" y2="295" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
 
-  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅 (1/4)</text>
+  <text class="ko" x="80" y="398" font-size="18" fill="#64748b">KayserDocs · AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅 (1/5)</text>
 </svg>

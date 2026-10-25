@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(3/4) Bedrock 에 Claude 붙이기 — Converse·Anthropic SDK·Claude Code"
+title:  "(3/5) Bedrock 에 Claude 붙이기 — Converse·Anthropic SDK·Claude Code"
 date: 2026-10-25 09:20:00 +0900
 categories: coding
 tag: [Bedrock, AWS, Claude, ClaudeCode, Converse, AnthropicSDK, boto3, 서울리전, 에러해결, 초기세팅]
@@ -279,5 +279,5 @@ Claude Code 는 리전에 따라 모델 ID 앞에 붙일 접두어를 정하는�
 
 ---
 
-**← 이전 글:** [(2/4) 첫날 계정·권한 세팅](/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/)  
-**다음 글 →:** [(4/4) OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정](/coding/Bedrock_GPT_Claude_첫세팅_GPT_호출_Codex_비용/)
+**← 이전 글:** [(2/5) 첫날 계정·권한 세팅](/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/)  
+**다음 글 →:** [(4/5) OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정](/coding/Bedrock_GPT_Claude_첫세팅_GPT_호출_Codex_비용/)

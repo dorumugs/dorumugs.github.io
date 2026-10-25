@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(2/4) Bedrock 첫날 계정·권한 세팅 — 모델 액세스, 장기 키 차단, 예산"
+title:  "(2/5) Bedrock 첫날 계정·권한 세팅 — 모델 액세스, 장기 키 차단, 예산"
 date: 2026-10-25 09:10:00 +0900
 categories: coding
 tag: [Bedrock, AWS, IAM, SCP, Marketplace, API키, 모델액세스, Budgets, 보안, 초기세팅]
@@ -318,6 +318,7 @@ gpt-oss 같은 오픈 웨이트 모델은 Marketplace 상품 ID 가 없어서 Ma
 
 - 비용 태깅용 Application inference profile(`application-inference-profile/...`)을 도입할 때
 - Claude Code 에 모델을 지정하지 않아 기본 모델(Bedrock 기본 Sonnet 4.5)이 호출되거나 `us.` 프로필을 호출할 때(3편 6절)
+- 기존 코드를 옮기면서 임베딩 모델(Titan·Cohere)을 쓰거나, Responses API 가 추가 리소스를 확인할 때([5편](/coding/Bedrock_GPT_Claude_첫세팅_기존코드_이전/))
 - runtime 의 `/anthropic`·`/openai/v1` 경로 호출이 다른 IAM 액션 이름으로 기록될 때 — 첫 호출 뒤 CloudTrail 의 `eventName` 을 확인하고 목록의 `Action` 을 그에 맞게 수정하세요
 
 <br>
@@ -530,5 +531,5 @@ Claude·GPT 비용은 Marketplace 로 청구되므로 **Cost Explorer 에 "Amazo
 
 ---
 
-**← 이전 글:** [(1/4) 서울 리전에서 먼저 알아둘 것](/coding/Bedrock_GPT_Claude_첫세팅_전체지도_서울리전/)  
-**다음 글 →:** [(3/4) Claude 붙이기 — Converse·Anthropic SDK·Claude Code](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/)
+**← 이전 글:** [(1/5) 서울 리전에서 먼저 알아둘 것](/coding/Bedrock_GPT_Claude_첫세팅_전체지도_서울리전/)  
+**다음 글 →:** [(3/5) Claude 붙이기 — Converse·Anthropic SDK·Claude Code](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/)

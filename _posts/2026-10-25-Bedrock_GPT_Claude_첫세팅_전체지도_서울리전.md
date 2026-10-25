@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(1/4) AWS Bedrock 으로 OpenAI GPT·Claude 쓰기 — 서울 리전에서 먼저 알아둘 것"
+title:  "(1/5) AWS Bedrock 으로 OpenAI GPT·Claude 쓰기 — 서울 리전에서 먼저 알아둘 것"
 date: 2026-10-25 09:00:00 +0900
 categories: coding
 tag: [Bedrock, AWS, OpenAI, GPT, ChatGPT, Claude, 서울리전, CrossRegionInference, 데이터경계, 초기세팅]
@@ -234,7 +234,7 @@ VPC 엔드포인트, Guardrails, 호출 로그 파이프라인은 각각 글 한
 
 ## 7. 제가 정한 기본값과 로드맵
 
-앞의 판단을 거쳐 정한 기본값을 표 하나로 모았어요. 시리즈의 나머지 세 편에서는 이 기본값을 차례로 실제 설정에 반영합니다.
+앞의 판단을 거쳐 정한 기본값을 표 하나로 모았어요. 2~4편에서는 이 기본값을 차례로 실제 설정에 반영하고, 5편에서는 기존 코드를 Bedrock 으로 옮기는 방법을 다룹니다.
 
 | 항목 | 기본값 |
 |---|---|
@@ -249,6 +249,7 @@ VPC 엔드포인트, Guardrails, 호출 로그 파이프라인은 각각 글 한
 - **[2편](/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/) — 첫날 계정·권한.** 모델 액세스가 '신청' 이 아니라 '첫 호출' 이 된 구조, Anthropic 사용 사례 양식, 허용·차단 정책 JSON, 리전 제한 SCP 의 함정, 예산 알람.
 - **[3편](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/) — Claude 붙이기.** Converse 와 Anthropic SDK 두 경로, 첫 호출 에러 표, 서울에서 Claude Code 를 연결할 때 생기는 `apac.` 접두어 문제.
 - **[4편](/coding/Bedrock_GPT_Claude_첫세팅_GPT_호출_Codex_비용/) — GPT 붙이기.** openai SDK 를 그대로 쓰는 법, 두 모델을 함수 하나로 부르기, Codex 가 서울 대신 미국 리전을 호출하는 이유, 272K 기준과 출력 10배 쿼터 차감.
+- **[5편](/coding/Bedrock_GPT_Claude_첫세팅_기존코드_이전/) — 기존 코드 옮기기.** OpenAI·Anthropic API 를 직접 쓰던 코드의 호출 지점 목록 만들기, SDK 전환, Bedrock 에 없는 기능과 대안, 임베딩 재색인, 비용 추적 변경, 단계적 전환과 롤백.
 
 > 🚀 **급하면 이 순서만** — ① 결제수단 등록 → ② SSO 로그인 → ③ 2편의 차단 정책 붙이기 → ④ Claude 모델 카탈로그에서 사용 사례 양식 제출 → ⑤ 3편의 Converse 예제를 `global.` 모델 ID 로 실행.
 
@@ -257,4 +258,4 @@ VPC 엔드포인트, Guardrails, 호출 로그 파이프라인은 각각 글 한
 
 ---
 
-**다음 글 →:** [(2/4) 첫날 계정·권한 세팅 — 모델 액세스, 장기 키 차단, 예산](/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/)
+**다음 글 →:** [(2/5) 첫날 계정·권한 세팅 — 모델 액세스, 장기 키 차단, 예산](/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/)

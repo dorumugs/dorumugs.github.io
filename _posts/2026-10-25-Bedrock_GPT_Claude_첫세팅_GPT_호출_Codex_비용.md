@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "(4/4) Bedrock 에 OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정"
+title:  "(4/5) Bedrock 에 OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정"
 date: 2026-10-25 09:30:00 +0900
 categories: coding
 tag: [Bedrock, AWS, OpenAI, GPT, GPT-6, ChatGPT, Codex, openai-sdk, Converse, 비용, 쿼터, 서울리전]
@@ -19,7 +19,7 @@ series_title: "🔐 AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅"
 
 ## Summary
 
-시리즈의 마지막 편이에요. [3편](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/)에서는 Claude 를 연결했고, 이번 편에서는 같은 계정에서 OpenAI GPT 를 호출해요. GPT-6 Astra 호출 권한은 [2편](/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/)에서 계정·권한을 설정할 때 이미 허용해 두었어요.
+[3편](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/)에서는 Claude 를 연결했고, 이번 편에서는 같은 계정에서 OpenAI GPT 를 호출해요. GPT-6 Astra 호출 권한은 [2편](/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/)에서 계정·권한을 설정할 때 이미 허용해 두었어요.
 
 GPT 는 openai SDK 를 그대로 쓸 수 있어요. 기존 코드에서 주소와 키만 바꾸면 됩니다. 다만 주의할 점이 두 가지 있어요. 첫째, Codex 는 현재 서울이 아니라 **미국 리전**을 호출해요. 둘째, GPT-6 Astra 는 입력이 272K 토큰을 넘으면 **그 요청 전체에 더 높은 단가가 적용돼요.** 이 두 가지를 모르고 쓰면 데이터가 처리되는 위치와 비용이 예상과 달라집니다.
 
@@ -357,9 +357,9 @@ Anthropic 은 오남용 조사를 위해 최소 30일 보존을 권해요. 아�
 
 
 
-## 8. 시리즈 마무리 — 전체 체크리스트
+## 8. 1~4편 전체 체크리스트
 
-네 편을 모두 따라 했다면 아래 항목이 모두 완료돼 있어야 해요.
+1~4편을 모두 따라 했다면 아래 항목이 모두 완료돼 있어야 해요.
 
 **계정 (2편)**
 - [ ] 전용 계정, 루트 MFA, SSO, 결제수단
@@ -381,10 +381,10 @@ Anthropic 은 오남용 조사를 위해 최소 30일 보존을 권해요. 아�
 
 아직 결론을 내리지 못한 문제도 하나 있어요. 규제 대상 데이터는 서울 In-Region 으로 호출할 수 있는 모델이 나올 때까지 기다려야 할 수도 있어요. 반대로 그때까지 마스킹 게이트를 두고 쓰는 것이 현실적일 수도 있습니다. 답은 조직마다 다를 거예요. 어느 쪽을 택하든 **그 결정은 반드시 기록으로 남겨 두세요.**
 
-이 시리즈는 여기까지예요.....  
-Bedrock 은 지원 모델과 리전이 몇 주 단위로 바뀌어요. 새 모델을 서울 In-Region 으로 호출할 수 있게 되거나 Codex 가 runtime 엔드포인트를 지원하게 되면 이 시리즈의 표를 갱신할게요.
+일단 오늘은 여기까지.....  
+다음 글에서는 이미 OpenAI·Anthropic API 를 직접 호출하고 있는 코드를 Bedrock 으로 옮기는 방법을 다뤄요. 호출 지점 목록 만들기부터 Bedrock 에 없는 기능의 대안, 임베딩 재색인, 비용 추적 변경, 단계적 전환과 롤백까지 정리할게요.
 
 ---
 
-**← 이전 글:** [(3/4) Claude 붙이기 — Converse·Anthropic SDK·Claude Code](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/)  
-**처음으로:** [(1/4) 서울 리전에서 먼저 알아둘 것](/coding/Bedrock_GPT_Claude_첫세팅_전체지도_서울리전/)
+**← 이전 글:** [(3/5) Claude 붙이기 — Converse·Anthropic SDK·Claude Code](/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/)  
+**다음 글 →:** [(5/5) 기존 OpenAI·Anthropic API 코드를 Bedrock 으로 옮기기](/coding/Bedrock_GPT_Claude_첫세팅_기존코드_이전/)

@@ -1,10 +1,11 @@
 {%- assign c = include.current -%}
 <div class="notice--info">
-  <p><strong>🔐 AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅 4부작</strong> — 이제 Bedrock 계정 하나로 OpenAI 의 GPT 와 Anthropic 의 Claude 를 함께 호출할 수 있어요. 다만 코드보다 그 앞 단계에서 확인할 것이 더 많습니다. 서울 리전에서는 최신 모델을 Global 추론 프로필로만 호출할 수 있고, 엔드포인트는 두 개로 나뉘어 있어요. 모델 사용 계약은 첫 호출 때 자동으로 맺어지고, 콘솔에서는 만료 없는 API 키를 버튼 하나로 만들 수 있습니다. 이 시리즈는 서울 리전에서 처음 세팅할 때 거치는 순서대로 이 내용을 정리했어요. 1편은 무엇을 쓸 수 있고 데이터가 어디서 처리되는지, 2편은 첫날 계정·권한·예산, 3편은 Claude 와 Claude Code 연결, 4편은 GPT 와 Codex 연결과 비용 함정을 다룹니다. 전체 4편.</p>
+  <p><strong>🔐 AWS Bedrock 으로 OpenAI GPT·Claude 첫 세팅 5부작</strong> — 이제 Bedrock 계정 하나로 OpenAI 의 GPT 와 Anthropic 의 Claude 를 함께 호출할 수 있어요. 다만 코드보다 그 앞 단계에서 확인할 것이 더 많습니다. 서울 리전에서는 최신 모델을 Global 추론 프로필로만 호출할 수 있고, 엔드포인트는 두 개로 나뉘어 있어요. 모델 사용 계약은 첫 호출 때 자동으로 맺어지고, 콘솔에서는 만료 없는 API 키를 버튼 하나로 만들 수 있습니다. 이 시리즈는 서울 리전에서 처음 세팅할 때 거치는 순서대로 이 내용을 정리했어요. 1편은 무엇을 쓸 수 있고 데이터가 어디서 처리되는지, 2편은 첫날 계정·권한·예산, 3편은 Claude 와 Claude Code 연결, 4편은 GPT 와 Codex 연결과 비용 함정, 5편은 기존 OpenAI·Anthropic API 코드를 Bedrock 으로 옮기는 방법을 다룹니다. 전체 5편.</p>
   <ol>
     <li>{% if c == "1" %}<strong>먼저 알아둘 것 — 무엇이 되고, 서울 리전에선 어떻게 부르나</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_전체지도_서울리전/">먼저 알아둘 것 — 무엇이 되고, 서울 리전에선 어떻게 부르나</a>{% endif %}</li>
     <li>{% if c == "2" %}<strong>첫날 계정·권한 — 모델 액세스, 장기 키 차단, 예산</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_계정권한_첫날/">첫날 계정·권한 — 모델 액세스, 장기 키 차단, 예산</a>{% endif %}</li>
     <li>{% if c == "3" %}<strong>Claude 붙이기 — Converse·Anthropic SDK·Claude Code</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_Claude_호출_ClaudeCode/">Claude 붙이기 — Converse·Anthropic SDK·Claude Code</a>{% endif %}</li>
     <li>{% if c == "4" %}<strong>OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_GPT_호출_Codex_비용/">OpenAI GPT 붙이기 — openai SDK·단일 함수·Codex 와 비용 함정</a>{% endif %}</li>
+    <li>{% if c == "5" %}<strong>기존 코드 옮기기 — 목록 만들기부터 단계 전환까지</strong> ← <em>지금 글</em>{% else %}<a href="/coding/Bedrock_GPT_Claude_첫세팅_기존코드_이전/">기존 코드 옮기기 — 목록 만들기부터 단계 전환까지</a>{% endif %}</li>
   </ol>
 </div>
