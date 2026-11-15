@@ -331,9 +331,9 @@
    "stage": "조합설립인가"
   },
   "Myeonmok": {
-   "events": 0,
-   "fetched": "2026-08-17",
-   "stage": "정비계획 수립"
+   "events": 2,
+   "fetched": "2026-11-16",
+   "stage": "추진위원회승인"
   },
   "N1Kpva7A": {
    "events": 88,
@@ -942,8 +942,8 @@
   },
   "bugahyeon4": {
    "events": 6,
-   "fetched": "2026-09-14",
-   "stage": "추진위원회승인"
+   "fetched": "2026-11-16",
+   "stage": "조합설립인가"
   },
   "buk7880": {
    "events": 69,
@@ -2035,6 +2035,16 @@
    "fetched": "2026-10-19",
    "stage": "조합설립인가"
   },
+  "guro719": {
+   "events": 0,
+   "fetched": "2026-11-16",
+   "stage": "추진위원회승인"
+  },
+  "guro739": {
+   "events": 0,
+   "fetched": "2026-11-16",
+   "stage": "정비계획 수립"
+  },
   "gusanyeokchon": {
    "events": 0,
    "fetched": "2026-10-12",
@@ -2786,9 +2796,9 @@
    "stage": "조합설립인가"
   },
   "junggye4": {
-   "events": 0,
-   "fetched": "2026-10-19",
-   "stage": "정비계획 수립"
+   "events": 2,
+   "fetched": "2026-11-16",
+   "stage": "추진위원회승인"
   },
   "junghwa": {
    "events": 6,
@@ -2897,7 +2907,7 @@
   },
   "kukdong-reborn": {
    "events": 16,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "정비구역지정"
   },
   "kumho141": {
@@ -2906,18 +2916,18 @@
    "stage": "조합해산"
   },
   "kvNK2YB3": {
-   "events": 100,
-   "fetched": "2026-07-31",
+   "events": 106,
+   "fetched": "2026-11-16",
    "stage": "착공"
   },
   "kylm2020": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "도시계획심의"
   },
   "l0yJeGRj": {
    "events": 4,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "lamb3697": {
@@ -2927,7 +2937,7 @@
   },
   "lcd074": {
    "events": 28,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "li3219": {
@@ -2937,37 +2947,37 @@
   },
   "llllll": {
    "events": 77,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합해산"
   },
   "lpeorY03": {
-   "events": 124,
-   "fetched": "2026-07-31",
+   "events": 127,
+   "fetched": "2026-11-16",
    "stage": "착공"
   },
   "m10-2garo": {
    "events": 21,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "macheon-1": {
-   "events": 25,
-   "fetched": "2026-07-31",
+   "events": 27,
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "macheon3": {
-   "events": 44,
-   "fetched": "2026-07-31",
+   "events": 45,
+   "fetched": "2026-11-16",
    "stage": "사업시행인가"
   },
   "machun2": {
    "events": 2,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "machun5": {
    "events": 14,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "madul231125": {
@@ -2977,12 +2987,12 @@
   },
   "magoksinan": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "정비구역지정"
   },
   "mainPage": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "정비계획 수립"
   },
   "majang382": {
@@ -2992,22 +3002,22 @@
   },
   "mangu509": {
    "events": 7,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mangwon41653": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "정비계획 수립"
   },
   "mangwon454-3": {
    "events": 6,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mangwon456": {
    "events": 8,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "사업시행자지정"
   },
   "mangwon459": {
@@ -3017,17 +3027,17 @@
   },
   "mangwon464": {
    "events": 19,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mapo123": {
-   "events": 21,
-   "fetched": "2026-07-31",
+   "events": 23,
+   "fetched": "2026-11-16",
    "stage": "사업시행인가"
   },
   "mapo123ghc": {
    "events": 2,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "mapo125": {
@@ -3037,42 +3047,42 @@
   },
   "mapo33": {
    "events": 71,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "착공"
   },
   "meonmok194": {
-   "events": 11,
-   "fetched": "2026-07-31",
+   "events": 12,
+   "fetched": "2026-11-16",
    "stage": "관리처분인가"
   },
   "mggapt": {
    "events": 28,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "사업시행인가"
   },
   "mia0429": {
    "events": 10,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mia130": {
-   "events": 2,
-   "fetched": "2026-07-31",
+   "events": 3,
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "mia22scj": {
    "events": 16,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mia258": {
    "events": 7,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "mia2johap": {
-   "events": 37,
-   "fetched": "2026-07-31",
+   "events": 39,
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mia345-1": {
@@ -3082,7 +3092,7 @@
   },
   "mia3mia3": {
    "events": 14,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mia75rec": {
@@ -3092,7 +3102,7 @@
   },
   "mia791": {
    "events": 5,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "mia_75": {
@@ -3102,27 +3112,27 @@
   },
   "mia_station": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "정비계획 수립"
   },
   "miachrwls": {
-   "events": 57,
-   "fetched": "2026-07-31",
+   "events": 59,
+   "fetched": "2026-11-16",
    "stage": "관리처분인가"
   },
   "miastation": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "정비계획 수립"
   },
   "mijuremo2020": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": ""
   },
   "mire6821": {
-   "events": 19,
-   "fetched": "2026-07-31",
+   "events": 21,
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "miseong280": {
@@ -3131,23 +3141,23 @@
    "stage": "추진위원회승인"
   },
   "misung37": {
-   "events": 25,
-   "fetched": "2026-07-31",
+   "events": 27,
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "mizu01": {
-   "events": 10,
-   "fetched": "2026-07-31",
+   "events": 11,
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "mjbr50": {
    "events": 0,
-   "fetched": "2026-07-31",
+   "fetched": "2026-11-16",
    "stage": "안전진단(1차)"
   },
   "mms0612": {
-   "events": 2,
-   "fetched": "2026-07-31",
+   "events": 10,
+   "fetched": "2026-11-16",
    "stage": "추진위원회승인"
   },
   "mnmk10": {
@@ -3188,6 +3198,11 @@
   "moa652": {
    "events": 0,
    "fetched": "2026-08-24",
+   "stage": "조합설립인가"
+  },
+  "moa950": {
+   "events": 6,
+   "fetched": "2026-11-16",
    "stage": "조합설립인가"
   },
   "moabh2": {
@@ -3785,6 +3800,11 @@
    "fetched": "2026-07-31",
    "stage": "조합설립인가"
   },
+  "sadang252": {
+   "events": 0,
+   "fetched": "2026-11-16",
+   "stage": "정비계획 수립"
+  },
   "sadang2dong": {
    "events": 0,
    "fetched": "2026-07-31",
@@ -4042,8 +4062,8 @@
   },
   "savog1004": {
    "events": 0,
-   "fetched": "2026-07-31",
-   "stage": "추진위원회승인"
+   "fetched": "2026-11-16",
+   "stage": "조합설립인가"
   },
   "sb0804": {
    "events": 8,
@@ -4469,6 +4489,11 @@
    "events": 0,
    "fetched": "2026-07-31",
    "stage": "정비계획 수립"
+  },
+  "sindaebangsamgeoria": {
+   "events": 0,
+   "fetched": "2026-11-16",
+   "stage": "사업시행자지정"
   },
   "sindang8": {
    "events": 90,
@@ -4930,6 +4955,11 @@
    "fetched": "2026-07-31",
    "stage": "조합설립인가"
   },
+  "woosapt04": {
+   "events": 0,
+   "fetched": "2026-11-16",
+   "stage": "정비계획 수립"
+  },
   "wooseong6": {
    "events": 18,
    "fetched": "2026-07-31",
@@ -5012,8 +5042,8 @@
   },
   "yangpyung14": {
    "events": 18,
-   "fetched": "2026-07-31",
-   "stage": "추진위원회승인"
+   "fetched": "2026-11-16",
+   "stage": "조합설립인가"
   },
   "yc2761": {
    "events": 0,
