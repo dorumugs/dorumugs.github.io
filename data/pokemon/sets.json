@@ -1231,7 +1231,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9729,
+  "coverage": 0.9845,
   "card_count": 258
  },
  "sma": {
@@ -1266,7 +1266,7 @@
   "era": "모던",
   "included": true,
   "reason": "",
-  "coverage": 0.9483,
+  "coverage": 0.9631,
   "card_count": 271
  },
  "swshp": {
@@ -1407,7 +1407,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 0.9859,
+  "coverage": 1.0,
   "card_count": 284
  },
  "swsh9": {
@@ -1866,7 +1866,7 @@
   "era": "최신",
   "included": true,
   "reason": "",
-  "coverage": 1.0,
+  "coverage": 0.9864,
   "card_count": 295
  },
  "B2a": {
